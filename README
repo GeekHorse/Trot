@@ -1,0 +1,63 @@
+The Trot Programming Language
+
+
+Trot characteristics:
+---------------------
+- Only has two types: list and int.
+- Stack based with reverse polish notation.
+- Uses the actor model for easy concurrent programming.
+- Automatic memory management with instant garbage collection.
+- Licensed under a three-clause BSD license (see LICENSE)
+
+This is my personal weekend project, so progress will be slow but steady.
+
+The current version is 0.1.0.
+That means I'm still developing the foundation for the language, so you can't
+write anything in the language yet.
+
+
+Building:
+---------
+Because Trot is so small and simple, it doesn't include any makefiles.
+To build, you basically cd into the trotLib directory and:
+
+gcc -O3 -Wall -Werror -Wextra -c trotLib/trotListPrimary.c -o trotLib/trotListPrimary.o
+ar rcs trotLib/libTrot.a trotLib/trotListPrimary.o
+
+However, there are three shell scripts that can help:
+- build
+- buildDebugVersion
+- runAllTests
+- cleanup
+
+They are self-explanatory.
+
+Be forewarned, runAllTest runs the tests under valgrind and they take about an
+hour and a half to complete. Without valgrind they only take a couple minutes.
+
+
+Testing and Validation:
+-----------------------
+- Trot is compiled with gcc's -Wall -Werror and -Wextra.
+  It compiles with 0 warnings.
+- Lots of unit tests guarantee everything works correctly.
+- gcov is used to make sure we get as much coverage as possible.
+  Current coverage is 98.54%. There's only a few cases that are not covered. One
+  is a "should never happen" paranoid case, and the rest are for when "malloc"
+  fails. I still need to figure out how I want to write tests for these.
+- Valgrind is used to look for memory leaks and memory corruption.
+  There are 0 memory leaks or errors reported.
+
+
+Documentation:
+--------------
+The code is documented with doxygen comments, and there's a trot.doxygen file
+that can be used to generate documentation. Structures and functions are
+documented, but more documentation will come about the core data structure and
+the memory management algorithms.
+
+
+
+Jeremiah Martell
+2011-04-17
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+# run test
+echo "Running tests..."
+valgrind --leak-check=full trotTest/trotTest -t all
+
+# run gcov
+echo "Running gcov..."
+cd trotLib
+gcov -o . *.c
+cd ..
+
+
