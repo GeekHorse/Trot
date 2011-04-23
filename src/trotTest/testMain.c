@@ -403,7 +403,10 @@ int main( int argc, char **argv )
 	/* **************************************** */
 	timeEnd = time( NULL );
 
-	printf( "\nTests took %d:%02d to complete\n", ( timeEnd - timeStart ) / 60, ( timeEnd - timeStart ) % 60 );
+	printf( "\nTests took %d:%02d:%02d to complete\n",
+		( timeEnd - timeStart ) / (60 * 60),
+		( ( timeEnd - timeStart ) / 60 ) % 60,
+		( timeEnd - timeStart ) % 60 );
 
 	/* **************************************** */
 	/* success! */

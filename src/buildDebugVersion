@@ -1,32 +1,16 @@
 #!/bin/bash
 # make sure we start with fresh build
 echo "Making sure we start with fresh environment..."
-rm -f trotLib/*.o
-rm -f trotLib/*.gcov
-rm -f trotLib/*.gcno
-rm -f trotLib/*.gcda
-rm -f trotLib/libTrot.a
-
-rm -f trotTest/*.o
-rm -f trotTest/trotTest
+./cleanup
 
 # build
 echo "Building libTrot.a..."
 cd trotLib
 gcc -O3 -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -Wall -Werror -Wextra -c trotListPrimary.c -o trotListPrimary.o
-ar rcs libTrot.a trotListPrimary.o
+ar rcs libTrot.a *.o
 cd ..
 
 echo "Building trotTest..."
 gcc -DTEST_PRECOND=1 -Wall -Werror -Wextra -I trotLib -c trotTest/testMain.c -o trotTest/testMain.o
 gcc -fprofile-arcs trotTest/testMain.o trotLib/libTrot.a -o trotTest/trotTest
-
-# cleanup
-echo "Cleaning up..."
-rm -f trotLib/*.o
-rm -f trotLib/libTrot.a
-
-rm -f trotTest/*.o
-
-
 

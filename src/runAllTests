@@ -1,12 +1,37 @@
 #!/bin/bash
-# run test
-echo "Running tests..."
-valgrind --leak-check=full trotTest/trotTest -t all
 
-# run gcov
-echo "Running gcov..."
-cd trotLib
-gcov -o . *.c
-cd ..
+if [ "$1" = "full" ] ; then
+	# run test
+	echo "Running tests with valgrind..."
+	valgrind --leak-check=full trotTest/trotTest -t all
 
+	if [ "$2" = "gcov" ] ; then
+		# run gcov
+		echo "Running gcov..."
+		cd trotLib
+		gcov -o . *.c
+		cd ..
+	fi
+elif [ "$1" = "quick" ] ; then
+	# run test
+	echo "Running tests without valgrind..."
+	trotTest/trotTest -t all
+
+	if [ "$2" = "gcov" ] ; then
+		# run gcov
+		echo "Running gcov..."
+		cd trotLib
+		gcov -o . *.c
+		cd ..
+	fi
+else
+	echo "USAGE: runAllTests [full|quick] [gcov]"
+	echo "       full   - Runs all tests with valgrind."
+	echo "                Takes 1-2 hours."
+	echo "       quick  - Runs all tests without valgrind."
+	echo "                Takes a couple minutes."
+	echo ""
+	echo "       gcov   - Run gcov after the tests."
+	echo ""
+fi
 
