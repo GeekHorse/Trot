@@ -5,6 +5,7 @@ rm -f trotLib/*.o
 rm -f trotLib/*.gcov
 rm -f trotLib/*.gcno
 rm -f trotLib/*.gcda
+rm -rf trotLib/lcov
 rm -f trotLib/libTrot.a
 
 rm -f trotTest/*.o

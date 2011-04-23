@@ -410,7 +410,7 @@ int main( int argc, char **argv )
 
 	/* **************************************** */
 	/* success! */
-	printf( "\x1b[32;1mSUCCESS!\n\x1b[0m" );
+	printf( "\x1b[32;1mSUCCESS!\n\n\x1b[0m" );
 
 	return 0;
 

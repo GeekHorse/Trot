@@ -21,19 +21,15 @@ Building:
 Because Trot is so small and simple, it doesn't include any makefiles.
 To build, you basically cd into the trotLib directory and:
 
-gcc -O3 -Wall -Werror -Wextra -c trotLib/trotListPrimary.c -o trotLib/trotListPrimary.o
-ar rcs trotLib/libTrot.a trotLib/trotListPrimary.o
+gcc -O3 -Wall -Werror -Wextra -c trotListPrimary.c -o trotListPrimary.o
+ar rcs trotLib/libTrot.a *.o
 
 However, there are three shell scripts that can help:
 - build
-- buildDebugVersion
 - runAllTests
 - cleanup
 
 They are self-explanatory.
-
-Be forewarned, runAllTest runs the tests under valgrind and they take about an
-hour and a half to complete. Without valgrind they only take a couple minutes.
 
 
 Testing and Validation:
@@ -59,5 +55,4 @@ the memory management algorithms.
 
 
 Jeremiah Martell
-2011-04-17
 

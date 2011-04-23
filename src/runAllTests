@@ -5,33 +5,56 @@ if [ "$1" = "full" ] ; then
 	echo "Running tests with valgrind..."
 	valgrind --leak-check=full trotTest/trotTest -t all
 
-	if [ "$2" = "gcov" ] ; then
+	if [ "$2" = "coverage" ] ; then
+		cd trotLib
+
 		# run gcov
 		echo "Running gcov..."
-		cd trotLib
 		gcov -o . *.c
+
+		# run lcov
+		echo "Running lcov..."
+		mkdir lcov
+		lcov --directory . --capture --output-file ./lcov/trot.info
+		genhtml ./lcov/trot.info -o ./lcov
+
 		cd ..
+
+		echo "Load ./trotLob/lcov/index.html in your browser for lcov data."
 	fi
+
 elif [ "$1" = "quick" ] ; then
 	# run test
 	echo "Running tests without valgrind..."
 	trotTest/trotTest -t all
 
-	if [ "$2" = "gcov" ] ; then
+	if [ "$2" = "coverage" ] ; then
+		cd trotLib
+
 		# run gcov
 		echo "Running gcov..."
-		cd trotLib
 		gcov -o . *.c
+
+		# run lcov
+		echo "Running lcov..."
+		mkdir lcov
+		lcov --directory . --capture --output-file ./lcov/trot.info
+		genhtml ./lcov/trot.info -o ./lcov
+
 		cd ..
+
+		echo "Load ./trotLob/lcov/index.html in your browser for lcov data."
 	fi
+
 else
-	echo "USAGE: runAllTests [full|quick] [gcov]"
-	echo "       full   - Runs all tests with valgrind."
-	echo "                Takes 1-2 hours."
-	echo "       quick  - Runs all tests without valgrind."
-	echo "                Takes a couple minutes."
+	echo "USAGE: runAllTests [full|quick] [coverage]"
+	echo "       full     - Runs all tests with valgrind."
+	echo "                  Takes a couple hours."
+	echo "       quick    - Runs all tests without valgrind."
+	echo "                  Takes a couple minutes."
 	echo ""
-	echo "       gcov   - Run gcov after the tests."
+	echo "       coverage - Runs gcov and lcov after the tests."
 	echo ""
+
 fi
 
