@@ -1,0 +1,30 @@
+.PHONY: all debug coverage clean
+
+CFLAGS += -Wall -Werror -Wextra
+
+all: CFLAGS += -O3
+all: libTrot.a
+
+debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage
+debug: libTrot.a
+
+coverage:
+	gcov -o . *.c
+	mkdir lcov
+	lcov --directory . --capture --output-file ./lcov/trot.info
+	genhtml ./lcov/trot.info -o ./lcov
+	@echo "Load ./trotLib/lcov/index.html in your browser for lcov data."
+
+clean:
+	rm -f libTrot.a
+	rm -f *.o
+	rm -f *.gcda
+	rm -f *.gcno
+	rm -rf lcov
+
+libTrot.a: *.o
+	ar rcs libTrot.a *.o
+
+%.o : %.c *.h
+	$(CC) $(CFLAGS) -c $<
+

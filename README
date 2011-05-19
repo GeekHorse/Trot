@@ -18,18 +18,15 @@ write anything in the language yet.
 
 Building:
 ---------
-Because Trot is so small and simple, it doesn't include any makefiles.
-To build, you basically cd into the trotLib directory and:
+Just run "make"
 
-gcc -O3 -Wall -Werror -Wextra -c trotListPrimary.c -o trotListPrimary.o
-ar rcs trotLib/libTrot.a *.o
-
-However, there are three shell scripts that can help:
-- build
-- runAllTests
-- cleanup
-
-They are self-explanatory.
+targets:
+  all      - build normal
+  debug    - build for debug
+  test     - run tests
+  vtest    - run tests in valgrind
+  coverage - generate coverage report with gcov and lcov
+  clean    - cleans up files
 
 
 Testing and Validation:

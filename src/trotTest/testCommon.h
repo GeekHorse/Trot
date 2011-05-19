@@ -27,26 +27,43 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef trotCommon_H
-#define trotCommon_H
+#ifndef trotTestCommon_H
+#define trotTestCommon_H
 
 /******************************************************************************/
-#include <stdio.h> /* for printf in ERR */
-#include <stdlib.h> /* for NULL */
+#define TEST_ERR_IF( x ) \
+	if ( (x) ) \
+	{ \
+		printf( "TEST ERROR: test failed in " __FILE__ " on line %d\n", __LINE__ ); \
+		fflush( stdout ); \
+		rc = -__LINE__; \
+		goto cleanup; \
+	}
+
 
 /******************************************************************************/
-//#define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
-
-#if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return GK_LIST_ERROR_PRECOND; }
-#else
-#define PRECOND_ERR_IF( cond )
-#endif
+/* major test functions */
+int testPreconditions();
+int testMemory();
+int testBadTypesAndIndices();
+int testPrimaryFunctionality();
 
 /******************************************************************************/
-/* only for debugging */
-#define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
+/* create functions */
+int createAllInts( gkListRef **lr, int count );
+int createAllLists( gkListRef **lr, int count );
+int createIntListAlternating( gkListRef **lr, int count );
+int createListIntAlternating( gkListRef **lr, int count );
+int createHalfIntHalfList( gkListRef **lr, int count );
+int createHalfListHalfInt( gkListRef **lr, int count );
 
+/******************************************************************************/
+/* misc functions */
+int addListWithValue( gkListRef *lr, INT_TYPE index, INT_TYPE value );
+int check( gkListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
+int checkList( gkListRef *lr );
+void printList( gkListRef *lr );
+
+/******************************************************************************/
 #endif
 
