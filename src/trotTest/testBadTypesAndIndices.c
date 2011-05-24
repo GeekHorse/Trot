@@ -53,7 +53,7 @@ int testBadTypesAndIndices()
 	/* CODE */
 	/* **************************************** */
 	/* test bad indices, bad types */
-	printf( "Testing bad indices and bad types..." ); fflush( stdout );
+	printf( "Testing bad indices and bad types...\n" ); fflush( stdout );
 	TEST_ERR_IF( createHalfIntHalfList( &lr, 10 ) != GK_LIST_SUCCESS );
 
 	TEST_ERR_IF( gkListRefGetKind( lr, 0, &kind ) != GK_LIST_ERROR_BAD_INDEX );
@@ -93,8 +93,6 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( gkListRefRemove( lr, -11 ) != GK_LIST_ERROR_BAD_INDEX );
 
 	gkListRefFree( &lr );
-
-	printf( "\n" ); fflush( stdout );
 
 	return 0;
 

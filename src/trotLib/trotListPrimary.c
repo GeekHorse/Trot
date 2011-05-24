@@ -27,6 +27,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/******************************************************************************/
 /*!
 	\file
 	Handles "Hoof", which is the single data structure for Trot.
@@ -38,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotStack.h"
 
 /******************************************************************************/
 static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft );
@@ -49,10 +51,6 @@ static inline int _refListAdd( gkList *l, gkListRef *r );
 static inline int _refListRemove( gkList *l, gkListRef *r );
 
 static inline int _isListReachable( gkList *l );
-
-static inline int _stackInit( gkListListStack **stack );
-static inline int _stackAddList( gkListListStack *stack, gkList *l );
-static inline int _stackFree( gkListListStack **stack );
 
 /******************************************************************************/
 /*! This is the function that the library uses for 'calloc'. Used for unit
@@ -247,8 +245,8 @@ int gkListRefFree( gkListRef **lr_F )
 
 	gkList *list = NULL;
 
-	gkListListStack *stack = NULL;
-	gkListListStack *stackNode = NULL;
+	gkStack *stack = NULL;
+	gkStack *stackNode = NULL;
 
 	gkListNode *node = NULL;
 
@@ -292,7 +290,7 @@ int gkListRefFree( gkListRef **lr_F )
 	/* we need to free it */
 
 	/* create our stack */
-	rc = _stackInit( &stack );
+	rc = gkStackInit( &stack );
 	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* add this list to stack */
@@ -335,7 +333,7 @@ int gkListRefFree( gkListRef **lr_F )
 						if ( tempList -> reachable == 0 )
 						{
 							/* need to free this list too, so add it to the stack */
-							rc = _stackAddList( stack, tempList );
+							rc = gkStackAddList( stack, tempList );
 							ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
 						}
 					}
@@ -391,7 +389,7 @@ int gkListRefFree( gkListRef **lr_F )
 		}
 	}
 
-	_stackFree( &stack );
+	gkStackFree( &stack );
 
 	return GK_LIST_SUCCESS;
 
@@ -1669,8 +1667,8 @@ static inline int _isListReachable( gkList *l )
 	/* DATA */
 	int rc = GK_LIST_SUCCESS;
 
-	gkListListStack *stack = NULL;
-	gkListListStack *stackNode = NULL;
+	gkStack *stack = NULL;
+	gkStack *stackNode = NULL;
 
 	gkList *currentL = NULL;
 
@@ -1683,7 +1681,7 @@ static inline int _isListReachable( gkList *l )
 
 
 	/* CODE */
-	rc = _stackInit( &stack );
+	rc = gkStackInit( &stack );
 	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* add first list to stack */
@@ -1717,7 +1715,7 @@ static inline int _isListReachable( gkList *l )
 				if ( refParent -> reachable )
 				{
 					/* add list to stack if it's not already there */
-					rc = _stackAddList( stack, refParent );
+					rc = gkStackAddList( stack, refParent );
 					ERR_IF( rc != GK_LIST_SUCCESS, rc );
 				}
 
@@ -1747,141 +1745,8 @@ static inline int _isListReachable( gkList *l )
 	cleanup:
 
 	/* free stack */
-	_stackFree( &stack );
+	gkStackFree( &stack );
 
 	return rc;
-}
-
-/******************************************************************************/
-static inline int _stackInit( gkListListStack **stack )
-{
-	/* DATA */
-	int rc = GK_LIST_SUCCESS;
-
-	gkListListStack *newStack = NULL;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( (*stack) != NULL );
-
-
-	/* CODE */
-	newStack = (gkListListStack *) gkMalloc( sizeof( gkListListStack ) );
-	ERR_IF( stack == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-	newStack -> count = 0;
-	newStack -> next = NULL;
-	newStack -> l = (gkList **) gkCalloc( LIST_STACK_NODE_SIZE, sizeof( gkList * ) );
-	ERR_IF( newStack -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-	/* give back */
-	(*stack) = newStack;
-	newStack = NULL;
-
-	return GK_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	gkFree( newStack );
-
-	return rc;
-	
-}
-
-/******************************************************************************/
-static inline int _stackAddList( gkListListStack *stack, gkList *l )
-{
-	/* DATA */
-	int rc = GK_LIST_SUCCESS;
-
-	int i = 0;
-
-	gkListListStack *newStackNode = NULL;
-	
-
-	/* CODE */
-	while ( 1 )
-	{
-		i = 0;
-		while ( i < stack -> count )
-		{
-			if ( stack -> l[ i ] == l )
-			{
-				return GK_LIST_SUCCESS;
-			}
-
-			i += 1;
-		}
-
-		if ( stack -> next == NULL )
-		{
-			break;
-		}
-
-		stack = stack -> next;
-	}
-
-	/* if we get here, we've hit the end of the stack, so we need to add
-	   the list to the stack */
-	if ( i == LIST_STACK_NODE_SIZE )
-	{
-		/* no room in this node, so we must create another node */
-		newStackNode = (gkListListStack *) gkMalloc( sizeof( gkListListStack ) );
-		ERR_IF( newStackNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-		newStackNode -> count = 0;
-		newStackNode -> next = NULL;
-		newStackNode -> l = (gkList **) gkCalloc( LIST_STACK_NODE_SIZE, sizeof( gkList * ) );
-		ERR_IF( stack -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-		stack -> next = newStackNode;
-		newStackNode = NULL;
-
-		stack = stack -> next;
-		i = 0;
-	}
-
-	/* add list to new node */
-	stack -> l[ i ] = l;
-	stack -> count += 1;
-
-	return GK_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	gkFree( newStackNode );
-
-	return rc;
-}
-
-/******************************************************************************/
-static inline int _stackFree( gkListListStack **stack )
-{
-	/* DATA */
-	gkListListStack *stackNode = NULL;
-
-	/* CODE */
-	if ( stack == NULL || (*stack) == NULL )
-	{
-		return GK_LIST_SUCCESS;
-	}
-
-	while ( (*stack) != NULL )
-	{
-		stackNode = (*stack);
-		(*stack) = (*stack) -> next;
-
-		gkFree( stackNode -> l );
-		gkFree( stackNode );
-	}
-
-	(*stack) = NULL;
-	
-	return GK_LIST_SUCCESS;
 }
 

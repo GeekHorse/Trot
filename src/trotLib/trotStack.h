@@ -28,29 +28,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotCommon_H
-#define trotCommon_H
+#ifndef gkStack_H
+#define gkStack_H
 
 /******************************************************************************/
-#include <stdio.h> /* for printf in ERR */
-#include <stdlib.h> /* for NULL */
+#include "trotList.h"
 
 /******************************************************************************/
-#if ( PRINT_ERR == 1 )
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
-#else
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
-#endif
-
-#if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return GK_LIST_ERROR_PRECOND; }
-#else
-#define PRECOND_ERR_IF( cond )
-#endif
+#define LIST_STACK_NODE_SIZE 64
 
 /******************************************************************************/
-/* only for debugging */
-#define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
+typedef struct gkStack_STRUCT gkStack;
+
+/*! Holds a stack of gkList pointers. Used during memory management to try to
+follow references "up" to see if a list is reachable. We use the stack to make
+sure we don't get into an infinite loop. */
+struct gkStack_STRUCT
+{
+	/*! how many pointers are in this node. */
+	int count;
+	/*! an array of size LIST_STACK_NODE_SIZE of type gkList* */
+	gkList **l;
+	/*! points to the next node in the stack, or NULL if this is the last
+	node in the stack. */
+	gkStack *next;
+};
+
+/******************************************************************************/
+inline int gkStackInit( gkStack **stack );
+inline int gkStackAddList( gkStack *stack, gkList *l );
+inline int gkStackFree( gkStack **stack );
 
 /******************************************************************************/
 #endif

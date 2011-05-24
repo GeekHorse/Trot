@@ -2,8 +2,15 @@
 
 CFLAGS += -Wall -Werror -Wextra
 
+SOURCES = $(wildcard *.c)
+HEADERS = $(wildcard *.h)
+OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
+
 all: CFLAGS += -O3
 all: libTrot.a
+
+debug2: CFLAGS += -DPRINT_ERR=1
+debug2: debug
 
 debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage
 debug: libTrot.a
@@ -22,7 +29,7 @@ clean:
 	rm -f *.gcno
 	rm -rf lcov
 
-libTrot.a: *.o
+libTrot.a: $(OBJECTS) $(HEADERS)
 	ar rcs libTrot.a *.o
 
 %.o : %.c *.h

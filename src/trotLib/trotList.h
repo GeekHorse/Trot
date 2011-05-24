@@ -27,9 +27,11 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/******************************************************************************/
 #ifndef gkList_H
 #define gkList_H
 
+/******************************************************************************/
 #include <stdlib.h> /* for size_t for gkCalloc */
 
 /******************************************************************************/
@@ -53,8 +55,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #define REF_LIST_NODE_SIZE 16
 
-#define LIST_STACK_NODE_SIZE 64
-
 /******************************************************************************/
 extern void *(*gkCalloc)( size_t nmemb, size_t size );
 extern void *(*gkMalloc)( size_t size );
@@ -65,7 +65,6 @@ typedef struct gkListRef_STRUCT gkListRef;
 typedef struct gkListNode_STRUCT gkListNode;
 typedef struct gkList_STRUCT gkList;
 typedef struct gkListRefListNode_STRUCT gkListRefListNode;
-typedef struct gkListListStack_STRUCT gkListListStack;
 
 /*! Data in a gkList is stored in a linked list of gkListNodes. */
 struct gkListNode_STRUCT
@@ -139,20 +138,6 @@ struct gkListRefListNode_STRUCT
 	/*! points to the prev node in the linked list, or to itself if this is
 	the head. */
 	gkListRefListNode *prev;
-};
-
-/*! Holds a stack of gkList pointers. Used during memory management to try to
-follow references "up" to see if a list is reachable. We use the stack to make
-sure we don't get into an infinite loop. */
-struct gkListListStack_STRUCT
-{
-	/*! how many pointers are in this node. */
-	int count;
-	/*! an array of size LIST_STACK_NODE_SIZE of type gkList* */
-	gkList **l;
-	/*! points to the next node in the stack, or NULL if this is the last
-	node in the stack. */
-	gkListListStack *next;
 };
 
 /******************************************************************************/
