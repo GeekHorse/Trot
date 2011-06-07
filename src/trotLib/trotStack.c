@@ -39,14 +39,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotStack.h"
+#include "trotMem.h"
 
 /******************************************************************************/
-inline int gkStackInit( gkStack **stack )
+int trotStackInit( trotStack **stack )
 {
 	/* DATA */
 	int rc = GK_LIST_SUCCESS;
 
-	gkStack *newStack = NULL;
+	trotStack *newStack = NULL;
+
+	trotStackNode *newHead = NULL;
+	trotStackNode *newTail = NULL;
 
 
 	/* PRECOND */
@@ -55,13 +59,22 @@ inline int gkStackInit( gkStack **stack )
 
 
 	/* CODE */
-	newStack = (gkStack *) gkMalloc( sizeof( gkStack ) );
-	ERR_IF( stack == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newHead, trotStackNode, 1 );
+	TROT_MALLOC( newTail, trotStackNode, 1 );
+	TROT_MALLOC( newStack, trotStack, 1 );
 
-	newStack -> count = 0;
-	newStack -> next = NULL;
-	newStack -> l = (gkList **) gkCalloc( LIST_STACK_NODE_SIZE, sizeof( gkList * ) );
-	ERR_IF( newStack -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newHead -> l = NULL;
+	newHead -> n = 0;
+	newHead -> prev = newHead;
+	newHead -> next = newTail;
+
+	newTail -> l = NULL;
+	newTail -> n = 0;
+	newTail -> prev = newHead;
+	newTail -> next = newTail;
+
+	newStack -> head = newHead;
+	newStack -> tail = newTail;
 
 	/* give back */
 	(*stack) = newStack;
@@ -73,68 +86,70 @@ inline int gkStackInit( gkStack **stack )
 	/* CLEANUP */
 	cleanup:
 
+	gkFree( newHead );
+	gkFree( newTail );
 	gkFree( newStack );
 
 	return rc;
-	
 }
 
 /******************************************************************************/
-inline int gkStackAddList( gkStack *stack, gkList *l )
+int trotStackFree( trotStack **stack )
+{
+	/* DATA */
+	trotStackNode *node = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+
+
+	/* CODE */
+	if ( (*stack) == NULL )
+	{
+		return GK_LIST_SUCCESS;
+	}
+
+	node = (*stack) -> head;
+	while ( node != (*stack) -> tail )
+	{
+		node = node -> next;
+
+		gkFree( node -> prev );
+	}
+
+	gkFree( (*stack) -> tail );
+
+	gkFree( (*stack) );
+	(*stack) = NULL;
+
+	return GK_LIST_SUCCESS;
+}
+
+/******************************************************************************/
+int trotStackPush( trotStack *stack, gkList *l )
 {
 	/* DATA */
 	int rc = GK_LIST_SUCCESS;
 
-	int i = 0;
+	trotStackNode *newNode = NULL;
 
-	gkStack *newStackNode = NULL;
-	
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+	PRECOND_ERR_IF( l == NULL );
+
 
 	/* CODE */
-	while ( 1 )
-	{
-		i = 0;
-		while ( i < stack -> count )
-		{
-			if ( stack -> l[ i ] == l )
-			{
-				return GK_LIST_SUCCESS;
-			}
+	TROT_MALLOC( newNode, trotStackNode, 1 );
 
-			i += 1;
-		}
+	newNode -> l = l;
+	newNode -> n = 0;
+	newNode -> next = stack -> tail;
+	newNode -> prev = stack -> tail -> prev;
 
-		if ( stack -> next == NULL )
-		{
-			break;
-		}
-
-		stack = stack -> next;
-	}
-
-	/* if we get here, we've hit the end of the stack, so we need to add
-	   the list to the stack */
-	if ( i == LIST_STACK_NODE_SIZE )
-	{
-		/* no room in this node, so we must create another node */
-		newStackNode = (gkStack *) gkMalloc( sizeof( gkStack ) );
-		ERR_IF( newStackNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-		newStackNode -> count = 0;
-		newStackNode -> next = NULL;
-		newStackNode -> l = (gkList **) gkCalloc( LIST_STACK_NODE_SIZE, sizeof( gkList * ) );
-		ERR_IF( stack -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-		stack -> next = newStackNode;
-		newStackNode = NULL;
-
-		stack = stack -> next;
-		i = 0;
-	}
-
-	/* add list to new node */
-	stack -> l[ i ] = l;
-	stack -> count += 1;
+	stack -> tail -> prev -> next = newNode;
+	stack -> tail -> prev = newNode;
 
 	return GK_LIST_SUCCESS;
 
@@ -142,34 +157,123 @@ inline int gkStackAddList( gkStack *stack, gkList *l )
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newStackNode );
+	return rc;
+}
+
+/******************************************************************************/
+int trotStackPop( trotStack *stack )
+{
+	/* DATA */
+	int rc = GK_LIST_SUCCESS;
+
+	trotStackNode *node = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+
+
+	/* CODE */
+	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+
+	node = stack -> tail -> prev;
+
+	node -> prev -> next = node -> next;
+	node -> next -> prev = node -> prev;
+
+	gkFree( node );
+
+	return GK_LIST_SUCCESS;
+
+
+	/* CLEANUP */
+	cleanup:
 
 	return rc;
 }
 
 /******************************************************************************/
-inline int gkStackFree( gkStack **stack )
+int trotStackIncrementTopN( trotStack *stack )
 {
 	/* DATA */
-	gkStack *stackNode = NULL;
+	int rc = GK_LIST_SUCCESS;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+
 
 	/* CODE */
-	if ( stack == NULL || (*stack) == NULL )
+	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+
+	stack -> tail -> prev -> n += 1;
+
+	return GK_LIST_SUCCESS;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+int trotStackGet( trotStack *stack, gkList **l, int *n )
+{
+	/* DATA */
+	int rc = GK_LIST_SUCCESS;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( (*l) != NULL );
+	PRECOND_ERR_IF( n == NULL );
+
+
+	/* CODE */
+	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+
+	(*l) = stack -> tail -> prev -> l;
+	(*n) = stack -> tail -> prev -> n;
+
+	return GK_LIST_SUCCESS;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains )
+{
+	/* DATA */
+	trotStackNode *node = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( stack == NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( contains == NULL );
+
+
+	/* CODE */
+	(*contains) = TROT_STACK_DOES_NOT_CONTAIN;
+
+	node = stack -> head -> next;
+	while ( node != stack -> tail )
 	{
-		return GK_LIST_SUCCESS;
+		if ( node -> l == l )
+		{
+			(*contains) = TROT_STACK_DOES_CONTAIN;
+			return GK_LIST_SUCCESS;
+		}
+
+		node = node -> next;
 	}
 
-	while ( (*stack) != NULL )
-	{
-		stackNode = (*stack);
-		(*stack) = (*stack) -> next;
-
-		gkFree( stackNode -> l );
-		gkFree( stackNode );
-	}
-
-	(*stack) = NULL;
-	
 	return GK_LIST_SUCCESS;
 }
 

@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotCommon.h"
 #include "trotList.h"
 #include "trotStack.h"
+#include "trotMem.h"
 
 /******************************************************************************/
 static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft );
@@ -51,19 +52,6 @@ static inline int _refListAdd( gkList *l, gkListRef *r );
 static inline int _refListRemove( gkList *l, gkListRef *r );
 
 static inline int _isListReachable( gkList *l );
-
-/******************************************************************************/
-/*! This is the function that the library uses for 'calloc'. Used for unit
-testing failed callocs and in case the user of the library has their own memory
-management routines. */
-void *(*gkCalloc)( size_t nmemb, size_t size ) = calloc;
-/*! This is the function that the library uses for 'malloc'. Used for unit
-testing failed mallocs and in case the user of the library has their own memory
-management routines. */
-void *(*gkMalloc)( size_t size ) = malloc;
-/*! This is the function that the library uses for 'free'. Used in case the user
-of the library has their own memory management routines. */
-void (*gkFree)( void *ptr ) = free;
 
 /******************************************************************************/
 /*!
@@ -245,12 +233,12 @@ int gkListRefFree( gkListRef **lr_F )
 
 	gkList *list = NULL;
 
-	gkStack *stack = NULL;
-	gkStack *stackNode = NULL;
+	trotStack *stack = NULL;
+	trotStackNode *stackNode = NULL;
+	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
 
 	gkListNode *node = NULL;
 
-	int i = 0;
 	int j = 0;
 	gkList *tempList = NULL;
 
@@ -258,6 +246,7 @@ int gkListRefFree( gkListRef **lr_F )
 
 
 	/* PRECOND */
+	PRECOND_ERR_IF( lr_F == NULL );
 
 
 	/* CODE */
@@ -290,20 +279,19 @@ int gkListRefFree( gkListRef **lr_F )
 	/* we need to free it */
 
 	/* create our stack */
-	rc = gkStackInit( &stack );
+	rc = trotStackInit( &stack );
 	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* add this list to stack */
-	stack -> l[ 0 ] = list;
-	stack -> count = 1;
+	rc = trotStackPush( stack, list );
+	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* go through stack */
-	stackNode = stack;
-	i = 0;
-	while ( i < stackNode -> count )
+	stackNode = stack -> head -> next;
+	while ( stackNode != stack -> tail )
 	{
 		/* get list */
-		currentL = stackNode -> l[ i ];
+		currentL = stackNode -> l;
 
 		/* free data */
 		node = currentL -> head -> next;
@@ -333,8 +321,13 @@ int gkListRefFree( gkListRef **lr_F )
 						if ( tempList -> reachable == 0 )
 						{
 							/* need to free this list too, so add it to the stack */
-							rc = gkStackAddList( stack, tempList );
+							rc = trotStackQueryContains( stack, tempList, &contains );
 							ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+							if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
+							{
+								rc = trotStackPush( stack, tempList );
+								ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+							}
 						}
 					}
 				}
@@ -353,24 +346,15 @@ int gkListRefFree( gkListRef **lr_F )
 		currentL -> tail = NULL;
 
 		/* *** */
-		i += 1;
-
-		/* if we've reached the end of this node, and there's another,
-		   lets goto next node */
-		if ( i == stackNode -> count && stackNode -> next != NULL )
-		{
-			stackNode = stackNode -> next;
-			i = 0;
-		}
+		stackNode = stackNode -> next;
 	}
 
 	/* go through stack */
-	stackNode = stack;
-	i = 0;
-	while ( i < stackNode -> count )
+	stackNode = stack -> head -> next;
+	while ( stackNode != stack -> tail )
 	{
 		/* get list */
-		currentL = stackNode -> l[ i ];
+		currentL = stackNode -> l;
 	
 		gkFree( currentL -> refListHead );
 		gkFree( currentL -> refListTail );
@@ -378,18 +362,10 @@ int gkListRefFree( gkListRef **lr_F )
 		gkFree( currentL );
 
 		/* *** */
-		i += 1;
-
-		/* if we've reached the end of this node, and there's another,
-		   lets goto next node */
-		if ( i == stackNode -> count && stackNode -> next != NULL )
-		{
-			stackNode = stackNode -> next;
-			i = 0;
-		}
+		stackNode = stackNode -> next;
 	}
 
-	gkStackFree( &stack );
+	trotStackFree( &stack );
 
 	return GK_LIST_SUCCESS;
 
@@ -1667,33 +1643,32 @@ static inline int _isListReachable( gkList *l )
 	/* DATA */
 	int rc = GK_LIST_SUCCESS;
 
-	gkStack *stack = NULL;
-	gkStack *stackNode = NULL;
+	trotStack *stack = NULL;
+	trotStackNode *stackNode = NULL;
+	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
 
 	gkList *currentL = NULL;
 
 	gkListRefListNode *refNode = NULL;
 
-	int i = 0;
 	int j = 0;
 
 	gkList *refParent = NULL;
 
 
 	/* CODE */
-	rc = gkStackInit( &stack );
+	rc = trotStackInit( &stack );
 	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* add first list to stack */
-	stack -> l[ 0 ] = l;
-	stack -> count = 1;
+	rc = trotStackPush( stack, l );
+	ERR_IF( rc != GK_LIST_SUCCESS, rc );
 
 	/* go through stack */
-	stackNode = stack;
-	i = 0;
-	while ( i < stackNode -> count )
+	stackNode = stack -> head -> next;
+	while ( stackNode != stack -> tail )
 	{
-		currentL = stackNode -> l[ i ];
+		currentL = stackNode -> l;
 
 		/* for each reference that points to this list */
 		refNode = currentL -> refListHead;
@@ -1715,8 +1690,14 @@ static inline int _isListReachable( gkList *l )
 				if ( refParent -> reachable )
 				{
 					/* add list to stack if it's not already there */
-					rc = gkStackAddList( stack, refParent );
+					rc = trotStackQueryContains( stack, refParent, &contains );
 					ERR_IF( rc != GK_LIST_SUCCESS, rc );
+
+					if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
+					{
+						rc = trotStackPush( stack, refParent );
+						ERR_IF( rc != GK_LIST_SUCCESS, rc );
+					}
 				}
 
 				j += 1;
@@ -1726,15 +1707,7 @@ static inline int _isListReachable( gkList *l )
 		}
 
 		/* *** */
-		i += 1;
-
-		/* if we've reached the end of this node, and there's another,
-		   lets goto next node */
-		if ( i == stackNode -> count && stackNode -> next != NULL )
-		{
-			stackNode = stackNode -> next;
-			i = 0;
-		}
+		stackNode = stackNode -> next;
 	}
 
 	/* if we've gotten here, we haven't found any client refs, so the list
@@ -1745,7 +1718,7 @@ static inline int _isListReachable( gkList *l )
 	cleanup:
 
 	/* free stack */
-	gkStackFree( &stack );
+	trotStackFree( &stack );
 
 	return rc;
 }

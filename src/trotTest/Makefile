@@ -19,7 +19,7 @@ clean:
 	rm -f trotTest
 	rm -f *.o
 
-trotTest : $(OBJECTS) $(HEADERS)
+trotTest : $(OBJECTS) $(HEADERS) ../trotLib/libTrot.a
 	$(CC) *.o $(LDFLAGS) -o trotTest
 
 %.o : %.c *.h

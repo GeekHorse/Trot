@@ -32,9 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define gkList_H
 
 /******************************************************************************/
-#include <stdlib.h> /* for size_t for gkCalloc */
-
-/******************************************************************************/
 #define GK_LIST_SUCCESS 0
 
 #define GK_LIST_ERROR_GENERAL -1
@@ -42,6 +39,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED -3
 #define GK_LIST_ERROR_BAD_INDEX -4
 #define GK_LIST_ERROR_WRONG_KIND -5
+
+/******************************************************************************/
+typedef enum
+{
+	GK_LIST_COMPARE_LESS_THAN    = -1,
+	GK_LIST_COMPARE_EQUAL        =  0,
+	GK_LIST_COMPARE_GREATER_THAN =  1
+} GK_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
 #define INT_TYPE int
@@ -54,11 +59,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define REF_LIST_NODE_SIZE 16
-
-/******************************************************************************/
-extern void *(*gkCalloc)( size_t nmemb, size_t size );
-extern void *(*gkMalloc)( size_t size );
-extern void (*gkFree)( void *ptr );
 
 /******************************************************************************/
 typedef struct gkListRef_STRUCT gkListRef;
@@ -162,6 +162,10 @@ int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l );
 int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n );
 int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l );
 int gkListRefRemove( gkListRef *lr, INT_TYPE index );
+
+/******************************************************************************/
+/* trotListSecondary.c */
+int gkListRefCompare( gkListRef *lr, gkListRef *lrCompareTo, GK_LIST_COMPARE_RESULT *compareResult );
 
 /******************************************************************************/
 #endif

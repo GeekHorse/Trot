@@ -28,53 +28,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotStack_H
-#define trotStack_H
+#ifndef trotMem_H
+#define trotMem_H
 
 /******************************************************************************/
-#include "trotList.h"
+#include <stdlib.h> /* for size_t for gkCalloc */
 
 /******************************************************************************/
-typedef enum {
-	TROT_STACK_DOES_NOT_CONTAIN = 0,
-	TROT_STACK_DOES_CONTAIN     = 1
-} TROT_STACK_CONTAINS;
+extern void *(*gkCalloc)( size_t nmemb, size_t size );
+extern void *(*gkMalloc)( size_t size );
+extern void (*gkFree)( void *ptr );
 
 /******************************************************************************/
-typedef struct trotStack_STRUCT trotStack;
-typedef struct trotStackNode_STRUCT trotStackNode;
-
-/*! Holds a stack of trotList pointers. Used during memory management to try to
-follow references "up" to see if a list is reachable. We use the stack to make
-sure we don't get into an infinite loop. */
-struct trotStack_STRUCT
-{
-	/*! head of our stack */
-	trotStackNode *head;
-	/*! tail of our stack */
-	trotStackNode *tail;
-};
-
-/*! TODO */
-struct trotStackNode_STRUCT
-{
-	gkList *l;
-	int n;
-
-	trotStackNode *prev;
-	trotStackNode *next;
-};
+#define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
+	POINTER = ( POINTER_TYPE * ) gkMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
+	ERR_IF( POINTER == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
-int trotStackInit( trotStack **stack );
-int trotStackFree( trotStack **stack );
-
-int trotStackPush( trotStack *stack, gkList *l );
-int trotStackPop( trotStack *stack );
-int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, gkList **l, int *n );
-
-int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains );
+#define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
+	POINTER = ( POINTER_TYPE ** ) gkCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
+	ERR_IF( POINTER == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #endif

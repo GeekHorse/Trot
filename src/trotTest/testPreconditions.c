@@ -69,6 +69,8 @@ int testPreconditions()
 	TEST_ERR_IF( gkListRefTwin( &lr, lr ) != GK_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( gkListRefTwin( &lr2, NULL ) != GK_LIST_ERROR_PRECOND );
 
+	TEST_ERR_IF( gkListRefFree( NULL ) != GK_LIST_ERROR_PRECOND );
+
 	TEST_ERR_IF( gkListRefGetCount( NULL, &n ) != GK_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( gkListRefGetCount( lr, NULL ) != GK_LIST_ERROR_PRECOND );
 

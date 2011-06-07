@@ -28,54 +28,51 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotStack_H
-#define trotStack_H
+/*!
+	\file
+	TODO
+*/
 
 /******************************************************************************/
+#include "trotCommon.h"
 #include "trotList.h"
+#include "trotStack.h"
 
 /******************************************************************************/
-typedef enum {
-	TROT_STACK_DOES_NOT_CONTAIN = 0,
-	TROT_STACK_DOES_CONTAIN     = 1
-} TROT_STACK_CONTAINS;
-
-/******************************************************************************/
-typedef struct trotStack_STRUCT trotStack;
-typedef struct trotStackNode_STRUCT trotStackNode;
-
-/*! Holds a stack of trotList pointers. Used during memory management to try to
-follow references "up" to see if a list is reachable. We use the stack to make
-sure we don't get into an infinite loop. */
-struct trotStack_STRUCT
+/*!
+	\brief Compares two lists.
+	\param lr Pointer to a gkListRef.
+	\param lrCompareTo Pointer to a gkListRef that you want to compare the
+		first one to.
+	\param compareResult On success, the result of the comparison.
+	\return 0 on success, <0 on error
+*/
+int gkListRefCompare( gkListRef *lr, gkListRef *lrCompareTo, GK_LIST_COMPARE_RESULT *compareResult )
 {
-	/*! head of our stack */
-	trotStackNode *head;
-	/*! tail of our stack */
-	trotStackNode *tail;
-};
+	/* DATA */
+	int rc = GK_LIST_SUCCESS;
 
-/*! TODO */
-struct trotStackNode_STRUCT
-{
-	gkList *l;
-	int n;
 
-	trotStackNode *prev;
-	trotStackNode *next;
-};
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( lrCompareTo == NULL );
+	PRECOND_ERR_IF( compareResult == NULL );
 
-/******************************************************************************/
-int trotStackInit( trotStack **stack );
-int trotStackFree( trotStack **stack );
 
-int trotStackPush( trotStack *stack, gkList *l );
-int trotStackPop( trotStack *stack );
-int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, gkList **l, int *n );
+	/* CODE */
+	(void)lr;
+	(void)lrCompareTo;
+	(void)compareResult;
 
-int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains );
+	ERR_IF( 1, GK_LIST_ERROR_GENERAL );
 
-/******************************************************************************/
-#endif
+
+	return 0;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
 

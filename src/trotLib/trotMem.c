@@ -28,54 +28,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotStack_H
-#define trotStack_H
+/*!
+	\file
+	TODO
+*/
 
 /******************************************************************************/
-#include "trotList.h"
+#include "trotMem.h"
+#include <stdlib.h> /* for malloc, calloc, free */
 
 /******************************************************************************/
-typedef enum {
-	TROT_STACK_DOES_NOT_CONTAIN = 0,
-	TROT_STACK_DOES_CONTAIN     = 1
-} TROT_STACK_CONTAINS;
-
-/******************************************************************************/
-typedef struct trotStack_STRUCT trotStack;
-typedef struct trotStackNode_STRUCT trotStackNode;
-
-/*! Holds a stack of trotList pointers. Used during memory management to try to
-follow references "up" to see if a list is reachable. We use the stack to make
-sure we don't get into an infinite loop. */
-struct trotStack_STRUCT
-{
-	/*! head of our stack */
-	trotStackNode *head;
-	/*! tail of our stack */
-	trotStackNode *tail;
-};
-
-/*! TODO */
-struct trotStackNode_STRUCT
-{
-	gkList *l;
-	int n;
-
-	trotStackNode *prev;
-	trotStackNode *next;
-};
-
-/******************************************************************************/
-int trotStackInit( trotStack **stack );
-int trotStackFree( trotStack **stack );
-
-int trotStackPush( trotStack *stack, gkList *l );
-int trotStackPop( trotStack *stack );
-int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, gkList **l, int *n );
-
-int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains );
-
-/******************************************************************************/
-#endif
+/*! This is the function that the library uses for 'calloc'. Used for unit
+testing failed callocs and in case the user of the library has their own memory
+management routines. */
+void *(*gkCalloc)( size_t nmemb, size_t size ) = calloc;
+/*! This is the function that the library uses for 'malloc'. Used for unit
+testing failed mallocs and in case the user of the library has their own memory
+management routines. */
+void *(*gkMalloc)( size_t size ) = malloc;
+/*! This is the function that the library uses for 'free'. Used in case the user
+of the library has their own memory management routines. */
+void (*gkFree)( void *ptr ) = free;
 
