@@ -41,16 +41,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Compares two lists.
-	\param lr Pointer to a gkListRef.
-	\param lrCompareTo Pointer to a gkListRef that you want to compare the
+	\param lr Pointer to a trotListRef.
+	\param lrCompareTo Pointer to a trotListRef that you want to compare the
 		first one to.
 	\param compareResult On success, the result of the comparison.
 	\return 0 on success, <0 on error
 */
-int gkListRefCompare( gkListRef *lr, gkListRef *lrCompareTo, GK_LIST_COMPARE_RESULT *compareResult )
+int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
@@ -64,7 +64,7 @@ int gkListRefCompare( gkListRef *lr, gkListRef *lrCompareTo, GK_LIST_COMPARE_RES
 	(void)lrCompareTo;
 	(void)compareResult;
 
-	ERR_IF( 1, GK_LIST_ERROR_GENERAL );
+	ERR_IF( 1, TROT_LIST_ERROR_GENERAL );
 
 
 	return 0;

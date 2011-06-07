@@ -28,25 +28,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef gkList_H
-#define gkList_H
+#ifndef trotList_H
+#define trotList_H
 
 /******************************************************************************/
-#define GK_LIST_SUCCESS 0
+#define TROT_LIST_SUCCESS 0
 
-#define GK_LIST_ERROR_GENERAL -1
-#define GK_LIST_ERROR_PRECOND -2
-#define GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED -3
-#define GK_LIST_ERROR_BAD_INDEX -4
-#define GK_LIST_ERROR_WRONG_KIND -5
+#define TROT_LIST_ERROR_GENERAL -1
+#define TROT_LIST_ERROR_PRECOND -2
+#define TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED -3
+#define TROT_LIST_ERROR_BAD_INDEX -4
+#define TROT_LIST_ERROR_WRONG_KIND -5
 
 /******************************************************************************/
 typedef enum
 {
-	GK_LIST_COMPARE_LESS_THAN    = -1,
-	GK_LIST_COMPARE_EQUAL        =  0,
-	GK_LIST_COMPARE_GREATER_THAN =  1
-} GK_LIST_COMPARE_RESULT;
+	TROT_LIST_COMPARE_LESS_THAN    = -1,
+	TROT_LIST_COMPARE_EQUAL        =  0,
+	TROT_LIST_COMPARE_GREATER_THAN =  1
+} TROT_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
 #define INT_TYPE int
@@ -61,36 +61,36 @@ typedef enum
 #define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
-typedef struct gkListRef_STRUCT gkListRef;
-typedef struct gkListNode_STRUCT gkListNode;
-typedef struct gkList_STRUCT gkList;
-typedef struct gkListRefListNode_STRUCT gkListRefListNode;
+typedef struct trotListRef_STRUCT trotListRef;
+typedef struct trotListNode_STRUCT trotListNode;
+typedef struct trotList_STRUCT trotList;
+typedef struct trotListRefListNode_STRUCT trotListRefListNode;
 
-/*! Data in a gkList is stored in a linked list of gkListNodes. */
-struct gkListNode_STRUCT
+/*! Data in a trotList is stored in a linked list of trotListNodes. */
+struct trotListNode_STRUCT
 {
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
 	NODE_KIND_LIST. */
 	int kind;
-	/*! count is how many INT_TYPEs or gkListRefs are in this node. */
+	/*! count is how many INT_TYPEs or trotListRefs are in this node. */
 	int count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
 	NODE_SIZE of type INT_TYPE, else n will be NULL. */
 	INT_TYPE *n;
 	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
-	NODE_SIZE of type gkListRef*, else l will be NULL. */
-	gkListRef **l;
+	NODE_SIZE of type trotListRef*, else l will be NULL. */
+	trotListRef **l;
 
 	/*! prev points to previous node in the linked list, or same node if
 	this is the head of the list. */
-	struct gkListNode_STRUCT *prev;
+	struct trotListNode_STRUCT *prev;
 	/*! next points to the next node in the linked list, or same node if
 	this is the tail of the list. */
-	struct gkListNode_STRUCT *next;
+	struct trotListNode_STRUCT *next;
 };
 
-/*! gkList is the main data structure in Trot. */
-struct gkList_STRUCT
+/*! trotList is the main data structure in Trot. */
+struct trotList_STRUCT
 {
 	/*! Flag that says whether this list is still reachable or not. If not
 	reachable, then this list can be freed */
@@ -100,72 +100,72 @@ struct gkList_STRUCT
 	/*! Pointer to the head of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
-	gkListRefListNode *refListHead;
+	trotListRefListNode *refListHead;
 	/*! Pointer to the tail of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
-	gkListRefListNode *refListTail;
+	trotListRefListNode *refListTail;
 	/*! Pointer to the head of the linked list that contains the actual data
 	in the list. */
-	gkListNode *head;
+	trotListNode *head;
 	/*! Pointer to the tail of the linked list that contains the actual data
 	in the list. */
-	gkListNode *tail;
+	trotListNode *tail;
 };
 
-/*! gkListRef is a reference to a gkList */
-struct gkListRef_STRUCT
+/*! trotListRef is a reference to a trotList */
+struct trotListRef_STRUCT
 {
 	/*! The list that this ref is inside of. */
-	gkList *lParent;
+	trotList *lParent;
 	/*! The list that this ref points to. */
-	gkList *lPointsTo;
+	trotList *lPointsTo;
 };
 
-/*! Structure for holding a linked list of references. Used in gkList to keep
-track of which references points to the gkList. */
-struct gkListRefListNode_STRUCT
+/*! Structure for holding a linked list of references. Used in trotList to keep
+track of which references points to the trotList. */
+struct trotListRefListNode_STRUCT
 {
 	/*! How many references are in this node */
 	int count;
 	/*! r will be NULL if this is the head or tail of the linked list.
 	else this will be an array of size REF_LIST_NODE_SIZE of type
-	gkListRef */
-	gkListRef **r;
+	trotListRef */
+	trotListRef **r;
 	/*! points to the next node in the linked list, or to itself if this is
 	the tail. */
-	gkListRefListNode *next;
+	trotListRefListNode *next;
 	/*! points to the prev node in the linked list, or to itself if this is
 	the head. */
-	gkListRefListNode *prev;
+	trotListRefListNode *prev;
 };
 
 /******************************************************************************/
 /* trotListPrimary.c */
-int gkListRefInit( gkListRef **lr_A );
-int gkListRefTwin( gkListRef **lr_A, gkListRef *lrToTwin );
-int gkListRefFree( gkListRef **lr_F );
+int trotListRefInit( trotListRef **lr_A );
+int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin );
+int trotListRefFree( trotListRef **lr_F );
 
-int gkListRefGetCount( gkListRef *lr, INT_TYPE *c );
+int trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
 
-int gkListRefGetKind( gkListRef *lr, INT_TYPE index, int *kind );
+int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind );
 
-int gkListRefAppendInt( gkListRef *lr, INT_TYPE n );
-int gkListRefAppendListTwin( gkListRef *lr, gkListRef *lrToAppend );
+int trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
+int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
 
-int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n );
-int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *l );
+int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
+int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *l );
 
-int gkListRefGetInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n );
-int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l );
+int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
+int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l );
 
-int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n );
-int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l );
-int gkListRefRemove( gkListRef *lr, INT_TYPE index );
+int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
+int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l );
+int trotListRefRemove( trotListRef *lr, INT_TYPE index );
 
 /******************************************************************************/
 /* trotListSecondary.c */
-int gkListRefCompare( gkListRef *lr, gkListRef *lrCompareTo, GK_LIST_COMPARE_RESULT *compareResult );
+int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
 /******************************************************************************/
 #endif

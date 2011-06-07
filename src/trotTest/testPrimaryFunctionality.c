@@ -61,7 +61,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( gkListRef **, int ) =
+static int (*createFunctions[])( trotListRef **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -74,12 +74,12 @@ static int (*createFunctions[])( gkListRef **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
 
-static int (*testFunctions[])( gkListRef *, int, int, int ) = 
+static int (*testFunctions[])( trotListRef *, int, int, int ) = 
 	{
 		testPrepend,
 		testAppend,
@@ -98,7 +98,7 @@ int testPrimaryFunctionality()
 	int i = 0;
 	int j = 0;
 
-	gkListRef *lr = NULL;
+	trotListRef *lr = NULL;
 
 
 	/* CODE */
@@ -121,36 +121,36 @@ int testPrimaryFunctionality()
 				/* test adding ints */
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				/* test adding lists */
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
 				TEST_ERR_IF( testFunctions[ j ]( lr, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
-				gkListRefFree( &lr );
+				trotListRefFree( &lr );
 
 				j += 1;
 			}
@@ -180,7 +180,7 @@ int testPrimaryFunctionality()
 }
 
 /******************************************************************************/
-static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -199,11 +199,11 @@ static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGene
 	INT_TYPE testOriginal = 0;
 
 	INT_TYPE removedN = 0;
-	gkListRef *removedL = NULL;
+	trotListRef *removedL = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtStart ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != 0 );
 
 	/* test prepending */
 	addingAtIndex = 0;
@@ -225,7 +225,7 @@ static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGene
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( gkListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -282,22 +282,22 @@ static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGene
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( gkListRefRemove( lr, addingAtIndexB ) != 0 );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != 0 );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
-				TEST_ERR_IF( gkListRefGetInt( removedL, 1, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 
-				gkListRefFree( &removedL );
+				trotListRefFree( &removedL );
 			}
 			else
 			{
@@ -342,7 +342,7 @@ static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGene
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtEnd ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != 0 );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -358,7 +358,7 @@ static int testPrepend( gkListRef *lr, int intsOrLists, int removeSpecificOrGene
 }
 
 /******************************************************************************/
-static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -377,11 +377,11 @@ static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGener
 	INT_TYPE testOriginal = 0;
 
 	INT_TYPE removedN = 0;
-	gkListRef *removedL = NULL;
+	trotListRef *removedL = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtStart ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != 0 );
 
 	/* test appending */
 	addingAtIndex = countAtStart;
@@ -403,7 +403,7 @@ static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGener
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( gkListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -460,22 +460,22 @@ static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGener
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( gkListRefRemove( lr, addingAtIndexB ) != 0 );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != 0 );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
-				TEST_ERR_IF( gkListRefGetInt( removedL, 1, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 
-				gkListRefFree( &removedL );
+				trotListRefFree( &removedL );
 			}
 			else
 			{
@@ -520,7 +520,7 @@ static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGener
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtEnd ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != 0 );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -536,7 +536,7 @@ static int testAppend( gkListRef *lr, int intsOrLists, int removeSpecificOrGener
 }
 
 /******************************************************************************/
-static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -555,13 +555,13 @@ static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOr
 	INT_TYPE testOriginal = 0;
 
 	INT_TYPE removedN = 0;
-	gkListRef *removedL = NULL;
+	trotListRef *removedL = NULL;
 
 	INT_TYPE startedAddingAtIndex = 0;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtStart ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != 0 );
 
 	/* test adding to middle */
 	startedAddingAtIndex = (countAtStart / 2 );
@@ -589,7 +589,7 @@ static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOr
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( gkListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -655,22 +655,22 @@ static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOr
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( gkListRefRemove( lr, addingAtIndexB ) != 0 );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != 0 );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
-				TEST_ERR_IF( gkListRefGetInt( removedL, 1, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 
-				gkListRefFree( &removedL );
+				trotListRefFree( &removedL );
 			}
 			else
 			{
@@ -724,7 +724,7 @@ static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOr
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtEnd ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != 0 );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -740,7 +740,7 @@ static int testAddToMiddle( gkListRef *lr, int intsOrLists, int removeSpecificOr
 }
 
 /******************************************************************************/
-static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -759,11 +759,11 @@ static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecif
 	INT_TYPE testOriginal = 0;
 
 	INT_TYPE removedN = 0;
-	gkListRef *removedL = NULL;
+	trotListRef *removedL = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtStart ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != 0 );
 
 	/* test prepending */
 	addingAtIndex = -1;
@@ -790,7 +790,7 @@ static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecif
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( gkListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -859,22 +859,22 @@ static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecif
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( gkListRefRemove( lr, addingAtIndexB ) != 0 );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != 0 );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( gkListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
-				TEST_ERR_IF( gkListRefGetInt( removedL, 1, &removedN ) != 0 );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != 0 );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != 0 );
 				TEST_ERR_IF( removedN != newNumber );
 
-				gkListRefFree( &removedL );
+				trotListRefFree( &removedL );
 			}
 			else
 			{
@@ -931,7 +931,7 @@ static int testAddAtOddIndices( gkListRef *lr, int intsOrLists, int removeSpecif
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( gkListRefGetCount( lr, &countAtEnd ) != 0 );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != 0 );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;

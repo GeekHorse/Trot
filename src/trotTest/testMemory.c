@@ -70,8 +70,8 @@ int testMemory()
 
 	int i = 0;
 
-	gkListRef *lr = NULL;
-	gkListRef *lr2 = NULL;
+	trotListRef *lr = NULL;
+	trotListRef *lr2 = NULL;
 
 
 	/* CODE */
@@ -81,10 +81,10 @@ int testMemory()
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
 	printf( "  Testing calloc...\n" ); fflush( stdout );
-	iArray = (int **) gkCalloc( 10, sizeof( int * ) );
+	iArray = (int **) trotCalloc( 10, sizeof( int * ) );
 	TEST_ERR_IF( iArray == NULL );
 	TEST_ERR_IF( iArray[ 5 ] != NULL );
-	gkFree( iArray );
+	trotFree( iArray );
 
 	/* **************************************** */
 	/* test memory management */
@@ -116,22 +116,22 @@ int testMemory()
 	/* testing bad mallocs */
 	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( gkListRefInit( &lr ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
 
-	gkCalloc = badCalloc;
-	gkMalloc = badMalloc;
+	trotCalloc = badCalloc;
+	trotMalloc = badMalloc;
 
-	TEST_ERR_IF( gkListRefInit( &lr2 ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( gkListRefTwin( &lr2, lr ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( gkListRefAppendInt( lr, 1 ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( gkListRefAppendListTwin( lr, lr ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( gkListRefInsertInt( lr, 1, 1 ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, 1, lr ) != GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefInit( &lr2 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefTwin( &lr2, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefAppendListTwin( lr, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefInsertInt( lr, 1, 1 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 1, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
-	gkCalloc = calloc;
-	gkMalloc = malloc;
+	trotCalloc = calloc;
+	trotMalloc = malloc;
 
-	gkListRefFree( &lr );
+	trotListRefFree( &lr );
 
 	/* **************************************** */
 
@@ -153,11 +153,11 @@ static int testMemoryManagement()
 	int i = 0;
 	int j = 0;
 
-	gkListRef **clientRefs = NULL;
+	trotListRef **clientRefs = NULL;
 
 	int r = 0;
 
-	gkListRef *ref = NULL;
+	trotListRef *ref = NULL;
 
 	int howManyToAdd = 0;
 	INT_TYPE count = 0;
@@ -171,7 +171,7 @@ static int testMemoryManagement()
 
 	/* CODE */
 	/* create our client refs */
-	clientRefs = (gkListRef **) gkCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( gkListRef * ) );
+	clientRefs = (trotListRef **) trotCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotListRef * ) );
 	TEST_ERR_IF( clientRefs == NULL );
 
 	i = 0;
@@ -183,12 +183,12 @@ static int testMemoryManagement()
 		if ( r == 0 && i > 0 )
 		{
 			j = rand() % i;
-			TEST_ERR_IF( gkListRefTwin( &( clientRefs[ i ] ), clientRefs[ j ] ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( &( clientRefs[ i ] ), clientRefs[ j ] ) != TROT_LIST_SUCCESS );
 		}
 		/* create new list */
 		else
 		{
-			TEST_ERR_IF( gkListRefInit( &( clientRefs[ i ] ) ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &( clientRefs[ i ] ) ) != TROT_LIST_SUCCESS );
 		}
 
 		i += 1;
@@ -202,13 +202,13 @@ static int testMemoryManagement()
 		/* create new list */
 		if ( r <= 7 )
 		{
-			TEST_ERR_IF( gkListRefInit( &ref ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &ref ) != TROT_LIST_SUCCESS );
 		}
 		/* twin client list */
 		else
 		{
 			r = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
-			TEST_ERR_IF( gkListRefTwin( &ref, clientRefs[ r ] ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( &ref, clientRefs[ r ] ) != TROT_LIST_SUCCESS );
 		}
 
 		/* how many are we going to add? */
@@ -221,12 +221,12 @@ static int testMemoryManagement()
 			clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 			/* where to add it to? */
-			TEST_ERR_IF( gkListRefGetCount( clientRefs[ clientRefIndex ], &count ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_LIST_SUCCESS );
 
 			randomIndex = ( rand() % ( count + 1 ) ) + 1;
 
 			/* add */
-			TEST_ERR_IF( gkListRefInsertListTwin( clientRefs[ clientRefIndex ], randomIndex, ref ) != GK_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertListTwin( clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_LIST_SUCCESS );
 
 			countAdded += 1;
 
@@ -234,7 +234,7 @@ static int testMemoryManagement()
 		}
 
 		/* free our temporary ref */
-		TEST_ERR_IF( gkListRefFree( &ref ) != GK_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefFree( &ref ) != TROT_LIST_SUCCESS );
 
 		/* *** */
 		i += 1;
@@ -250,7 +250,7 @@ static int testMemoryManagement()
 		clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 		/* which index to remove? */
-		TEST_ERR_IF( gkListRefGetCount( clientRefs[ clientRefIndex ], &count ) != GK_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_LIST_SUCCESS );
 
 		if ( count > 0 )
 		{
@@ -260,12 +260,12 @@ static int testMemoryManagement()
 			r = rand() % 2;
 			if ( r == 0 )
 			{
-				TEST_ERR_IF( gkListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != GK_LIST_SUCCESS );
-				TEST_ERR_IF( gkListRefFree( &ref ) != GK_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefFree( &ref ) != TROT_LIST_SUCCESS );
 			}
 			else
 			{
-				TEST_ERR_IF( gkListRefRemove( clientRefs[ clientRefIndex ], randomIndex ) != GK_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemove( clientRefs[ clientRefIndex ], randomIndex ) != TROT_LIST_SUCCESS );
 			}
 		}
 
@@ -286,7 +286,7 @@ static int testMemoryManagement()
 		{
 			if ( clientRefs[ j ] != NULL )
 			{
-				TEST_ERR_IF( gkListRefFree( &( clientRefs[ j ] ) ) != GK_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefFree( &( clientRefs[ j ] ) ) != TROT_LIST_SUCCESS );
 				break;
 			}
 
@@ -300,7 +300,7 @@ static int testMemoryManagement()
 	}
 
 	/* free our clientRef array */
-	gkFree( clientRefs );
+	trotFree( clientRefs );
 
 
 	/* CLEANUP */
@@ -313,28 +313,28 @@ static int testMemoryManagement()
 static int testDeepList()
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 	int i = 0;
 
-	gkListRef *refHead = NULL;
+	trotListRef *refHead = NULL;
 
-	gkListRef *ref1 = NULL;
-	gkListRef *ref2 = NULL;
+	trotListRef *ref1 = NULL;
+	trotListRef *ref2 = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &refHead ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &refHead ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( gkListRefTwin( &ref1, refHead ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefTwin( &ref1, refHead ) != TROT_LIST_SUCCESS );
 
 	while ( i < 1000 ) /* MAGIC */
 	{
-		TEST_ERR_IF( gkListRefInit( &ref2 ) != GK_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefInit( &ref2 ) != TROT_LIST_SUCCESS );
 
-		TEST_ERR_IF( gkListRefAppendListTwin( ref1, ref2 ) != GK_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendListTwin( ref1, ref2 ) != TROT_LIST_SUCCESS );
 
-		TEST_ERR_IF( gkListRefFree( &ref1 ) != GK_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefFree( &ref1 ) != TROT_LIST_SUCCESS );
 
 		ref1 = ref2;
 		ref2 = NULL;
@@ -347,15 +347,15 @@ static int testDeepList()
 		i += 1;
 	}
 
-	TEST_ERR_IF( gkListRefAppendListTwin( ref1, refHead ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendListTwin( ref1, refHead ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( gkListRefFree( &ref1 ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefFree( &ref1 ) != TROT_LIST_SUCCESS );
 
 	printf( ":" ); fflush( stdout );
 
-	TEST_ERR_IF( gkListRefFree( &refHead ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefFree( &refHead ) != TROT_LIST_SUCCESS );
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */

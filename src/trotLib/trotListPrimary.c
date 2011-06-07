@@ -43,35 +43,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft );
+static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft );
 
-static inline int _newIntNode( gkListNode **n_A );
-static inline int _newListNode( gkListNode **n_A );
+static inline int _newIntNode( trotListNode **n_A );
+static inline int _newListNode( trotListNode **n_A );
 
-static inline int _refListAdd( gkList *l, gkListRef *r );
-static inline int _refListRemove( gkList *l, gkListRef *r );
+static inline int _refListAdd( trotList *l, trotListRef *r );
+static inline int _refListRemove( trotList *l, trotListRef *r );
 
-static inline int _isListReachable( gkList *l );
+static inline int _isListReachable( trotList *l );
 
 /******************************************************************************/
 /*!
-	\brief Allocates a new gkListRef reference to a new list.
-	\param lr_A Pointer to a gkListRef pointer that must be NULL. On
-		success, this will point to a new gkListRef reference.
-	\return 0 on success, <0 on error
+	\brief Allocates a new trotListRef reference to a new list.
+	\param lr_A Pointer to a trotListRef pointer that must be NULL. On
+		success, this will point to a new trotListRef reference.
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefInit( gkListRef **lr_A )
+int trotListRefInit( trotListRef **lr_A )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListRefListNode *newRefHead = NULL;
-	gkListRefListNode *newRefTail = NULL;
+	trotListRefListNode *newRefHead = NULL;
+	trotListRefListNode *newRefTail = NULL;
 
-	gkListNode *newHead = NULL;
-	gkListNode *newTail = NULL;
-	gkList *newList = NULL;
-	gkListRef *newListRef = NULL;
+	trotListNode *newHead = NULL;
+	trotListNode *newTail = NULL;
+	trotList *newList = NULL;
+	trotListRef *newListRef = NULL;
 
 
 	/* PRECOND */
@@ -81,11 +81,11 @@ int gkListRefInit( gkListRef **lr_A )
 
 	/* CODE */
 	/* create list of refs that point to this list */
-	newRefHead = (gkListRefListNode *) gkMalloc( sizeof( gkListRefListNode ) );
-	ERR_IF( newRefHead == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newRefHead = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
+	ERR_IF( newRefHead == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
-	newRefTail = (gkListRefListNode *) gkMalloc( sizeof( gkListRefListNode ) );
-	ERR_IF( newRefTail == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newRefTail = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
+	ERR_IF( newRefTail == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newRefHead -> count = 0;
 	newRefHead -> r = NULL;
@@ -98,11 +98,11 @@ int gkListRefInit( gkListRef **lr_A )
 	newRefTail -> prev = newRefHead;
 
 	/* create the data list */
-	newHead = (gkListNode *) gkMalloc( sizeof( gkListNode ) );
-	ERR_IF( newHead == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newHead = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
+	ERR_IF( newHead == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
-	newTail = (gkListNode *) gkMalloc( sizeof( gkListNode ) );
-	ERR_IF( newTail == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newTail = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
+	ERR_IF( newTail == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newHead -> kind = NODE_KIND_HEAD_OR_TAIL;
 	newHead -> count = 0;
@@ -119,8 +119,8 @@ int gkListRefInit( gkListRef **lr_A )
 	newTail -> next = newTail;
 
 	/* create actual list structure */
-	newList = (gkList *) gkMalloc( sizeof( gkList ) );
-	ERR_IF( newList == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newList = (trotList *) trotMalloc( sizeof( trotList ) );
+	ERR_IF( newList == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newList -> reachable = 1;
 
@@ -137,8 +137,8 @@ int gkListRefInit( gkListRef **lr_A )
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	newListRef = (gkListRef *) gkMalloc( sizeof( gkListRef ) );
-	ERR_IF( newListRef == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newListRef = (trotListRef *) trotMalloc( sizeof( trotListRef ) );
+	ERR_IF( newListRef == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newListRef -> lParent = NULL;
 
@@ -153,36 +153,36 @@ int gkListRefInit( gkListRef **lr_A )
 	(*lr_A) = newListRef;
 	newListRef = NULL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newRefHead );
-	gkFree( newRefTail );
-	gkFree( newHead );
-	gkFree( newTail );
-	gkFree( newList );
-	gkFree( newListRef );
+	trotFree( newRefHead );
+	trotFree( newRefTail );
+	trotFree( newHead );
+	trotFree( newTail );
+	trotFree( newList );
+	trotFree( newListRef );
 
 	return rc;
 }
 
 /******************************************************************************/
 /*!
-	\brief Twins a gkListRef reference.
-	\param lr_A Pointer to a gkListRef pointer that must be NULL. On
-		success, this will point to a new gkListRef reverence.
-	\param lrToTwin Pointer to the gkListRef pointer to be twinned.
-	\return 0 on success, <0 on error
+	\brief Twins a trotListRef reference.
+	\param lr_A Pointer to a trotListRef pointer that must be NULL. On
+		success, this will point to a new trotListRef reverence.
+	\param lrToTwin Pointer to the trotListRef pointer to be twinned.
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefTwin( gkListRef **lr_A, gkListRef *lrToTwin )
+int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListRef *newListRef = NULL;
+	trotListRef *newListRef = NULL;
 
 
 	/* PRECOND */
@@ -192,8 +192,8 @@ int gkListRefTwin( gkListRef **lr_A, gkListRef *lrToTwin )
 
 
 	/* CODE */
-	newListRef = (gkListRef *) gkMalloc( sizeof( gkListRef ) );
-	ERR_IF( newListRef == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newListRef = (trotListRef *) trotMalloc( sizeof( trotListRef ) );
+	ERR_IF( newListRef == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newListRef -> lParent = NULL;
 	newListRef -> lPointsTo = lrToTwin -> lPointsTo;
@@ -206,43 +206,43 @@ int gkListRefTwin( gkListRef **lr_A, gkListRef *lrToTwin )
 	(*lr_A) = newListRef;
 	newListRef = NULL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newListRef );
+	trotFree( newListRef );
 
 	return rc;
 }
 
 /******************************************************************************/
 /*!
-	\brief Frees a gkListRef reference. Actual list will be gkFreed if this
+	\brief Frees a trotListRef reference. Actual list will be trotFreed if this
 		is the last reference.
-	\param lr_F Pointer to a gkListRef pointer.
+	\param lr_F Pointer to a trotListRef pointer.
 		(*lr_F) can be NULL, in which case nothing will happen.
 		On return, (*lr_F) will be NULL.
 	\return void
 */
-int gkListRefFree( gkListRef **lr_F )
+int trotListRefFree( trotListRef **lr_F )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkList *list = NULL;
+	trotList *list = NULL;
 
 	trotStack *stack = NULL;
 	trotStackNode *stackNode = NULL;
 	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
 
-	gkListNode *node = NULL;
+	trotListNode *node = NULL;
 
 	int j = 0;
-	gkList *tempList = NULL;
+	trotList *tempList = NULL;
 
-	gkList *currentL = NULL;
+	trotList *currentL = NULL;
 
 
 	/* PRECOND */
@@ -252,39 +252,39 @@ int gkListRefFree( gkListRef **lr_F )
 	/* CODE */
 	if ( lr_F == NULL || (*lr_F) == NULL )
 	{
-		return GK_LIST_SUCCESS;
+		return TROT_LIST_SUCCESS;
 	}
 
-	ERR_IF( (*lr_F) -> lParent != NULL, GK_LIST_ERROR_GENERAL );
+	ERR_IF( (*lr_F) -> lParent != NULL, TROT_LIST_ERROR_GENERAL );
 
 	list = (*lr_F) -> lPointsTo;
 
 	/* remove ref from list's ref list */
 	rc = _refListRemove( list, (*lr_F) );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	/* free ref */
-	gkFree( (*lr_F) );
+	trotFree( (*lr_F) );
 	(*lr_F) = NULL;
 
 	/* is list reachable? */
 	rc = _isListReachable( list );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	if ( list -> reachable )
 	{
-		return GK_LIST_SUCCESS;
+		return TROT_LIST_SUCCESS;
 	}
 
 	/* we need to free it */
 
 	/* create our stack */
 	rc = trotStackInit( &stack );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	/* add this list to stack */
 	rc = trotStackPush( stack, list );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	/* go through stack */
 	stackNode = stack -> head -> next;
@@ -299,7 +299,7 @@ int gkListRefFree( gkListRef **lr_F )
 		{
 			if ( node -> kind == NODE_KIND_INT )
 			{
-				gkFree( node -> n );
+				trotFree( node -> n );
 			}
 			else /* NODE_KIND_LIST */
 			{
@@ -308,41 +308,41 @@ int gkListRefFree( gkListRef **lr_F )
 					tempList = node -> l[ j ] -> lPointsTo;
 			
 					rc = _refListRemove( tempList, node -> l[ j ] );
-					ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+					ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
 
-					gkFree( node -> l[ j ] );
+					trotFree( node -> l[ j ] );
 					node -> l[ j ] = NULL;
 
 					if ( tempList -> reachable == 1 )
 					{
 						rc = _isListReachable( tempList );
-						ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+						ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
 
 						if ( tempList -> reachable == 0 )
 						{
 							/* need to free this list too, so add it to the stack */
 							rc = trotStackQueryContains( stack, tempList, &contains );
-							ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+							ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
 							if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
 							{
 								rc = trotStackPush( stack, tempList );
-								ERR_IF( rc != GK_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+								ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
 							}
 						}
 					}
 				}
 
-				gkFree( node -> l );
+				trotFree( node -> l );
 			}
 
 			node = node -> next;
-			gkFree( node -> prev );
+			trotFree( node -> prev );
 		}
 
-		gkFree( currentL -> head );
+		trotFree( currentL -> head );
 		currentL -> head = NULL;
 
-		gkFree( currentL -> tail );
+		trotFree( currentL -> tail );
 		currentL -> tail = NULL;
 
 		/* *** */
@@ -356,10 +356,10 @@ int gkListRefFree( gkListRef **lr_F )
 		/* get list */
 		currentL = stackNode -> l;
 	
-		gkFree( currentL -> refListHead );
-		gkFree( currentL -> refListTail );
+		trotFree( currentL -> refListHead );
+		trotFree( currentL -> refListTail );
 
-		gkFree( currentL );
+		trotFree( currentL );
 
 		/* *** */
 		stackNode = stackNode -> next;
@@ -367,7 +367,7 @@ int gkListRefFree( gkListRef **lr_F )
 
 	trotStackFree( &stack );
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 	/* CLEANUP */
 	cleanup:
@@ -380,14 +380,14 @@ int gkListRefFree( gkListRef **lr_F )
 /******************************************************************************/
 /*!
 	\brief Gets the count of items in the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param c On success, will contain the count of this list.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefGetCount( gkListRef *lr, INT_TYPE *c )
+int trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 {
 	/* DATA */
-	//int rc = GK_LIST_SUCCESS;
+	//int rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
@@ -398,24 +398,24 @@ int gkListRefGetCount( gkListRef *lr, INT_TYPE *c )
 	/* CODE */
 	(*c) = lr -> lPointsTo -> childrenCount;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 }
 
 /******************************************************************************/
 /*!
 	\brief Gets the kind of an item in the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Index of the item.
 	\param kind On success, will contain the kind of the item.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefGetKind( gkListRef *lr, INT_TYPE index, int *kind )
+int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -433,8 +433,8 @@ int gkListRefGetKind( gkListRef *lr, INT_TYPE index, int *kind )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -450,11 +450,11 @@ int gkListRefGetKind( gkListRef *lr, INT_TYPE index, int *kind )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
 	(*kind) = node -> kind;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -466,19 +466,19 @@ int gkListRefGetKind( gkListRef *lr, INT_TYPE index, int *kind )
 /******************************************************************************/
 /*!
 	\brief Appends an int to the end of the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param n The int value to insert.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefAppendInt( gkListRef *lr, INT_TYPE n )
+int trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkList *l = NULL;
-	gkListNode *node = NULL;
+	trotList *l = NULL;
+	trotListNode *node = NULL;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -516,7 +516,7 @@ int gkListRefAppendInt( gkListRef *lr, INT_TYPE n )
 
 	l -> childrenCount += 1;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -528,21 +528,21 @@ int gkListRefAppendInt( gkListRef *lr, INT_TYPE n )
 /******************************************************************************/
 /*!
 	\brief Appends a list twin to the end of the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param lrToAppend The list to twin and append.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefAppendListTwin( gkListRef *lr, gkListRef *lrToAppend )
+int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkList *l = NULL;
-	gkListNode *node = NULL;
+	trotList *l = NULL;
+	trotListNode *node = NULL;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
-	gkListRef *newLr = NULL;
+	trotListRef *newLr = NULL;
 
 
 	/* PRECOND */
@@ -576,7 +576,7 @@ int gkListRefAppendListTwin( gkListRef *lr, gkListRef *lrToAppend )
 	}
 
 	/* append */
-	rc = gkListRefTwin( &newLr, lrToAppend );
+	rc = trotListRefTwin( &newLr, lrToAppend );
 	ERR_IF( rc != 0, rc );
 
 	node -> l[ node -> count ] = newLr;
@@ -587,13 +587,13 @@ int gkListRefAppendListTwin( gkListRef *lr, gkListRef *lrToAppend )
 
 	l -> childrenCount += 1;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newLr );
+	trotListRefFree( &newLr );
 
 	return rc;
 }
@@ -601,27 +601,27 @@ int gkListRefAppendListTwin( gkListRef *lr, gkListRef *lrToAppend )
 /******************************************************************************/
 /*!
 	\brief Inserts an int into the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Where to insert.
 	\param n The int value to insert.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
+int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkList *l = NULL;
+	trotList *l = NULL;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
 	int i = 0;
 	int j = 0;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -641,15 +641,15 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 	   list. And two, if they want to add to an empty list. */
 	if ( index == (l -> childrenCount) + 1 )
 	{
-		rc = gkListRefAppendInt( lr, n );
+		rc = trotListRefAppendInt( lr, n );
 		ERR_IF( rc != 0, rc );
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be added into */
 	tail = l -> tail;
@@ -666,7 +666,7 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 	}
 
 	/* Paranoid. This should never happen */
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
 	/* *** */
 	if ( node -> kind == NODE_KIND_INT )
@@ -674,7 +674,7 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 		/* If node is full */
 		if ( node -> count == NODE_SIZE )
 		{
-			rc = _gkListNodeSplit( node, NODE_SIZE / 2 );
+			rc = _trotListNodeSplit( node, NODE_SIZE / 2 );
 			ERR_IF( rc != 0, rc );
 
 			/* Since node has been split, we may need to go to next
@@ -704,7 +704,7 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 
 		l -> childrenCount += 1;
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 	else /* node -> kind == NODE_KIND_LIST */
 	{
@@ -726,13 +726,13 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 
 			l -> childrenCount += 1;
 
-			return 0;
+			return TROT_LIST_SUCCESS;
 		}
 
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = _gkListNodeSplit( node, i );
+			rc = _trotListNodeSplit( node, i );
 			ERR_IF( rc != 0, rc );
 
 			node = node -> next;
@@ -754,7 +754,7 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 
 		l -> childrenCount += 1;
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 
 
@@ -767,29 +767,29 @@ int gkListRefInsertInt( gkListRef *lr, INT_TYPE index, INT_TYPE n )
 /******************************************************************************/
 /*!
 	\brief Inserts a twin of a list into the list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Where to insert.
 	\param lToInsert The listRef to insert.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert )
+int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lToInsert )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkList *l = NULL;
+	trotList *l = NULL;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
 	int i = 0;
 	int j = 0;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
-	gkListRef *newL = NULL;
+	trotListRef *newL = NULL;
 
 
 	/* PRECOND */
@@ -810,15 +810,15 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 	   list. And two, if they want to add to an empty list. */
 	if ( index == (l -> childrenCount) + 1 )
 	{
-		rc = gkListRefAppendListTwin( lr, lToInsert );
+		rc = trotListRefAppendListTwin( lr, lToInsert );
 		ERR_IF( rc != 0, rc );
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be added into */
 	tail = l -> tail;
@@ -835,7 +835,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 	}
 
 	/* Paranoid. This should never happen */
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
 	/* *** */
 	if ( node -> kind == NODE_KIND_LIST )
@@ -843,7 +843,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 		/* If node is full */
 		if ( node -> count == NODE_SIZE )
 		{
-			rc = _gkListNodeSplit( node, NODE_SIZE / 2 );
+			rc = _trotListNodeSplit( node, NODE_SIZE / 2 );
 			ERR_IF( rc != 0, rc );
 
 			/* Since node has been split, we may need to go to next
@@ -860,7 +860,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 		   (count + 1) is the beginning index of the node */
 
 		/* *** */
-		rc = gkListRefTwin( &newL, lToInsert );
+		rc = trotListRefTwin( &newL, lToInsert );
 		ERR_IF( rc != 0, rc );
 
 		/* Now let's move any lists over to make room */
@@ -881,7 +881,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 
 		l -> childrenCount += 1;
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 	else /* node -> kind == NODE_KIND_INT */
 	{
@@ -898,7 +898,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 			node = node -> prev;
 
 			/* Insert list into node */
-			rc = gkListRefTwin( &newL, lToInsert );
+			rc = trotListRefTwin( &newL, lToInsert );
 			ERR_IF( rc != 0, rc );
 
 			node -> l[ node -> count ] = newL;
@@ -909,13 +909,13 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 
 			l -> childrenCount += 1;
 
-			return 0;
+			return TROT_LIST_SUCCESS;
 		}
 
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = _gkListNodeSplit( node, i );
+			rc = _trotListNodeSplit( node, i );
 			ERR_IF( rc != 0, rc );
 
 			node = node -> next;
@@ -926,7 +926,7 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 		ERR_IF( rc != 0, rc );
 
 		/* *** */
-		rc = gkListRefTwin( &newL, lToInsert );
+		rc = trotListRefTwin( &newL, lToInsert );
 		ERR_IF( rc != 0, rc );
 
 		/* Insert node into list */
@@ -944,14 +944,14 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 
 		l -> childrenCount += 1;
 
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newL );
+	trotListRefFree( &newL );
 
 	return rc;
 }
@@ -959,18 +959,18 @@ int gkListRefInsertListTwin( gkListRef *lr, INT_TYPE index, gkListRef *lToInsert
 /******************************************************************************/
 /*!
 	\brief Gets copy of int in list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Which int to get.
 	\param n On success, will point to int.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefGetInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
+int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -988,8 +988,8 @@ int gkListRefGetInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -1005,14 +1005,14 @@ int gkListRefGetInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
-	ERR_IF( node -> kind != NODE_KIND_INT, GK_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
 
 	/* give back */
 	(*n) = node -> n[ (node -> count) - 1 - (count - index) ];
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1024,22 +1024,22 @@ int gkListRefGetInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 /******************************************************************************/
 /*!
 	\brief Gets list ref of list in list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Which list to get.
 	\param l On success, will point to list ref.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l )
+int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
-	gkListRef *newL = NULL;
+	trotListRef *newL = NULL;
 
 
 	/* PRECOND */
@@ -1056,8 +1056,8 @@ int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -1073,18 +1073,18 @@ int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, GK_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
 
-	rc = gkListRefTwin( &newL, node -> l[ (node -> count) - 1 - (count - index) ] );
+	rc = trotListRefTwin( &newL, node -> l[ (node -> count) - 1 - (count - index) ] );
 	ERR_IF( rc != 0, rc );
 
 	/* give back */
 	(*l) = newL;
 	newL = NULL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1096,18 +1096,18 @@ int gkListRefGetListTwin( gkListRef *lr, INT_TYPE index, gkListRef **l )
 /******************************************************************************/
 /*!
 	\brief Gets and removes int ref of list in list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Which int to get and remove.
 	\param n On success, will point to int.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
+int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1130,8 +1130,8 @@ int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -1147,9 +1147,9 @@ int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
-	ERR_IF( node -> kind != NODE_KIND_INT, GK_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackN = node -> n[ i ];
@@ -1166,14 +1166,14 @@ int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 		node -> prev -> next = node -> next;
 		node -> next -> prev = node -> prev;
 
-		gkFree( node -> n );
-		gkFree( node );
+		trotFree( node -> n );
+		trotFree( node );
 	}
 
 	/* give back */
 	(*n) = giveBackN;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1185,22 +1185,22 @@ int gkListRefRemoveInt( gkListRef *lr, INT_TYPE index, INT_TYPE *n )
 /******************************************************************************/
 /*!
 	\brief Gets and removes list ref of list in list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index Which list to get.
 	\param l On success, will point to list ref.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l )
+int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
-	gkListRef *giveBackL = NULL;
+	trotListRef *giveBackL = NULL;
 
 	int i = 0;
 
@@ -1219,8 +1219,8 @@ int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -1236,9 +1236,9 @@ int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, GK_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackL = node -> l[ i ];
@@ -1257,14 +1257,14 @@ int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l )
 		node -> prev -> next = node -> next;
 		node -> next -> prev = node -> prev;
 
-		gkFree( node -> l );
-		gkFree( node );
+		trotFree( node -> l );
+		trotFree( node );
 	}
 
 	/* give back */
 	(*l) = giveBackL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1276,21 +1276,21 @@ int gkListRefRemoveList( gkListRef *lr, INT_TYPE index, gkListRef **l )
 /******************************************************************************/
 /*!
 	\brief Removes whatever is at index in list.
-	\param lr Pointer to a gkListRef pointer.
+	\param lr Pointer to a trotListRef pointer.
 	\param index What to remove.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-int gkListRefRemove( gkListRef *lr, INT_TYPE index )
+int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *node = NULL;
-	gkListNode *tail = NULL;
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
-	gkListRef *tempL = NULL;
+	trotListRef *tempL = NULL;
 
 	int i = 0;
 
@@ -1307,8 +1307,8 @@ int gkListRefRemove( gkListRef *lr, INT_TYPE index )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, GK_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), GK_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
 	tail = lr -> lPointsTo -> tail;
@@ -1324,7 +1324,7 @@ int gkListRefRemove( gkListRef *lr, INT_TYPE index )
 		node = node -> next;
 	}
 
-	ERR_IF( node == tail, GK_LIST_ERROR_GENERAL );
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
 
 	i = (node -> count) - 1 - (count - index);
 	if ( node -> kind == NODE_KIND_INT )
@@ -1339,7 +1339,7 @@ int gkListRefRemove( gkListRef *lr, INT_TYPE index )
 	{
 		tempL = node -> l[ i ];
 		tempL -> lParent = NULL;
-		gkListRefFree( &tempL );
+		trotListRefFree( &tempL );
 		while ( i < ( (node -> count) - 1 ) )
 		{
 			node -> l[ i ] = node -> l[ i + 1 ];
@@ -1358,16 +1358,16 @@ int gkListRefRemove( gkListRef *lr, INT_TYPE index )
 
 		if ( node -> kind == NODE_KIND_INT )
 		{
-			gkFree( node -> n );
+			trotFree( node -> n );
 		}
 		else
 		{
-			gkFree( node -> l );
+			trotFree( node -> l );
 		}
-		gkFree( node );
+		trotFree( node );
 	}
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1382,14 +1382,14 @@ int gkListRefRemove( gkListRef *lr, INT_TYPE index )
 		moving the rest into the new right/next node.
 	\param n Node to split.
 	\param keepInLeft How many items to keep in n.
-	\return 0 on success, <0 on error
+	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft )
+static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
 	int i = 0;
 
@@ -1399,8 +1399,8 @@ static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft )
 
 
 	/* CODE */
-	newNode = (gkListNode *) gkMalloc( sizeof( gkListNode ) );
-	ERR_IF( newNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
+	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	if ( n -> kind == NODE_KIND_INT )
 	{
@@ -1408,8 +1408,8 @@ static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> l = NULL;
-		newNode -> n = (INT_TYPE *) gkMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
-		ERR_IF( newNode -> n == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+		newNode -> n = (INT_TYPE *) trotMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
+		ERR_IF( newNode -> n == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1427,8 +1427,8 @@ static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> n = NULL;
-		newNode -> l = (gkListRef **) gkCalloc( NODE_SIZE, sizeof( gkListRef * ) );
-		ERR_IF( newNode -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+		newNode -> l = (trotListRef **) trotCalloc( NODE_SIZE, sizeof( trotListRef * ) );
+		ERR_IF( newNode -> l == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1448,96 +1448,96 @@ static inline int _gkListNodeSplit( gkListNode *n, int keepInLeft )
 	n -> next -> prev = newNode;
 	n -> next = newNode;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newNode );
+	trotFree( newNode );
 
 	return rc;
 }
 
 /******************************************************************************/
-static inline int _newIntNode( gkListNode **n_A )
+static inline int _newIntNode( trotListNode **n_A )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
 
 	/* CODE */
-	newNode = (gkListNode *) gkMalloc( sizeof( gkListNode ) );
-	ERR_IF( newNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
+	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newNode -> kind = NODE_KIND_INT;
 	newNode -> count = 0;
 
 	newNode -> l = NULL;
-	newNode -> n = (INT_TYPE *) gkMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
-	ERR_IF( newNode -> n == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newNode -> n = (INT_TYPE *) trotMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
+	ERR_IF( newNode -> n == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	/* give back */
 	(*n_A) = newNode;
 	newNode = NULL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newNode );
+	trotFree( newNode );
 
 	return rc;
 }
 
 /******************************************************************************/
-static inline int _newListNode( gkListNode **n_A )
+static inline int _newListNode( trotListNode **n_A )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListNode *newNode = NULL;
+	trotListNode *newNode = NULL;
 
 
 	/* CODE */
-	newNode = (gkListNode *) gkMalloc( sizeof( gkListNode ) );
-	ERR_IF( newNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
+	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newNode -> kind = NODE_KIND_LIST;
 	newNode -> count = 0;
 
 	newNode -> n = NULL;
-	newNode -> l = (gkListRef **) gkCalloc( NODE_SIZE, sizeof( gkListRef * ) );
-	ERR_IF( newNode -> l == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newNode -> l = (trotListRef **) trotCalloc( NODE_SIZE, sizeof( trotListRef * ) );
+	ERR_IF( newNode -> l == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	/* give back */
 	(*n_A) = newNode;
 	newNode = NULL;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newNode );
+	trotFree( newNode );
 
 	return rc;
 }
 
 /******************************************************************************/
-static inline int _refListAdd( gkList *l, gkListRef *r )
+static inline int _refListAdd( trotList *l, trotListRef *r )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
-	gkListRefListNode *refNode = NULL;
+	trotListRefListNode *refNode = NULL;
 
-	gkListRefListNode *newRefNode = NULL;
+	trotListRefListNode *newRefNode = NULL;
 
 
 	/* CODE */
@@ -1549,7 +1549,7 @@ static inline int _refListAdd( gkList *l, gkListRef *r )
 			refNode -> r[ refNode -> count ] = r;
 			refNode -> count += 1;
 
-			return 0;
+			return TROT_LIST_SUCCESS;
 		}
 
 		refNode = refNode -> next;
@@ -1557,11 +1557,11 @@ static inline int _refListAdd( gkList *l, gkListRef *r )
 
 	/* there was no room in list, so create new node, insert ref into new
 	   node, and insert node into list */
-	newRefNode = (gkListRefListNode *) gkMalloc( sizeof( gkListRefListNode ) );
-	ERR_IF( newRefNode == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newRefNode = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
+	ERR_IF( newRefNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
-	newRefNode -> r = (gkListRef **) gkCalloc( REF_LIST_NODE_SIZE, sizeof( gkListRef * ) );
-	ERR_IF( newRefNode -> r == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	newRefNode -> r = (trotListRef **) trotCalloc( REF_LIST_NODE_SIZE, sizeof( trotListRef * ) );
+	ERR_IF( newRefNode -> r == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	newRefNode -> count = 1;
 	newRefNode -> r[ 0 ] = r;
@@ -1571,22 +1571,22 @@ static inline int _refListAdd( gkList *l, gkListRef *r )
 	l -> refListTail -> prev -> next = newRefNode;
 	l -> refListTail -> prev = newRefNode;
 
-	return 0;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newRefNode );
+	trotFree( newRefNode );
 
 	return rc;
 }
 
 /******************************************************************************/
-static inline int _refListRemove( gkList *l, gkListRef *r )
+static inline int _refListRemove( trotList *l, trotListRef *r )
 {
 	/* DATA */
-	gkListRefListNode *refNode = NULL;
+	trotListRefListNode *refNode = NULL;
 
 	int i = 0;
 
@@ -1621,11 +1621,11 @@ static inline int _refListRemove( gkList *l, gkListRef *r )
 					refNode -> prev -> next = refNode -> next;
 					refNode -> next -> prev = refNode -> prev;
 
-					gkFree( refNode -> r );
-					gkFree( refNode );
+					trotFree( refNode -> r );
+					trotFree( refNode );
 				}
 
-				return GK_LIST_SUCCESS;
+				return TROT_LIST_SUCCESS;
 			}
 
 			i += 1;
@@ -1634,35 +1634,35 @@ static inline int _refListRemove( gkList *l, gkListRef *r )
 		refNode = refNode -> next;
 	}
 
-	return GK_LIST_ERROR_GENERAL;
+	return TROT_LIST_ERROR_GENERAL;
 }
 
 /******************************************************************************/
-static inline int _isListReachable( gkList *l )
+static inline int _isListReachable( trotList *l )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 	trotStack *stack = NULL;
 	trotStackNode *stackNode = NULL;
 	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
 
-	gkList *currentL = NULL;
+	trotList *currentL = NULL;
 
-	gkListRefListNode *refNode = NULL;
+	trotListRefListNode *refNode = NULL;
 
 	int j = 0;
 
-	gkList *refParent = NULL;
+	trotList *refParent = NULL;
 
 
 	/* CODE */
 	rc = trotStackInit( &stack );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	/* add first list to stack */
 	rc = trotStackPush( stack, l );
-	ERR_IF( rc != GK_LIST_SUCCESS, rc );
+	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 	/* go through stack */
 	stackNode = stack -> head -> next;
@@ -1691,12 +1691,12 @@ static inline int _isListReachable( gkList *l )
 				{
 					/* add list to stack if it's not already there */
 					rc = trotStackQueryContains( stack, refParent, &contains );
-					ERR_IF( rc != GK_LIST_SUCCESS, rc );
+					ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 
 					if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
 					{
 						rc = trotStackPush( stack, refParent );
-						ERR_IF( rc != GK_LIST_SUCCESS, rc );
+						ERR_IF( rc != TROT_LIST_SUCCESS, rc );
 					}
 				}
 

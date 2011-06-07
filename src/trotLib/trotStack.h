@@ -58,7 +58,7 @@ struct trotStack_STRUCT
 /*! TODO */
 struct trotStackNode_STRUCT
 {
-	gkList *l;
+	trotList *l;
 	int n;
 
 	trotStackNode *prev;
@@ -69,12 +69,12 @@ struct trotStackNode_STRUCT
 int trotStackInit( trotStack **stack );
 int trotStackFree( trotStack **stack );
 
-int trotStackPush( trotStack *stack, gkList *l );
+int trotStackPush( trotStack *stack, trotList *l );
 int trotStackPop( trotStack *stack );
 int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, gkList **l, int *n );
+int trotStackGet( trotStack *stack, trotList **l, int *n );
 
-int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains );
+int trotStackQueryContains( trotStack *stack, trotList *l, TROT_STACK_CONTAINS *contains );
 
 /******************************************************************************/
 #endif

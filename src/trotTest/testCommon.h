@@ -50,19 +50,19 @@ int testPrimaryFunctionality();
 
 /******************************************************************************/
 /* create functions */
-int createAllInts( gkListRef **lr, int count );
-int createAllLists( gkListRef **lr, int count );
-int createIntListAlternating( gkListRef **lr, int count );
-int createListIntAlternating( gkListRef **lr, int count );
-int createHalfIntHalfList( gkListRef **lr, int count );
-int createHalfListHalfInt( gkListRef **lr, int count );
+int createAllInts( trotListRef **lr, int count );
+int createAllLists( trotListRef **lr, int count );
+int createIntListAlternating( trotListRef **lr, int count );
+int createListIntAlternating( trotListRef **lr, int count );
+int createHalfIntHalfList( trotListRef **lr, int count );
+int createHalfListHalfInt( trotListRef **lr, int count );
 
 /******************************************************************************/
 /* misc functions */
-int addListWithValue( gkListRef *lr, INT_TYPE index, INT_TYPE value );
-int check( gkListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
-int checkList( gkListRef *lr );
-void printList( gkListRef *lr );
+int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );
+int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
+int checkList( trotListRef *lr );
+void printList( trotListRef *lr );
 
 /******************************************************************************/
 #endif

@@ -34,45 +34,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "testCommon.h"
 
 /******************************************************************************/
-int addListWithValue( gkListRef *lr, INT_TYPE index, INT_TYPE value )
+int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
-	TEST_ERR_IF( gkListRefAppendInt( newList, value ) != 0 );
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, index, newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefAppendInt( newList, value ) != 0 );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, index, newList ) != 0 );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createAllInts( gkListRef **lr, int count )
+int createAllInts( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( gkListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
 
 		i += 1;
 	}
@@ -95,23 +95,23 @@ int createAllInts( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createAllLists( gkListRef **lr, int count )
+int createAllLists( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
@@ -139,30 +139,30 @@ int createAllLists( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createIntListAlternating( gkListRef **lr, int count )
+int createIntListAlternating( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
 		if ( i % 2 == 1 )
 		{
-			TEST_ERR_IF( gkListRefAppendInt( newList, i ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
 		}
 		else
 		{
@@ -190,23 +190,23 @@ int createIntListAlternating( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createListIntAlternating( gkListRef **lr, int count )
+int createListIntAlternating( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
@@ -217,7 +217,7 @@ int createListIntAlternating( gkListRef **lr, int count )
 		}
 		else
 		{
-			TEST_ERR_IF( gkListRefAppendInt( newList, i ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
 		}
 
 		i += 1;
@@ -241,28 +241,28 @@ int createListIntAlternating( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createHalfIntHalfList( gkListRef **lr, int count )
+int createHalfIntHalfList( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
 	{
-		TEST_ERR_IF( gkListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
 
 		i += 1;
 	}
@@ -292,23 +292,23 @@ int createHalfIntHalfList( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createHalfListHalfInt( gkListRef **lr, int count )
+int createHalfListHalfInt( trotListRef **lr, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *newList = NULL;
+	trotListRef *newList = NULL;
 
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
@@ -319,7 +319,7 @@ int createHalfListHalfInt( gkListRef **lr, int count )
 	}
 	while ( i <= count )
 	{
-		TEST_ERR_IF( gkListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
 
 		i += 1;
 	}
@@ -343,13 +343,13 @@ int createHalfListHalfInt( gkListRef **lr, int count )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &newList );
+	trotListRefFree( &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int check( gkListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
+int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 {
 	/* DATA */
 	int rc = 0;
@@ -358,21 +358,21 @@ int check( gkListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 
 	INT_TYPE valueInList = 0;
 
-	gkListRef *subList = NULL;
+	trotListRef *subList = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( gkListRefGetKind( lr, index, &kind ) != 0 );
+	TEST_ERR_IF( trotListRefGetKind( lr, index, &kind ) != 0 );
 
 	if ( kind == NODE_KIND_INT )
 	{
-		TEST_ERR_IF( gkListRefGetInt( lr, index, &valueInList ) != 0 );
+		TEST_ERR_IF( trotListRefGetInt( lr, index, &valueInList ) != 0 );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else if ( kind == NODE_KIND_LIST )
 	{
-		TEST_ERR_IF( gkListRefGetListTwin( lr, index, &subList ) != 0 );
-		TEST_ERR_IF( gkListRefGetInt( subList, 1, &valueInList ) != 0 );
+		TEST_ERR_IF( trotListRefGetListTwin( lr, index, &subList ) != 0 );
+		TEST_ERR_IF( trotListRefGetInt( subList, 1, &valueInList ) != 0 );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else
@@ -384,21 +384,21 @@ int check( gkListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 	/* CLEANUP */
 	cleanup:
 
-	gkListRefFree( &subList );
+	trotListRefFree( &subList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int checkList( gkListRef *lr )
+int checkList( trotListRef *lr )
 {
 	/* DATA */
 	int rc = 0;
 
-	gkList *l = NULL;
-	gkListNode *node = NULL;
+	trotList *l = NULL;
+	trotListNode *node = NULL;
 
-	gkListRefListNode *refNode = NULL;
+	trotListRefListNode *refNode = NULL;
 
 	int i = 0;
 
@@ -545,11 +545,11 @@ int checkList( gkListRef *lr )
 }
 
 /******************************************************************************/
-void printList( gkListRef *lr )
+void printList( trotListRef *lr )
 {
 	/* DATA */
-	gkList *l = lr -> lPointsTo;
-	gkListNode *node = l -> head -> next;
+	trotList *l = lr -> lPointsTo;
+	trotListNode *node = l -> head -> next;
 	int i = 0;
 
 

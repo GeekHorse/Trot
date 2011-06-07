@@ -44,8 +44,8 @@ int testPreconditions()
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *lr = NULL;
-	gkListRef *lr2 = NULL;
+	trotListRef *lr = NULL;
+	trotListRef *lr2 = NULL;
 	int kind = 0;
 	INT_TYPE n = 0;
 
@@ -61,49 +61,49 @@ int testPreconditions()
 	return 0;
 	#endif
 
-	TEST_ERR_IF( gkListRefInit( NULL ) == GK_LIST_SUCCESS );
-	TEST_ERR_IF( gkListRefInit( &lr ) != GK_LIST_SUCCESS );
-	TEST_ERR_IF( gkListRefInit( &lr ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInit( NULL ) == TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefTwin( NULL, lr ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefTwin( &lr, lr ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefTwin( &lr2, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( NULL, lr ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( &lr, lr ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( &lr2, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefFree( NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefFree( NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefGetCount( NULL, &n ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefGetCount( lr, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetCount( NULL, &n ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetCount( lr, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefGetKind( NULL, 1, &kind ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefGetKind( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetKind( NULL, 1, &kind ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetKind( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefAppendInt( NULL, 0 ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendInt( NULL, 0 ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefAppendListTwin( NULL, lr ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefAppendListTwin( lr, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendListTwin( NULL, lr ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendListTwin( lr, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefInsertInt( NULL, 1, 1 ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertInt( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefInsertListTwin( NULL, 1, lr ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertListTwin( NULL, 1, lr ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefGetInt( NULL, 1, &n ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefGetInt( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetInt( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefGetListTwin( NULL, 1, &lr2 ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefGetListTwin( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefGetListTwin( lr, 1, &lr ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 1, &lr ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefRemoveInt( NULL, 1, &n ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefRemoveInt( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefRemoveList( NULL, 1, &lr2 ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefRemoveList( lr, 1, NULL ) != GK_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( gkListRefRemoveList( lr, 1, &lr ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 1, &lr ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( gkListRefRemove( NULL, 1 ) != GK_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemove( NULL, 1 ) != TROT_LIST_ERROR_PRECOND );
 
-	gkListRefFree( &lr );
+	trotListRefFree( &lr );
 
 	return 0;
 

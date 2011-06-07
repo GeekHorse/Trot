@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return GK_LIST_ERROR_PRECOND; }
+#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_LIST_ERROR_PRECOND; }
 #else
 #define PRECOND_ERR_IF( cond )
 #endif

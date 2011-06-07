@@ -32,22 +32,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trotMem_H
 
 /******************************************************************************/
-#include <stdlib.h> /* for size_t for gkCalloc */
+#include <stdlib.h> /* for size_t for trotCalloc */
 
 /******************************************************************************/
-extern void *(*gkCalloc)( size_t nmemb, size_t size );
-extern void *(*gkMalloc)( size_t size );
-extern void (*gkFree)( void *ptr );
+extern void *(*trotCalloc)( size_t nmemb, size_t size );
+extern void *(*trotMalloc)( size_t size );
+extern void (*trotFree)( void *ptr );
 
 /******************************************************************************/
 #define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) gkMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
-	ERR_IF( POINTER == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	POINTER = ( POINTER_TYPE * ) trotMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
+	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE ** ) gkCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
-	ERR_IF( POINTER == NULL, GK_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	POINTER = ( POINTER_TYPE ** ) trotCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
+	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #endif

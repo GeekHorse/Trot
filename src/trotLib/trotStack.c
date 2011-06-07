@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int trotStackInit( trotStack **stack )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 	trotStack *newStack = NULL;
 
@@ -80,15 +80,15 @@ int trotStackInit( trotStack **stack )
 	(*stack) = newStack;
 	newStack = NULL;
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	gkFree( newHead );
-	gkFree( newTail );
-	gkFree( newStack );
+	trotFree( newHead );
+	trotFree( newTail );
+	trotFree( newStack );
 
 	return rc;
 }
@@ -107,7 +107,7 @@ int trotStackFree( trotStack **stack )
 	/* CODE */
 	if ( (*stack) == NULL )
 	{
-		return GK_LIST_SUCCESS;
+		return TROT_LIST_SUCCESS;
 	}
 
 	node = (*stack) -> head;
@@ -115,22 +115,22 @@ int trotStackFree( trotStack **stack )
 	{
 		node = node -> next;
 
-		gkFree( node -> prev );
+		trotFree( node -> prev );
 	}
 
-	gkFree( (*stack) -> tail );
+	trotFree( (*stack) -> tail );
 
-	gkFree( (*stack) );
+	trotFree( (*stack) );
 	(*stack) = NULL;
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 }
 
 /******************************************************************************/
-int trotStackPush( trotStack *stack, gkList *l )
+int trotStackPush( trotStack *stack, trotList *l )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 	trotStackNode *newNode = NULL;
 
@@ -151,7 +151,7 @@ int trotStackPush( trotStack *stack, gkList *l )
 	stack -> tail -> prev -> next = newNode;
 	stack -> tail -> prev = newNode;
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -164,7 +164,7 @@ int trotStackPush( trotStack *stack, gkList *l )
 int trotStackPop( trotStack *stack )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 	trotStackNode *node = NULL;
 
@@ -174,16 +174,16 @@ int trotStackPop( trotStack *stack )
 
 
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
 
 	node = stack -> tail -> prev;
 
 	node -> prev -> next = node -> next;
 	node -> next -> prev = node -> prev;
 
-	gkFree( node );
+	trotFree( node );
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -196,7 +196,7 @@ int trotStackPop( trotStack *stack )
 int trotStackIncrementTopN( trotStack *stack )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
@@ -204,11 +204,11 @@ int trotStackIncrementTopN( trotStack *stack )
 
 
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
 
 	stack -> tail -> prev -> n += 1;
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -218,10 +218,10 @@ int trotStackIncrementTopN( trotStack *stack )
 }
 
 /******************************************************************************/
-int trotStackGet( trotStack *stack, gkList **l, int *n )
+int trotStackGet( trotStack *stack, trotList **l, int *n )
 {
 	/* DATA */
-	int rc = GK_LIST_SUCCESS;
+	int rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
@@ -232,12 +232,12 @@ int trotStackGet( trotStack *stack, gkList **l, int *n )
 
 
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, GK_LIST_ERROR_GENERAL );
+	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
 
 	(*l) = stack -> tail -> prev -> l;
 	(*n) = stack -> tail -> prev -> n;
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
@@ -247,7 +247,7 @@ int trotStackGet( trotStack *stack, gkList **l, int *n )
 }
 
 /******************************************************************************/
-int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *contains )
+int trotStackQueryContains( trotStack *stack, trotList *l, TROT_STACK_CONTAINS *contains )
 {
 	/* DATA */
 	trotStackNode *node = NULL;
@@ -268,12 +268,12 @@ int trotStackQueryContains( trotStack *stack, gkList *l, TROT_STACK_CONTAINS *co
 		if ( node -> l == l )
 		{
 			(*contains) = TROT_STACK_DOES_CONTAIN;
-			return GK_LIST_SUCCESS;
+			return TROT_LIST_SUCCESS;
 		}
 
 		node = node -> next;
 	}
 
-	return GK_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS;
 }
 

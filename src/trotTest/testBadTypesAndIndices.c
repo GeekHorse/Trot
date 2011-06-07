@@ -44,8 +44,8 @@ int testBadTypesAndIndices()
 	/* DATA */
 	int rc = 0;
 
-	gkListRef *lr = NULL;
-	gkListRef *lr2 = NULL;
+	trotListRef *lr = NULL;
+	trotListRef *lr2 = NULL;
 	int kind = 0;
 	INT_TYPE n = 0;
 
@@ -54,45 +54,45 @@ int testBadTypesAndIndices()
 	/* **************************************** */
 	/* test bad indices, bad types */
 	printf( "Testing bad indices and bad types...\n" ); fflush( stdout );
-	TEST_ERR_IF( createHalfIntHalfList( &lr, 10 ) != GK_LIST_SUCCESS );
+	TEST_ERR_IF( createHalfIntHalfList( &lr, 10 ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( gkListRefGetKind( lr, 0, &kind ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetKind( lr, 11, &kind ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetKind( lr, -11, &kind ) != GK_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, 0, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, 11, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, -11, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( gkListRefInsertInt( lr, 0, 1 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefInsertInt( lr, 12, 1 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefInsertInt( lr, -12, 1 ) != GK_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, 12, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, -12, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
 	
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, 0, lr ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, 12, lr ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefInsertListTwin( lr, -12, lr ) != GK_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 0, lr ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 12, lr ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, -12, lr ) != TROT_LIST_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( gkListRefGetInt( lr, 0, &n	) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetInt( lr, 11, &n ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetInt( lr, -11, &n ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetInt( lr, 6, &n ) != GK_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefGetInt( lr, 0, &n	) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, -11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, 6, &n ) != TROT_LIST_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( gkListRefGetListTwin( lr, 0, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetListTwin( lr, 11, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetListTwin( lr, -11, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefGetListTwin( lr, 5, &lr2 ) != GK_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 0, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( gkListRefRemoveInt( lr, 0, &n ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveInt( lr, 11, &n ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveInt( lr, -11, &n ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveInt( lr, 6, &n ) != GK_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 0, &n ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, -11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 6, &n ) != TROT_LIST_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( gkListRefRemoveList( lr, 0, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveList( lr, 11, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveList( lr, -11, &lr2 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemoveList( lr, 5, &lr2 ) != GK_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 0, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( gkListRefRemove( lr, 0 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemove( lr, 11 ) != GK_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( gkListRefRemove( lr, -11 ) != GK_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
 
-	gkListRefFree( &lr );
+	trotListRefFree( &lr );
 
 	return 0;
 
