@@ -81,11 +81,8 @@ int trotListRefInit( trotListRef **lr_A )
 
 	/* CODE */
 	/* create list of refs that point to this list */
-	newRefHead = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
-	ERR_IF( newRefHead == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-	newRefTail = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
-	ERR_IF( newRefTail == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newRefHead, trotListRefListNode, 1 );
+	TROT_MALLOC( newRefTail, trotListRefListNode, 1 );
 
 	newRefHead -> count = 0;
 	newRefHead -> r = NULL;
@@ -98,11 +95,8 @@ int trotListRefInit( trotListRef **lr_A )
 	newRefTail -> prev = newRefHead;
 
 	/* create the data list */
-	newHead = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
-	ERR_IF( newHead == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-	newTail = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
-	ERR_IF( newTail == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newHead, trotListNode, 1 );
+	TROT_MALLOC( newTail, trotListNode, 1 );
 
 	newHead -> kind = NODE_KIND_HEAD_OR_TAIL;
 	newHead -> count = 0;
@@ -119,8 +113,7 @@ int trotListRefInit( trotListRef **lr_A )
 	newTail -> next = newTail;
 
 	/* create actual list structure */
-	newList = (trotList *) trotMalloc( sizeof( trotList ) );
-	ERR_IF( newList == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newList, trotList, 1 );
 
 	newList -> reachable = 1;
 
@@ -137,8 +130,7 @@ int trotListRefInit( trotListRef **lr_A )
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	newListRef = (trotListRef *) trotMalloc( sizeof( trotListRef ) );
-	ERR_IF( newListRef == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newListRef, trotListRef, 1 );
 
 	newListRef -> lParent = NULL;
 
@@ -192,8 +184,7 @@ int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 
 
 	/* CODE */
-	newListRef = (trotListRef *) trotMalloc( sizeof( trotListRef ) );
-	ERR_IF( newListRef == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newListRef, trotListRef, 1 );
 
 	newListRef -> lParent = NULL;
 	newListRef -> lPointsTo = lrToTwin -> lPointsTo;
@@ -1399,8 +1390,7 @@ static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft )
 
 
 	/* CODE */
-	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
-	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newNode, trotListNode, 1 );
 
 	if ( n -> kind == NODE_KIND_INT )
 	{
@@ -1408,8 +1398,7 @@ static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> l = NULL;
-		newNode -> n = (INT_TYPE *) trotMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
-		ERR_IF( newNode -> n == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+		TROT_MALLOC( newNode -> n, INT_TYPE, NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1427,8 +1416,7 @@ static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> n = NULL;
-		newNode -> l = (trotListRef **) trotCalloc( NODE_SIZE, sizeof( trotListRef * ) );
-		ERR_IF( newNode -> l == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+		TROT_CALLOC( newNode -> l, trotListRef, NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1469,15 +1457,13 @@ static inline int _newIntNode( trotListNode **n_A )
 
 
 	/* CODE */
-	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
-	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newNode, trotListNode, 1 );
 
 	newNode -> kind = NODE_KIND_INT;
 	newNode -> count = 0;
 
 	newNode -> l = NULL;
-	newNode -> n = (INT_TYPE *) trotMalloc( sizeof( INT_TYPE * ) * NODE_SIZE );
-	ERR_IF( newNode -> n == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newNode -> n, INT_TYPE, NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -1504,15 +1490,13 @@ static inline int _newListNode( trotListNode **n_A )
 
 
 	/* CODE */
-	newNode = (trotListNode *) trotMalloc( sizeof( trotListNode ) );
-	ERR_IF( newNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newNode, trotListNode, 1 );
 
 	newNode -> kind = NODE_KIND_LIST;
 	newNode -> count = 0;
 
 	newNode -> n = NULL;
-	newNode -> l = (trotListRef **) trotCalloc( NODE_SIZE, sizeof( trotListRef * ) );
-	ERR_IF( newNode -> l == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_CALLOC( newNode -> l, trotListRef, NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -1557,11 +1541,9 @@ static inline int _refListAdd( trotList *l, trotListRef *r )
 
 	/* there was no room in list, so create new node, insert ref into new
 	   node, and insert node into list */
-	newRefNode = (trotListRefListNode *) trotMalloc( sizeof( trotListRefListNode ) );
-	ERR_IF( newRefNode == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_MALLOC( newRefNode, trotListRefListNode, 1 );
 
-	newRefNode -> r = (trotListRef **) trotCalloc( REF_LIST_NODE_SIZE, sizeof( trotListRef * ) );
-	ERR_IF( newRefNode -> r == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	TROT_CALLOC( newRefNode -> r, trotListRef, REF_LIST_NODE_SIZE );
 
 	newRefNode -> count = 1;
 	newRefNode -> r[ 0 ] = r;
