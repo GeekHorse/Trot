@@ -1,4 +1,4 @@
-.PHONY: all debug clean
+.PHONY: all debug debug2 clean
 
 CFLAGS += -Wall -Werror -Wextra
 CFLAGS += -I../trotLib
@@ -10,6 +10,8 @@ OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
 
 all: CFLAGS += -O3
 all: trotTest
+
+debug2: debug
 
 debug: CFLAGS += -DTEST_PRECOND=1
 debug: LDFLAGS += -fprofile-arcs

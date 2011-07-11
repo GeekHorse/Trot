@@ -49,9 +49,10 @@ static inline int _newIntNode( trotListNode **n_A );
 static inline int _newListNode( trotListNode **n_A );
 
 static inline int _refListAdd( trotList *l, trotListRef *r );
-static inline int _refListRemove( trotList *l, trotListRef *r );
+static inline void _refListRemove( trotList *l, trotListRef *r );
 
-static inline int _isListReachable( trotList *l );
+static inline void _isListReachable( trotList *l );
+static inline int _findNextParent( trotList *l, int queryVisited, trotList **parent );
 
 /******************************************************************************/
 /*!
@@ -116,6 +117,9 @@ int trotListRefInit( trotListRef **lr_A )
 	TROT_MALLOC( newList, trotList, 1 );
 
 	newList -> reachable = 1;
+	newList -> flagVisited = 0;
+	newList -> previous = NULL;
+	newList -> nextToFree = NULL;
 
 	newList -> childrenCount = 0;
 
@@ -215,7 +219,7 @@ int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 	\param lr_F Pointer to a trotListRef pointer.
 		(*lr_F) can be NULL, in which case nothing will happen.
 		On return, (*lr_F) will be NULL.
-	\return void
+	\return TODO
 */
 int trotListRefFree( trotListRef **lr_F )
 {
@@ -224,15 +228,12 @@ int trotListRefFree( trotListRef **lr_F )
 
 	trotList *list = NULL;
 
-	trotStack *stack = NULL;
-	trotStackNode *stackNode = NULL;
-	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
-
 	trotListNode *node = NULL;
 
 	int j = 0;
 	trotList *tempList = NULL;
 
+	trotList *nextL = NULL;
 	trotList *currentL = NULL;
 
 
@@ -251,17 +252,14 @@ int trotListRefFree( trotListRef **lr_F )
 	list = (*lr_F) -> lPointsTo;
 
 	/* remove ref from list's ref list */
-	rc = _refListRemove( list, (*lr_F) );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
+	_refListRemove( list, (*lr_F) );
 
 	/* free ref */
 	trotFree( (*lr_F) );
 	(*lr_F) = NULL;
 
 	/* is list reachable? */
-	rc = _isListReachable( list );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
+	_isListReachable( list );
 	if ( list -> reachable )
 	{
 		return TROT_LIST_SUCCESS;
@@ -269,21 +267,10 @@ int trotListRefFree( trotListRef **lr_F )
 
 	/* we need to free it */
 
-	/* create our stack */
-	rc = trotStackInit( &stack );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
-	/* add this list to stack */
-	rc = trotStackPush( stack, list );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
 	/* go through stack */
-	stackNode = stack -> head -> next;
-	while ( stackNode != stack -> tail )
+	currentL = list;
+	while ( currentL != NULL )
 	{
-		/* get list */
-		currentL = stackNode -> l;
-
 		/* free data */
 		node = currentL -> head -> next;
 		while ( node != currentL -> tail )
@@ -298,27 +285,19 @@ int trotListRefFree( trotListRef **lr_F )
 				{
 					tempList = node -> l[ j ] -> lPointsTo;
 			
-					rc = _refListRemove( tempList, node -> l[ j ] );
-					ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
+					_refListRemove( tempList, node -> l[ j ] );
 
 					trotFree( node -> l[ j ] );
 					node -> l[ j ] = NULL;
 
 					if ( tempList -> reachable == 1 )
 					{
-						rc = _isListReachable( tempList );
-						ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
-
+						_isListReachable( tempList );
 						if ( tempList -> reachable == 0 )
 						{
-							/* need to free this list too, so add it to the stack */
-							rc = trotStackQueryContains( stack, tempList, &contains );
-							ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
-							if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
-							{
-								rc = trotStackPush( stack, tempList );
-								ERR_IF( rc != TROT_LIST_SUCCESS, rc ); /* TODO: what state are we in if we error here??? */
-							}
+							/* need to free this list too */
+							tempList -> nextToFree = currentL -> nextToFree;
+							currentL -> nextToFree = tempList;
 						}
 					}
 				}
@@ -330,40 +309,31 @@ int trotListRefFree( trotListRef **lr_F )
 			trotFree( node -> prev );
 		}
 
-		trotFree( currentL -> head );
-		currentL -> head = NULL;
-
-		trotFree( currentL -> tail );
-		currentL -> tail = NULL;
-
-		/* *** */
-		stackNode = stackNode -> next;
+		currentL = currentL -> nextToFree;
 	}
 
-	/* go through stack */
-	stackNode = stack -> head -> next;
-	while ( stackNode != stack -> tail )
+	/* *** */
+	nextL = list;
+	while ( nextL != NULL )
 	{
-		/* get list */
-		currentL = stackNode -> l;
-	
+		/* *** */
+		currentL = nextL;
+
+		/* *** */
+		nextL = nextL -> nextToFree;
+
+		/* *** */
+		trotFree( currentL -> head );
+		trotFree( currentL -> tail );
 		trotFree( currentL -> refListHead );
 		trotFree( currentL -> refListTail );
-
 		trotFree( currentL );
-
-		/* *** */
-		stackNode = stackNode -> next;
 	}
-
-	trotStackFree( &stack );
 
 	return TROT_LIST_SUCCESS;
 
 	/* CLEANUP */
 	cleanup:
-
-	/* TODO: what state are we in??? */
 
 	return rc;
 }
@@ -1565,7 +1535,7 @@ static inline int _refListAdd( trotList *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static inline int _refListRemove( trotList *l, trotListRef *r )
+static inline void _refListRemove( trotList *l, trotListRef *r )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
@@ -1607,7 +1577,7 @@ static inline int _refListRemove( trotList *l, trotListRef *r )
 					trotFree( refNode );
 				}
 
-				return TROT_LIST_SUCCESS;
+				return;
 			}
 
 			i += 1;
@@ -1616,92 +1586,142 @@ static inline int _refListRemove( trotList *l, trotListRef *r )
 		refNode = refNode -> next;
 	}
 
-	return TROT_LIST_ERROR_GENERAL;
+	/* TODO: this should never happen, maybe if we're in debug mode we can
+		crash or something */
+	return;
 }
 
 /******************************************************************************/
-static inline int _isListReachable( trotList *l )
+static inline void _isListReachable( trotList *l )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
-
-	trotStack *stack = NULL;
-	trotStackNode *stackNode = NULL;
-	TROT_STACK_CONTAINS contains = TROT_STACK_DOES_NOT_CONTAIN;
+	int flagFoundClientRef = 0;
 
 	trotList *currentL = NULL;
 
-	trotListRefListNode *refNode = NULL;
+	trotList *parent = NULL;
 
-	int j = 0;
-
-	trotList *refParent = NULL;
+	trotList *tempL = NULL;
 
 
 	/* CODE */
-	rc = trotStackInit( &stack );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
-	/* add first list to stack */
-	rc = trotStackPush( stack, l );
-	ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
-	/* go through stack */
-	stackNode = stack -> head -> next;
-	while ( stackNode != stack -> tail )
+	if ( l -> reachable == 0 )
 	{
-		currentL = stackNode -> l;
-
-		/* for each reference that points to this list */
-		refNode = currentL -> refListHead;
-		while ( refNode != currentL -> refListTail )
-		{
-			j = 0;
-			while ( j < refNode -> count )
-			{
-				/* get list this ref is in */
-				refParent = refNode -> r[ j ] -> lParent;
-
-				/* if ref has no parent, it means it's a client
-				   reference, and so the list is reachable */
-				if ( refParent == NULL )
-				{
-					goto cleanup;
-				}
-
-				if ( refParent -> reachable )
-				{
-					/* add list to stack if it's not already there */
-					rc = trotStackQueryContains( stack, refParent, &contains );
-					ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-
-					if ( contains == TROT_STACK_DOES_NOT_CONTAIN )
-					{
-						rc = trotStackPush( stack, refParent );
-						ERR_IF( rc != TROT_LIST_SUCCESS, rc );
-					}
-				}
-
-				j += 1;
-			}
-
-			refNode = refNode -> next;
-		}
-
-		/* *** */
-		stackNode = stackNode -> next;
+		return;
 	}
 
-	/* if we've gotten here, we haven't found any client refs, so the list
-	   isn't reachable */
-	l -> reachable = 0;
+	/* go "up" trying to find a client ref */
+	currentL = l;
+	currentL -> flagVisited = 1;
 
-	/* CLEANUP */
-	cleanup:
+	while ( 1 )
+	{
+		if ( _findNextParent( currentL, 0, &parent ) != 0 )
+		{
+			if ( currentL -> previous != NULL )
+			{
+				tempL = currentL;
+				currentL = currentL -> previous;
+				tempL -> previous = NULL;
 
-	/* free stack */
-	trotStackFree( &stack );
+				continue;
+			}
 
-	return rc;
+			break;
+		}
+
+		/* did we find a client ref? */
+		if ( parent == NULL )
+		{
+			flagFoundClientRef = 1;
+			break;
+		}
+
+		parent -> previous = currentL;
+		currentL = parent;
+		currentL -> flagVisited = 1;
+	}
+
+	if ( ! flagFoundClientRef )
+	{
+		l -> reachable = 0;
+	}
+
+	/* restart, go "up", resetting all the flagVisited flags to 0 */
+	currentL = l;
+	currentL -> flagVisited = 0;
+
+	while ( 1 )
+	{
+		if ( _findNextParent( currentL, 1, &parent ) != 0 )
+		{
+			if ( currentL -> previous != NULL )
+			{
+				tempL = currentL;
+				currentL = currentL -> previous;
+				tempL -> previous = NULL;
+
+				continue;
+			}
+
+			break;
+		}
+
+		parent -> previous = currentL;
+		currentL = parent;
+		currentL -> flagVisited = 0;
+	}
+
+	return;
+}
+
+/******************************************************************************/
+static inline int _findNextParent( trotList *l, int queryVisited, trotList **parent )
+{
+	/* DATA */
+	trotListRefListNode *refNode = NULL;
+
+	int i = 0;
+
+	trotList *tempParent = NULL;
+
+
+	/* CODE */
+	/* for each reference that points to this list */
+	refNode = l -> refListHead;
+	while ( refNode != l -> refListTail )
+	{
+		i = 0;
+		while ( i < refNode -> count )
+		{
+			/* get list this ref is in */
+			tempParent = refNode -> r[ i ] -> lParent;
+
+			/* if ref has no parent, it means it's a client
+			   reference, and so the list is reachable, but we only
+			   care if our caller is looking for not visited
+			   parents */
+			if ( tempParent == NULL )
+			{
+				if ( queryVisited == 0 )
+				{
+					(*parent) = NULL;
+					return 0;
+				}
+			}
+			/* if this matches our 'visit' query, then return it */
+			else if ( tempParent -> flagVisited == queryVisited )
+			{
+				(*parent) = tempParent;
+				return 0;
+			}
+
+			i += 1;
+		}
+
+		refNode = refNode -> next;
+	}
+
+	return -1;
 }
 

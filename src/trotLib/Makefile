@@ -1,4 +1,4 @@
-.PHONY: all debug coverage clean
+.PHONY: all debug2 debug coverage clean
 
 CFLAGS += -Wall -Werror -Wextra
 
@@ -12,7 +12,7 @@ all: libTrot.a
 debug2: CFLAGS += -DPRINT_ERR=1
 debug2: debug
 
-debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage
+debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -g
 debug: libTrot.a
 
 coverage:

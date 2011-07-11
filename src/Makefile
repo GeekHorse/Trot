@@ -1,4 +1,4 @@
-.PHONY: usage all debug test vtest coverage clean trotLib trotTest
+.PHONY: usage all debug debug2 test vtest coverage clean trotLib trotTest
 
 ARGS =
 
@@ -12,6 +12,9 @@ usage:
 	@echo "  clean    - cleans up files"
 
 all: trotLib trotTest
+
+debug2: ARGS = debug2
+debug2: all
 
 debug: ARGS = debug
 debug: all

@@ -95,6 +95,16 @@ struct trotList_STRUCT
 	/*! Flag that says whether this list is still reachable or not. If not
 	reachable, then this list can be freed */
 	int reachable;
+	/*! Flag for 'is list reachable' so we don't get into an infinite
+	    loop */
+	int flagVisited;
+	/*! Pointer to "previous" list. Used when we're seeing if a list is
+	    reachable */
+	trotList *previous;
+	/*! Pointer to "nextToFree" list. Only set when this list is no longer
+	    reachable. We use this to keep a linked list of lists that need to
+	    be freed. */
+	trotList *nextToFree;
 	/*! How many children are in the list */
 	int childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that
