@@ -63,12 +63,14 @@ int trotStackInit( trotStack **stack )
 	TROT_MALLOC( newTail, trotStackNode, 1 );
 	TROT_MALLOC( newStack, trotStack, 1 );
 
-	newHead -> l = NULL;
+	newHead -> lr1 = NULL;
+	newHead -> lr2 = NULL;
 	newHead -> n = 0;
 	newHead -> prev = newHead;
 	newHead -> next = newTail;
 
-	newTail -> l = NULL;
+	newTail -> lr1 = NULL;
+	newTail -> lr2 = NULL;
 	newTail -> n = 0;
 	newTail -> prev = newHead;
 	newTail -> next = newTail;
@@ -94,20 +96,16 @@ int trotStackInit( trotStack **stack )
 }
 
 /******************************************************************************/
-int trotStackFree( trotStack **stack )
+void trotStackFree( trotStack **stack )
 {
 	/* DATA */
 	trotStackNode *node = NULL;
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-
-
 	/* CODE */
-	if ( (*stack) == NULL )
+	if ( stack == NULL || (*stack) == NULL )
 	{
-		return TROT_LIST_SUCCESS;
+		return;
 	}
 
 	node = (*stack) -> head;
@@ -123,11 +121,11 @@ int trotStackFree( trotStack **stack )
 	trotFree( (*stack) );
 	(*stack) = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return;
 }
 
 /******************************************************************************/
-int trotStackPush( trotStack *stack, trotList *l )
+int trotStackPush( trotStack *stack, trotListRef *lr1, trotListRef *lr2 )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -137,13 +135,13 @@ int trotStackPush( trotStack *stack, trotList *l )
 
 	/* PRECOND */
 	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
-	newNode -> l = l;
+	newNode -> lr1 = lr1;
+	newNode -> lr2 = lr2;
 	newNode -> n = 0;
 	newNode -> next = stack -> tail;
 	newNode -> prev = stack -> tail -> prev;
@@ -161,7 +159,7 @@ int trotStackPush( trotStack *stack, trotList *l )
 }
 
 /******************************************************************************/
-int trotStackPop( trotStack *stack )
+int trotStackPop( trotStack *stack, int *empty )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -171,6 +169,7 @@ int trotStackPop( trotStack *stack )
 
 	/* PRECOND */
 	PRECOND_ERR_IF( stack == NULL );
+	PRECOND_ERR_IF( empty == NULL );
 
 
 	/* CODE */
@@ -182,6 +181,15 @@ int trotStackPop( trotStack *stack )
 	node -> next -> prev = node -> prev;
 
 	trotFree( node );
+
+	if ( stack -> tail -> prev == stack -> head )
+	{
+		(*empty) = 1;
+	}
+	else
+	{
+		(*empty) = 0;
+	}
 
 	return TROT_LIST_SUCCESS;
 
@@ -218,7 +226,7 @@ int trotStackIncrementTopN( trotStack *stack )
 }
 
 /******************************************************************************/
-int trotStackGet( trotStack *stack, trotList **l, int *n )
+int trotStackGet( trotStack *stack, trotListRef **lr1, trotListRef **lr2, int *n )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -226,15 +234,16 @@ int trotStackGet( trotStack *stack, trotList **l, int *n )
 
 	/* PRECOND */
 	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( (*l) != NULL );
+	PRECOND_ERR_IF( lr1 == NULL );
+	PRECOND_ERR_IF( lr2 == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
 	/* CODE */
 	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
 
-	(*l) = stack -> tail -> prev -> l;
+	(*lr1) = stack -> tail -> prev -> lr1;
+	(*lr2) = stack -> tail -> prev -> lr2;
 	(*n) = stack -> tail -> prev -> n;
 
 	return TROT_LIST_SUCCESS;
@@ -247,7 +256,7 @@ int trotStackGet( trotStack *stack, trotList **l, int *n )
 }
 
 /******************************************************************************/
-int trotStackQueryContains( trotStack *stack, trotList *l, TROT_STACK_CONTAINS *contains )
+int trotStackQueryContains( trotStack *stack, trotListRef *lr1, trotListRef *lr2, TROT_STACK_CONTAINS *contains )
 {
 	/* DATA */
 	trotStackNode *node = NULL;
@@ -255,7 +264,6 @@ int trotStackQueryContains( trotStack *stack, trotList *l, TROT_STACK_CONTAINS *
 
 	/* PRECOND */
 	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( contains == NULL );
 
 
@@ -265,7 +273,9 @@ int trotStackQueryContains( trotStack *stack, trotList *l, TROT_STACK_CONTAINS *
 	node = stack -> head -> next;
 	while ( node != stack -> tail )
 	{
-		if ( node -> l == l )
+		if (    ( node -> lr1 -> lPointsTo == lr1 -> lPointsTo && node -> lr2 -> lPointsTo == lr2 -> lPointsTo )
+		     || ( node -> lr1 -> lPointsTo == lr2 -> lPointsTo && node -> lr2 -> lPointsTo == lr1 -> lPointsTo  )
+		   )
 		{
 			(*contains) = TROT_STACK_DOES_CONTAIN;
 			return TROT_LIST_SUCCESS;

@@ -53,19 +53,21 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	int rc = TROT_LIST_SUCCESS;
 
 	trotStack *stack = NULL;
-	trotStack *stackCompareTo = NULL;
+	int stackEmpty = 0;
 
-	trotListRef *l1 = NULL;
-	INT_TYPE index1 = 0;
+	trotListRef *lr1 = NULL;
 	INT_TYPE count1 = 0;
 	INT_TYPE n1 = 0;
+	int kind1 = NODE_KIND_HEAD_OR_TAIL;
 	trotListRef *subL1 = NULL;
 
-	trotListRef *l2 = NULL;
-	INT_TYPE index2 = 0;
+	trotListRef *lr2 = NULL;
 	INT_TYPE count2 = 0;
 	INT_TYPE n2 = 0;
+	int kind2 = NODE_KIND_HEAD_OR_TAIL;
 	trotListRef *subL2 = NULL;
+
+	INT_TYPE index = 0;
 
 
 	/* PRECOND */
@@ -81,18 +83,14 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	/* no need to test if they point to same list */
 	if ( lr -> lPointsTo == lrCompareTo -> lPointsTo )
 	{
-		return 0;
+		return TROT_LIST_SUCCESS;
 	}
 
-	/* init stacks */
+	/* init stack */
 	rc = trotStackInit( &stack );
 	ERR_IF( rc != 0, rc );
-	rc = trotStackInit( &stackCompareTo );
-	ERR_IF( rc != 0, rc );
 
-	rc = trotStackPush( stack, lr );
-	ERR_IF( rc != 0, rc );
-	rc = trotStackPush( stackCompareTo, lrCompareTo );
+	rc = trotStackPush( stack, lr, lrCompareTo );
 	ERR_IF( rc != 0, rc );
 
 	/* compare loop */
@@ -101,48 +99,47 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		/* increment top of stack */
 		rc = trotStackIncrementTopN( stack );
 		ERR_IF( rc != 0, rc );
-		rc = trotStackIncrementTopN( stackCompareTo );
-		ERR_IF( rc != 0, rc );
 
 		/* get both stack info */
-		rc = trotStackGet( stack, &l1, &index1 );
-		ERR_IF( rc != 0, rc );
-		rc = trotStackGet( stackCompareTo, &l2, &index2 );
+		rc = trotStackGet( stack, &lr1, &lr2, &index );
 		ERR_IF( rc != 0, rc );
 
 		/* make sure we're in index */
-		rc = trotListRefGetCount( l1, &count1 );
+		rc = trotListRefGetCount( lr1, &count1 );
 		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetCount( l2, &count2 );
+		rc = trotListRefGetCount( lr2, &count2 );
 		ERR_IF( rc != 0, rc );
 
 		/* if both are too big */
-		if ( index1 > count1 && index2 > count2 )
+		if ( index > count1 && index > count2 )
 		{
-			rc = trotStackPop( stack );
+			rc = trotStackPop( stack, &stackEmpty );
 			ERR_IF( rc != 0, rc );
-			rc = trotStackPop( stackCompareTo );
-			ERR_IF( rc != 0, rc );
+
+			if ( stackEmpty )
+			{
+				break;
+			}
 
 			continue;
 		}
 		/* if index1 is too big and index2 is ok */
-		if ( index1 > count1 && index2 <= count2 )
+		if ( index > count1 && index <= count2 )
 		{
 			(*compareResult) = TROT_LIST_COMPARE_LESS_THAN;
 			break;
 		}
 		/* if n1 is ok and n2 is too big */
-		if ( index1 <= count1 && index2 > count2 )
+		if ( index <= count1 && index > count2 )
 		{
 			(*compareResult) = TROT_LIST_COMPARE_GREATER_THAN;
 			break;
 		}
 
 		/* get kinds */
-		rc = trotListRefGetKind( l1, index1, &kind1 );
+		rc = trotListRefGetKind( lr1, index, &kind1 );
 		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetKind( l2, index2, &kind2 );
+		rc = trotListRefGetKind( lr2, index, &kind2 );
 		ERR_IF( rc != 0, rc );
 
 		/* compare kinds */
@@ -159,11 +156,11 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		}
 
 		/* get and compare ints */
-		if ( kind1 == NODE_KIND_INT && kind2 == NODE_KINT_INT )
+		if ( kind1 == NODE_KIND_INT && kind2 == NODE_KIND_INT )
 		{
-			rc = trotListRefGetInt( l1, index1, &n1 );
+			rc = trotListRefGetInt( lr1, index, &n1 );
 			ERR_IF( rc != 0, rc );
-			rc = trotListRefGetInt( l2, index2, &n2 );
+			rc = trotListRefGetInt( lr2, index, &n2 );
 			ERR_IF( rc != 0, rc );
 
 			if ( n1 < n2 )
@@ -180,35 +177,35 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 			continue;
 		}
 
+		/* TODO: put in a "should never happen" MACRO HERE */
+
 		/* get lists */
-		rc = trotListRefGetListTwin( l1, index1, &subL1 );
+		rc = trotListRefGetListTwin( lr1, index, &subL1 );
 		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetListTwin( l2, index2, &subL2 );
+		rc = trotListRefGetListTwin( lr2, index, &subL2 );
 		ERR_IF( rc != 0, rc );
 
 		/* only add if different.
 		   if they point to same, there's no need to compare */
-		if ( subL1 -> lPointTo != subL2 -> lPointTo )
+		if ( subL1 -> lPointsTo != subL2 -> lPointsTo )
 		{
-			rc = trotStackPush( stack, subL1 );
-			ERR_IF( rc != 0, rc );
-			rc = trotStackPush( stackCompareTo, subL2 );
+			rc = trotStackPush( stack, subL1, subL2 );
 			ERR_IF( rc != 0, rc );
 		}
 
 		/* free our refs */
-		rc = trotListRefFree( &subL1 );
-		ERR_IF( rc != 0, rc );
-		rc = trotListRefFree( &subL2 );
-		ERR_IF( rc != 0, rc );
+		trotListRefFree( &subL1 );
+		trotListRefFree( &subL2 );
 	}
-
-
-	return 0;
 
 
 	/* CLEANUP */
 	cleanup:
+
+	trotListRefFree( &subL1 );
+	trotListRefFree( &subL2 );
+
+	trotStackFree( &stack );
 
 	return rc;
 }

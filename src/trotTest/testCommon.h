@@ -47,6 +47,7 @@ int testPreconditions();
 int testMemory();
 int testBadTypesAndIndices();
 int testPrimaryFunctionality();
+int testSecondaryFunctionality();
 
 /******************************************************************************/
 /* create functions */
