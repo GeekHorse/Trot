@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotListInternal.h"
 #include "trotStack.h"
 
 /******************************************************************************/
@@ -55,17 +56,17 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	trotStack *stack = NULL;
 	int stackEmpty = 0;
 
-	trotListRef *lr1 = NULL;
+	trotList *l1 = NULL;
 	INT_TYPE count1 = 0;
 	INT_TYPE n1 = 0;
 	int kind1 = NODE_KIND_HEAD_OR_TAIL;
-	trotListRef *subL1 = NULL;
+	trotList *subL1 = NULL;
 
-	trotListRef *lr2 = NULL;
+	trotList *l2 = NULL;
 	INT_TYPE count2 = 0;
 	INT_TYPE n2 = 0;
 	int kind2 = NODE_KIND_HEAD_OR_TAIL;
-	trotListRef *subL2 = NULL;
+	trotList *subL2 = NULL;
 
 	INT_TYPE index = 0;
 
@@ -90,7 +91,7 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	rc = trotStackInit( &stack );
 	ERR_IF( rc != 0, rc );
 
-	rc = trotStackPush( stack, lr, lrCompareTo );
+	rc = trotStackPush( stack, lr -> lPointsTo, lrCompareTo -> lPointsTo );
 	ERR_IF( rc != 0, rc );
 
 	/* compare loop */
@@ -101,14 +102,12 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		ERR_IF( rc != 0, rc );
 
 		/* get both stack info */
-		rc = trotStackGet( stack, &lr1, &lr2, &index );
+		rc = trotStackGet( stack, &l1, &l2, &index );
 		ERR_IF( rc != 0, rc );
 
 		/* make sure we're in index */
-		rc = trotListRefGetCount( lr1, &count1 );
-		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetCount( lr2, &count2 );
-		ERR_IF( rc != 0, rc );
+		count1 = l1 -> childrenCount;
+		count2 = l2 -> childrenCount;
 
 		/* if both are too big */
 		if ( index > count1 && index > count2 )
@@ -123,12 +122,14 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 
 			continue;
 		}
+
 		/* if index1 is too big and index2 is ok */
 		if ( index > count1 && index <= count2 )
 		{
 			(*compareResult) = TROT_LIST_COMPARE_LESS_THAN;
 			break;
 		}
+
 		/* if n1 is ok and n2 is too big */
 		if ( index <= count1 && index > count2 )
 		{
@@ -137,9 +138,9 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		}
 
 		/* get kinds */
-		rc = trotListRefGetKind( lr1, index, &kind1 );
+		rc = trotListGetKind( l1, index, &kind1 );
 		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetKind( lr2, index, &kind2 );
+		rc = trotListGetKind( l2, index, &kind2 );
 		ERR_IF( rc != 0, rc );
 
 		/* compare kinds */
@@ -158,9 +159,9 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		/* get and compare ints */
 		if ( kind1 == NODE_KIND_INT && kind2 == NODE_KIND_INT )
 		{
-			rc = trotListRefGetInt( lr1, index, &n1 );
+			rc = trotListGetInt( l1, index, &n1 );
 			ERR_IF( rc != 0, rc );
-			rc = trotListRefGetInt( lr2, index, &n2 );
+			rc = trotListGetInt( l2, index, &n2 );
 			ERR_IF( rc != 0, rc );
 
 			if ( n1 < n2 )
@@ -180,32 +181,108 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		/* TODO: put in a "should never happen" MACRO HERE */
 
 		/* get lists */
-		rc = trotListRefGetListTwin( lr1, index, &subL1 );
+		rc = trotListGetList( l1, index, &subL1 );
 		ERR_IF( rc != 0, rc );
-		rc = trotListRefGetListTwin( lr2, index, &subL2 );
+		rc = trotListGetList( l2, index, &subL2 );
 		ERR_IF( rc != 0, rc );
 
 		/* only add if different.
 		   if they point to same, there's no need to compare */
-		if ( subL1 -> lPointsTo != subL2 -> lPointsTo )
+		if ( subL1 != subL2 )
 		{
 			rc = trotStackPush( stack, subL1, subL2 );
 			ERR_IF( rc != 0, rc );
 		}
-
-		/* free our refs */
-		trotListRefFree( &subL1 );
-		trotListRefFree( &subL2 );
 	}
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &subL1 );
-	trotListRefFree( &subL2 );
-
 	trotStackFree( &stack );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Makes a copy of a list.
+	\param lr Pointer to a trotListRef that you want to copy.
+	\param lrCopy_A Pointer to a trotListRef pointer that must be NULL.
+		On success, this will be a new copy of lr.
+	\return 0 on success, <0 on error
+*/
+int trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
+{
+	/* DATA */
+	int rc = TROT_LIST_SUCCESS;
+
+	trotListRef *newListRef = NULL;
+
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
+
+	int i = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( lrCopy_A == NULL );
+	PRECOND_ERR_IF( (*lrCopy_A) != NULL );
+
+
+	/* CODE */
+	/* make our new list */
+	rc = trotListRefInit( &newListRef );
+	ERR_IF( rc != 0, rc );
+
+	/* copy */
+	tail = lr -> lPointsTo -> tail;
+	node = lr -> lPointsTo -> head -> next;
+	while ( node != tail )
+	{
+		if ( node -> kind == NODE_KIND_INT )
+		{
+			i = 0;
+			while ( i < node -> count )
+			{
+				rc = trotListRefAppendInt( newListRef, node -> n[ i ] );
+				ERR_IF( rc != 0, rc );
+
+				i += 1;
+			}
+		}
+		else if ( node -> kind == NODE_KIND_LIST )
+		{
+			i = 0;
+			while ( i < node -> count )
+			{
+				rc = trotListRefAppendListTwin( newListRef, node -> l[ i ] );
+				ERR_IF( rc != 0, rc );
+
+				i += 1;
+			}
+		}
+		else
+		{
+			ERR_IF( 1, TROT_LIST_ERROR_GENERAL );
+		}
+
+		node = node -> next;
+	}
+
+
+	/* give back */
+	(*lrCopy_A) = newListRef;
+	newListRef = NULL;
+
+	return 0;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newListRef );
 
 	return rc;
 }

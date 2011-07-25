@@ -63,14 +63,14 @@ int trotStackInit( trotStack **stack )
 	TROT_MALLOC( newTail, trotStackNode, 1 );
 	TROT_MALLOC( newStack, trotStack, 1 );
 
-	newHead -> lr1 = NULL;
-	newHead -> lr2 = NULL;
+	newHead -> l1 = NULL;
+	newHead -> l2 = NULL;
 	newHead -> n = 0;
 	newHead -> prev = newHead;
 	newHead -> next = newTail;
 
-	newTail -> lr1 = NULL;
-	newTail -> lr2 = NULL;
+	newTail -> l1 = NULL;
+	newTail -> l2 = NULL;
 	newTail -> n = 0;
 	newTail -> prev = newHead;
 	newTail -> next = newTail;
@@ -125,7 +125,7 @@ void trotStackFree( trotStack **stack )
 }
 
 /******************************************************************************/
-int trotStackPush( trotStack *stack, trotListRef *lr1, trotListRef *lr2 )
+int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -140,8 +140,8 @@ int trotStackPush( trotStack *stack, trotListRef *lr1, trotListRef *lr2 )
 	/* CODE */
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
-	newNode -> lr1 = lr1;
-	newNode -> lr2 = lr2;
+	newNode -> l1 = l1;
+	newNode -> l2 = l2;
 	newNode -> n = 0;
 	newNode -> next = stack -> tail;
 	newNode -> prev = stack -> tail -> prev;
@@ -226,7 +226,7 @@ int trotStackIncrementTopN( trotStack *stack )
 }
 
 /******************************************************************************/
-int trotStackGet( trotStack *stack, trotListRef **lr1, trotListRef **lr2, int *n )
+int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, int *n )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -234,16 +234,16 @@ int trotStackGet( trotStack *stack, trotListRef **lr1, trotListRef **lr2, int *n
 
 	/* PRECOND */
 	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( lr1 == NULL );
-	PRECOND_ERR_IF( lr2 == NULL );
+	PRECOND_ERR_IF( l1 == NULL );
+	PRECOND_ERR_IF( l2 == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
 	/* CODE */
 	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
 
-	(*lr1) = stack -> tail -> prev -> lr1;
-	(*lr2) = stack -> tail -> prev -> lr2;
+	(*l1) = stack -> tail -> prev -> l1;
+	(*l2) = stack -> tail -> prev -> l2;
 	(*n) = stack -> tail -> prev -> n;
 
 	return TROT_LIST_SUCCESS;
@@ -256,7 +256,7 @@ int trotStackGet( trotStack *stack, trotListRef **lr1, trotListRef **lr2, int *n
 }
 
 /******************************************************************************/
-int trotStackQueryContains( trotStack *stack, trotListRef *lr1, trotListRef *lr2, TROT_STACK_CONTAINS *contains )
+int trotStackQueryContains( trotStack *stack, trotList *l1, trotList *l2, TROT_STACK_CONTAINS *contains )
 {
 	/* DATA */
 	trotStackNode *node = NULL;
@@ -273,8 +273,8 @@ int trotStackQueryContains( trotStack *stack, trotListRef *lr1, trotListRef *lr2
 	node = stack -> head -> next;
 	while ( node != stack -> tail )
 	{
-		if (    ( node -> lr1 -> lPointsTo == lr1 -> lPointsTo && node -> lr2 -> lPointsTo == lr2 -> lPointsTo )
-		     || ( node -> lr1 -> lPointsTo == lr2 -> lPointsTo && node -> lr2 -> lPointsTo == lr1 -> lPointsTo  )
+		if (    ( node -> l1 == l1 && node -> l2 == l2 )
+		     || ( node -> l1 == l2 && node -> l2 == l1 )
 		   )
 		{
 			(*contains) = TROT_STACK_DOES_CONTAIN;

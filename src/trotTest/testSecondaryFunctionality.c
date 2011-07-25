@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotListInternal.h"
 
 #include "testCommon.h"
 
@@ -64,7 +65,6 @@ int testSecondaryFunctionality()
 
 	int count = 0;
 	int i = 0;
-	int j = 0;
 
 	trotListRef *lr1 = NULL;
 	trotListRef *lr2 = NULL;
@@ -74,7 +74,7 @@ int testSecondaryFunctionality()
 
 	/* CODE */
 	printf( "Testing secondary functionality..." ); fflush( stdout );
-	count = 3; /* TODO: still need to test empty and 1 count lists? */
+	count = 0;
 	while ( count <= MAGIC_NUMBER )
 	{
 		printf( "\n%3d ", count );
@@ -84,41 +84,41 @@ int testSecondaryFunctionality()
 		{
 			printf( ":" ); fflush( stdout );
 
-			j = 0;
-			while ( createFunctions[ j ] != NULL )
-			{
-				TEST_ERR_IF( createFunctions[ i ]( &lr1, count ) != 0 );
-				TEST_ERR_IF( createFunctions[ j ]( &lr2, count ) != 0 );
+			/* quick test compare */
+			TEST_ERR_IF( createFunctions[ i ]( &lr1, count ) != 0 );
+			TEST_ERR_IF( createFunctions[ i ]( &lr2, count ) != 0 );
+	
+			/* compare */
+			TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
-				/* compare */
-				TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );
+			/* *** */
+			TEST_ERR_IF( trotListRefAppendInt( lr1, 1 ) != 0 );
+			
+			/* compare */	
+			TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_GREATER_THAN );
 
-				if ( compareResult == TROT_LIST_COMPARE_EQUAL )
-				{
-					printf( "i(%d) j(%d) c(%d)\n", i, j, count ); fflush( stdout );
-					TEST_ERR_IF( i != j && count != 0 );
-				}
-				else if ( compareResult == TROT_LIST_COMPARE_LESS_THAN )
-				{
-					TEST_ERR_IF( trotListRefCompare( lr2, lr1, &compareResult ) != TROT_LIST_SUCCESS );
-					TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_GREATER_THAN );
-				}
-				else if ( compareResult == TROT_LIST_COMPARE_GREATER_THAN )
-				{
-					TEST_ERR_IF( trotListRefCompare( lr2, lr1, &compareResult ) != TROT_LIST_SUCCESS );
-					TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_LESS_THAN );
-				}
-				else
-				{
-					TEST_ERR_IF( 1 );
-				}
+			trotListRefFree( &lr1 );
+			trotListRefFree( &lr2 );
 
-				trotListRefFree( &lr1 );
-				trotListRefFree( &lr2 );
+			/* quick test copy */
+			TEST_ERR_IF( createFunctions[ i ]( &lr1, count ) != 0 );
+			TEST_ERR_IF( trotListRefCopy( lr1, &lr2 ) != 0 );
 
-				j += 1;
-			}
+			/* compare */
+			TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
+			/* *** */
+			TEST_ERR_IF( trotListRefAppendInt( lr1, 1 ) != 0 );
+			
+			/* compare */	
+			TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_GREATER_THAN );
+
+			trotListRefFree( &lr1 );
+			trotListRefFree( &lr2 );
 
 			i += 1;
 		}

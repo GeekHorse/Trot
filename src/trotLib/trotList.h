@@ -41,6 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_LIST_ERROR_WRONG_KIND -5
 
 /******************************************************************************/
+#define INT_TYPE int
+
+/******************************************************************************/
 typedef enum
 {
 	TROT_LIST_COMPARE_LESS_THAN    = -1,
@@ -49,106 +52,10 @@ typedef enum
 } TROT_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
-#define INT_TYPE int
-
-#define NODE_SIZE 64
-
-#define NODE_KIND_HEAD_OR_TAIL 0
-#define NODE_KIND_INT 1
-#define NODE_KIND_LIST 2
-
-/******************************************************************************/
-#define REF_LIST_NODE_SIZE 16
-
-/******************************************************************************/
 typedef struct trotListRef_STRUCT trotListRef;
 typedef struct trotListNode_STRUCT trotListNode;
 typedef struct trotList_STRUCT trotList;
 typedef struct trotListRefListNode_STRUCT trotListRefListNode;
-
-/*! Data in a trotList is stored in a linked list of trotListNodes. */
-struct trotListNode_STRUCT
-{
-	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
-	NODE_KIND_LIST. */
-	int kind;
-	/*! count is how many INT_TYPEs or trotListRefs are in this node. */
-	int count;
-	/*! if kind is NODE_KIND_INT, then n will point to an array of size
-	NODE_SIZE of type INT_TYPE, else n will be NULL. */
-	INT_TYPE *n;
-	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
-	NODE_SIZE of type trotListRef*, else l will be NULL. */
-	trotListRef **l;
-
-	/*! prev points to previous node in the linked list, or same node if
-	this is the head of the list. */
-	struct trotListNode_STRUCT *prev;
-	/*! next points to the next node in the linked list, or same node if
-	this is the tail of the list. */
-	struct trotListNode_STRUCT *next;
-};
-
-/*! trotList is the main data structure in Trot. */
-struct trotList_STRUCT
-{
-	/*! Flag that says whether this list is still reachable or not. If not
-	reachable, then this list can be freed */
-	int reachable;
-	/*! Flag for 'is list reachable' so we don't get into an infinite
-	    loop */
-	int flagVisited;
-	/*! Pointer to "previous" list. Used when we're seeing if a list is
-	    reachable */
-	trotList *previous;
-	/*! Pointer to "nextToFree" list. Only set when this list is no longer
-	    reachable. We use this to keep a linked list of lists that need to
-	    be freed. */
-	trotList *nextToFree;
-	/*! How many children are in the list */
-	int childrenCount;
-	/*! Pointer to the head of the linked list that contains the refs that
-	point to this list. Used for checking whether this list is still
-	reachable or not. */
-	trotListRefListNode *refListHead;
-	/*! Pointer to the tail of the linked list that contains the refs that
-	point to this list. Used for checking whether this list is still
-	reachable or not. */
-	trotListRefListNode *refListTail;
-	/*! Pointer to the head of the linked list that contains the actual data
-	in the list. */
-	trotListNode *head;
-	/*! Pointer to the tail of the linked list that contains the actual data
-	in the list. */
-	trotListNode *tail;
-};
-
-/*! trotListRef is a reference to a trotList */
-struct trotListRef_STRUCT
-{
-	/*! The list that this ref is inside of. */
-	trotList *lParent;
-	/*! The list that this ref points to. */
-	trotList *lPointsTo;
-};
-
-/*! Structure for holding a linked list of references. Used in trotList to keep
-track of which references points to the trotList. */
-struct trotListRefListNode_STRUCT
-{
-	/*! How many references are in this node */
-	int count;
-	/*! r will be NULL if this is the head or tail of the linked list.
-	else this will be an array of size REF_LIST_NODE_SIZE of type
-	trotListRef */
-	trotListRef **r;
-	/*! points to the next node in the linked list, or to itself if this is
-	the tail. */
-	trotListRefListNode *next;
-	/*! points to the prev node in the linked list, or to itself if this is
-	the head. */
-	trotListRefListNode *prev;
-};
 
 /******************************************************************************/
 /* trotListPrimary.c */
@@ -176,6 +83,7 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index );
 /******************************************************************************/
 /* trotListSecondary.c */
 int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
+int trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A );
 
 /******************************************************************************/
 #endif

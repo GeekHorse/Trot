@@ -13,7 +13,7 @@ all: trotTest
 
 debug2: debug
 
-debug: CFLAGS += -DTEST_PRECOND=1
+debug: CFLAGS += -DTEST_PRECOND=1 -g
 debug: LDFLAGS += -fprofile-arcs
 debug: trotTest
 

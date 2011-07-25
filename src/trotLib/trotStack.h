@@ -58,8 +58,8 @@ struct trotStack_STRUCT
 /*! TODO */
 struct trotStackNode_STRUCT
 {
-	trotListRef *lr1;
-	trotListRef *lr2;
+	trotList *l1;
+	trotList *l2;
 	INT_TYPE n;
 
 	trotStackNode *prev;
@@ -70,12 +70,12 @@ struct trotStackNode_STRUCT
 int trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
-int trotStackPush( trotStack *stack, trotListRef *lr1, trotListRef *lr2 );
+int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
 int trotStackPop( trotStack *stack, int *empty );
 int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, trotListRef **lr1, trotListRef **lr2, INT_TYPE *n );
+int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, INT_TYPE *n );
 
-int trotStackQueryContains( trotStack *stack, trotListRef *lr1, trotListRef *lr2, TROT_STACK_CONTAINS *contains );
+int trotStackQueryContains( trotStack *stack, trotList *l1, trotList *l2, TROT_STACK_CONTAINS *contains );
 
 /******************************************************************************/
 #endif

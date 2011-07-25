@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotListInternal.h"
 #include "trotMem.h"
 
 /******************************************************************************/
@@ -371,6 +372,19 @@ int trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 */
 int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 {
+	return trotListGetKind( lr -> lPointsTo, index, kind );
+}
+
+/******************************************************************************/
+/*!
+	\brief Gets the kind of an item in the list.
+	\param lr Pointer to a trotListRef pointer.
+	\param index Index of the item.
+	\param kind On success, will contain the kind of the item.
+	\return TROT_LIST_SUCCESS on success, <0 on error
+*/
+int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
+{
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
 
@@ -381,7 +395,7 @@ int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( kind == NULL );
 
 
@@ -389,16 +403,16 @@ int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
-	node = lr -> lPointsTo -> head -> next;
+	tail = l -> tail;
+	node = l -> head -> next;
 	while ( node != tail )
 	{
 		count += node -> count;
@@ -926,6 +940,19 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 */
 int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
+	return trotListGetInt( lr -> lPointsTo, index, n );
+}
+
+/******************************************************************************/
+/*!
+	\brief Gets copy of int in list.
+	\param lr Pointer to a trotListRef pointer.
+	\param index Which int to get.
+	\param n On success, will point to int.
+	\return TROT_LIST_SUCCESS on success, <0 on error
+*/
+int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
+{
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
 
@@ -936,7 +963,7 @@ int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
@@ -944,16 +971,16 @@ int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
-	node = lr -> lPointsTo -> head -> next;
+	tail = l -> tail;
+	node = l -> head -> next;
 	while ( node != tail )
 	{
 		count += node -> count;
@@ -1043,6 +1070,71 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	/* give back */
 	(*l) = newL;
 	newL = NULL;
+
+	return TROT_LIST_SUCCESS;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Gets list ref of list in list.
+	\param lr Pointer to a trotListRef pointer.
+	\param index Which list to get.
+	\param l On success, will point to list ref.
+	\return TROT_LIST_SUCCESS on success, <0 on error
+*/
+int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
+{
+	/* DATA */
+	int rc = TROT_LIST_SUCCESS;
+
+	trotListNode *node = NULL;
+	trotListNode *tail = NULL;
+
+	INT_TYPE count = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( subL == NULL );
+
+
+	/* CODE */
+	/* Turn negative index into positive equivalent. */
+	if ( index < 0 )
+	{
+		index = (l -> childrenCount) + index + 1;
+	}
+
+	/* Make sure index is in range */
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+
+	/* *** */
+	tail = l -> tail;
+	node = l -> head -> next;
+	while ( node != tail )
+	{
+		count += node -> count;
+		if ( count >= index )
+		{
+			break;
+		}
+
+		node = node -> next;
+	}
+
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
+
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
+
+	/* give back */
+	(*subL) = node -> l[ (node -> count) - 1 - (count - index) ] -> lPointsTo;
 
 	return TROT_LIST_SUCCESS;
 
