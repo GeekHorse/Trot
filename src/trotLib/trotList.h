@@ -83,7 +83,14 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index );
 /******************************************************************************/
 /* trotListSecondary.c */
 int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
-int trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A );
+
+int trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr );
+
+int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+int trotListRefDelist( trotListRef *lr, INT_TYPE index );
+
+int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+int trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
 
 /******************************************************************************/
 #endif

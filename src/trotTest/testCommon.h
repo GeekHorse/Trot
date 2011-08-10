@@ -58,6 +58,8 @@ int createListIntAlternating( trotListRef **lr, int count );
 int createHalfIntHalfList( trotListRef **lr, int count );
 int createHalfListHalfInt( trotListRef **lr, int count );
 
+int createSelfRefs( trotListRef **lr, int count );
+
 /******************************************************************************/
 /* misc functions */
 int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );

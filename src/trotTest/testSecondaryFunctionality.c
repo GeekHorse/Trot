@@ -53,6 +53,9 @@ static int (*createFunctions[])( trotListRef **, int ) =
 		createListIntAlternating,
 		createHalfIntHalfList,
 		createHalfListHalfInt,
+
+		createSelfRefs,
+
 		NULL
 	};
 
@@ -104,7 +107,7 @@ int testSecondaryFunctionality()
 
 			/* quick test copy */
 			TEST_ERR_IF( createFunctions[ i ]( &lr1, count ) != 0 );
-			TEST_ERR_IF( trotListRefCopy( lr1, &lr2 ) != 0 );
+			TEST_ERR_IF( trotListRefCopy( &lr2, lr1 ) != 0 );
 
 			/* compare */
 			TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult ) != TROT_LIST_SUCCESS );

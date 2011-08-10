@@ -350,6 +350,43 @@ int createHalfListHalfInt( trotListRef **lr, int count )
 }
 
 /******************************************************************************/
+int createSelfRefs( trotListRef **lr, int count )
+{
+	/* DATA */
+	int rc = 0;
+
+	trotListRef *newList = NULL;
+
+	INT_TYPE i = 1;
+
+	/* CODE */
+	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+
+	i = 1;
+	while ( i <= count )
+	{
+		TEST_ERR_IF( trotListRefAppendListTwin( newList, newList ) != 0 );
+
+		i += 1;
+	}
+
+	/* check list */
+	TEST_ERR_IF( checkList( newList ) != 0 );
+
+	/* give back */
+	(*lr) = newList;
+	newList = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newList );
+
+	return rc;
+}
+
+/******************************************************************************/
 int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 {
 	/* DATA */

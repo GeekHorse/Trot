@@ -35,12 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotList.h"
 
 /******************************************************************************/
-typedef enum {
-	TROT_STACK_DOES_NOT_CONTAIN = 0,
-	TROT_STACK_DOES_CONTAIN     = 1
-} TROT_STACK_CONTAINS;
-
-/******************************************************************************/
 typedef struct trotStack_STRUCT trotStack;
 typedef struct trotStackNode_STRUCT trotStackNode;
 
@@ -74,8 +68,6 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
 int trotStackPop( trotStack *stack, int *empty );
 int trotStackIncrementTopN( trotStack *stack );
 int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, INT_TYPE *n );
-
-int trotStackQueryContains( trotStack *stack, trotList *l1, trotList *l2, TROT_STACK_CONTAINS *contains );
 
 /******************************************************************************/
 #endif

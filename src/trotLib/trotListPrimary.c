@@ -43,8 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft );
-
 static inline int _newIntNode( trotListNode **n_A );
 static inline int _newListNode( trotListNode **n_A );
 
@@ -648,7 +646,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		/* If node is full */
 		if ( node -> count == NODE_SIZE )
 		{
-			rc = _trotListNodeSplit( node, NODE_SIZE / 2 );
+			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
 			ERR_IF( rc != 0, rc );
 
 			/* Since node has been split, we may need to go to next
@@ -706,7 +704,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = _trotListNodeSplit( node, i );
+			rc = trotListNodeSplit( node, i );
 			ERR_IF( rc != 0, rc );
 
 			node = node -> next;
@@ -817,7 +815,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		/* If node is full */
 		if ( node -> count == NODE_SIZE )
 		{
-			rc = _trotListNodeSplit( node, NODE_SIZE / 2 );
+			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
 			ERR_IF( rc != 0, rc );
 
 			/* Since node has been split, we may need to go to next
@@ -889,7 +887,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = _trotListNodeSplit( node, i );
+			rc = trotListNodeSplit( node, i );
 			ERR_IF( rc != 0, rc );
 
 			node = node -> next;
@@ -1436,7 +1434,7 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 	\param keepInLeft How many items to keep in n.
 	\return TROT_LIST_SUCCESS on success, <0 on error
 */
-static inline int _trotListNodeSplit( trotListNode *n, int keepInLeft )
+int trotListNodeSplit( trotListNode *n, int keepInLeft )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;

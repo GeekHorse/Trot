@@ -130,6 +130,8 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
 
+	trotStackNode *node = NULL;
+
 	trotStackNode *newNode = NULL;
 
 
@@ -138,6 +140,22 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 
 
 	/* CODE */
+	/* are these two lists already in the stack? */
+	node = stack -> head -> next;
+	while ( node != stack -> tail )
+	{
+		if (    ( node -> l1 == l1 && node -> l2 == l2 )
+		     || ( node -> l1 == l2 && node -> l2 == l1 )
+		   )
+		{
+			/* yes, so nothing to do */
+			return TROT_LIST_SUCCESS;
+		}
+
+		node = node -> next;
+	}
+
+	/* not already in stack, so lets add */
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
 	newNode -> l1 = l1;
@@ -253,37 +271,5 @@ int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, int *n )
 	cleanup:
 
 	return rc;
-}
-
-/******************************************************************************/
-int trotStackQueryContains( trotStack *stack, trotList *l1, trotList *l2, TROT_STACK_CONTAINS *contains )
-{
-	/* DATA */
-	trotStackNode *node = NULL;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( contains == NULL );
-
-
-	/* CODE */
-	(*contains) = TROT_STACK_DOES_NOT_CONTAIN;
-
-	node = stack -> head -> next;
-	while ( node != stack -> tail )
-	{
-		if (    ( node -> l1 == l1 && node -> l2 == l2 )
-		     || ( node -> l1 == l2 && node -> l2 == l1 )
-		   )
-		{
-			(*contains) = TROT_STACK_DOES_CONTAIN;
-			return TROT_LIST_SUCCESS;
-		}
-
-		node = node -> next;
-	}
-
-	return TROT_LIST_SUCCESS;
 }
 
