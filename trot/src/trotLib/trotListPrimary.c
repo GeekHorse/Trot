@@ -141,7 +141,7 @@ int trotListRefInit( trotListRef **lr_A )
 
 	/* add first ref to list's ref list */
 	rc = _refListAdd( newListRef -> lPointsTo, newListRef );
-	ERR_IF( rc != 0, rc );
+	ERR_IF_PASSTHROUGH;
 
 	/* give back */
 	(*lr_A) = newListRef;
@@ -192,7 +192,7 @@ int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 	newListRef -> lPointsTo = lrToTwin -> lPointsTo;
 
 	rc = _refListAdd( newListRef -> lPointsTo, newListRef );
-	ERR_IF( rc != 0, rc );
+	ERR_IF_PASSTHROUGH;
 
 
 	/* give back */
@@ -470,7 +470,7 @@ int trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 	   )
 	{
 		rc = _newIntNode( &newNode );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		newNode -> next = l -> tail;
 		newNode -> prev = l -> tail -> prev;
@@ -535,7 +535,7 @@ int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	   )
 	{
 		rc = _newListNode( &newNode );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		newNode -> next = l -> tail;
 		newNode -> prev = l -> tail -> prev;
@@ -549,7 +549,7 @@ int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 
 	/* append */
 	rc = trotListRefTwin( &newLr, lrToAppend );
-	ERR_IF( rc != 0, rc );
+	ERR_IF_PASSTHROUGH;
 
 	node -> l[ node -> count ] = newLr;
 	newLr -> lParent = l;
@@ -614,7 +614,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	if ( index == (l -> childrenCount) + 1 )
 	{
 		rc = trotListRefAppendInt( lr, n );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		return TROT_LIST_SUCCESS;
 	}
@@ -647,7 +647,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		if ( node -> count == NODE_SIZE )
 		{
 			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
-			ERR_IF( rc != 0, rc );
+			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
 			   node. */
@@ -705,14 +705,14 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		if ( i != 0 )
 		{
 			rc = trotListNodeSplit( node, i );
-			ERR_IF( rc != 0, rc );
+			ERR_IF_PASSTHROUGH;
 
 			node = node -> next;
 		}
 
 		/* *** */
 		rc = _newIntNode( &newNode );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		newNode -> n[ 0 ] = n;
 		newNode -> count = 1;
@@ -783,7 +783,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 	if ( index == (l -> childrenCount) + 1 )
 	{
 		rc = trotListRefAppendListTwin( lr, lToInsert );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		return TROT_LIST_SUCCESS;
 	}
@@ -816,7 +816,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		if ( node -> count == NODE_SIZE )
 		{
 			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
-			ERR_IF( rc != 0, rc );
+			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
 			   node. */
@@ -833,7 +833,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 
 		/* *** */
 		rc = trotListRefTwin( &newL, lToInsert );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		/* Now let's move any lists over to make room */
 		i = index - count - 1;
@@ -871,7 +871,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 
 			/* Insert list into node */
 			rc = trotListRefTwin( &newL, lToInsert );
-			ERR_IF( rc != 0, rc );
+			ERR_IF_PASSTHROUGH;
 
 			node -> l[ node -> count ] = newL;
 			newL -> lParent = l;
@@ -888,18 +888,18 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		if ( i != 0 )
 		{
 			rc = trotListNodeSplit( node, i );
-			ERR_IF( rc != 0, rc );
+			ERR_IF_PASSTHROUGH;
 
 			node = node -> next;
 		}
 
 		/* *** */
 		rc = _newListNode( &newNode );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		/* *** */
 		rc = trotListRefTwin( &newL, lToInsert );
-		ERR_IF( rc != 0, rc );
+		ERR_IF_PASSTHROUGH;
 
 		/* Insert node into list */
 		newNode -> l[ 0 ] = newL;
@@ -1063,7 +1063,7 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
 
 	rc = trotListRefTwin( &newL, node -> l[ (node -> count) - 1 - (count - index) ] );
-	ERR_IF( rc != 0, rc );
+	ERR_IF_PASSTHROUGH;
 
 	/* give back */
 	(*l) = newL;

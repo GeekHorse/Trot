@@ -38,8 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #if ( PRINT_ERR == 1 )
 #define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
 #else
 #define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { goto cleanup; }
 #endif
 
 #if ( TEST_PRECOND == 1 )
