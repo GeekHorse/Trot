@@ -304,7 +304,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
 	{
-		indexStart = tempI;
+		tempI = indexStart;
 		indexStart = indexEnd;
 		indexEnd = tempI;
 	}
@@ -629,7 +629,7 @@ int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE index
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
 	{
-		indexStart = tempI;
+		tempI = indexStart;
 		indexStart = indexEnd;
 		indexEnd = tempI;
 	}
