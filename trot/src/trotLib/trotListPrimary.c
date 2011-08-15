@@ -43,9 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-static inline int _newIntNode( trotListNode **n_A );
-static inline int _newListNode( trotListNode **n_A );
-
 static inline int _refListAdd( trotList *l, trotListRef *r );
 static inline void _refListRemove( trotList *l, trotListRef *r );
 
@@ -469,7 +466,7 @@ int trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 	     || node -> count == NODE_SIZE    /* last node is full */
 	   )
 	{
-		rc = _newIntNode( &newNode );
+		rc = newIntNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		newNode -> next = l -> tail;
@@ -534,7 +531,7 @@ int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	     || node -> count == NODE_SIZE     /* last node is full */
 	   )
 	{
-		rc = _newListNode( &newNode );
+		rc = newListNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		newNode -> next = l -> tail;
@@ -711,7 +708,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		}
 
 		/* *** */
-		rc = _newIntNode( &newNode );
+		rc = newIntNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		newNode -> n[ 0 ] = n;
@@ -894,7 +891,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		}
 
 		/* *** */
-		rc = _newListNode( &newNode );
+		rc = newListNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		/* *** */
@@ -1507,7 +1504,7 @@ int trotListNodeSplit( trotListNode *n, int keepInLeft )
 }
 
 /******************************************************************************/
-static inline int _newIntNode( trotListNode **n_A )
+inline int newIntNode( trotListNode **n_A )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;
@@ -1540,7 +1537,7 @@ static inline int _newIntNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static inline int _newListNode( trotListNode **n_A )
+inline int newListNode( trotListNode **n_A )
 {
 	/* DATA */
 	int rc = TROT_LIST_SUCCESS;

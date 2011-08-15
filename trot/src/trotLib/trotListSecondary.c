@@ -274,6 +274,8 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	trotListRef *newListRef = NULL;
 	trotList *newList = NULL;
 
+	trotListNode *newNode = NULL;
+
 	int i = 0;
 
 
@@ -323,12 +325,16 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 		node = node -> next;
 	}
 
+	/* paranoid */
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
+
 	/* split this node if necessary */
 	if ( count + 1 != indexStart )
 	{
 		rc = trotListNodeSplit( node, indexStart - count - 1 );
 		ERR_IF_PASSTHROUGH;
 
+		count += node -> count;
 		node = node -> next;
 	}
 
@@ -347,6 +353,9 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 		node = node -> next;
 	}
 
+	/* paranoid */
+	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
+
 	/* split this node if necessary */
 	if ( count + node -> count != indexEnd )
 	{
@@ -354,15 +363,32 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 		ERR_IF_PASSTHROUGH;
 	}
 
+	/* create our new node */
+	rc = newListNode( &newNode );
+	ERR_IF_PASSTHROUGH;
+
 	/* create our new list */
 	rc = trotListRefInit( &newListRef );
 	ERR_IF_PASSTHROUGH;
 
+	/* insert our new list into our node */
+	newNode -> l[ 0 ] = newListRef;
+	newNode -> count = 1;
+	newListRef -> lParent = l;
+
+	/* get our new list */
 	newList = newListRef -> lPointsTo;
+
+	/* insert our new node into list */
+	newNode -> prev = startNode -> prev;
+	newNode -> next = startNode;
+
+	startNode -> prev -> next = newNode;
+	startNode -> prev = newNode;
 
 	/* remove nodes from old list */
 	startNode -> prev -> next = node -> next;
-	node -> next -> prev = startNode;
+	node -> next -> prev = startNode -> prev;
 
 	/* insert nodes into new list */
 	newList -> head -> next = startNode;
@@ -370,6 +396,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 
 	newList -> tail -> prev = node;
 	node -> next = newList -> tail;
+
 
 	/* adjust counts in both lists */
 	count = 0;
@@ -380,7 +407,9 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 		node = node -> next;
 	}
 
-	l -> childrenCount -= count;
+	/* we subtract one from count because we're adding
+	   the new "enlist" list too */
+	l -> childrenCount -= (count - 1); 
 	newList -> childrenCount = count;
 
 	/* adjust references in newList */
@@ -406,6 +435,12 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 
 	/* CLEANUP */
 	cleanup:
+
+	if ( newNode != NULL )
+	{
+		trotFree( newNode -> l );
+		trotFree( newNode );
+	}
 
 	return rc;
 }
@@ -486,7 +521,7 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	delistListRef = node -> l[ 0 ];
 
 	/* copy our delist (only if it contains something) */
-	if ( delistListRef -> lPointsTo -> childrenCount > 1 )
+	if ( delistListRef -> lPointsTo -> childrenCount > 0 )
 	{
 		rc = trotListRefCopySpan( &copiedListRef, delistListRef, 1, -1 );
 		ERR_IF_PASSTHROUGH;
@@ -510,6 +545,8 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	/* else, remove node from list */
 	else
 	{
+		insertBeforeThisNode = insertBeforeThisNode -> next;
+
 		node -> prev -> next = node -> next;
 		node -> next -> prev = node -> prev;
 
@@ -531,6 +568,9 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 		return 0;
 	}
 
+	/* adjust count */
+	l -> childrenCount += copiedListRef -> lPointsTo -> childrenCount;
+
 	/* go ahead and adjust all ref's "parents" */
 	node = copiedListRef -> lPointsTo -> head;
 	while ( node != copiedListRef -> lPointsTo -> tail )
@@ -550,13 +590,15 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	}
 
 	/* move copied list contents into our list */
-	insertBeforeThisNode -> prev -> next = copiedListRef -> lPointsTo -> head -> next;
 	copiedListRef -> lPointsTo -> head -> next -> prev = insertBeforeThisNode -> prev;
-
-	insertBeforeThisNode -> prev = copiedListRef -> lPointsTo -> tail -> prev;
 	copiedListRef -> lPointsTo -> tail -> prev -> next = insertBeforeThisNode;
 
+	insertBeforeThisNode -> prev -> next = copiedListRef -> lPointsTo -> head -> next;
+	insertBeforeThisNode -> prev = copiedListRef -> lPointsTo -> tail -> prev;
+
 	copiedListRef -> lPointsTo -> childrenCount = 0;
+	copiedListRef -> lPointsTo -> head -> next = copiedListRef -> lPointsTo -> tail;
+	copiedListRef -> lPointsTo -> tail -> prev = copiedListRef -> lPointsTo -> head;
 
 	/* free our copied list */
 	rc = trotListRefFree( &copiedListRef );

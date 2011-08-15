@@ -136,6 +136,10 @@ int trotListGetList( trotList *l, INT_TYPE index, trotList **subL );
 
 int trotListNodeSplit( trotListNode *n, int keepInLeft );
 
+inline int newIntNode( trotListNode **n_A );
+inline int newListNode( trotListNode **n_A );
+
+
 /******************************************************************************/
 #endif
 

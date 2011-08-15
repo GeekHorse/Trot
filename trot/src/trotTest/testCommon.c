@@ -518,7 +518,14 @@ int checkList( trotListRef *lr )
 		node = node -> next;
 	}
 
-	TEST_ERR_IF( realCount != l -> childrenCount );
+	if ( realCount != l -> childrenCount )
+	{
+		printf( "realCount = (%d)\n", realCount );
+		printf( "l -> childrenCount = (%d)\n", l -> childrenCount );
+		fflush( stdout );
+
+		TEST_ERR_IF( 1 );
+	}
 
 	/* *** */
 	TEST_ERR_IF( l -> refListHead == NULL );
