@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotListInternal.h"
 #include "trotMem.h"
 
 #include "testCommon.h"
@@ -42,23 +43,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MEMORY_MANAGEMENT_REFS_COUNT 10
 
 /******************************************************************************/
+/* which malloc to fail on */
+static int failOnMallocCount = 0;
+static int currentMallocCount = 0;
+
 /* malloc/calloc that will always fail */
 void *badCalloc( size_t nmemb, size_t size )
 {
-	(void)nmemb;
-	(void)size;
-	return NULL;
+	currentMallocCount += 1;
+	if ( currentMallocCount == failOnMallocCount )
+	{
+		return NULL;
+	}
+
+	return calloc( nmemb, size );
 }
 
 void *badMalloc( size_t size )
 {
-	(void)size;
-	return NULL;
+	currentMallocCount += 1;
+	if ( currentMallocCount == failOnMallocCount )
+	{
+		return NULL;
+	}
+
+	return malloc( size );
 }
 
 /******************************************************************************/
 static int testMemoryManagement();
 static int testDeepList();
+static int testFailedMallocs();
+
+static int fixCrash(); /* TODO */
 
 /******************************************************************************/
 int testMemory()
@@ -70,13 +87,40 @@ int testMemory()
 
 	int i = 0;
 
-	trotListRef *lr = NULL;
-	trotListRef *lr2 = NULL;
-
 
 	/* CODE */
 	/* **************************************** */
 	printf( "Testing memory management and garbage collection...\n" ); fflush( stdout );
+
+	/* **************************************** */
+	if ( 0 )
+	{
+		fixCrash(); /* TODO */
+	}
+
+	/* **************************************** */
+	/* testing bad mallocs */
+	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
+
+	trotCalloc = badCalloc;
+	trotMalloc = badMalloc;
+
+	do
+	{
+		currentMallocCount = 0;
+		failOnMallocCount += 1;
+
+		rc = testFailedMallocs();
+		printf( "." ); fflush( stdout );
+	}
+	while ( rc == TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	trotCalloc = calloc;
+	trotMalloc = malloc;
+
+	printf( "\n" ); fflush( stdout );
 
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
@@ -113,28 +157,6 @@ int testMemory()
 	printf( "\n" ); fflush( stdout );
 
 	/* **************************************** */
-	/* testing bad mallocs */
-	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
-
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-
-	trotCalloc = badCalloc;
-	trotMalloc = badMalloc;
-
-	TEST_ERR_IF( trotListRefInit( &lr2 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( trotListRefTwin( &lr2, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( trotListRefInsertInt( lr, 1, 1 ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-	TEST_ERR_IF( trotListRefInsertListTwin( lr, 1, lr ) != TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
-
-	trotCalloc = calloc;
-	trotMalloc = malloc;
-
-	trotListRefFree( &lr );
-
-	/* **************************************** */
-
 	return 0;
 
 
@@ -234,7 +256,7 @@ static int testMemoryManagement()
 		}
 
 		/* free our temporary ref */
-		TEST_ERR_IF( trotListRefFree( &ref ) != TROT_LIST_SUCCESS );
+		trotListRefFree( &ref );
 
 		/* *** */
 		i += 1;
@@ -261,7 +283,7 @@ static int testMemoryManagement()
 			if ( r == 0 )
 			{
 				TEST_ERR_IF( trotListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_LIST_SUCCESS );
-				TEST_ERR_IF( trotListRefFree( &ref ) != TROT_LIST_SUCCESS );
+				trotListRefFree( &ref );
 			}
 			else
 			{
@@ -286,7 +308,7 @@ static int testMemoryManagement()
 		{
 			if ( clientRefs[ j ] != NULL )
 			{
-				TEST_ERR_IF( trotListRefFree( &( clientRefs[ j ] ) ) != TROT_LIST_SUCCESS );
+				trotListRefFree( &( clientRefs[ j ] ) );
 				break;
 			}
 
@@ -334,7 +356,7 @@ static int testDeepList()
 
 		TEST_ERR_IF( trotListRefAppendListTwin( ref1, ref2 ) != TROT_LIST_SUCCESS );
 
-		TEST_ERR_IF( trotListRefFree( &ref1 ) != TROT_LIST_SUCCESS );
+		trotListRefFree( &ref1 );
 
 		ref1 = ref2;
 		ref2 = NULL;
@@ -349,17 +371,197 @@ static int testDeepList()
 
 	TEST_ERR_IF( trotListRefAppendListTwin( ref1, refHead ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( trotListRefFree( &ref1 ) != TROT_LIST_SUCCESS );
+	trotListRefFree( &ref1 );
 
 	printf( ":" ); fflush( stdout );
 
-	TEST_ERR_IF( trotListRefFree( &refHead ) != TROT_LIST_SUCCESS );
+	trotListRefFree( &refHead );
 
 	return TROT_LIST_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
+
+	return rc;
+}
+
+static int testFailedMallocs()
+{
+	/* DATA */
+	int rc = 0;
+
+	int i = 0;
+
+	trotListRef *lr1 = NULL;
+	trotListRef *lr2 = NULL;
+	trotListRef *lr3 = NULL;
+
+	TROT_LIST_COMPARE_RESULT compareResult;
+
+
+	/* CODE */
+	/* primary functions */
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	i = 0;
+	while ( i < NODE_SIZE + 1 )
+	{
+		rc = trotListRefInsertInt( lr1, 1, 1 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListRefAppendInt( lr1, 1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInsertListTwin( lr1, -1, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	i = 0;
+	while ( i < NODE_SIZE + 1 )
+	{
+		rc = trotListRefInsertListTwin( lr1, -2, lr2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListRefAppendListTwin( lr1, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInsertListTwin( lr1, 2, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInsertInt( lr1, -2, 1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInsertListTwin( lr1, 1, lr2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefInsertListTwin( lr1, 2, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefGetListTwin( lr1, -1, &lr3 );
+	ERR_IF_PASSTHROUGH;
+	trotListRefFree( &lr3 );
+
+	rc = trotListRefAppendInt( lr1, 1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendInt( lr1, 1 );
+	ERR_IF_PASSTHROUGH;
+
+	/* secondary functions */
+	rc = trotListRefCompare( lr1, lr2, &compareResult );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lr2 );
+
+	rc = trotListRefCopy( &lr2, lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lr2 );
+
+	rc = trotListRefEnlist( lr1, 2, -2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefDelist( lr1, 2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefCopySpan( &lr2, lr1, 1, -2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefDelist( lr1, -10 );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+
+	/* *** */
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefCopy( &lr2, lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+
+	/* *** */
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefInit( &lr3 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendInt( lr3, 1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendListTwin( lr1, lr3 );
+	ERR_IF_PASSTHROUGH;
+	trotListRefFree( &lr3 );
+
+	rc = trotListRefInit( &lr2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefInit( &lr3 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendInt( lr3, 2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendListTwin( lr2, lr3 );
+	ERR_IF_PASSTHROUGH;
+	trotListRefFree( &lr3 );
+	
+	rc = trotListRefCompare( lr1, lr2, &compareResult );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+	trotListRefFree( &lr3 );
+
+	return rc;
+}
+
+static int fixCrash() /* TODO */
+{
+	/* DATA */
+	int rc = 0;
+
+	trotListRef *lr1 = NULL;
+	trotListRef *lr2 = NULL;
+	trotListRef *lr3 = NULL;
+
+
+	/* CODE */
+	/* primary functions */
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lr1, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lr1, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefEnlist( lr1, 1, 1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefCopySpan( &lr3, lr1, 1, 1 );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+	trotListRefFree( &lr3 );
 
 	return rc;
 }

@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trotCommon.h"
 #include "trotList.h"
+#include "trotListInternal.h"
 
 #include "testCommon.h"
 
@@ -48,6 +49,7 @@ int testBadTypesAndIndices()
 	trotListRef *lr2 = NULL;
 	int kind = 0;
 	INT_TYPE n = 0;
+	trotList *l = NULL;
 
 
 	/* CODE */
@@ -78,6 +80,11 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( trotListRefGetListTwin( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefGetListTwin( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
 
+	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 0, &l ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 11, &l ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, -11, &l ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 5, &l ) != TROT_LIST_ERROR_WRONG_KIND );
+
 	TEST_ERR_IF( trotListRefRemoveInt( lr, 0, &n ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefRemoveInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefRemoveInt( lr, -11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
@@ -91,6 +98,32 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( trotListRefRemove( lr, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefRemove( lr, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefRemove( lr, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+
+	TEST_ERR_IF( trotListRefEnlist( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+
+	TEST_ERR_IF( trotListRefDelist( lr, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, 1 ) != TROT_LIST_ERROR_WRONG_KIND );
+
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, 1, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, 1, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( &lr2, lr, 1, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
 
 	trotListRefFree( &lr );
 

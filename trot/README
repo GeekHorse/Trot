@@ -35,9 +35,7 @@ Testing and Validation:
   It compiles with 0 warnings.
 - Lots of unit tests guarantee everything works correctly.
 - gcov is used to make sure we get as much coverage as possible.
-  Current coverage is 98.54%. There's only a few cases that are not covered. One
-  is a "should never happen" paranoid case, and the rest are for when "malloc"
-  fails. I still need to figure out how I want to write tests for these.
+  Current coverage is 100% branch coverage.
 - Valgrind is used to look for memory leaks and memory corruption.
   There are 0 memory leaks or errors reported.
 

@@ -40,6 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		goto cleanup; \
 	}
 
+/* NOTE: Because inserting is different between positive and negative numbers,
+         you need two defines. One that works with 'getters' or 'removers', and
+         one that works with 'inserters'.
+         Example: If your list has 5 items, and you want to get the fifth, you
+         can get index 5 or index -1. However, if you want to add an element
+         at the end of the list, you would add with index 6 or index -1. */
+#define INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, count ) ( ( ( ( count ) + 1 ) * -1 ) + index )
+#define INDEX_TO_NEGATIVE_VERSION_INSERT(        index, count ) ( ( ( ( count ) + 1 ) * -1 ) + index - 1 )
 
 /******************************************************************************/
 /* major test functions */

@@ -100,11 +100,11 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	{
 		/* increment top of stack */
 		rc = trotStackIncrementTopN( stack );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* get both stack info */
 		rc = trotStackGet( stack, &l1, &l2, &index );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* make sure we're in index */
 		count1 = l1 -> childrenCount;
@@ -114,7 +114,7 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		if ( index > count1 && index > count2 )
 		{
 			rc = trotStackPop( stack, &stackEmpty );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			if ( stackEmpty )
 			{
@@ -124,15 +124,15 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 			continue;
 		}
 
-		/* if index1 is too big and index2 is ok */
-		if ( index > count1 && index <= count2 )
+		/* if index is too big for list 1 */
+		if ( index > count1 )
 		{
 			(*compareResult) = TROT_LIST_COMPARE_LESS_THAN;
 			break;
 		}
 
-		/* if n1 is ok and n2 is too big */
-		if ( index <= count1 && index > count2 )
+		/* if index is too big for list 2 */
+		if ( index > count2 )
 		{
 			(*compareResult) = TROT_LIST_COMPARE_GREATER_THAN;
 			break;
@@ -140,9 +140,9 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 
 		/* get kinds */
 		rc = trotListGetKind( l1, index, &kind1 );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 		rc = trotListGetKind( l2, index, &kind2 );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* compare kinds */
 		/* ints are considered smaller than lists */
@@ -158,12 +158,14 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		}
 
 		/* get and compare ints */
-		if ( kind1 == NODE_KIND_INT && kind2 == NODE_KIND_INT )
+		if ( kind1 == NODE_KIND_INT )
 		{
+			ERR_IF_PARANOID( kind2 != NODE_KIND_INT );
+
 			rc = trotListGetInt( l1, index, &n1 );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 			rc = trotListGetInt( l2, index, &n2 );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			if ( n1 < n2 )
 			{
@@ -179,13 +181,14 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 			continue;
 		}
 
-		/* TODO: put in a "should never happen" MACRO HERE */
+		ERR_IF_PARANOID( kind1 != NODE_KIND_LIST );
+		ERR_IF_PARANOID( kind2 != NODE_KIND_LIST );
 
 		/* get lists */
 		rc = trotListGetList( l1, index, &subL1 );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 		rc = trotListGetList( l2, index, &subL2 );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* only add if different.
 		   if they point to same, there's no need to compare */
@@ -314,7 +317,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	/* find start */
 	tail = l -> tail;
 	node = l -> head -> next;
-	while ( node != tail )
+	while ( 1 )
 	{
 		if ( count + (node -> count) >= indexStart )
 		{
@@ -323,10 +326,9 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 
 		count += node -> count;
 		node = node -> next;
-	}
 
-	/* paranoid */
-	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
+		ERR_IF_PARANOID( node == tail );
+	}
 
 	/* split this node if necessary */
 	if ( count + 1 != indexStart )
@@ -342,7 +344,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	startNode = node;
 
 	/* find end */
-	while ( node != tail )
+	while ( 1 )
 	{
 		if ( count + (node -> count) >= indexEnd )
 		{
@@ -351,10 +353,9 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 
 		count += node -> count;
 		node = node -> next;
-	}
 
-	/* paranoid */
-	ERR_IF( node == tail, TROT_LIST_ERROR_GENERAL );
+		ERR_IF_PARANOID( node == tail );
+	}
 
 	/* split this node if necessary */
 	if ( count + node -> count != indexEnd )
@@ -492,7 +493,7 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	/* find index */
 	tail = l -> tail;
 	node = l -> head -> next;
-	while ( node != tail )
+	while ( 1 )
 	{
 		if ( count + (node -> count) >= index )
 		{
@@ -501,8 +502,11 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 
 		count += node -> count;
 		node = node -> next;
+
+		ERR_IF_PARANOID( node == tail );
 	}
 
+	/* check kind */
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
 
 	/* split this node if necessary */
@@ -559,8 +563,7 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 
 	/* free our delistListRef */
 	delistListRef -> lParent = NULL;
-	rc = trotListRefFree( &delistListRef );
-	ERR_IF_PASSTHROUGH;
+	trotListRefFree( &delistListRef );
 
 	/* was the delist empty? */
 	if ( copiedListRef == NULL )
@@ -601,8 +604,7 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	copiedListRef -> lPointsTo -> tail -> prev = copiedListRef -> lPointsTo -> head;
 
 	/* free our copied list */
-	rc = trotListRefFree( &copiedListRef );
-	ERR_IF_PASSTHROUGH;
+	trotListRefFree( &copiedListRef );
 
 	return 0;
 
@@ -685,7 +687,7 @@ int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE index
 	node = l -> head -> next;
 
 	/* find node that contain indexStart */
-	while ( node != tail )
+	while ( 1 )
 	{
 		/* if we haven't reached the startIndex, continue */
 		if ( count + node -> count >= indexStart )
@@ -695,6 +697,8 @@ int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE index
 
 		count += node -> count;
 		node = node -> next;
+
+		ERR_IF_PARANOID( node == tail );
 	}
 
 	/* begin to copy */
@@ -760,14 +764,26 @@ int trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 
 
 	/* CODE */
+	/* Turn negative indices into positive equivalents. */
+	if ( indexStart < 0 )
+	{
+		indexStart = (lr -> lPointsTo -> childrenCount) + indexStart + 1;
+	}
+	if ( indexEnd < 0 )
+	{
+		indexEnd = (lr -> lPointsTo -> childrenCount) + indexEnd + 1;
+	}
+
+	/* enlist */
 	rc = trotListRefEnlist( lr, indexStart, indexEnd );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefRemoveList( lr, indexStart, &lrRemoved );
-	ERR_IF_PASSTHROUGH;
+	/* remove list */
+	rc = trotListRefRemoveList( lr, indexStart < indexEnd ? indexStart : indexEnd, &lrRemoved );
+	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-	rc = trotListRefFree( &lrRemoved );
-	ERR_IF_PASSTHROUGH;
+	/* free removed list */
+	trotListRefFree( &lrRemoved );
 
 	return 0;
 

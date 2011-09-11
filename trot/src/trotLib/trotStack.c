@@ -53,12 +53,10 @@ int trotStackInit( trotStack **stack )
 	trotStackNode *newTail = NULL;
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( (*stack) != NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( stack == NULL );
+	ERR_IF_PARANOID( (*stack) != NULL );
+
 	TROT_MALLOC( newHead, trotStackNode, 1 );
 	TROT_MALLOC( newTail, trotStackNode, 1 );
 	TROT_MALLOC( newStack, trotStack, 1 );
@@ -103,7 +101,9 @@ void trotStackFree( trotStack **stack )
 
 
 	/* CODE */
-	if ( stack == NULL || (*stack) == NULL )
+	ERR_IF_PARANOID( stack == NULL );
+
+	if ( (*stack) == NULL )
 	{
 		return;
 	}
@@ -135,11 +135,9 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 	trotStackNode *newNode = NULL;
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( stack == NULL );
+
 	/* are these two lists already in the stack? */
 	node = stack -> head -> next;
 	while ( node != stack -> tail )
@@ -180,18 +178,14 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 int trotStackPop( trotStack *stack, int *empty )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
-
 	trotStackNode *node = NULL;
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( empty == NULL );
-
-
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
+	ERR_IF_PARANOID( stack == NULL );
+	ERR_IF_PARANOID( empty == NULL );
+
+	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
 
 	node = stack -> tail -> prev;
 
@@ -210,66 +204,36 @@ int trotStackPop( trotStack *stack, int *empty )
 	}
 
 	return TROT_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
 }
 
 /******************************************************************************/
 int trotStackIncrementTopN( trotStack *stack )
 {
-	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-
-
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
+	ERR_IF_PARANOID( stack == NULL );
+
+	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
 
 	stack -> tail -> prev -> n += 1;
 
 	return TROT_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
 }
 
 /******************************************************************************/
 int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, int *n )
 {
-	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( stack == NULL );
-	PRECOND_ERR_IF( l1 == NULL );
-	PRECOND_ERR_IF( l2 == NULL );
-	PRECOND_ERR_IF( n == NULL );
-
-
 	/* CODE */
-	ERR_IF( stack -> tail -> prev == stack -> head, TROT_LIST_ERROR_GENERAL );
+	ERR_IF_PARANOID( stack == NULL );
+	ERR_IF_PARANOID( l1 == NULL );
+	ERR_IF_PARANOID( l2 == NULL );
+	ERR_IF_PARANOID( n == NULL );
+
+	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
 
 	(*l1) = stack -> tail -> prev -> l1;
 	(*l2) = stack -> tail -> prev -> l2;
 	(*n) = stack -> tail -> prev -> n;
 
 	return TROT_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
 }
 

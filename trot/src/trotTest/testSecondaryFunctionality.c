@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* helper functions */
-static int testCompare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual );
+static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual );
 
 /******************************************************************************/
 /* create functions */
@@ -65,13 +65,15 @@ static int (*createFunctions[])( trotListRef **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testCopy( int (*createFunction)( trotListRef **, int ), int size );
+static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int size );
 static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int size );
+static int testSpans( int (*createFunction)( trotListRef **, int ), int size );
 
 static int (*testFunctions[])( int (*)( trotListRef **, int ), int ) = 
 	{
-		testCopy,
+		testCopyCompare,
 		testEnlistDelist,
+		testSpans,
 		NULL
 	};
 
@@ -133,7 +135,7 @@ int testSecondaryFunctionality()
 }
 
 /******************************************************************************/
-static int testCompare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
+static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
 {
 	/* DATA */
 	int rc = 0;
@@ -179,133 +181,120 @@ static int testCompare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
 }
 
 /******************************************************************************/
-static int testCopy( int (*createFunction)( trotListRef **, int ), int size )
+static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
 	trotListRef *lr1 = NULL;
+	trotListRef *lr1Copy = NULL;
+
 	trotListRef *lr2 = NULL;
+
+	INT_TYPE index = 0;
 
 
 	/* CODE */
-	/* test copy with two lists created with same function */
-	TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-	TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
+	/* create l1 */
+	TEST_ERR_IF( (*createFunction)( &lr1, 0 ) != 0 );
 
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+	TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
 
-	/* test adding int to beginning */
-	TEST_ERR_IF( trotListRefInsertInt( lr2, 1, 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+	/* create copy */
+	TEST_ERR_IF( trotListRefCopy( &lr1Copy, lr1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefInsertInt( lr1, 1, 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+	TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr1, 1 ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, 1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+	/* *** */
+	TEST_ERR_IF( (*createFunction)( &lr2, 0 ) != 0 );
 
-	/* test adding int to middle */
-	TEST_ERR_IF( trotListRefInsertInt( lr2, ( ( size + 1 ) / 2 ), 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+	TEST_ERR_IF( trotListRefAppendListTwin( lr1, lr2 ) != 0 );
+	TEST_ERR_IF( trotListRefAppendListTwin( lr2, lr1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefInsertInt( lr1, ( ( size + 1 ) / 2 ), 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+	TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr1, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	/* test adding int to end */
-	TEST_ERR_IF( trotListRefInsertInt( lr2, -1, 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
-
-	TEST_ERR_IF( trotListRefInsertInt( lr1, -1, 0 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	TEST_ERR_IF( trotListRefRemove( lr1, -1 ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, -1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	/* test adding twin to beginning */
-	TEST_ERR_IF( trotListRefInsertListTwin( lr2, 1, lr2 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
-
-	TEST_ERR_IF( trotListRefInsertListTwin( lr1, 1, lr1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	TEST_ERR_IF( trotListRefRemove( lr1, 1 ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, 1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	/* test adding twin to middle */
-	TEST_ERR_IF( trotListRefInsertListTwin( lr2, ( ( size + 1 ) / 2 ), lr2 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
-
-	TEST_ERR_IF( trotListRefInsertListTwin( lr1, ( ( size + 1 ) / 2 ), lr1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	TEST_ERR_IF( trotListRefRemove( lr1, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	/* test adding twin to end */
-	TEST_ERR_IF( trotListRefInsertListTwin( lr2, -1, lr2 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
-
-	TEST_ERR_IF( trotListRefInsertListTwin( lr1, -1, lr1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	TEST_ERR_IF( trotListRefRemove( lr1, -1 ) != 0 );
-	TEST_ERR_IF( trotListRefRemove( lr2, -1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
-
-	/* free our lists */
+	/* free lists */
 	trotListRefFree( &lr1 );
 	trotListRefFree( &lr2 );
+	trotListRefFree( &lr1Copy );
+	
 
-	/* test deleting first item */
-	TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-	TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+	index = 1;
+	while ( index <= size )
+	{
+		/* create l1 */
+		TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr1, 1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr2, 1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+		/* create copy */
+		TEST_ERR_IF( trotListRefCopy( &lr1Copy, lr1 ) != 0 );
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
+		TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
 
-	/* test deleting middle item */
-	TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-	TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+		/* create l2 with same create function */
+		TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr1, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr2, ( ( size + 1 ) / 2 ) ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+		/* test adding int */
+		TEST_ERR_IF( trotListRefInsertInt( lr2, index, 0 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
+		TEST_ERR_IF( trotListRefInsertInt( lr1, index, 0 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
-	/* test deleting end item */
-	TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-	TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRefRemove( lr1, index ) != 0 );
+		TEST_ERR_IF( trotListRefRemove( lr2, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr1, -1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+		/* test adding twin of self */
+		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr2 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
 
-	TEST_ERR_IF( trotListRefRemove( lr2, -1 ) != 0 );
-	TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
+		TEST_ERR_IF( trotListRefRemove( lr1, index ) != 0 );
+		TEST_ERR_IF( trotListRefRemove( lr2, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		/* test adding twin of l1 */
+		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr1 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+
+		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1 ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		TEST_ERR_IF( trotListRefRemove( lr1, index ) != 0 );
+		TEST_ERR_IF( trotListRefRemove( lr2, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		/* test adding copy of l1 */
+		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr1Copy ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+
+		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1Copy ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		TEST_ERR_IF( trotListRefRemove( lr1, index ) != 0 );
+		TEST_ERR_IF( trotListRefRemove( lr2, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		/* test deleting item */
+		TEST_ERR_IF( trotListRefRemove( lr1, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+
+		TEST_ERR_IF( trotListRefRemove( lr2, index ) != 0 );
+		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+		/* free our lists */
+		trotListRefFree( &lr1 );
+		trotListRefFree( &lr1Copy );
+		trotListRefFree( &lr2 );
+
+		index += 1;
+	}
 
 	return 0;
 
@@ -313,6 +302,7 @@ static int testCopy( int (*createFunction)( trotListRef **, int ), int size )
 	/* CLEANUP */
 	cleanup:
 
+	printf( "\x1b[31;1mFAILED AT %d size:%d index:%d\n\x1b[0m", rc, size, index );
 	return rc;
 }
 
@@ -325,76 +315,79 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 	trotListRef *lr1 = NULL;
 	trotListRef *lr2 = NULL;
 
+	trotListRef *lrEmpty = NULL;
+
 	INT_TYPE index1 = 0;
 	INT_TYPE index2 = 0;
+
+	INT_TYPE usedIndex1 = 0;
+	INT_TYPE usedIndex2 = 0;
+
+	INT_TYPE count = 0;
 
 	INT_TYPE delistIndex = 0;
 
 
 	/* CODE */
-	index1 = -size;
+	index1 = 1;
 	while( index1 <= size )
 	{
-		index2 = -size;
+		index2 = 1;
 		while ( index2 <= size )
 		{
 			/* create our lists */
 			TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
 			TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-			TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
 			/* enlist */
-			TEST_ERR_IF( trotListRefEnlist( lr1, index1, index2 ) != 0 );
+			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != 0 );
+
+			usedIndex1 = index1;
+			if ( rand() % 100 > 50 )
+			{
+				usedIndex1 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index1, count );
+			}
+
+			usedIndex2 = index2;
+			if ( rand() % 100 > 50 )
+			{
+				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
+			}
+
+			TEST_ERR_IF( trotListRefEnlist( lr1, usedIndex1, usedIndex2 ) != 0 );
 			TEST_ERR_IF( checkList( lr1 ) != 0 );
-			TEST_ERR_IF( testCompare( lr1, lr2, 0 ) != 0 );
+			TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
 
 			/* delist */
-			if ( index1 < 0 )
-			{
-				delistIndex = size + index1 + 1;
-			}
-			else
-			{
-				delistIndex = index1;
-			}
+			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != 0 );
 
-			if ( index2 < 0 )
+			delistIndex = index1 < index2 ? index1 : index2;
+
+			if ( rand() % 100 > 50 )
 			{
-				if ( ( size + index2 + 1 ) < delistIndex )
-				{
-					delistIndex = size + index2 + 1;
-				}
-			}
-			else
-			{
-				if ( index2 < delistIndex )
-				{
-					delistIndex = index2;
-				}
+				delistIndex = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( delistIndex, count );
 			}
 
 			TEST_ERR_IF( trotListRefDelist( lr1, delistIndex ) != 0 );
 			TEST_ERR_IF( checkList( lr1 ) != 0 );
-			TEST_ERR_IF( testCompare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+			/* delist empty list */
+			TEST_ERR_IF( trotListRefInit( &lrEmpty ) != 0 );
+			TEST_ERR_IF( trotListRefInsertListTwin( lr1, 1, lrEmpty ) != 0 );
+			TEST_ERR_IF( trotListRefDelist( lr1, 1 ) != 0 );
+			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
 
 			/* free our lists */
 			trotListRefFree( &lr1 );
 			trotListRefFree( &lr2 );
+			trotListRefFree( &lrEmpty );
 
 			index2 += 1;
-
-			if ( index2 == 0 )
-			{
-				index2 += 1;
-			}
 		}
 
 		index1 += 1;
-
-		if ( index1 == 0 )
-		{
-			index1 += 1;
-		}
 	}
 
 	return 0;
@@ -403,7 +396,105 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 	/* CLEANUP */
 	cleanup:
 
-	printf( "\x1b[31;1mFAILED AT %d size:%d index1:%d index2:%d delistIndex:%d\n\x1b[0m", rc, size, index1, index2, delistIndex );
+	printf( "\x1b[31;1mFAILED AT %d size:%d count:%d index1:%d usedIndex1:%d index2:%d usedIndex2:%d delistIndex:%d\n\x1b[0m", rc, size, count, index1, usedIndex1, index2, usedIndex2, delistIndex );
+	return rc;
+}
+
+static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
+{
+	/* DATA */
+	int rc = 0;
+
+	trotListRef *lr1 = NULL;
+	trotListRef *lr2 = NULL;
+
+	trotListRef *lrSpan = NULL;
+
+	INT_TYPE index1 = 0;
+	INT_TYPE index2 = 0;
+
+	INT_TYPE usedIndex1 = 0;
+	INT_TYPE usedIndex2 = 0;
+
+	INT_TYPE count = 0;
+
+	INT_TYPE delistIndex = 0;
+
+
+	/* CODE */
+	index1 = 1;
+	while( index1 <= size )
+	{
+		index2 = 1;
+		while ( index2 <= size )
+		{
+			/* create our lists */
+			TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
+			TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
+			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+			/* create span copy */
+			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != 0 );
+
+			usedIndex1 = index1;
+			if ( rand() % 100 > 50 )
+			{
+				usedIndex1 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index1, count );
+			}
+
+			usedIndex2 = index2;
+			if ( rand() % 100 > 50 )
+			{
+				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
+			}
+
+			TEST_ERR_IF( trotListRefCopySpan( &lrSpan, lr1, usedIndex1, usedIndex2 ) != 0 );
+			TEST_ERR_IF( checkList( lrSpan ) != 0 );
+			TEST_ERR_IF( checkList( lr1 ) != 0 );
+
+			/* remove span */
+			TEST_ERR_IF( trotListRefRemoveSpan( lr1, usedIndex1, usedIndex2 ) != 0 );
+			TEST_ERR_IF( checkList( lr1 ) != 0 );
+
+			/* compare */
+			TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+
+			/* insert and delist span */
+			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != 0 );
+
+			delistIndex = index1 < index2 ? index1 : index2;
+
+			if ( rand() % 100 > 50 )
+			{
+				delistIndex = INDEX_TO_NEGATIVE_VERSION_INSERT( delistIndex, count );
+			}
+
+			TEST_ERR_IF( trotListRefInsertListTwin( lr1, delistIndex, lrSpan ) != 0 );
+
+			TEST_ERR_IF( trotListRefDelist( lr1, delistIndex ) != 0 );
+
+			/* compare */
+			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+
+			/* free our lists */
+			trotListRefFree( &lr1 );
+			trotListRefFree( &lr2 );
+			trotListRefFree( &lrSpan );
+
+			index2 += 1;
+		}
+
+		index1 += 1;
+	}
+
+
+	return 0;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	printf( "\x1b[31;1mFAILED AT %d size:%d count:%d index1:%d usedIndex1:%d index2:%d usedIndex2:%d delistIndex:%d\n\x1b[0m", rc, size, count, index1, usedIndex1, index2, usedIndex2, delistIndex );
 	return rc;
 }
 

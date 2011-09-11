@@ -36,9 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define TROT_LIST_ERROR_GENERAL -1
 #define TROT_LIST_ERROR_PRECOND -2
-#define TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED -3
-#define TROT_LIST_ERROR_BAD_INDEX -4
-#define TROT_LIST_ERROR_WRONG_KIND -5
+#define TROT_LIST_ERROR_PARANOID -3
+#define TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED -4
+#define TROT_LIST_ERROR_BAD_INDEX -5
+#define TROT_LIST_ERROR_WRONG_KIND -6
 
 /******************************************************************************/
 #define INT_TYPE int
@@ -61,7 +62,7 @@ typedef struct trotListRefListNode_STRUCT trotListRefListNode;
 /* trotListPrimary.c */
 int trotListRefInit( trotListRef **lr_A );
 int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin );
-int trotListRefFree( trotListRef **lr_F );
+void trotListRefFree( trotListRef **lr_F );
 
 int trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
 
