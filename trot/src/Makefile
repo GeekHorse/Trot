@@ -33,6 +33,8 @@ coverage:
 	cd trotLib && $(MAKE) coverage
 
 clean:
+	rm -rf html
+	rm -f gmon.out
 	cd trotLib && $(MAKE) clean
 	cd trotTest && $(MAKE) clean
 

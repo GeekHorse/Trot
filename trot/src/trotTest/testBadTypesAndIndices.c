@@ -49,7 +49,6 @@ int testBadTypesAndIndices()
 	trotListRef *lr2 = NULL;
 	int kind = 0;
 	INT_TYPE n = 0;
-	trotList *l = NULL;
 
 
 	/* CODE */
@@ -79,11 +78,6 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( trotListRefGetListTwin( lr, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefGetListTwin( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefGetListTwin( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
-
-	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 0, &l ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 11, &l ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, -11, &l ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lr -> lPointsTo, 5, &l ) != TROT_LIST_ERROR_WRONG_KIND );
 
 	TEST_ERR_IF( trotListRefRemoveInt( lr, 0, &n ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefRemoveInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );

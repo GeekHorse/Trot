@@ -50,7 +50,6 @@ int testPreconditions()
 	int kind = 0;
 	INT_TYPE n = 0;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
-	trotList *l1 = NULL;
 
 
 	/* CODE */
@@ -63,8 +62,6 @@ int testPreconditions()
 	printf( "  TEST_PRECOND not defined! Not doing any tests...\n" ); fflush( stdout );
 	return 0;
 	#endif
-
-/* TODO: also test out the preconditions of the trotListDO (versus trotListRefDO) functions? */
 
 	TEST_ERR_IF( trotListRefInit( NULL ) == TROT_LIST_SUCCESS );
 	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_LIST_SUCCESS );
@@ -100,9 +97,6 @@ int testPreconditions()
 	TEST_ERR_IF( trotListRefGetListTwin( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetList( NULL, 1, &l1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetList( lr1 -> lPointsTo, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefRemoveInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefRemoveInt( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );

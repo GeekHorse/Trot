@@ -132,8 +132,6 @@ struct trotListRefListNode_STRUCT
 TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind );
 TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
 
-TROT_RC trotListGetList( trotList *l, INT_TYPE index, trotList **subL );
-
 TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
 
 inline TROT_RC newIntNode( trotListNode **n_A );

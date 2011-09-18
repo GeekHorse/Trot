@@ -1088,69 +1088,6 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 
 /******************************************************************************/
 /*!
-	\brief Gets list in list.
-	\param l Pointer to a trotList pointer.
-	\param index Which list to get.
-	\param subL On success, will point to list.
-	\return TROT_RC
-*/
-TROT_RC trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
-{
-	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
-
-	trotListNode *node = NULL;
-
-	INT_TYPE count = 0;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( subL == NULL );
-
-
-	/* CODE */
-	/* Turn negative index into positive equivalent. */
-	if ( index < 0 )
-	{
-		index = (l -> childrenCount) + index + 1;
-	}
-
-	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
-
-	/* *** */
-	node = l -> head -> next;
-	while ( 1 )
-	{
-		count += node -> count;
-		if ( count >= index )
-		{
-			break;
-		}
-
-		node = node -> next;
-
-		ERR_IF_PARANOID( node == l -> tail );
-	}
-
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
-
-	/* give back */
-	(*subL) = node -> l[ (node -> count) - 1 - (count - index) ] -> lPointsTo;
-
-	return TROT_LIST_SUCCESS;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
 	\brief Gets and removes int ref of list in list.
 	\param lr Pointer to a trotListRef pointer.
 	\param index Which int to get and remove.
