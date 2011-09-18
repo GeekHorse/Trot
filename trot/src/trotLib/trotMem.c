@@ -30,7 +30,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	TODO
+	Contains our function pointers for:
+	Calloc, Malloc, Free
+
+	Used so we can override the standard functions.
+
+	Used in our unit tests for testing malloc/calloc failures.
+
+	Also can be useful if we're embedded in an app that uses it's own
+	memory functions. We can easily "plug into" their memory management
+	system.
 */
 
 /******************************************************************************/

@@ -30,10 +30,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	Handles "Hoof", which is the single data structure for Trot.
-	"Hoof" is a list, which can only contain signed ints and lists.
-	Lists can be "twinned", which creates another reference to the list,
-	which is how pointers are handled in Trot.
+	Implements the primary funcitonality of "Hoof", our single data
+	structure for Trot.
+
+	Primary functionality includes:
+	- List Init
+	- List Twin (create another reference to a list, all lists are
+	  manipulated by reference)
+	- List Free
+	- Get Count (how many children does the list have?)
+	- Get Kind (is child at index N an int or list?)
+	- Append Int
+	- Append List Twin
+	- Get Int
+	- Get List Twin
+	- Remove Int
+	- Remove List Twin
+	- Remove
 */
 
 /******************************************************************************/
@@ -43,7 +56,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-static inline int _refListAdd( trotList *l, trotListRef *r );
+static inline TROT_RC _refListAdd( trotList *l, trotListRef *r );
 static inline void _refListRemove( trotList *l, trotListRef *r );
 
 static inline void _isListReachable( trotList *l );
@@ -54,12 +67,12 @@ static inline int _findNextParent( trotList *l, int queryVisited, trotList **par
 	\brief Allocates a new trotListRef reference to a new list.
 	\param lr_A Pointer to a trotListRef pointer that must be NULL. On
 		success, this will point to a new trotListRef reference.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefInit( trotListRef **lr_A )
+TROT_RC trotListRefInit( trotListRef **lr_A )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListRefListNode *newRefHead = NULL;
 	trotListRefListNode *newRefTail = NULL;
@@ -181,12 +194,12 @@ int trotListRefInit( trotListRef **lr_A )
 	\param lr_A Pointer to a trotListRef pointer that must be NULL. On
 		success, this will point to a new trotListRef reverence.
 	\param lrToTwin Pointer to the trotListRef pointer to be twinned.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
+TROT_RC trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListRef *newListRef = NULL;
 
@@ -229,7 +242,7 @@ int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin )
 	\param lr_F Pointer to a trotListRef pointer.
 		(*lr_F) can be NULL, in which case nothing will happen.
 		On return, (*lr_F) will be NULL.
-	\return TODO
+	\return void
 */
 void trotListRefFree( trotListRef **lr_F )
 {
@@ -344,14 +357,10 @@ void trotListRefFree( trotListRef **lr_F )
 	\brief Gets the count of items in the list.
 	\param lr Pointer to a trotListRef pointer.
 	\param c On success, will contain the count of this list.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
+TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 {
-	/* DATA */
-	//int rc = TROT_LIST_SUCCESS;
-
-
 	/* PRECOND */
 	PRECOND_ERR_IF( lr == NULL );
 	PRECOND_ERR_IF( c == NULL );
@@ -369,9 +378,9 @@ int trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Index of the item.
 	\param kind On success, will contain the kind of the item.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
+TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 {
 	PRECOND_ERR_IF( lr == NULL );
 	return trotListGetKind( lr -> lPointsTo, index, kind );
@@ -380,15 +389,15 @@ int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 /******************************************************************************/
 /*!
 	\brief Gets the kind of an item in the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Index of the item.
 	\param kind On success, will contain the kind of the item.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
+TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -442,12 +451,12 @@ int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
 	\brief Appends an int to the end of the list.
 	\param lr Pointer to a trotListRef pointer.
 	\param n The int value to insert.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
+TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -504,12 +513,12 @@ int trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 	\brief Appends a list twin to the end of the list.
 	\param lr Pointer to a trotListRef pointer.
 	\param lrToAppend The list to twin and append.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
+TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -578,12 +587,12 @@ int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Where to insert.
 	\param n The int value to insert.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
+TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -741,12 +750,12 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Where to insert.
 	\param lToInsert The listRef to insert.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lToInsert )
+TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lToInsert )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -936,9 +945,9 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 	\param lr Pointer to a trotListRef pointer.
 	\param index Which int to get.
 	\param n On success, will point to int.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
+TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	PRECOND_ERR_IF( lr == NULL );
 	return trotListGetInt( lr -> lPointsTo, index, n );
@@ -947,15 +956,15 @@ int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 /******************************************************************************/
 /*!
 	\brief Gets copy of int in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Which int to get.
 	\param n On success, will point to int.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
+TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1013,12 +1022,12 @@ int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Which list to get.
 	\param l On success, will point to list ref.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
+TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1079,16 +1088,16 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 
 /******************************************************************************/
 /*!
-	\brief Gets list ref of list in list.
-	\param lr Pointer to a trotListRef pointer.
+	\brief Gets list in list.
+	\param l Pointer to a trotList pointer.
 	\param index Which list to get.
-	\param l On success, will point to list ref.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\param subL On success, will point to list.
+	\return TROT_RC
 */
-int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
+TROT_RC trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1146,12 +1155,12 @@ int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Which int to get and remove.
 	\param n On success, will point to int.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
+TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1233,12 +1242,12 @@ int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	\param lr Pointer to a trotListRef pointer.
 	\param index Which list to get.
 	\param l On success, will point to list ref.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
+TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1321,12 +1330,12 @@ int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	\brief Removes whatever is at index in list.
 	\param lr Pointer to a trotListRef pointer.
 	\param index What to remove.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefRemove( trotListRef *lr, INT_TYPE index )
+TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1423,12 +1432,12 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 		moving the rest into the new right/next node.
 	\param n Node to split.
 	\param keepInLeft How many items to keep in n.
-	\return TROT_LIST_SUCCESS on success, <0 on error
+	\return TROT_RC
 */
-int trotListNodeSplit( trotListNode *n, int keepInLeft )
+TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1496,10 +1505,15 @@ int trotListNodeSplit( trotListNode *n, int keepInLeft )
 }
 
 /******************************************************************************/
-inline int newIntNode( trotListNode **n_A )
+/*!
+	\brief Creates a new trotListNode for Int.
+	\param n_A On success, the new malloc'd node.
+	\return TROT_RC
+*/
+inline TROT_RC newIntNode( trotListNode **n_A )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1532,10 +1546,15 @@ inline int newIntNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-inline int newListNode( trotListNode **n_A )
+/*!
+	\brief Creates a new trotListNode for List.
+	\param n_A On success, the new malloc'd node.
+	\return TROT_RC
+*/
+inline TROT_RC newListNode( trotListNode **n_A )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1568,10 +1587,10 @@ inline int newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static inline int _refListAdd( trotList *l, trotListRef *r )
+static inline TROT_RC _refListAdd( trotList *l, trotListRef *r )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListRefListNode *refNode = NULL;
 

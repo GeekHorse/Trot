@@ -30,10 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	Handles stacks of lists. Not used by the end user nor for any
-	actual data. Only used internally.
-	Used for memory management to go "up" to see if a list is still
-	reachable.
+	Only used during Compare.
+	Keeps track of a stack of two lists we're comparing.
+	Used for comparing, and so we don't get into an infinite loop.
 */
 
 /******************************************************************************/
@@ -44,10 +43,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-int trotStackInit( trotStack **stack )
+/*!
+	\brief Creates a new stack.
+	\param stack On success, the new stack.
+	\return TROT_RC
+*/
+TROT_RC trotStackInit( trotStack **stack )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotStack *newStack = NULL;
 
@@ -104,6 +108,11 @@ int trotStackInit( trotStack **stack )
 }
 
 /******************************************************************************/
+/*!
+	\brief Frees a stack.
+	\param stack The stack to free.
+	\return void
+*/
 void trotStackFree( trotStack **stack )
 {
 	/* DATA */
@@ -135,10 +144,17 @@ void trotStackFree( trotStack **stack )
 }
 
 /******************************************************************************/
-int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
+/*!
+	\brief Pushes a new node on the stack .
+	\param stack The stack to push to.
+	\param l1 The first list.
+	\param l2 The second list.
+	\return TROT_RC
+*/
+TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotStackNode *node = NULL;
 
@@ -189,7 +205,14 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 }
 
 /******************************************************************************/
-int trotStackPop( trotStack *stack, int *empty )
+/*!
+	\brief Pops off the top of the stack.
+	\param stack The stack to pop off from.
+	\param empty After return, will be 1 if stack is empty, or 0 if stack
+	       has items still on it.
+	\return TROT_RC
+*/
+TROT_RC trotStackPop( trotStack *stack, int *empty )
 {
 	/* DATA */
 	trotStackNode *node = NULL;
@@ -221,7 +244,12 @@ int trotStackPop( trotStack *stack, int *empty )
 }
 
 /******************************************************************************/
-int trotStackIncrementTopIndex( trotStack *stack )
+/*!
+	\brief Increments the data on top the stack.
+	\param stack The stack we want to manipulate.
+	\return TROT_RC
+*/
+TROT_RC trotStackIncrementTopIndex( trotStack *stack )
 {
 	/* DATA */
 	trotStackNode *stackNode = NULL;

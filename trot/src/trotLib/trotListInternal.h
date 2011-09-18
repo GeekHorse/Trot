@@ -129,15 +129,15 @@ struct trotListRefListNode_STRUCT
 
 /******************************************************************************/
 /* trotListPrimary.c */
-int trotListGetKind( trotList *l, INT_TYPE index, int *kind );
-int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
+TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind );
+TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
 
-int trotListGetList( trotList *l, INT_TYPE index, trotList **subL );
+TROT_RC trotListGetList( trotList *l, INT_TYPE index, trotList **subL );
 
-int trotListNodeSplit( trotListNode *n, int keepInLeft );
+TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
 
-inline int newIntNode( trotListNode **n_A );
-inline int newListNode( trotListNode **n_A );
+inline TROT_RC newIntNode( trotListNode **n_A );
+inline TROT_RC newListNode( trotListNode **n_A );
 
 
 /******************************************************************************/

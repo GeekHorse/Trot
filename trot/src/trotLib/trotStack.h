@@ -38,9 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct trotStack_STRUCT trotStack;
 typedef struct trotStackNode_STRUCT trotStackNode;
 
-/*! Holds a stack of trotList pointers. Used during memory management to try to
-follow references "up" to see if a list is reachable. We use the stack to make
-sure we don't get into an infinite loop. */
+/*! Holds a stack of trotStackNodes.
+    Only used during Compare so we don't get into an infinite loop */
 struct trotStack_STRUCT
 {
 	/*! head of our stack */
@@ -49,30 +48,39 @@ struct trotStack_STRUCT
 	trotStackNode *tail;
 };
 
-/*! TODO */
+/*! Holds state for our progress comparing two lists */
 struct trotStackNode_STRUCT
 {
+	/*! list1 */
 	trotList *l1;
+	/*! current node in list1 */
 	trotListNode *l1Node;
+	/*! current item in l1Node */
 	INT_TYPE l1Count;
 
+	/*! list2 */
 	trotList *l2;
+	/*! current node in list2 */
 	trotListNode *l2Node;
+	/*! current item in l2Node */
 	INT_TYPE l2Count;
 
+	/*! current index */
 	INT_TYPE index;
 
+	/*! previous trotStackNode */
 	trotStackNode *prev;
+	/*! next trotStackNode */
 	trotStackNode *next;
 };
 
 /******************************************************************************/
-int trotStackInit( trotStack **stack );
+TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
-int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
-int trotStackPop( trotStack *stack, int *empty );
-int trotStackIncrementTopIndex( trotStack *stack );
+TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
+TROT_RC trotStackPop( trotStack *stack, int *empty );
+TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 #endif

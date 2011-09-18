@@ -30,7 +30,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	TODO
+	Implements the secondary functionality of "Hoof", our single data
+	structure for Trot.
+
+	Secondary functionality includes:
+	- Deep list compare
+	- List copy
+	- Enlist
+	- Delist
+	- Copy Span
+	- Remove Span
 */
 
 /******************************************************************************/
@@ -47,12 +56,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param lrCompareTo Pointer to a trotListRef that you want to compare the
 		first one to.
 	\param compareResult On success, the result of the comparison.
-	\return 0 on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
+TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotStack *stack = NULL;
 	trotStackNode *stackNode = NULL;
@@ -211,12 +220,12 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	\param lrCopy_A Pointer to a trotListRef pointer that must be NULL.
 		On success, this will be a copy of the list.
 	\param lr Pointer to a trotListRef to copy.
-	\return 0 on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr )
+TROT_RC trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
@@ -250,16 +259,16 @@ int trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr )
 
 /******************************************************************************/
 /*!
-	\brief TODO
+	\brief Takes a span of children and puts them into a list.
 	\param lr Pointer to a trotListRef.
 	\param indexStart start index of items you want to enlist.
 	\param indexEnd end index of items you want to enlist.
-	\return 0 on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 	INT_TYPE tempI = 0;
@@ -443,16 +452,15 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 
 /******************************************************************************/
 /*!
-	\brief TODO
+	\brief Removes a list and puts it's children in it's place.
 	\param lr Pointer to a trotListRef.
-	\param indexStart start index of items you want to enlist.
-	\param indexEnd end index of items you want to enlist.
-	\return 0 on success, <0 on error
+	\param index index of list you want to delist.
+	\return TROT_RC
 */
-int trotListRefDelist( trotListRef *lr, INT_TYPE index )
+TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -616,12 +624,12 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	\param lr Pointer to a trotListRef that you want to copy a span in.
 	\param indexStart index of start of span.
 	\param indexEnd index of end of span.
-	\return 0 on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -742,12 +750,12 @@ int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE index
 	\param lr Pointer to a trotListRef that you want to remove a span in.
 	\param indexStart index of start of span.
 	\param indexEnd index of end of span.
-	\return 0 on success, <0 on error
+	\return TROT_RC
 */
-int trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListRef *lrRemoved = NULL;
 

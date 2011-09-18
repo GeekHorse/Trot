@@ -32,14 +32,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trotList_H
 
 /******************************************************************************/
-#define TROT_LIST_SUCCESS 0
-
-#define TROT_LIST_ERROR_GENERAL -1
-#define TROT_LIST_ERROR_PRECOND -2
-#define TROT_LIST_ERROR_PARANOID -3
-#define TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED -4
-#define TROT_LIST_ERROR_BAD_INDEX -5
-#define TROT_LIST_ERROR_WRONG_KIND -6
+typedef enum
+{
+	TROT_LIST_SUCCESS =  0,
+	TROT_LIST_ERROR_GENERAL = -1,
+	TROT_LIST_ERROR_PRECOND = -2,
+	TROT_LIST_ERROR_PARANOID = -3,
+	TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED = -4,
+	TROT_LIST_ERROR_BAD_INDEX = -5,
+	TROT_LIST_ERROR_WRONG_KIND = -6
+} TROT_RC;
 
 /******************************************************************************/
 #define INT_TYPE int
@@ -60,38 +62,38 @@ typedef struct trotListRefListNode_STRUCT trotListRefListNode;
 
 /******************************************************************************/
 /* trotListPrimary.c */
-int trotListRefInit( trotListRef **lr_A );
-int trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin );
+TROT_RC trotListRefInit( trotListRef **lr_A );
+TROT_RC trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin );
 void trotListRefFree( trotListRef **lr_F );
 
-int trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
+TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
 
-int trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind );
+TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind );
 
-int trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
-int trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
+TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
+TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
 
-int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
-int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *l );
+TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
+TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *l );
 
-int trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l );
+TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
+TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l );
 
-int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l );
-int trotListRefRemove( trotListRef *lr, INT_TYPE index );
+TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
+TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l );
+TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
 
 /******************************************************************************/
 /* trotListSecondary.c */
-int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
+TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
-int trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr );
+TROT_RC trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr );
 
-int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
-int trotListRefDelist( trotListRef *lr, INT_TYPE index );
+TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index );
 
-int trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
-int trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
 
 /******************************************************************************/
 #endif
