@@ -38,6 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include "trotCommon.h"
+#include "trotList.h"
+#include "trotListInternal.h"
 #include "trotStack.h"
 #include "trotMem.h"
 
@@ -62,14 +64,22 @@ int trotStackInit( trotStack **stack )
 	TROT_MALLOC( newStack, trotStack, 1 );
 
 	newHead -> l1 = NULL;
+	newHead -> l1Node = NULL;
+	newHead -> l1Count = 0;
 	newHead -> l2 = NULL;
-	newHead -> n = 0;
+	newHead -> l2Node = NULL;
+	newHead -> l2Count = 0;
+	newHead -> index = 0;
 	newHead -> prev = newHead;
 	newHead -> next = newTail;
 
 	newTail -> l1 = NULL;
+	newTail -> l1Node = NULL;
+	newTail -> l1Count = 0;
 	newTail -> l2 = NULL;
-	newTail -> n = 0;
+	newTail -> l2Node = NULL;
+	newTail -> l2Count = 0;
+	newTail -> index = 0;
 	newTail -> prev = newHead;
 	newTail -> next = newTail;
 
@@ -157,8 +167,12 @@ int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
 	newNode -> l1 = l1;
+	newNode -> l1Node = l1 -> head;
+	newNode -> l1Count = 0;
 	newNode -> l2 = l2;
-	newNode -> n = 0;
+	newNode -> l2Node = l2 -> head;
+	newNode -> l2Count = 0;
+	newNode -> index = 0;
 	newNode -> next = stack -> tail;
 	newNode -> prev = stack -> tail -> prev;
 
@@ -207,32 +221,33 @@ int trotStackPop( trotStack *stack, int *empty )
 }
 
 /******************************************************************************/
-int trotStackIncrementTopN( trotStack *stack )
+int trotStackIncrementTopIndex( trotStack *stack )
 {
+	/* DATA */
+	trotStackNode *stackNode = NULL;
+
 	/* CODE */
 	ERR_IF_PARANOID( stack == NULL );
 
 	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
 
-	stack -> tail -> prev -> n += 1;
+	stackNode = stack -> tail -> prev;
 
-	return TROT_LIST_SUCCESS;
-}
+	stackNode -> index += 1;
 
-/******************************************************************************/
-int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, int *n )
-{
-	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
-	ERR_IF_PARANOID( l1 == NULL );
-	ERR_IF_PARANOID( l2 == NULL );
-	ERR_IF_PARANOID( n == NULL );
+	stackNode -> l1Count += 1;
+	if ( stackNode -> l1Count >= stackNode -> l1Node -> count )
+	{
+		stackNode -> l1Node = stackNode -> l1Node -> next;
+		stackNode -> l1Count = 0;
+	}
 
-	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
-
-	(*l1) = stack -> tail -> prev -> l1;
-	(*l2) = stack -> tail -> prev -> l2;
-	(*n) = stack -> tail -> prev -> n;
+	stackNode -> l2Count += 1;
+	if ( stackNode -> l2Count >= stackNode -> l2Node -> count )
+	{
+		stackNode -> l2Node = stackNode -> l2Node -> next;
+		stackNode -> l2Count = 0;
+	}
 
 	return TROT_LIST_SUCCESS;
 }

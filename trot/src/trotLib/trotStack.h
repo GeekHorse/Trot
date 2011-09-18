@@ -53,8 +53,14 @@ struct trotStack_STRUCT
 struct trotStackNode_STRUCT
 {
 	trotList *l1;
+	trotListNode *l1Node;
+	INT_TYPE l1Count;
+
 	trotList *l2;
-	INT_TYPE n;
+	trotListNode *l2Node;
+	INT_TYPE l2Count;
+
+	INT_TYPE index;
 
 	trotStackNode *prev;
 	trotStackNode *next;
@@ -66,8 +72,7 @@ void trotStackFree( trotStack **stack );
 
 int trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
 int trotStackPop( trotStack *stack, int *empty );
-int trotStackIncrementTopN( trotStack *stack );
-int trotStackGet( trotStack *stack, trotList **l1, trotList **l2, INT_TYPE *n );
+int trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 #endif

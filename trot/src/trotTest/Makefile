@@ -17,6 +17,10 @@ debug: CFLAGS += -DTEST_PRECOND=1 -g
 debug: LDFLAGS += -fprofile-arcs
 debug: trotTest
 
+profile: CFLAGS += -pg
+profile: LDFLAGS += -pg
+profile: all
+
 clean:
 	rm -f trotTest
 	rm -f *.o

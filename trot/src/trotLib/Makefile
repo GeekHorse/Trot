@@ -15,6 +15,9 @@ debug2: debug
 debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -g
 debug: libTrot.a
 
+profile: CFLAGS += -pg
+profile: all
+
 coverage:
 	gcov -o . *.c
 	mkdir lcov

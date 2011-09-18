@@ -55,6 +55,7 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	int rc = TROT_LIST_SUCCESS;
 
 	trotStack *stack = NULL;
+	trotStackNode *stackNode = NULL;
 	int stackEmpty = 0;
 
 	trotList *l1 = NULL;
@@ -99,12 +100,14 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 	while ( 1 )
 	{
 		/* increment top of stack */
-		rc = trotStackIncrementTopN( stack );
+		rc = trotStackIncrementTopIndex( stack );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* get both stack info */
-		rc = trotStackGet( stack, &l1, &l2, &index );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+		stackNode = stack -> tail -> prev;
+		index = stackNode -> index;
+		l1 = stackNode -> l1;
+		l2 = stackNode -> l2;
 
 		/* make sure we're in index */
 		count1 = l1 -> childrenCount;
@@ -139,10 +142,8 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		}
 
 		/* get kinds */
-		rc = trotListGetKind( l1, index, &kind1 );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-		rc = trotListGetKind( l2, index, &kind2 );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+		kind1 = stackNode -> l1Node -> kind;
+		kind2 = stackNode -> l2Node -> kind;
 
 		/* compare kinds */
 		/* ints are considered smaller than lists */
@@ -162,10 +163,8 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		{
 			ERR_IF_PARANOID( kind2 != NODE_KIND_INT );
 
-			rc = trotListGetInt( l1, index, &n1 );
-			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-			rc = trotListGetInt( l2, index, &n2 );
-			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+			n1 = stackNode -> l1Node -> n[ stackNode -> l1Count ];
+			n2 = stackNode -> l2Node -> n[ stackNode -> l2Count ];
 
 			if ( n1 < n2 )
 			{
@@ -185,10 +184,8 @@ int trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COM
 		ERR_IF_PARANOID( kind2 != NODE_KIND_LIST );
 
 		/* get lists */
-		rc = trotListGetList( l1, index, &subL1 );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-		rc = trotListGetList( l2, index, &subL2 );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+		subL1 = stackNode -> l1Node -> l[ stackNode -> l1Count ] -> lPointsTo;
+		subL2 = stackNode -> l2Node -> l[ stackNode -> l2Count ] -> lPointsTo;
 
 		/* only add if different.
 		   if they point to same, there's no need to compare */

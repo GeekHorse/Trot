@@ -6,6 +6,7 @@ usage:
 	@echo "targets:"
 	@echo "  all      - build normal"
 	@echo "  debug    - build for debug"
+	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
 	@echo "  coverage - generate coverage report with gcov and lcov"
@@ -18,6 +19,9 @@ debug2: all
 
 debug: ARGS = debug
 debug: all
+
+profile: ARGS = profile
+profile: all
 
 test: all
 	trotTest/trotTest -t all
