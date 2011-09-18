@@ -434,18 +434,27 @@ int checkList( trotListRef *lr )
 	int rc = 0;
 
 	trotList *l = NULL;
+	trotList *subL = NULL;
 	trotListNode *node = NULL;
 
 	trotListRefListNode *refNode = NULL;
+	trotListRefListNode *subRefNode = NULL;
 
 	int i = 0;
+	int j = 0;
 
 	int realCount = 0;
 
 	int foundLr = 0;
+	int foundRef = 0;
 
 
 	/* CODE */
+	if ( BE_PARANOID == 0 )
+	{
+		return 0;
+	}
+
 	TEST_ERR_IF( lr == NULL );
 
 	l = lr -> lPointsTo;
@@ -485,8 +494,8 @@ int checkList( trotListRef *lr )
 		realCount += node -> count;
 
 		TEST_ERR_IF(    node -> kind != NODE_KIND_INT
-		        && node -> kind != NODE_KIND_LIST
-		      );
+		             && node -> kind != NODE_KIND_LIST
+		           );
 
 		if ( node -> kind == NODE_KIND_INT )
 		{
@@ -502,7 +511,28 @@ int checkList( trotListRef *lr )
 			while( i < node -> count )
 			{
 				TEST_ERR_IF( node -> l[ i ] == NULL );
-				//TEST_ERR_IF( checkList( node -> l[ i ] ) != 0 );
+
+				foundRef = 0;
+				subL = node -> l[ i ] -> lPointsTo;
+				subRefNode = subL -> refListHead -> next;
+				while ( subRefNode != subL -> refListTail && foundRef == 0 )
+				{
+					j = 0;
+					while ( j < subRefNode -> count )
+					{
+						if ( subRefNode -> r[ j ] -> lParent == l )
+						{
+							foundRef = 1;
+							break;
+						}
+
+						j += 1;
+					}
+
+					subRefNode = subRefNode -> next;
+				}
+
+				TEST_ERR_IF( foundRef == 0 );
 
 				i += 1;
 			}
@@ -590,40 +620,74 @@ int checkList( trotListRef *lr )
 }
 
 /******************************************************************************/
-void printList( trotListRef *lr )
+static void printIndent( int indent )
+{
+	int i = 0;
+	while ( i < indent ) { printf( "    " ); i += 1; }
+	return;
+}
+	
+
+void printList( trotListRef *lr, int indent )
 {
 	/* DATA */
 	trotList *l = lr -> lPointsTo;
 	trotListNode *node = l -> head -> next;
 	int i = 0;
+	trotListRefListNode *refNode = l -> refListHead -> next;
 
 
 	/* CODE */
-	printf( "[ " );
+	printIndent( indent );
+	printf( "LIST: %p\n", l );
+
+	printIndent( indent );
+	printf( "R " );
+	while ( refNode != l -> refListTail )
+	{
+		i = 0;
+		while ( i < refNode -> count )
+		{
+			printf( "(%p<%p) ", refNode -> r[ i ] -> lParent, refNode -> r[ i ] );
+
+			i += 1;
+		}
+
+		refNode = refNode -> next;
+	}
+	printf( "\n" );
 
 	while ( node != l -> tail )
 	{
 		if ( node -> kind == NODE_KIND_INT )
 		{
+			printIndent( indent );
 			printf( "I " );
 			for ( i = 0; i < (node -> count); i += 1 )
 			{
 				printf( "%d ", node -> n[ i ] );
 			}
+			printf( "\n" );
 		}
 		else /* node -> kind == NODE_KIND_LIST */
 		{
-			printf( "L " );
+			printIndent( indent );
+			printf( "L\n" );
 			for ( i = 0; i < (node -> count); i += 1 )
 			{
-				printList( node -> l[ i ] );
+				printIndent( indent );
+				printf( "(%p>%p)\n", node -> l[ i ], node -> l[ i ] -> lPointsTo );
+				printList( node -> l[ i ], indent + 1 );
 			}
 		}
 
 		node = node -> next;
 	}
 
-	printf( "] " );
+	if ( indent == 0 )
+	{
+		printf( "\n\n" );
+	}
 
 	return;
 }

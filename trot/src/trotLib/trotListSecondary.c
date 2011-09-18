@@ -268,7 +268,6 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	INT_TYPE tempI = 0;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -315,7 +314,6 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 	}
 
 	/* find start */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -327,7 +325,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	/* split this node if necessary */
@@ -422,7 +420,7 @@ int trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 			i = 0;
 			while ( i < node -> count )
 			{
-				node -> l[ i ] -> lParent = l;
+				node -> l[ i ] -> lParent = newList;
 
 				i += 1;
 			}
@@ -464,7 +462,6 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	INT_TYPE count = 0;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 	trotListNode *insertBeforeThisNode = NULL;
 
 	trotListRef *delistListRef = NULL;
@@ -491,7 +488,6 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* find index */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -503,7 +499,7 @@ int trotListRefDelist( trotListRef *lr, INT_TYPE index )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	/* check kind */

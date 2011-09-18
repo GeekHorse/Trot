@@ -391,7 +391,6 @@ int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -413,7 +412,6 @@ int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
 	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -425,7 +423,7 @@ int trotListGetKind( trotList *l, INT_TYPE index, int *kind )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	(*kind) = node -> kind;
@@ -590,7 +588,6 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	trotList *l = NULL;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -628,7 +625,6 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be added into */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -640,7 +636,7 @@ int trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	/* *** */
@@ -755,7 +751,6 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 	trotList *l = NULL;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -796,7 +791,6 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be added into */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -808,7 +802,7 @@ int trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lTo
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	/* *** */
@@ -964,7 +958,6 @@ int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -986,7 +979,6 @@ int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -998,7 +990,7 @@ int trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
@@ -1029,7 +1021,6 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1054,7 +1045,6 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
 	node = lr -> lPointsTo -> head -> next;
 	while ( 1 )
 	{
@@ -1066,7 +1056,7 @@ int trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
@@ -1101,7 +1091,6 @@ int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1123,7 +1112,6 @@ int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
 	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = l -> tail;
 	node = l -> head -> next;
 	while ( 1 )
 	{
@@ -1135,7 +1123,7 @@ int trotListGetList( trotList *l, INT_TYPE index, trotList **subL )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
@@ -1166,7 +1154,6 @@ int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1193,7 +1180,6 @@ int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
 	node = lr -> lPointsTo -> head -> next;
 	while ( 1 )
 	{
@@ -1205,7 +1191,7 @@ int trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
@@ -1255,7 +1241,6 @@ int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1282,7 +1267,6 @@ int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
 	node = lr -> lPointsTo -> head -> next;
 	while ( 1 )
 	{
@@ -1294,7 +1278,7 @@ int trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
@@ -1345,7 +1329,6 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 	int rc = TROT_LIST_SUCCESS;
 
 	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
 
 	INT_TYPE count = 0;
 
@@ -1370,7 +1353,6 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
 
 	/* *** */
-	tail = lr -> lPointsTo -> tail;
 	node = lr -> lPointsTo -> head -> next;
 	while ( 1 )
 	{
@@ -1382,7 +1364,7 @@ int trotListRefRemove( trotListRef *lr, INT_TYPE index )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
 	}
 
 	i = (node -> count) - 1 - (count - index);

@@ -73,7 +73,7 @@ int createSelfRefs( trotListRef **lr, int count );
 int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );
 int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
 int checkList( trotListRef *lr );
-void printList( trotListRef *lr );
+void printList( trotListRef *lr, int indent );
 
 /******************************************************************************/
 #endif

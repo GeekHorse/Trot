@@ -75,8 +75,6 @@ static int testMemoryManagement();
 static int testDeepList();
 static int testFailedMallocs();
 
-static int fixCrash(); /* TODO */
-
 /******************************************************************************/
 int testMemory()
 {
@@ -91,12 +89,6 @@ int testMemory()
 	/* CODE */
 	/* **************************************** */
 	printf( "Testing memory management and garbage collection...\n" ); fflush( stdout );
-
-	/* **************************************** */
-	if ( 0 )
-	{
-		fixCrash(); /* TODO */
-	}
 
 	/* **************************************** */
 	/* testing bad mallocs */
@@ -525,43 +517,3 @@ static int testFailedMallocs()
 	return rc;
 }
 
-static int fixCrash() /* TODO */
-{
-	/* DATA */
-	int rc = 0;
-
-	trotListRef *lr1 = NULL;
-	trotListRef *lr2 = NULL;
-	trotListRef *lr3 = NULL;
-
-
-	/* CODE */
-	/* primary functions */
-	rc = trotListRefInit( &lr1 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefInit( &lr2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefAppendListTwin( lr1, lr2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefAppendListTwin( lr1, lr2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefEnlist( lr1, 1, 1 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefCopySpan( &lr3, lr1, 1, 1 );
-	ERR_IF_PASSTHROUGH;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lr3 );
-
-	return rc;
-}
