@@ -6,14 +6,13 @@ Trot characteristics:
 - Only has two types: list and int.
 - Stack based with reverse polish notation.
 - Uses the actor model for easy concurrent programming.
-- Automatic memory management with instant garbage collection.
+- Automatic garbage collection that's incremental and dynamically tunable.
 - Licensed under a three-clause BSD license (see LICENSE)
 
 This is my personal weekend project, so progress will be slow but steady.
 
-The current version is 0.1.0.
-That means I'm still developing the foundation for the language, so you can't
-write anything in the language yet.
+The current version is 0.1.1.
+It will be usable at version 0.3.1. (see PLAN)
 
 
 Building:
