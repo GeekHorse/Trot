@@ -134,8 +134,8 @@ TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
 
 TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
 
-inline TROT_RC newIntNode( trotListNode **n_A );
-inline TROT_RC newListNode( trotListNode **n_A );
+TROT_RC newIntNode( trotListNode **n_A );
+TROT_RC newListNode( trotListNode **n_A );
 
 
 /******************************************************************************/

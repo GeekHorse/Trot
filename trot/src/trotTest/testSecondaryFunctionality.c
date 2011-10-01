@@ -58,7 +58,7 @@ static int (*createFunctions[])( trotListRef **, int ) =
 		createHalfIntHalfList,
 		createHalfListHalfInt,
 
-//		createSelfRefs,
+/*		createSelfRefs, */
 
 		NULL
 	};

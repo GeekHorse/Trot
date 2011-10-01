@@ -56,11 +56,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotMem.h"
 
 /******************************************************************************/
-static inline TROT_RC _refListAdd( trotList *l, trotListRef *r );
-static inline void _refListRemove( trotList *l, trotListRef *r );
+static TROT_RC _refListAdd( trotList *l, trotListRef *r );
+static void _refListRemove( trotList *l, trotListRef *r );
 
-static inline void _isListReachable( trotList *l );
-static inline int _findNextParent( trotList *l, int queryVisited, trotList **parent );
+static void _isListReachable( trotList *l );
+static int _findNextParent( trotList *l, int queryVisited, trotList **parent );
 
 /******************************************************************************/
 /*!
@@ -1447,7 +1447,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 	\param n_A On success, the new malloc'd node.
 	\return TROT_RC
 */
-inline TROT_RC newIntNode( trotListNode **n_A )
+TROT_RC newIntNode( trotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -1488,7 +1488,7 @@ inline TROT_RC newIntNode( trotListNode **n_A )
 	\param n_A On success, the new malloc'd node.
 	\return TROT_RC
 */
-inline TROT_RC newListNode( trotListNode **n_A )
+TROT_RC newListNode( trotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -1524,7 +1524,7 @@ inline TROT_RC newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static inline TROT_RC _refListAdd( trotList *l, trotListRef *r )
+static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -1578,7 +1578,7 @@ static inline TROT_RC _refListAdd( trotList *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static inline void _refListRemove( trotList *l, trotListRef *r )
+static void _refListRemove( trotList *l, trotListRef *r )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
@@ -1640,7 +1640,7 @@ static inline void _refListRemove( trotList *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static inline void _isListReachable( trotList *l )
+static void _isListReachable( trotList *l )
 {
 	/* DATA */
 	int flagFoundClientRef = 0;
@@ -1722,7 +1722,7 @@ static inline void _isListReachable( trotList *l )
 }
 
 /******************************************************************************/
-static inline int _findNextParent( trotList *l, int queryVisited, trotList **parent )
+static int _findNextParent( trotList *l, int queryVisited, trotList **parent )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;

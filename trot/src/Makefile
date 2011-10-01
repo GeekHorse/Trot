@@ -2,6 +2,15 @@
 
 ARGS =
 
+CFLAGS += -Wall -Werror -Wextra
+
+# Uncomment one of the following to test that our code compiles against a standard
+#CFLAGS += -std=c89 -pedantic
+#CFLAGS += -std=c99 -pedantic
+#CFLAGS += -std=c1x -pedantic
+
+export CFLAGS
+
 usage:
 	@echo "targets:"
 	@echo "  all      - build normal"

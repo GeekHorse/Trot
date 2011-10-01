@@ -1,6 +1,5 @@
 .PHONY: all debug debug2 clean
 
-CFLAGS += -Wall -Werror -Wextra
 CFLAGS += -I../trotLib
 LDFLAGS += ../trotLib/libTrot.a
 

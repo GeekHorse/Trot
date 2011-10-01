@@ -1,7 +1,5 @@
 .PHONY: all debug2 debug coverage clean
 
-CFLAGS += -Wall -Werror -Wextra
-
 SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
