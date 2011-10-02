@@ -40,7 +40,8 @@ typedef enum
 	TROT_LIST_ERROR_PARANOID = -3,
 	TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED = -4,
 	TROT_LIST_ERROR_BAD_INDEX = -5,
-	TROT_LIST_ERROR_WRONG_KIND = -6
+	TROT_LIST_ERROR_WRONG_KIND = -6,
+	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -7
 } TROT_RC;
 
 /******************************************************************************/
@@ -53,6 +54,25 @@ typedef enum
 	TROT_LIST_COMPARE_EQUAL        =  0,
 	TROT_LIST_COMPARE_GREATER_THAN =  1
 } TROT_LIST_COMPARE_RESULT;
+
+/******************************************************************************/
+typedef enum
+{
+	TROT_INT_OPERAND_ADD = 1,
+	TROT_INT_OPERAND_SUB = 2,
+	TROT_INT_OPERAND_MUL = 3,
+	TROT_INT_OPERAND_DIV = 4,
+	TROT_INT_OPERAND_MOD = 5,
+	TROT_INT_OPERAND_NEG = 6,
+
+	TROT_INT_OPERAND_LOGICAL_AND = 7,
+	TROT_INT_OPERAND_LOGICAL_OR =  8,
+	TROT_INT_OPERAND_LOGICAL_NOT = 9
+} TROT_INT_OPERAND;
+
+/* NOTE: keep these in sync with the above enum */
+#define TROT_INT_OPERAND_MIN 1
+#define TROT_INT_OPERAND_MAX 9
 
 /******************************************************************************/
 typedef struct trotListRef_STRUCT trotListRef;
@@ -94,6 +114,11 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index );
 
 TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
 TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+
+/******************************************************************************/
+/* trotListInt.c */
+TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op );
+TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE value );
 
 /******************************************************************************/
 #endif

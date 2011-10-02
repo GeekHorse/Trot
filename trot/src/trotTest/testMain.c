@@ -56,6 +56,7 @@ int main( int argc, char **argv )
 	int flagTestBadTypesAndIndices = 0;
 	int flagTestPrimaryFunctionality = 0;
 	int flagTestSecondaryFunctionality = 0;
+	int flagTestIntOperands = 0;
 
 	int timeStart = 0;
 	int timeEnd = 0;
@@ -74,6 +75,7 @@ int main( int argc, char **argv )
 		printf( "                   bad = bad types and indices\n" );
 		printf( "                   f1  = primary functionality\n" );
 		printf( "                   f2  = secondary functionality\n" );
+		printf( "                   int = integer operands\n" );
 		printf( "\n" );
 
 		return -1;
@@ -121,6 +123,10 @@ int main( int argc, char **argv )
 		{
 			flagTestSecondaryFunctionality = 1;
 		}
+		else if ( strcmp( argValue, "int" ) == 0 )
+		{
+			flagTestIntOperands = 1;
+		}
 		else
 		{
 			printf( "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
@@ -155,6 +161,11 @@ int main( int argc, char **argv )
 	if ( flagTestAll || flagTestSecondaryFunctionality )
 	{
 		TEST_ERR_IF( testSecondaryFunctionality() != 0 );
+	}
+
+	if ( flagTestAll || flagTestIntOperands )
+	{
+		TEST_ERR_IF( testIntOperands() != 0 );
 	}
 
 	/* **************************************** */
