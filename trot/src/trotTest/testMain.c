@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 	int flagTestAll = 0;
 	int flagTestPreconditions = 0;
 	int flagTestMemory = 0;
-	int flagTestBadTypesAndIndices = 0;
+	int flagTestBadTypesIndicesIntegerOps = 0;
 	int flagTestPrimaryFunctionality = 0;
 	int flagTestSecondaryFunctionality = 0;
 	int flagTestIntOperands = 0;
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 		printf( "                   all = all tests\n" );
 		printf( "                   pre = preconditions\n" );
 		printf( "                   mem = memory\n" );
-		printf( "                   bad = bad types and indices\n" );
+		printf( "                   bad = bad types, indices, and integer ops\n" );
 		printf( "                   f1  = primary functionality\n" );
 		printf( "                   f2  = secondary functionality\n" );
 		printf( "                   int = integer operands\n" );
@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 		}
 		else if ( strcmp( argValue, "bad" ) == 0 )
 		{
-			flagTestBadTypesAndIndices = 1;
+			flagTestBadTypesIndicesIntegerOps = 1;
 		}
 		else if ( strcmp( argValue, "f1" ) == 0 )
 		{
@@ -148,9 +148,10 @@ int main( int argc, char **argv )
 		TEST_ERR_IF( testMemory() != 0 );
 	}
 
-	if ( flagTestAll || flagTestBadTypesAndIndices )
+	if ( flagTestAll || flagTestBadTypesIndicesIntegerOps )
 	{
 		TEST_ERR_IF( testBadTypesAndIndices() != 0 );
+		TEST_ERR_IF( testBadIntegerOps() != 0 );
 	}
 
 	if ( flagTestAll || flagTestPrimaryFunctionality )

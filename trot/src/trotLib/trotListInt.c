@@ -60,8 +60,6 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op )
 
 	/* PRECOND */
 	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( op < TROT_INT_OPERAND_MIN );
-	PRECOND_ERR_IF( op > TROT_INT_OPERAND_MAX );
 
 
 	/* CODE */
@@ -72,38 +70,45 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op )
 	/* check that last value in list is an int */
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
 
-	/* if not NEG or NOT, we need to remove an int */
-	if ( op != TROT_INT_OPERAND_NEG && op != TROT_INT_OPERAND_LOGICAL_NOT )
+	/* handle single value ops */
+	if ( op == TROT_INT_OPERAND_NEG )
 	{
-		/* check that second-to-last value in list is an int */
-		/* We technically don't have to do this here, but since we're
-		   going to remove an int, I would rather leave the list
-		   untouched on error. So let's catch the error here. */
-		if ( node -> count < 1 ) 
-		{
-			ERR_IF( node -> prev -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
-		}
+			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
+			return TROT_LIST_SUCCESS;
+	}
 
-		/* remove last int */
-		value = node -> n[ (node -> count) - 1 ];
-		node -> count -= 1;
-		l -> childrenCount -= 1;
+	if ( op == TROT_INT_OPERAND_LOGICAL_NOT )
+	{
+			node -> n[ (node -> count) - 1 ] = ! ( node -> n[ (node -> count) - 1 ] );
+			return TROT_LIST_SUCCESS;
+	}
 
-		if ( node -> count == 0 )
-		{
-			node -> prev -> next = node -> next;
-			node -> next -> prev = node -> prev;
+	/* check that second-to-last value in list is an int */
+	/* We technically don't have to do this here, but since we're
+	   going to remove an int, I would rather leave the list
+	   untouched on error. So let's catch the error here. */
+	if ( node -> count <= 1 ) 
+	{
+		ERR_IF( node -> prev -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+	}
 
-			trotFree( node -> n );
-			trotFree( node );
-		}
+	/* remove last int */
+	value = node -> n[ (node -> count) - 1 ];
+	node -> count -= 1;
+	l -> childrenCount -= 1;
+
+	if ( node -> count == 0 )
+	{
+		node -> prev -> next = node -> next;
+		node -> next -> prev = node -> prev;
+
+		trotFree( node -> n );
+		trotFree( node );
 	}
 
 	/* now we can call trotListIntOperandValue */
 	rc = trotListIntOperandValue( lr, op, value );
-	ERR_IF_PASSTHROUGH;
-
-	return TROT_LIST_SUCCESS;
+	return rc;
 
 
 	/* CLEANUP */
@@ -132,8 +137,6 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 
 	/* PRECOND */
 	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( op < TROT_INT_OPERAND_MIN );
-	PRECOND_ERR_IF( op > TROT_INT_OPERAND_MAX );
 
 
 	/* CODE */
@@ -162,10 +165,6 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 			ERR_IF( value == 0, TROT_LIST_ERROR_DIVIDE_BY_ZERO );
 			node -> n[ (node -> count) - 1 ] %= value;
 			break;
-		case TROT_INT_OPERAND_NEG:
-			/* NOTE: value not used */
-			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
-			break;
 
 		case TROT_INT_OPERAND_LOGICAL_AND:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] && value;
@@ -173,10 +172,8 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 		case TROT_INT_OPERAND_LOGICAL_OR:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] || value;
 			break;
-		case TROT_INT_OPERAND_LOGICAL_NOT:
-			/* NOTE: value not used */
-			node -> n[ (node -> count) - 1 ] = ! ( node -> n[ (node -> count) - 1 ] );
-			break;
+		default:
+			ERR_IF( 1, TROT_LIST_ERROR_INVALID_OP );
 	}
 
 	return TROT_LIST_SUCCESS;

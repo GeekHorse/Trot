@@ -35,7 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "testCommon.h"
 
 /******************************************************************************/
-static int testOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TYPE resultWanted );
+static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TYPE resultWanted );
+static int testSingleOp( INT_TYPE value1, TROT_INT_OPERAND op, INT_TYPE resultWanted );
 
 /******************************************************************************/
 int testIntOperands()
@@ -43,46 +44,82 @@ int testIntOperands()
 	/* DATA */
 	int rc = 0;
 
+	trotListRef *lr = NULL;
+
 
 	/* CODE */
-	TEST_ERR_IF( testOp(  3,  5, TROT_INT_OPERAND_ADD,   8 ) != 0 );
-	TEST_ERR_IF( testOp(  3, -5, TROT_INT_OPERAND_ADD,  -2 ) != 0 );
-	TEST_ERR_IF( testOp( -3,  5, TROT_INT_OPERAND_ADD,   2 ) != 0 );
-	TEST_ERR_IF( testOp( -3, -5, TROT_INT_OPERAND_ADD,  -8 ) != 0 );
+	printf( "Testing integer ops...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( testOp(  3,  5, TROT_INT_OPERAND_SUB,  -2 ) != 0 );
-	TEST_ERR_IF( testOp(  3, -5, TROT_INT_OPERAND_SUB,   8 ) != 0 );
-	TEST_ERR_IF( testOp( -3,  5, TROT_INT_OPERAND_SUB,  -8 ) != 0 );
-	TEST_ERR_IF( testOp( -3, -5, TROT_INT_OPERAND_SUB,   2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3,  5, TROT_INT_OPERAND_ADD,   8 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3, -5, TROT_INT_OPERAND_ADD,  -2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3,  5, TROT_INT_OPERAND_ADD,   2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3, -5, TROT_INT_OPERAND_ADD,  -8 ) != 0 );
 
-	TEST_ERR_IF( testOp(  3,  5, TROT_INT_OPERAND_MUL,  15 ) != 0 );
-	TEST_ERR_IF( testOp(  3, -5, TROT_INT_OPERAND_MUL, -15 ) != 0 );
-	TEST_ERR_IF( testOp( -3,  5, TROT_INT_OPERAND_MUL, -15 ) != 0 );
-	TEST_ERR_IF( testOp( -3, -5, TROT_INT_OPERAND_MUL,  15 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3,  5, TROT_INT_OPERAND_SUB,  -2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3, -5, TROT_INT_OPERAND_SUB,   8 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3,  5, TROT_INT_OPERAND_SUB,  -8 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3, -5, TROT_INT_OPERAND_SUB,   2 ) != 0 );
 
-	TEST_ERR_IF( testOp(  15,  6, TROT_INT_OPERAND_DIV,   2 ) != 0 );
-	TEST_ERR_IF( testOp(  15, -6, TROT_INT_OPERAND_DIV,  -2 ) != 0 );
-	TEST_ERR_IF( testOp( -15,  6, TROT_INT_OPERAND_DIV,  -2 ) != 0 );
-	TEST_ERR_IF( testOp( -15, -6, TROT_INT_OPERAND_DIV,   2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3,  5, TROT_INT_OPERAND_MUL,  15 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  3, -5, TROT_INT_OPERAND_MUL, -15 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3,  5, TROT_INT_OPERAND_MUL, -15 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -3, -5, TROT_INT_OPERAND_MUL,  15 ) != 0 );
 
-	TEST_ERR_IF( testOp(  15,  6, TROT_INT_OPERAND_MOD,   3 ) != 0 );
-	TEST_ERR_IF( testOp(  15, -6, TROT_INT_OPERAND_MOD,   3 ) != 0 );
-	TEST_ERR_IF( testOp( -15,  6, TROT_INT_OPERAND_MOD,  -3 ) != 0 );
-	TEST_ERR_IF( testOp( -15, -6, TROT_INT_OPERAND_MOD,  -3 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  15,  6, TROT_INT_OPERAND_DIV,   2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  15, -6, TROT_INT_OPERAND_DIV,  -2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -15,  6, TROT_INT_OPERAND_DIV,  -2 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -15, -6, TROT_INT_OPERAND_DIV,   2 ) != 0 );
 
-	TEST_ERR_IF( testOp(  0,  0, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
-	TEST_ERR_IF( testOp(  5,  0, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
-	TEST_ERR_IF( testOp(  0, -5, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
-	TEST_ERR_IF( testOp( -5,  5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
-	TEST_ERR_IF( testOp(  5, -5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
-	TEST_ERR_IF( testOp( -5, -5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  15,  6, TROT_INT_OPERAND_MOD,   3 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  15, -6, TROT_INT_OPERAND_MOD,   3 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -15,  6, TROT_INT_OPERAND_MOD,  -3 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -15, -6, TROT_INT_OPERAND_MOD,  -3 ) != 0 );
 
-	TEST_ERR_IF( testOp(  0,  0, TROT_INT_OPERAND_LOGICAL_OR,    0 ) != 0 );
-	TEST_ERR_IF( testOp( -5,  0, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
-	TEST_ERR_IF( testOp(  0,  5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
-	TEST_ERR_IF( testOp(  5, -5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
-	TEST_ERR_IF( testOp( -5,  5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
-	TEST_ERR_IF( testOp( -5, -5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  0, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  0, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0, -5, TROT_INT_OPERAND_LOGICAL_AND,   0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5, -5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_LOGICAL_AND,   1 ) != 0 );
+
+	TEST_ERR_IF( testDoubleOp(  0,  0, TROT_INT_OPERAND_LOGICAL_OR,    0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  0, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5, -5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
+
+	TEST_ERR_IF( testSingleOp( -5, TROT_INT_OPERAND_NEG,  5 ) != 0 );
+	TEST_ERR_IF( testSingleOp(  5, TROT_INT_OPERAND_NEG, -5 ) != 0 );
+
+	TEST_ERR_IF( testSingleOp(  1, TROT_INT_OPERAND_LOGICAL_NOT,  0 ) != 0 );
+	TEST_ERR_IF( testSingleOp(  0, TROT_INT_OPERAND_LOGICAL_NOT,  1 ) != 0 );
+	TEST_ERR_IF( testSingleOp(  5, TROT_INT_OPERAND_LOGICAL_NOT,  0 ) != 0 );
+	TEST_ERR_IF( testSingleOp( -5, TROT_INT_OPERAND_LOGICAL_NOT,  0 ) != 0 );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_INT_OPERAND_DIV ) != TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_INT_OPERAND_MOD ) != TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	trotListRefFree( &lr );
 
 
 	/* CLEANUP */
@@ -92,7 +129,7 @@ int testIntOperands()
 }
 
 /******************************************************************************/
-static int testOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TYPE resultWanted )
+static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TYPE resultWanted )
 {
 	/* DATA */
 	int rc = 0;
@@ -100,6 +137,8 @@ static int testOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TY
 	trotListRef *lr = NULL;
 
 	INT_TYPE resultActual = 0;
+
+	int i = 0;
 
 
 	/* CODE */
@@ -114,6 +153,146 @@ static int testOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TY
 
 	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	i = 0;
+	while ( i < NODE_SIZE )
+	{
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+
+		i += 1;
+	}
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	i = 0;
+	while ( i < ( NODE_SIZE - 1 ) )
+	{
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+
+		i += 1;
+	}
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	i = 0;
+	while ( i < NODE_SIZE )
+	{
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+
+		i += 1;
+	}
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+	/* *** */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	i = 0;
+	while ( i < ( NODE_SIZE - 1 ) )
+	{
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+
+		i += 1;
+	}
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lr );
+
+	return rc;	
+}
+
+/******************************************************************************/
+static int testSingleOp( INT_TYPE value1, TROT_INT_OPERAND op, INT_TYPE resultWanted )
+{
+	/* DATA */
+	int rc = 0;
+
+	trotListRef *lr = NULL;
+
+	INT_TYPE resultActual = 0;
+
+
+	/* CODE */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( checkList( lr ) != 0 );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( checkList( lr ) != 0 );
+
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( resultActual != resultWanted );
+
+	trotListRefFree( &lr );
 
 
 	/* CLEANUP */

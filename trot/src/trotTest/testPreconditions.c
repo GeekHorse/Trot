@@ -126,12 +126,8 @@ int testPreconditions()
 	TEST_ERR_IF( trotListRefRemoveSpan( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListIntOperand( NULL, TROT_INT_OPERAND_ADD ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListIntOperand( lr1, TROT_INT_OPERAND_MIN - 1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListIntOperand( lr1, TROT_INT_OPERAND_MAX + 1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListIntOperandValue( NULL, TROT_INT_OPERAND_ADD, 0 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListIntOperandValue( lr1, TROT_INT_OPERAND_MIN - 1, 0 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListIntOperandValue( lr1, TROT_INT_OPERAND_MAX + 1, 0 ) != TROT_LIST_ERROR_PRECOND );
 
 	trotListRefFree( &lr1 );
 

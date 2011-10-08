@@ -57,6 +57,7 @@ int testBadTypesAndIndices();
 int testPrimaryFunctionality();
 int testSecondaryFunctionality();
 int testIntOperands();
+int testBadIntegerOps();
 
 /******************************************************************************/
 /* create functions */
