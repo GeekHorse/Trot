@@ -11,7 +11,7 @@ Trot characteristics:
 
 This is my personal weekend project, so progress will be slow but steady.
 
-The current version is 0.1.1.
+The current version is 0.1.2.
 It will be usable at version 0.3.1. (see PLAN)
 
 
@@ -28,7 +28,7 @@ targets:
   clean    - cleans up files
 
 
-Testing and Validation:
+Quality:
 -----------------------
 - Trot is compiled with gcc's -Wall -Werror and -Wextra.
   It compiles with 0 warnings.
@@ -37,6 +37,7 @@ Testing and Validation:
   Current coverage is 100% branch coverage.
 - Valgrind is used to look for memory leaks and memory corruption.
   There are 0 memory leaks or errors reported.
+- Compiles cleanly against C89 and C99 standards.
 
 
 Documentation:

@@ -23,7 +23,7 @@ Trot Build Plan:
 			4. Combine Items ("enlist")
 			5. Create New List From Span
 			6. Remove Span
-	0.1.2
+	0.1.2 ... COMPLETED 2011-10-09
 		List library math functions
 			1. Add
 			2. Subtract
@@ -38,13 +38,17 @@ Trot Build Plan:
 			11. Logical Not
 			12. Negate
 	0.2
-		List library encoding/decoding
-			1. Encode
-			2. Decode
-	0.2.1
-		List library compiler (encode with names)
-			1. Unicode UTF-8 reader
-			2. Compiler
+		Compiler
+			1. Open/Read/Close interface
+			2. Unicode UTF-8
+			3. Basic Hoof
+			4. Import Hoof
+			5. Import Binary
+			6. Define
+			7. Enum
+			8. Code
+			9. Twin
+			10. Name
 	0.3
 		Load a file with single agent "main", and run agent "main"
 			1. Primary functions
@@ -68,24 +72,23 @@ Trot Build Plan:
 			5. execute?
 	0.3.2
 		Load a file with multiple agents, and run agent "main"
-			1. Send message to agent
-			2. Create agent
-			3. Delete agent
-			4. Copy agent
+			1. Create agent
+			2. Delete agent
+			3. Send message to agent
+			4. Copy agent?
+	0.3.3
+		Multithread
 	0.4
 		Improve garbage collection
-			1. ?
+			1. Incremental
+			2. Dynamically Tunable
 	0.5
-		"Toolbox"
-			1. ?
+		Optimization
 	0.6
 		Libraries
 			1. Big number
 			2. Sort
-			3. Regex
-			4. Network
-	???
-		more
-	???
-		documentation
-		tutorial
+			3. Network
+			4. Text
+	0.7
+		Neigh
