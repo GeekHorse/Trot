@@ -166,6 +166,16 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 			node -> n[ (node -> count) - 1 ] %= value;
 			break;
 
+		case TROT_INT_OPERAND_LESS_THAN:
+			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] < value;
+			break;
+		case TROT_INT_OPERAND_GREATER_THAN:
+			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] > value;
+			break;
+		case TROT_INT_OPERAND_EQUALS:
+			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] == value;
+			break;
+
 		case TROT_INT_OPERAND_LOGICAL_AND:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] && value;
 			break;

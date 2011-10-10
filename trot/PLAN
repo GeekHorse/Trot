@@ -33,11 +33,10 @@ Trot Build Plan:
 			6. Less Than
 			7. Greater Than
 			8. Equals
-			9. And
-			10. Or
-			11. Xor
-			12. Not
-			13. Negate
+			9. Logical And
+			10. Logical Or
+			11. Logical Not
+			12. Negate
 	0.2
 		List library encoding/decoding
 			1. Encode

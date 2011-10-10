@@ -89,6 +89,36 @@ int testIntOperands()
 	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
 	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_LOGICAL_OR,    1 ) != 0 );
 
+	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  0, TROT_INT_OPERAND_LESS_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_LESS_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0, -5, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  0, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  5, TROT_INT_OPERAND_LESS_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5, -5, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  0, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  5, TROT_INT_OPERAND_LESS_THAN, 0 ) != 0 );
+
+	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  0, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0, -5, TROT_INT_OPERAND_GREATER_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  0, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  5, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5, -5, TROT_INT_OPERAND_GREATER_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  0, TROT_INT_OPERAND_GREATER_THAN, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  5, TROT_INT_OPERAND_GREATER_THAN, 0 ) != 0 );
+
+	TEST_ERR_IF( testDoubleOp( -5, -5, TROT_INT_OPERAND_EQUALS, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  0, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp( -5,  5, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0, -5, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  0, TROT_INT_OPERAND_EQUALS, 1 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  0,  5, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5, -5, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  0, TROT_INT_OPERAND_EQUALS, 0 ) != 0 );
+	TEST_ERR_IF( testDoubleOp(  5,  5, TROT_INT_OPERAND_EQUALS, 1 ) != 0 );
+
 	TEST_ERR_IF( testSingleOp( -5, TROT_INT_OPERAND_NEG,  5 ) != 0 );
 	TEST_ERR_IF( testSingleOp(  5, TROT_INT_OPERAND_NEG, -5 ) != 0 );
 
