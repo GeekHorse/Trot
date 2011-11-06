@@ -41,7 +41,8 @@ typedef enum
 	TROT_LIST_ERROR_BAD_INDEX = -4,
 	TROT_LIST_ERROR_WRONG_KIND = -5,
 	TROT_LIST_ERROR_INVALID_OP = -6,
-	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -7
+	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -7,
+	TROT_LIST_ERROR_UNICODE = -8
 } TROT_RC;
 
 /******************************************************************************/
@@ -124,6 +125,11 @@ TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE in
 /* trotListInt.c */
 TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op );
 TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE value );
+
+/******************************************************************************/
+/* trotUnicode.c */
+TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters );
+TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes );
 
 /******************************************************************************/
 #endif

@@ -384,6 +384,7 @@ static int testFailedMallocs()
 	int rc = 0;
 
 	int i = 0;
+	int j = 0;
 
 	trotListRef *lr1 = NULL;
 	trotListRef *lr2 = NULL;
@@ -505,6 +506,61 @@ static int testFailedMallocs()
 	
 	rc = trotListRefCompare( lr1, lr2, &compareResult );
 	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+
+
+	/* It just so happens these values are 1 byte, 2 byte,
+	   3 byte, and 4 byte utf8 characters */
+	j = 0;
+	while ( j < 4 )
+	{
+		/* *** */
+		rc = trotListRefInit( &lr1 );
+		ERR_IF_PASSTHROUGH;
+		rc = trotListRefInit( &lr2 );
+		ERR_IF_PASSTHROUGH;
+		rc = trotListRefInit( &lr3 );
+		ERR_IF_PASSTHROUGH;
+
+		/* *** */
+		i = 0;
+		while ( i <= j )
+		{
+			rc = trotListRefAppendInt( lr1, 0x10 );
+			ERR_IF_PASSTHROUGH;
+
+			i += 1;
+		}
+
+		/* *** */
+		i = 0;
+		while ( i < NODE_SIZE + 1 )
+		{
+			rc = trotListRefAppendInt( lr1, 0x10 );
+			ERR_IF_PASSTHROUGH;
+			rc = trotListRefAppendInt( lr1, 0x100 );
+			ERR_IF_PASSTHROUGH;
+			rc = trotListRefAppendInt( lr1, 0x1000 );
+			ERR_IF_PASSTHROUGH;
+			rc = trotListRefAppendInt( lr1, 0x100000 );
+			ERR_IF_PASSTHROUGH;
+	
+			i += 1;
+		}
+
+		rc = trotCharactersToUtf8( lr1, lr2 );
+		ERR_IF_PASSTHROUGH;
+		rc = trotUtf8ToCharacters( lr2, lr3 );
+		ERR_IF_PASSTHROUGH;
+
+		trotListRefFree( &lr1 );
+		trotListRefFree( &lr2 );
+		trotListRefFree( &lr3 );
+
+		j += 1;
+	}
 
 
 	/* CLEANUP */

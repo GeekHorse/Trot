@@ -58,6 +58,7 @@ int testPrimaryFunctionality();
 int testSecondaryFunctionality();
 int testIntOperands();
 int testBadIntegerOps();
+int testUnicode();
 
 /******************************************************************************/
 /* create functions */
