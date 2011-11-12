@@ -43,7 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotMem.h"
 #include <stdlib.h> /* for malloc, calloc, free */
 
 /******************************************************************************/

@@ -28,11 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
-#include "trotListInternal.h"
+#include "trot.h"
+#include "trotInternal.h"
 
-#include "testCommon.h"
+#include "trotTestCommon.h"
 
 /******************************************************************************/
 int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value )

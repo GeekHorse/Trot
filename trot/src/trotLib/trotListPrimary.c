@@ -50,10 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
-#include "trotListInternal.h"
-#include "trotMem.h"
+#include "trot.h"
+#include "trotInternal.h"
 
 /******************************************************************************/
 static TROT_RC _refListAdd( trotList *l, trotListRef *r );

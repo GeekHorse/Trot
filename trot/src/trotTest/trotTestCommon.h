@@ -27,41 +27,62 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/******************************************************************************/
-#ifndef trotCommon_H
-#define trotCommon_H
+#ifndef trotTestCommon_H
+#define trotTestCommon_H
 
 /******************************************************************************/
-#include <stdio.h> /* for printf in ERR */
-#include <stdlib.h> /* for NULL */
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
 
 /******************************************************************************/
-#define BE_PARANOID 0
+#define TEST_ERR_IF( x ) \
+	if ( (x) ) \
+	{ \
+		printf( "TEST ERROR: test failed in " __FILE__ " on line %d\n", __LINE__ ); \
+		fflush( stdout ); \
+		rc = -__LINE__; \
+		goto cleanup; \
+	}
+
+/* NOTE: Because inserting is different between positive and negative numbers,
+         you need two defines. One that works with 'getters' or 'removers', and
+         one that works with 'inserters'.
+         Example: If your list has 5 items, and you want to get the fifth, you
+         can get index 5 or index -1. However, if you want to add an element
+         at the end of the list, you would add with index 6 or index -1. */
+#define INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, count ) ( ( ( ( count ) + 1 ) * -1 ) + index )
+#define INDEX_TO_NEGATIVE_VERSION_INSERT(        index, count ) ( ( ( ( count ) + 1 ) * -1 ) + index - 1 )
 
 /******************************************************************************/
-#if ( PRINT_ERR == 1 )
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
-#else
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { goto cleanup; }
-#endif
-
-#if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_LIST_ERROR_PRECOND; }
-#else
-#define PRECOND_ERR_IF( cond )
-#endif
-
-#if ( BE_PARANOID == 1 )
-#define ERR_IF_PARANOID( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
-#else
-#define ERR_IF_PARANOID( cond )
-#endif
+/* major test functions */
+int testPreconditions();
+int testMemory();
+int testBadTypesAndIndices();
+int testPrimaryFunctionality();
+int testSecondaryFunctionality();
+int testIntOperands();
+int testBadIntegerOps();
+int testUnicode();
 
 /******************************************************************************/
-/* only for debugging */
-#define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
+/* create functions */
+int createAllInts( trotListRef **lr, int count );
+int createAllLists( trotListRef **lr, int count );
+int createIntListAlternating( trotListRef **lr, int count );
+int createListIntAlternating( trotListRef **lr, int count );
+int createHalfIntHalfList( trotListRef **lr, int count );
+int createHalfListHalfInt( trotListRef **lr, int count );
+
+int createSelfRefs( trotListRef **lr, int count );
+
+/******************************************************************************/
+/* misc functions */
+int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );
+int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
+int checkList( trotListRef *lr );
+void printList( trotListRef *lr, int indent );
 
 /******************************************************************************/
 #endif

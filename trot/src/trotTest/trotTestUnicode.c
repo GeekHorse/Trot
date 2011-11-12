@@ -28,12 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
-#include "trotListInternal.h"
+#include "trot.h"
+#include "trotInternal.h"
 
-#include "testCommon.h"
-
+#include "trotTestCommon.h"
 
 /******************************************************************************/
 static int testCharacterToUtf8ToCharacter( INT_TYPE start, INT_TYPE end, int numberOfBytes );

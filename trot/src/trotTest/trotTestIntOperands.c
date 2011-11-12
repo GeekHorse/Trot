@@ -28,11 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
-#include "trotListInternal.h"
+#include "trot.h"
+#include "trotInternal.h"
 
-#include "testCommon.h"
+#include "trotTestCommon.h"
 
 /******************************************************************************/
 static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_INT_OPERAND op, INT_TYPE resultWanted );

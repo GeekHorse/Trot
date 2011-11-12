@@ -28,8 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotList_H
-#define trotList_H
+#ifndef trot_H
+#define trot_H
 
 /******************************************************************************/
 typedef enum
@@ -75,10 +75,6 @@ typedef enum
 
 	TROT_INT_OPERAND_NEG = 12
 } TROT_INT_OPERAND;
-
-/* NOTE: keep these in sync with the above enum */
-#define TROT_INT_OPERAND_MIN 1
-#define TROT_INT_OPERAND_MAX 9
 
 /******************************************************************************/
 typedef struct trotListRef_STRUCT trotListRef;

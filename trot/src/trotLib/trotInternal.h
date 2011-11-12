@@ -28,8 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#ifndef trotListInternal_H
-#define trotListInternal_H
+#ifndef trotInternal_H
+#define trotInternal_H
+
+/******************************************************************************/
+#include <stdio.h> /* for printf in ERR */
+#include <stdlib.h> /* for NULL */
+
+#include "trotMem.h"
 
 /******************************************************************************/
 #define NODE_SIZE 64
@@ -41,6 +47,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define REF_LIST_NODE_SIZE 16
+
+/******************************************************************************/
+#define BE_PARANOID 0
+
+/******************************************************************************/
+#if ( PRINT_ERR == 1 )
+#define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
+#else
+#define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { goto cleanup; }
+#endif
+
+#if ( TEST_PRECOND == 1 )
+#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_LIST_ERROR_PRECOND; }
+#else
+#define PRECOND_ERR_IF( cond )
+#endif
+
+#if ( BE_PARANOID == 1 )
+#define ERR_IF_PARANOID( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
+#else
+#define ERR_IF_PARANOID( cond )
+#endif
+
+/******************************************************************************/
+/* only for debugging */
+#define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
+
+/******************************************************************************/
+#define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
+	POINTER = ( POINTER_TYPE * ) trotMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
+	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+
+/******************************************************************************/
+#define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
+	POINTER = ( POINTER_TYPE ** ) trotCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
+	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 /*! Data in a trotList is stored in a linked list of trotListNodes. */
@@ -128,6 +172,46 @@ struct trotListRefListNode_STRUCT
 };
 
 /******************************************************************************/
+typedef struct trotStack_STRUCT trotStack;
+typedef struct trotStackNode_STRUCT trotStackNode;
+
+/*! Holds a stack of trotStackNodes.
+    Only used during Compare so we don't get into an infinite loop */
+struct trotStack_STRUCT
+{
+	/*! head of our stack */
+	trotStackNode *head;
+	/*! tail of our stack */
+	trotStackNode *tail;
+};
+
+/*! Holds state for our progress comparing two lists */
+struct trotStackNode_STRUCT
+{
+	/*! list1 */
+	trotList *l1;
+	/*! current node in list1 */
+	trotListNode *l1Node;
+	/*! current item in l1Node */
+	INT_TYPE l1Count;
+
+	/*! list2 */
+	trotList *l2;
+	/*! current node in list2 */
+	trotListNode *l2Node;
+	/*! current item in l2Node */
+	INT_TYPE l2Count;
+
+	/*! current index */
+	INT_TYPE index;
+
+	/*! previous trotStackNode */
+	trotStackNode *prev;
+	/*! next trotStackNode */
+	trotStackNode *next;
+};
+
+/******************************************************************************/
 /* trotListPrimary.c */
 TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind );
 TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
@@ -137,6 +221,14 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
 TROT_RC newIntNode( trotListNode **n_A );
 TROT_RC newListNode( trotListNode **n_A );
 
+/******************************************************************************/
+/* trotStack.c */
+TROT_RC trotStackInit( trotStack **stack );
+void trotStackFree( trotStack **stack );
+
+TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
+TROT_RC trotStackPop( trotStack *stack, int *empty );
+TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 #endif

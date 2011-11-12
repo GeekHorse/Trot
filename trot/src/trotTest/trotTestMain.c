@@ -28,14 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
+#include "trot.h"
 
-#include "testCommon.h"
-
-#include "stdio.h"
-#include "time.h"
-#include "string.h"
+#include "trotTestCommon.h"
 
 /******************************************************************************/
 static int _getArgValue( int argc, char **argv, char *key, char **value );

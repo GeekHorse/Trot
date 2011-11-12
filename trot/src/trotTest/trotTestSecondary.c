@@ -28,20 +28,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
-#include "trotCommon.h"
-#include "trotList.h"
-#include "trotListInternal.h"
+#include "trot.h"
+#include "trotInternal.h"
 
-#include "testCommon.h"
-
-#include "stdio.h"
-#include "time.h"
-#include "string.h"
-
+#include "trotTestCommon.h"
 
 /******************************************************************************/
 #define MAGIC_NUMBER (NODE_SIZE * 3)
-
 
 /******************************************************************************/
 /* helper functions */
