@@ -45,7 +45,8 @@ typedef enum
 	TROT_LIST_ERROR_WRONG_KIND = -5,
 	TROT_LIST_ERROR_INVALID_OP = -6,
 	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -7,
-	TROT_LIST_ERROR_UNICODE = -8
+	TROT_LIST_ERROR_UNICODE = -8,
+	TROT_LIST_ERROR_DECODE = -9
 } TROT_RC;
 
 /******************************************************************************/
@@ -87,6 +88,8 @@ typedef struct trotListRef_STRUCT trotListRef;
 extern void *(*trotCalloc)( size_t nmemb, size_t size );
 extern void *(*trotMalloc)( size_t size );
 extern void (*trotFree)( void *ptr );
+
+extern TROT_RC (*trotLoad)( trotListRef *lrName, trotListRef **lrBytes );
 
 /******************************************************************************/
 /* trotListPrimary.c */
@@ -132,6 +135,11 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 /* trotUnicode.c */
 TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters );
 TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes );
+
+/******************************************************************************/
+/* trotDecodingEncoding.c */
+TROT_RC trotDecode( trotListRef *lrCharacters, trotListRef **lrDecodedList_A );
+TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A );
 
 /******************************************************************************/
 #endif

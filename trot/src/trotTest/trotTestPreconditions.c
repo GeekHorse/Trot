@@ -129,6 +129,14 @@ int testPreconditions()
 	TEST_ERR_IF( trotCharactersToUtf8( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotCharactersToUtf8( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
+	TEST_ERR_IF( trotDecode( NULL, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotEncode( NULL, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+
 	trotListRefFree( &lr1 );
 
 	return 0;

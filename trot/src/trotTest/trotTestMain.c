@@ -53,6 +53,7 @@ int main( int argc, char **argv )
 	int flagTestSecondaryFunctionality = 0;
 	int flagTestIntOperands = 0;
 	int flagTestUnicode = 0;
+	int flagTestDecodingEncoding = 0;
 
 	int timeStart = 0;
 	int timeEnd = 0;
@@ -73,6 +74,7 @@ int main( int argc, char **argv )
 		printf( "                   f2  = secondary functionality\n" );
 		printf( "                   int = integer operands\n" );
 		printf( "                   uni = unicode\n" );
+		printf( "                   cod = decoding, encoding\n" );
 		printf( "\n" );
 
 		return -1;
@@ -128,6 +130,10 @@ int main( int argc, char **argv )
 		{
 			flagTestUnicode = 1;
 		}
+		else if ( strcmp( argValue, "cod" ) == 0 )
+		{
+			flagTestDecodingEncoding = 1;
+		}
 		else
 		{
 			printf( "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
@@ -173,6 +179,11 @@ int main( int argc, char **argv )
 	if ( flagTestAll || flagTestUnicode )
 	{
 		TEST_ERR_IF( testUnicode() != 0 );
+	}
+
+	if ( flagTestAll || flagTestDecodingEncoding )
+	{
+		TEST_ERR_IF( testDecodingEncoding() != 0 );
 	}
 
 	/* **************************************** */
