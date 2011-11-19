@@ -194,7 +194,7 @@ static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int si
 	TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
 
 	/* create copy */
-	TEST_ERR_IF( trotListRefCopy( &lr1Copy, lr1 ) != 0 );
+	TEST_ERR_IF( trotListRefCopy( lr1, &lr1Copy ) != 0 );
 
 	TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
 
@@ -221,7 +221,7 @@ static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int si
 		TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
 
 		/* create copy */
-		TEST_ERR_IF( trotListRefCopy( &lr1Copy, lr1 ) != 0 );
+		TEST_ERR_IF( trotListRefCopy( lr1, &lr1Copy ) != 0 );
 
 		TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
 
@@ -441,7 +441,7 @@ static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
 				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
 			}
 
-			TEST_ERR_IF( trotListRefCopySpan( &lrSpan, lr1, usedIndex1, usedIndex2 ) != 0 );
+			TEST_ERR_IF( trotListRefCopySpan( lr1, usedIndex1, usedIndex2, &lrSpan ) != 0 );
 			TEST_ERR_IF( checkList( lrSpan ) != 0 );
 			TEST_ERR_IF( checkList( lr1 ) != 0 );
 

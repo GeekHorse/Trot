@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
-#include "trotMem.h"
 
 #include "trotTestCommon.h"
 
@@ -192,7 +191,7 @@ static int testMemoryManagement()
 		if ( r == 0 && i > 0 )
 		{
 			j = rand() % i;
-			TEST_ERR_IF( trotListRefTwin( &( clientRefs[ i ] ), clientRefs[ j ] ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_LIST_SUCCESS );
 		}
 		/* create new list */
 		else
@@ -217,7 +216,7 @@ static int testMemoryManagement()
 		else
 		{
 			r = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
-			TEST_ERR_IF( trotListRefTwin( &ref, clientRefs[ r ] ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( clientRefs[ r ], &ref ) != TROT_LIST_SUCCESS );
 		}
 
 		/* how many are we going to add? */
@@ -335,7 +334,7 @@ static int testDeepList()
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &refHead ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( trotListRefTwin( &ref1, refHead ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefTwin( refHead, &ref1 ) != TROT_LIST_SUCCESS );
 
 	while ( i < 1000 ) /* MAGIC */
 	{
@@ -449,7 +448,7 @@ static int testFailedMallocs()
 
 	trotListRefFree( &lr2 );
 
-	rc = trotListRefCopy( &lr2, lr1 );
+	rc = trotListRefCopy( lr1, &lr2 );
 	ERR_IF_PASSTHROUGH;
 
 	trotListRefFree( &lr2 );
@@ -460,7 +459,7 @@ static int testFailedMallocs()
 	rc = trotListRefDelist( lr1, 2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefCopySpan( &lr2, lr1, 1, -2 );
+	rc = trotListRefCopySpan( lr1, 1, -2, &lr2 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotListRefDelist( lr1, -10 );
@@ -472,7 +471,7 @@ static int testFailedMallocs()
 	/* *** */
 	rc = trotListRefInit( &lr1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefCopy( &lr2, lr1 );
+	rc = trotListRefCopy( lr1, &lr2 );
 	ERR_IF_PASSTHROUGH;
 
 	trotListRefFree( &lr1 );

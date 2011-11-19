@@ -32,6 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trot_H
 
 /******************************************************************************/
+#include <stdlib.h> /* for size_t, in memory hook functions */
+
+/******************************************************************************/
 typedef enum
 {
 	TROT_LIST_SUCCESS =  0,
@@ -78,14 +81,17 @@ typedef enum
 
 /******************************************************************************/
 typedef struct trotListRef_STRUCT trotListRef;
-typedef struct trotListNode_STRUCT trotListNode;
-typedef struct trotList_STRUCT trotList;
-typedef struct trotListRefListNode_STRUCT trotListRefListNode;
+
+/******************************************************************************/
+/* trotHooks.c */
+extern void *(*trotCalloc)( size_t nmemb, size_t size );
+extern void *(*trotMalloc)( size_t size );
+extern void (*trotFree)( void *ptr );
 
 /******************************************************************************/
 /* trotListPrimary.c */
 TROT_RC trotListRefInit( trotListRef **lr_A );
-TROT_RC trotListRefTwin( trotListRef **lr_A, trotListRef *lrToTwin );
+TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A );
 void trotListRefFree( trotListRef **lr_F );
 
 TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
@@ -96,25 +102,25 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
 TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
 
 TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
-TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *l );
+TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert );
 
 TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l );
+TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **lrTwin_A );
 
 TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **l );
+TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A );
 TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
 
 /******************************************************************************/
 /* trotListSecondary.c */
 TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
-TROT_RC trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr );
+TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A );
 
 TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
 TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index );
 
-TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A );
 TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
 
 /******************************************************************************/

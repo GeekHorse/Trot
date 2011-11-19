@@ -214,21 +214,21 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 /******************************************************************************/
 /*!
 	\brief Copies a list.
+	\param lr Pointer to a trotListRef to copy.
 	\param lrCopy_A Pointer to a trotListRef pointer that must be NULL.
 		On success, this will be a copy of the list.
-	\param lr Pointer to a trotListRef to copy.
 	\return TROT_RC
 */
-TROT_RC trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr )
+TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
 
 	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
 	PRECOND_ERR_IF( lrCopy_A == NULL );
 	PRECOND_ERR_IF( (*lrCopy_A) != NULL );
-	PRECOND_ERR_IF( lr == NULL );
 
 
 	/* CODE */
@@ -241,7 +241,7 @@ TROT_RC trotListRefCopy( trotListRef **lrCopy_A, trotListRef *lr )
 	/* else, use CopySpan */
 	else
 	{
-		rc = trotListRefCopySpan( lrCopy_A, lr, 1, -1 );
+		rc = trotListRefCopySpan( lr, 1, -1, lrCopy_A );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -525,7 +525,7 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	/* copy our delist (only if it contains something) */
 	if ( delistListRef -> lPointsTo -> childrenCount > 0 )
 	{
-		rc = trotListRefCopySpan( &copiedListRef, delistListRef, 1, -1 );
+		rc = trotListRefCopySpan( delistListRef, 1, -1, &copiedListRef );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -616,14 +616,14 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 /******************************************************************************/
 /*!
 	\brief Makes a copy of a span in a list.
-	\param lrCopy_A Pointer to a trotListRef pointer that must be NULL.
-		On success, this will be a copy of the span.
 	\param lr Pointer to a trotListRef that you want to copy a span in.
 	\param indexStart index of start of span.
 	\param indexEnd index of end of span.
+	\param lrCopy_A Pointer to a trotListRef pointer that must be NULL.
+		On success, this will be a copy of the span.
 	\return TROT_RC
 */
-TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -643,9 +643,9 @@ TROT_RC trotListRefCopySpan( trotListRef **lrCopy_A, trotListRef *lr, INT_TYPE i
 
 
 	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
 	PRECOND_ERR_IF( lrCopy_A == NULL );
 	PRECOND_ERR_IF( (*lrCopy_A) != NULL );
-	PRECOND_ERR_IF( lr == NULL );
 
 
 	/* CODE */

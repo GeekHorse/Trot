@@ -61,9 +61,9 @@ int testPreconditions()
 	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_LIST_SUCCESS );
 	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefTwin( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefTwin( &lr1, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefTwin( &lr2, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefGetCount( NULL, &n ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetCount( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
@@ -105,17 +105,17 @@ int testPreconditions()
 	TEST_ERR_IF( trotListRefCompare( lr1, NULL, &compareResult ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefCopy( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopy( &lr1, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopy( &lr2, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefEnlist( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefDelist( NULL, 1 ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefCopySpan( NULL, lr1, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopySpan( &lr1, lr1, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopySpan( &lr2, NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( NULL, 1, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefRemoveSpan( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
 

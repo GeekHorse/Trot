@@ -35,8 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h> /* for printf in ERR */
 #include <stdlib.h> /* for NULL */
 
-#include "trotMem.h"
-
 /******************************************************************************/
 #define NODE_SIZE 64
 
@@ -87,6 +85,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
+typedef struct trotListNode_STRUCT trotListNode;
+typedef struct trotList_STRUCT trotList;
+typedef struct trotListRefListNode_STRUCT trotListRefListNode;
+
 /*! Data in a trotList is stored in a linked list of trotListNodes. */
 struct trotListNode_STRUCT
 {
