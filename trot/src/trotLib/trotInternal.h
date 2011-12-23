@@ -36,6 +36,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h> /* for NULL */
 
 /******************************************************************************/
+/* this should be a 1-byte unsigned type that can only hold values 0-255 */
+#define BYTE_TYPE unsigned char
+/* TODO: so far this is only used in testing code. where should it belong? */
+
+/******************************************************************************/
 #define NODE_SIZE 64
 
 /******************************************************************************/
@@ -231,6 +236,33 @@ void trotStackFree( trotStack **stack );
 TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
 TROT_RC trotStackPop( trotStack *stack, int *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
+
+/******************************************************************************/
+/* trotDecodingEncoding.c */
+TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A );
+
+/******************************************************************************/
+/* For trotDecodingEncoding and related tests */
+typedef enum
+{
+	TOKEN_L_BRACKET = 1,
+	TOKEN_R_BRACKET = 2,
+	TOKEN_L_BRACE = 3,
+	TOKEN_R_BRACE = 4,
+	TOKEN_L_PARENTHESIS = 5,
+	TOKEN_R_PARENTHESIS = 6,
+	TOKEN_WORD = 7,
+	TOKEN_NUMBER = 8,
+	TOKEN_STRING = 9
+} TOKEN_TYPE;
+
+typedef enum
+{
+	TOKEN_INDEX_LINE = 1,
+	TOKEN_INDEX_COLUMN = 2,
+	TOKEN_INDEX_TYPE = 3,
+	TOKEN_INDEX_VALUE = 4
+} TOKEN_INFO;
 
 /******************************************************************************/
 #endif

@@ -29,8 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include "trot.h"
+#include "trotInternal.h" /* TODO: just for BYTE_TYPE */
 
 #include "trotTestCommon.h"
+
+#include <string.h> /* strcmp */
 
 /******************************************************************************/
 static int _getArgValue( int argc, char **argv, char *key, char **value );
@@ -143,6 +146,10 @@ int main( int argc, char **argv )
 
 	/* **************************************** */
 	timeStart = time( NULL );
+
+	/* **************************************** */
+	TEST_ERR_IF( sizeof( BYTE_TYPE ) != 1 );
+	TEST_ERR_IF( sizeof( INT_TYPE ) != INT_TYPE_SIZE );
 
 	/* **************************************** */
 	if ( flagTestAll || flagTestPreconditions )

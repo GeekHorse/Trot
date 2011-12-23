@@ -1,0 +1,2 @@
+Each dir must contain only tokens that match the value of the dir.
+So in dir '03', only '{' are allowed since TOKEN_L_BRACE has value '3'.
