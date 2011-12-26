@@ -41,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define TEST_DIR_TOKENFILES "./trotTest/testData/TokenFiles/"
+#define TEST_DIR_ENDOFLINEFILES "./trotTest/testData/EndOfLineFiles/"
 
 /******************************************************************************/
 static TROT_RC testTokenizing();
@@ -95,6 +96,9 @@ TROT_RC testTokenizing()
 	INT_TYPE index = 0;
 	INT_TYPE tokenType = 0;
 	trotListRef *lrToken = NULL;
+
+	INT_TYPE line = 0;
+	INT_TYPE numberValue = 0;
 
 
 	/* CODE */
@@ -344,6 +348,111 @@ TROT_RC testTokenizing()
 
 	TEST_ERR_IF( flagTestedAtLeastOne == 0 );
 
+	/* reset stuff */
+	flagTestedAtLeastOne = 0;
+	dirNumber = 1;
+	fileNumber = 1;
+
+	/* create trotList filename for "EndOfLine" File */
+	trotListRefFree( &lrName );
+
+	rc = trotListRefInit( &lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = appendCStringToList( TEST_DIR_ENDOFLINEFILES, lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	/* foreach good file in this directory */
+	fileNumber = 1;
+
+	while ( 1 )
+	{
+		rc = trotListRefAppendInt( lrName, ( fileNumber / 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefAppendInt( lrName, ( fileNumber % 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* does file exist? */
+/* TODO: find better name for 'doesFileExist' and 'appendCStringToList' etc */
+		rc = doesFileExist( lrName, &exist );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		if ( exist == 0 )
+		{
+			/* remove our number from end of name */
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			break;
+		}
+
+		/* call load */
+		trotListRefFree( &lrBytes );
+
+		rc = load( lrName, &lrBytes );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* convert unicode */
+		trotListRefFree( &lrCharacters );
+
+		rc = trotListRefInit( &lrCharacters );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		rc = trotUtf8ToCharacters( lrBytes, lrCharacters );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* tokenizeL */
+		trotListRefFree( &lrTokenList );
+
+		rc = trotTokenize( lrCharacters, &lrTokenList );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* make sure each number token is on the right line */
+		rc = trotListRefGetCount( lrTokenList, &count );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		index = 1;
+		while ( index <= count )
+		{
+			trotListRefFree( &lrToken );
+
+			rc = trotListRefGetListTwin( lrTokenList, index, &lrToken );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			rc = trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			if ( tokenType == TOKEN_NUMBER )
+			{
+				rc = trotListRefGetInt( lrToken, TOKEN_INDEX_LINE, &line );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+				rc = trotListRefGetInt( lrToken, TOKEN_INDEX_VALUE, &numberValue );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+				TEST_ERR_IF( line != numberValue );
+			}
+
+			index += 1;
+		}
+
+		/* set flag */
+		flagTestedAtLeastOne = 1;
+
+		/* remove our number from end of name */
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* next */
+		fileNumber += 1;
+	}
+
+
+	TEST_ERR_IF( flagTestedAtLeastOne == 0 );
 
 
 	/* CLEANUP */

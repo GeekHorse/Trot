@@ -109,6 +109,8 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 
 	/* CODE */
+(void)lr;
+(void)lrCharacters_A;
 
 	/* TODO: write trotEncode */
 	ERR_IF( 1, TROT_LIST_ERROR_DECODE );
