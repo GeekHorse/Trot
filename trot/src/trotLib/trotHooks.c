@@ -62,8 +62,3 @@ void *(*trotMalloc)( size_t size ) = malloc;
     user of the library has their own memory management routines. */
 void (*trotFree)( void *ptr ) = free;
 
-/******************************************************************************/
-/*! This is the function that the library uses to load a (include) when
-    compiling.*/
-TROT_RC (*trotLoad)( trotListRef *lrName, trotListRef **lrBytes );
-

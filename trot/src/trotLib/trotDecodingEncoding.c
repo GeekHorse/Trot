@@ -38,43 +38,257 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A );
+static TROT_RC trotAddListValueNameEnumFinallist( trotListRef *lrToken, trotListRef **lrValue_A );
 
-static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken );
+static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef **lrTokenTree_A );
+
+static TROT_RC createFinalList( trotListRef *lrTokenTree );
+
+#if 0
+/* DEBUG FUNCTIONS */
+static TROT_RC trotPrintTokens( trotListRef *lrTokenList );
+static TROT_RC trotPrintTokenTree( trotListRef *lrTokenTree, int indent );
+static void trotPrintTokenType( INT_TYPE tokenType );
+#endif
 
 /******************************************************************************/
 /*!
 	\brief Decodes a list of characters into a list.
-	\param stack On success, the new stack.
+	\param loadFunc Function to use to load bytes for "includes".
+	\param lrGivenFilenameOfCharacters The "filename" to give the characters.
+	\param lrCharacters Characters to decode.
+	\param stack On success, the decoded list.
 	\return TROT_RC
 */
-TROT_RC trotDecode( trotListRef *lrCharacters, trotListRef **lrDecodedList_A )
+TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenameOfCharacters, trotListRef *lrCharacters, trotListRef **lrDecodedList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
-	trotListRef *newDecodedList = NULL;
+	trotListRef *newLrDecodedList = NULL;
+
+	int pass = 0;
+
+	trotListRef *lrFileList = NULL;
+	INT_TYPE fileCount = 0;
+	INT_TYPE fileIndex = 0;
+
+	trotListRef *lrFile = NULL;
+	trotListRef *lrFileName = NULL;
+
+	trotListRef *lrFileCharacters = NULL;
 
 	trotListRef *lrTokenList = NULL;
+	trotListRef *lrTokenTree = NULL;
 
 
 	/* PRECOND */
+	PRECOND_ERR_IF( loadFunc == NULL );
+	PRECOND_ERR_IF( lrGivenFilenameOfCharacters == NULL );
 	PRECOND_ERR_IF( lrCharacters == NULL );
 	PRECOND_ERR_IF( lrDecodedList_A == NULL );
 	PRECOND_ERR_IF( (*lrDecodedList_A) != NULL );
 
 
 	/* CODE */
-	/* create our newDecodedList */
-	rc = trotListRefInit( &newDecodedList );
+/* TODO */
+(void)loadFunc;
+
+	/* create FileList */
+	rc = trotListRefInit( &lrFileList );
 	ERR_IF_PASSTHROUGH;
 
-	/* tokenize */
-	rc = trotTokenize( lrCharacters, &lrTokenList );
+	/* *** */
+	/* create our first File */
+	rc = trotListRefInit( &lrFile );
 	ERR_IF_PASSTHROUGH;
 
-	/* TODO: finish */
-	ERR_IF( 1, TROT_LIST_ERROR_DECODE );
+	/* *** */
+	/* create FileName for first File */
+	rc = trotListRefCopy( lrGivenFilenameOfCharacters, &lrFileName );
+	ERR_IF_PASSTHROUGH;
+
+	/* add FileName to File */
+	rc = trotListRefAppendListTwin( lrFile, lrFileName );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lrFileName );
+
+	/* *** */
+	/* add File to FileList */
+	rc = trotListRefAppendListTwin( lrFileList, lrFile );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &lrFile );
+
+	/* *** */
+	/* twin lrCharacters so we can "carry in" our first file's characters */
+	rc = trotListRefTwin( lrCharacters, &lrFileCharacters );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	/* foreach pass */
+	pass = 1;
+	do
+	{
+		/* foreach file */
+		fileIndex = 1;
+		do
+		{
+			/* get file */
+			trotListRefFree( &lrFile );
+
+			rc = trotListRefGetListTwin( lrFileList, fileIndex, &lrFile );
+			ERR_IF_PASSTHROUGH;
+
+			/* tokenize, tokenListToTokenTree, handle meta data */
+			if ( pass == 1 )
+			{
+				/* if we don't have characters
+				   (this will only not happen for first file) */
+				if ( lrFileCharacters == NULL )
+				{
+					/* TODO */
+					/* get name */
+					/* load file */
+					/* unicode conversion */
+					ERR_IF_PARANOID( 1 );
+				}
+
+				/* *** */
+				/* tokenize */
+				trotListRefFree( &lrTokenList );
+
+				rc = trotTokenize( lrFileCharacters, &lrTokenList );
+				ERR_IF_PASSTHROUGH;
+
+				/* change token list into a token tree */
+				trotListRefFree( &lrTokenTree );
+
+				rc = tokenListToTokenTree( lrTokenList, &lrTokenTree );
+				ERR_IF_PASSTHROUGH;
+
+				/* TODO: handle meta-data here */
+
+				/* add TokenTree to File */
+				rc = trotListRefAppendListTwin( lrFile, lrTokenTree );
+				ERR_IF_PASSTHROUGH;
+			}
+			/* handle words */
+			else if ( pass == 2 )
+			{
+				/* TODO */
+			}
+			/* handle twins: TODO merge this with pass 2? */
+			else if ( pass == 3 )
+			{
+				/* TODO */
+			}
+			/* optimize code lists */
+			else if ( pass == 4 )
+			{
+				/* TODO */
+			}
+			/* create finalList */
+			else
+			{
+				/* get tokenTree */
+				trotListRefFree( &lrTokenTree );
+
+				rc = trotListRefGetListTwin( lrFile, -1, &lrTokenTree );
+				ERR_IF_PASSTHROUGH;
+
+				/* create final list */
+				rc = createFinalList( lrTokenTree );
+				ERR_IF_PASSTHROUGH;
+			}
+
+			/* update fileCount, in case we added more files */
+			rc = trotListRefGetCount( lrFileList, &fileCount );
+			ERR_IF_PASSTHROUGH;
+
+			/* increment fileIndex */
+			fileIndex += 1;
+
+		} while ( fileIndex <= fileCount );
+
+		/* next pass */
+		pass += 1;
+
+	} while ( pass <= 5 );
+
+	/* get first file */
+	trotListRefFree( &lrFile );
+
+	rc = trotListRefGetListTwin( lrFileList, 1, &lrFile );
+	ERR_IF_PASSTHROUGH;
+
+	/* get it's tokenFree */
+	trotListRefFree( &lrTokenTree );
+
+	rc = trotListRefGetListTwin( lrFile, -1, &lrTokenTree );
+	ERR_IF_PASSTHROUGH;
+
+	/* get it's finalList */
+	rc = trotListRefGetListTwin( lrTokenTree, -1, &newLrDecodedList );
+	ERR_IF_PASSTHROUGH;
+
+	/* give back */
+	(*lrDecodedList_A) = newLrDecodedList;
+	newLrDecodedList = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newLrDecodedList );
+	trotListRefFree( &lrFileList );
+	trotListRefFree( &lrFile );
+	trotListRefFree( &lrFileName );
+	trotListRefFree( &lrFileCharacters );
+	trotListRefFree( &lrTokenList );
+	trotListRefFree( &lrTokenTree );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Decodes a file into a list.
+	\param loadFunc Function to use to load bytes for "includes".
+	\param lrFilename Filename of file to load and decode.
+	\param lrDecodedList_A On success, the decoded list.
+	\return TROT_RC
+*/
+TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotListRef *lrFilename, trotListRef **lrDecodedList_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *newDecodedList = NULL;
+
+	trotListRef *lrBytes = NULL;
+	trotListRef *lrCharacters = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrFilename == NULL );
+	PRECOND_ERR_IF( lrDecodedList_A == NULL );
+	PRECOND_ERR_IF( (*lrDecodedList_A) != NULL );
+
+
+	/* CODE */
+	rc = loadFunc( lrFilename, &lrBytes );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lrCharacters );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotUtf8ToCharacters( lrBytes, lrCharacters );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotDecodeCharacters( loadFunc, lrFilename, lrCharacters, &newDecodedList );
+	ERR_IF_PASSTHROUGH;
 
 	/* give back */
 	(*lrDecodedList_A) = newDecodedList;
@@ -85,7 +299,8 @@ TROT_RC trotDecode( trotListRef *lrCharacters, trotListRef **lrDecodedList_A )
 	cleanup:
 
 	trotListRefFree( &newDecodedList );
-	trotListRefFree( &lrTokenList );
+	trotListRefFree( &lrCharacters );
+	trotListRefFree( &lrBytes );
 
 	return rc;
 }
@@ -93,7 +308,7 @@ TROT_RC trotDecode( trotListRef *lrCharacters, trotListRef **lrDecodedList_A )
 /******************************************************************************/
 /*!
 	\brief Encodes a list into a list of characters.
-	\param stack On success, the new stack.
+	\param 
 	\return TROT_RC
 */
 TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
@@ -124,555 +339,791 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 /******************************************************************************/
 /*!
-	\brief Tokenizes a list of characters.
-	\param lrCharacters List of characters.
-	\param lrTokens_A On success, list of tokens
+	\brief Adds value to a token. Which contains three lists for: name, enum, and children.
+	\param lrToken token to add value to.
+	\param lrChildren_A On success, ref to children inside value.
 	\return TROT_RC
 */
-TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
+static TROT_RC trotAddListValueNameEnumFinallist( trotListRef *lrToken, trotListRef **lrValue_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
-	trotListRef *newLrTokenList = NULL;
+	trotListRef *newLrList = NULL;
+	trotListRef *newLrValue = NULL;
+
+
+	/* CODE */
+	ERR_IF_PARANOID( lrToken == NULL );
+	ERR_IF_PARANOID( lrChildren_A == NULL );
+	ERR_IF_PARANOID( (*lrChildren_A) != NULL );
+
+	/* add children */
+	rc = trotListRefInit( &newLrValue );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrToken, newLrValue );
+	ERR_IF_PASSTHROUGH;
+
+	/* add name */
+	rc = trotListRefInit( &newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrToken, newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &newLrList );
+
+	/* add enum */
+	rc = trotListRefInit( &newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrToken, newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &newLrList );
+
+	/* add 'final list' */
+	rc = trotListRefInit( &newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrToken, newLrList );
+	ERR_IF_PASSTHROUGH;
+
+	trotListRefFree( &newLrList );
+
+
+	/* give back */
+	(*lrValue_A) = newLrValue;
+	newLrValue = NULL;
+	
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newLrList );
+	trotListRefFree( &newLrValue );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Change token list into a token tree.
+	\param lrTokenList Token list.
+	\return TROT_RC
+*/
+static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef **lrTokenTree_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrTopToken = NULL;
+
+	trotListRef *lrParentStack = NULL;
+	INT_TYPE parentStackCount = 0;
+
+	trotListRef *lrParent = NULL;
+	trotListRef *lrChildren = NULL;
 
 	trotListRef *lrToken = NULL;
 
-	trotListRef *lrValue = NULL;
+	INT_TYPE tokenCount = 0;
+	INT_TYPE tokenIndex = 0;
 
-	INT_TYPE count = 0;
-	INT_TYPE i = 0;
-
-	INT_TYPE line = 1;
-	INT_TYPE column = 1;
-
-	INT_TYPE previousCharacter = 0;
-	INT_TYPE character = 0;
-
-	int flagPreviousWasCR = 0;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( lrTokenList_A == NULL );
-	PRECOND_ERR_IF( (*lrTokenList_A) != NULL );
+	INT_TYPE tokenType = 0;
 
 
 	/* CODE */
-	/* create our giveback */
-	rc = trotListRefInit( &newLrTokenList );
+	ERR_IF_PARANOID( lrTokenList == NULL );
+	ERR_IF_PARANOID( lrTokenTree_A == NULL );
+	ERR_IF_PARANOID( (*lrTokenTree_A) != NULL );
+
+	/* *** */
+	/* create our parentStack, so we can "go up" */
+	rc = trotListRefInit( &lrParentStack );
 	ERR_IF_PASSTHROUGH;
 
-	/* get count */
-	rc = trotListRefGetCount( lrCharacters, &count );
+	/* *** */
+	/* create the implicit list token for the file */
+	rc = trotCreateToken( 0, 0, TOKEN_L_BRACKET, &lrTopToken );
+	ERR_IF_PASSTHROUGH;
+	rc = trotAddListValueNameEnumFinallist( lrTopToken, &lrChildren );
 	ERR_IF_PASSTHROUGH;
 
-	/* foreach character */
-	i = 1;
-	while ( i <= count )
+	/* *** */
+	rc = trotListRefTwin( lrTopToken, &lrParent );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	/* get count of tokens */
+	rc = trotListRefGetCount( lrTokenList, &tokenCount );
+	ERR_IF_PASSTHROUGH;
+
+	/* foreach token */
+	tokenIndex = 1;
+	while ( tokenIndex <= tokenCount )
 	{
-		/* get character */
-		rc = trotListRefGetInt( lrCharacters, i, &character );
+		/* get next token */
+		trotListRefFree( &lrToken );
+
+		rc = trotListRefGetListTwin( lrTokenList, tokenIndex, &lrToken );
 		ERR_IF_PASSTHROUGH;
 
-/* TODO: get list of all unicode whitespace */
-		/* if whitespace */
-		if (
-			   character == ' '
-			|| character == '\t'
-			|| character == '\n'
-			|| character == '\r'
-		   )
-		{
-			/* keep track of lines */
-			if ( character == '\n' )
-			{
-				if ( ! flagPreviousWasCR )
-				{
-					line += 1;
-				}
-				column = 0; /* this will be incremented to 1 below */
+		/* get tokenType */
+		rc = trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType );
+		ERR_IF_PASSTHROUGH;
 
-				flagPreviousWasCR = 0;
-			}
-			else if ( character == '\r' )
-			{
-				line += 1;
-				column = 0; /* this will be incremented to 1 below */
+		/* add this to our currentChildren */
+		rc = trotListRefAppendListTwin( lrChildren, lrToken );
+		ERR_IF_PASSTHROUGH;
 
-				flagPreviousWasCR = 1;
-			}
-		}
-		/* if [ */
-		else if ( character == '[' )
+		/* handle token */
+		switch ( tokenType )
 		{
-			rc = trotCreateToken( line, column, TOKEN_L_BRACKET, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if ] */
-		else if ( character == ']' )
-		{
-			rc = trotCreateToken( line, column, TOKEN_R_BRACKET, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if ( */
-		else if ( character == '(' )
-		{
-			rc = trotCreateToken( line, column, TOKEN_L_PARENTHESIS, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if ) */
-		else if ( character == ')' )
-		{
-			rc = trotCreateToken( line, column, TOKEN_R_PARENTHESIS, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if { */
-		else if ( character == '{' )
-		{
-			rc = trotCreateToken( line, column, TOKEN_L_BRACE, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if } */
-		else if ( character == '}' )
-		{
-			rc = trotCreateToken( line, column, TOKEN_R_BRACE, &lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* if " */
-		else if ( character == '"' )
-		{
-			/* create token */
-			rc = trotCreateToken( line, column, TOKEN_STRING, &lrToken );
-			ERR_IF_PASSTHROUGH;
+			case TOKEN_L_BRACKET:
 
-			/* create value */
-			rc = trotListRefInit( &lrValue );
-			ERR_IF_PASSTHROUGH;
+				/* add parent to our parentStack */
+				rc = trotListRefAppendListTwin( lrParentStack, lrParent );
+				ERR_IF_PASSTHROUGH;
 
-			/* get value of string */
-			column += 1;
-			i += 1;
+				trotListRefFree( &lrParent );
+				rc = trotListRefTwin( lrToken, &lrParent );
 
-			/* there must be at least one character after the quote */
-			ERR_IF( i > count, TROT_LIST_ERROR_DECODE );
+				/* add value for this token */
+				trotListRefFree( &lrChildren );
 
-			while ( i <= count )
-			{
-				/* get character */
-				rc = trotListRefGetInt( lrCharacters, i, &character );
+				rc = trotAddListValueNameEnumFinallist( lrToken, &lrChildren );
+				ERR_IF_PASSTHROUGH;
+
+				break;
+
+			case TOKEN_R_BRACKET:
+				/* make sure we can go up */
+				rc = trotListRefGetCount( lrParentStack, &parentStackCount );
+				ERR_IF_PASSTHROUGH;
+
+				ERR_IF( parentStackCount == 0, TROT_LIST_ERROR_DECODE );
+
+				/* get parent */
+				trotListRefFree( &lrParent );
+
+				rc = trotListRefRemoveList( lrParentStack, -1, &lrParent );
+				ERR_IF_PASSTHROUGH;
+
+				/* make sure parent is a L BRACKET */
+				rc = trotListRefGetInt( lrParent, TOKEN_INDEX_TYPE, &tokenType );
+				ERR_IF_PASSTHROUGH;
+
+				ERR_IF( tokenType != TOKEN_L_BRACKET, TROT_LIST_ERROR_DECODE );
+
+				/* get children of parent */
+				trotListRefFree( &lrChildren );
+
+				rc = trotListRefGetListTwin( lrParent, TOKEN_INDEX_VALUE, &lrChildren );
 				ERR_IF_PASSTHROUGH;
 				
-				/* if " */
-				if ( character == '"' )
-				{
-					break;
-				}
-				/* keep track of lines */
-				else if ( character == '\n' )
-				{
-					if ( ! flagPreviousWasCR )
-					{
-						line += 1;
-					}
-					column = 0; /* this will be incremented to 1 below */
+				break;
 
-					flagPreviousWasCR = 0;
-				}
-				else if ( character == '\r' )
-				{
-					line += 1;
-					column = 0; /* this will be incremented to 1 below */
+			case TOKEN_L_BRACE:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
 
-					flagPreviousWasCR = 1;
-				}
+			case TOKEN_R_BRACE:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
 
-				/* append character */
-				rc = trotListRefAppendInt( lrValue, character );
-				ERR_IF_PASSTHROUGH;
+			case TOKEN_L_PARENTHESIS:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
 
-				/* next */
-				column += 1;
-				i += 1;
-			}
+			case TOKEN_R_PARENTHESIS:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
 
-			ERR_IF ( character != '"', TROT_LIST_ERROR_DECODE )
+			case TOKEN_WORD:
+			case TOKEN_NUMBER:
+			case TOKEN_STRING:
+				break;
 
-			/* strings cannot touch strings */
-			if ( (i + 1) <= count )
-			{
-				/* get next character */
-				rc = trotListRefGetInt( lrCharacters, i + 1, &character );
-				ERR_IF_PASSTHROUGH;
-				
-				/* strings cannot touch words */
-				ERR_IF ( character == '"', TROT_LIST_ERROR_DECODE );
-			}
-
-			/* append value */
-			rc = trotListRefAppendListTwin( lrToken, lrValue );
-			ERR_IF_PASSTHROUGH;
-
-			trotListRefFree( &lrValue );
-		}
-		/* else word or number */
-		else 
-		{
-			/* strings cannot touch words */
-			if ( (i - 1) >= 1 )
-			{
-				/* get previous character */
-				rc = trotListRefGetInt( lrCharacters, i - 1, &previousCharacter );
-				ERR_IF_PASSTHROUGH;
-
-				ERR_IF( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
-			}
-
-			/* create token */
-			rc = trotCreateToken( line, column, TOKEN_WORD, &lrToken );
-			ERR_IF_PASSTHROUGH;
-
-			/* create value */
-			rc = trotListRefInit( &lrValue );
-			ERR_IF_PASSTHROUGH;
-
-			/* append character */
-			rc = trotListRefAppendInt( lrValue, character );
-			ERR_IF_PASSTHROUGH;
-
-			/* get rest of value */
-			while ( (i + 1) <= count )
-			{
-				/* get next character */
-				rc = trotListRefGetInt( lrCharacters, i + 1, &character );
-				ERR_IF_PASSTHROUGH;
-				
-				/* strings cannot touch words */
-				ERR_IF ( character == '"', TROT_LIST_ERROR_DECODE );
-
-				/* if end of word */
-				if (
-					/* whitespace */
-					   character == ' '
-					|| character == '\t'
-					|| character == '\n'
-					|| character == '\r'
-					/* list character */
-					|| character == '['
-					|| character == ']'
-					|| character == '('
-					|| character == ')'
-					|| character == '{'
-					|| character == '}'
-				   )
-				{
-					break;
-				}
-
-				/* *** */
-				column += 1;
-				i += 1;
-
-				/* append character */
-				rc = trotListRefAppendInt( lrValue, character );
-				ERR_IF_PASSTHROUGH;
-			}
-
-			/* append value */
-			rc = trotListRefAppendListTwin( lrToken, lrValue );
-			ERR_IF_PASSTHROUGH;
-
-			trotListRefFree( &lrValue );
-
-			/* is word a number? */
-			rc = trotUpgradeWordToNumber( lrToken );
-			ERR_IF_PASSTHROUGH;
-		}
-
-		/* add token */
-		if ( lrToken != NULL )
-		{
-			rc = trotListRefAppendListTwin( newLrTokenList, lrToken );
-			ERR_IF_PASSTHROUGH;
-
-			trotListRefFree( &lrToken );
+			default:
+				ERR_IF( 1, TROT_LIST_ERROR_DECODE );
+				break;
 		}
 
 		/* next */
-		column += 1;
+		tokenIndex += 1;
+	}
+
+	/* make sure we have no parents */
+	rc = trotListRefGetCount( lrParentStack, &parentStackCount );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( parentStackCount != 0, TROT_LIST_ERROR_DECODE );
+
+	/* give back */
+	(*lrTokenTree_A) = lrTopToken;
+	lrTopToken = NULL;
+	
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrTopToken );
+	trotListRefFree( &lrParentStack );
+	trotListRefFree( &lrParent );
+	trotListRefFree( &lrChildren );
+	trotListRefFree( &lrToken );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Creates the final list.
+	\param lrTokenTree Token Tree.
+	\return TROT_RC
+*/
+static TROT_RC createFinalList( trotListRef *lrTokenTree )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrParentTokenStack = NULL;
+	INT_TYPE parentTokenStackCount = 0;
+
+	trotListRef *lrParentTokenIndicesStack = NULL;
+
+	trotListRef *lrToken = NULL;
+	trotListRef *lrTokenChildren = NULL;
+	trotListRef *lrTokenFinalList = NULL;
+	INT_TYPE tokenChildrenCount = 0;
+	INT_TYPE tokenChildrenIndex = 0;
+
+	trotListRef *lrChildToken = NULL;
+	trotListRef *lrChildTokenValue = NULL;
+	trotListRef *lrChildTokenFinalList = NULL;
+	INT_TYPE childTokenType = 0;
+	INT_TYPE childTokenValueInt = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrTokenTree == NULL );
+
+
+	/* CODE */
+	/* create parent stack, so we can "go up" */
+	rc = trotListRefInit( &lrParentTokenStack );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lrParentTokenIndicesStack );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	/* set token to lrTokenTree */
+	rc = trotListRefTwin( lrTokenTree, &lrToken );
+	ERR_IF_PASSTHROUGH;
+
+	/* get top token's children */
+	rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrTokenChildren );
+	ERR_IF_PASSTHROUGH;
+
+	/* get finalList */
+	rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_FINALLIST, &lrTokenFinalList );
+	ERR_IF_PASSTHROUGH;
+
+	/* set index */
+	tokenChildrenIndex = 0;
+
+	/* go through tree */
+	while ( 1 )
+	{
+		/* increment index */
+		tokenChildrenIndex += 1;
+
+		/* are we at end of children? */
+		rc = trotListRefGetCount( lrTokenChildren, &tokenChildrenCount );
+		ERR_IF_PASSTHROUGH;
+
+		if ( tokenChildrenIndex > tokenChildrenCount )
+		{
+			/* free token, children, finalList */
+			trotListRefFree( &lrToken );
+			trotListRefFree( &lrTokenChildren );
+			trotListRefFree( &lrTokenFinalList );
+
+			/* do we have any parents? */
+			rc = trotListRefGetCount( lrParentTokenStack, &parentTokenStackCount );
+			ERR_IF_PASSTHROUGH;
+
+			/* no parents, so we're done */
+			if ( parentTokenStackCount == 0 )
+			{
+				break;
+			}
+
+			/* yes parents, so go up */
+
+			/* get token */
+			rc = trotListRefRemoveList( lrParentTokenStack, -1, &lrToken );
+			ERR_IF_PASSTHROUGH;
+
+			/* get top token's children */
+			rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrTokenChildren );
+			ERR_IF_PASSTHROUGH;
+
+			/* get finalList */
+			rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_FINALLIST, &lrTokenFinalList );
+			ERR_IF_PASSTHROUGH;
+
+			/* get index */
+			rc = trotListRefRemoveInt( lrParentTokenIndicesStack, -1, &tokenChildrenIndex );
+			ERR_IF_PASSTHROUGH;
+
+			continue;
+		}
+
+		/* get next child token */
+		trotListRefFree( &lrChildToken );
+
+		rc = trotListRefGetListTwin( lrTokenChildren, tokenChildrenIndex, &lrChildToken );
+		ERR_IF_PASSTHROUGH;
+
+		/* get tokenType */
+		rc = trotListRefGetInt( lrChildToken, TOKEN_INDEX_TYPE, &childTokenType );
+		ERR_IF_PASSTHROUGH;
+
+		/* handle token */
+		switch ( childTokenType )
+		{
+			case TOKEN_L_BRACKET:
+				/* get child final list */
+				trotListRefFree( &lrChildTokenFinalList );
+
+				rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_FINALLIST, &lrChildTokenFinalList );
+				ERR_IF_PASSTHROUGH;
+
+				/* append */
+				rc = trotListRefAppendListTwin( lrTokenFinalList, lrChildTokenFinalList );
+				ERR_IF_PASSTHROUGH;
+
+				/* save our state */
+				rc = trotListRefAppendListTwin( lrParentTokenStack, lrToken );
+				ERR_IF_PASSTHROUGH;
+
+				rc = trotListRefAppendInt( lrParentTokenIndicesStack, tokenChildrenIndex );
+				ERR_IF_PASSTHROUGH;
+
+				/* go down */
+				
+				/* free token, children, final list */
+				trotListRefFree( &lrToken );
+				trotListRefFree( &lrTokenChildren );
+				trotListRefFree( &lrTokenFinalList );
+
+				/* set token equal to this child */
+				lrToken = lrChildToken;
+				lrChildToken = NULL;
+
+				/* get token's children */
+				rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrTokenChildren );
+				ERR_IF_PASSTHROUGH;
+
+				/* get token's finalList */
+				rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_FINALLIST, &lrTokenFinalList );
+				ERR_IF_PASSTHROUGH;
+
+				/* set index */
+				tokenChildrenIndex = 0;
+
+				continue;
+
+			case TOKEN_R_BRACKET:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_L_BRACE:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_R_BRACE:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_L_PARENTHESIS:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_R_PARENTHESIS:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_WORD:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_NUMBER:
+				/* get number */
+				rc = trotListRefGetInt( lrChildToken, TOKEN_INDEX_VALUE, &childTokenValueInt );
+				ERR_IF_PASSTHROUGH;
+
+				/* append number */
+				rc = trotListRefAppendInt( lrTokenFinalList, childTokenValueInt );
+				ERR_IF_PASSTHROUGH;
+				break;
+
+			case TOKEN_STRING:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
+#if 0
+			case TODO:
+				there is probably going to be a TOKEN_TWIN type that we will need to twin here
+#endif
+
+			default:
+				ERR_IF( 1, TROT_LIST_ERROR_DECODE );
+				break;
+		}
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrParentTokenStack );
+	trotListRefFree( &lrParentTokenIndicesStack );
+
+	trotListRefFree( &lrToken );
+	trotListRefFree( &lrTokenChildren );
+	trotListRefFree( &lrTokenFinalList );
+
+	trotListRefFree( &lrChildToken );
+	trotListRefFree( &lrChildTokenValue );
+	trotListRefFree( &lrChildTokenFinalList );
+
+	return rc;
+}
+
+#if 0
+static TROT_RC trotPrintTokens( trotListRef *lrTokenList )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	INT_TYPE count = 0;
+	INT_TYPE index = 0;
+
+	INT_TYPE currentLine = 1;
+
+	trotListRef *lrToken = NULL;
+
+	INT_TYPE tokenLine = 0;
+	INT_TYPE tokenType = 0;
+	trotListRef *lrValue = NULL;
+	INT_TYPE tokenNumber = 0;
+
+	trotListRef *lrUtf8Bytes = NULL;
+	INT_TYPE utf8Count = 0;
+	INT_TYPE utf8Index = 0;
+	INT_TYPE utf8Byte = 0;
+
+
+	/* CODE */
+	ERR_IF_PARANOID( lrTokenList == NULL );
+
+	printf( "TokenList:\n" );
+
+	/* get count */
+	rc = trotListRefGetCount( lrTokenList, &count );
+	ERR_IF_PASSTHROUGH;
+
+	/* foreach token */
+	index = 1;
+	while ( index <= count )
+	{
+		/* get token */
+		trotListRefFree( &lrToken );
+
+		rc = trotListRefGetListTwin( lrTokenList, index, &lrToken );
+		ERR_IF_PASSTHROUGH;
+
+		/* get line */
+		rc = trotListRefGetInt( lrToken, TOKEN_INDEX_LINE, &tokenLine );
+		ERR_IF_PASSTHROUGH;
+
+		/* get type */
+		rc = trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType );
+		ERR_IF_PASSTHROUGH;
+
+		/* new line? */
+		if ( currentLine != tokenLine )
+		{
+			printf( "\n" );
+			currentLine = tokenLine;
+		}
+
+		/* print */
+		if ( tokenType == TOKEN_L_BRACKET )
+		{
+			printf( "[ " );
+		}
+		else if ( tokenType == TOKEN_R_BRACKET )
+		{
+			printf( "] " );
+		}
+		else if ( tokenType == TOKEN_L_PARENTHESIS )
+		{
+			printf( "( " );
+		}
+		else if ( tokenType == TOKEN_R_PARENTHESIS )
+		{
+			printf( ") " );
+		}
+		else if ( tokenType == TOKEN_L_BRACE )
+		{
+			printf( "{ " );
+		}
+		else if ( tokenType == TOKEN_R_BRACE )
+		{
+			printf( "} " );
+		}
+		else if ( tokenType == TOKEN_STRING || tokenType == TOKEN_WORD )
+		{
+			/* get value */
+			trotListRefFree( &lrValue );
+
+			rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
+			ERR_IF_PASSTHROUGH;
+
+			/* convert to utf8 */
+			trotListRefFree( &lrUtf8Bytes );
+
+			rc = trotListRefInit( &lrUtf8Bytes );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotCharactersToUtf8( lrValue, lrUtf8Bytes );
+			ERR_IF_PASSTHROUGH;
+
+			if ( tokenType == TOKEN_STRING )
+			{
+				printf( "\"" );
+			}
+			else
+			{
+				printf( "W:" );
+			}
+
+			/* print */
+			rc = trotListRefGetCount( lrUtf8Bytes, &utf8Count );
+			ERR_IF_PASSTHROUGH;
+
+			utf8Index = 1;
+			while ( utf8Index <= utf8Count )
+			{
+				rc = trotListRefGetInt( lrUtf8Bytes, utf8Index, &utf8Byte );
+				ERR_IF_PASSTHROUGH;
+
+				printf( "%c", utf8Byte );
+
+				/* next */
+				utf8Index += 1;
+			}
+			
+
+			if ( tokenType == TOKEN_STRING )
+			{
+				printf( "\" " );
+			}
+			else
+			{
+				printf( " " );
+			}
+		}
+		else /* NUMBER */
+		{
+			rc = trotListRefGetInt( lrToken, TOKEN_INDEX_VALUE, &tokenNumber );
+			ERR_IF_PASSTHROUGH;
+
+			printf( "N:%d ", tokenNumber );
+		}
+
+		/* next */
+		index += 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	printf( "\n\n" );
+
+	trotListRefFree( &lrToken );
+	trotListRefFree( &lrValue );
+	trotListRefFree( &lrUtf8Bytes );
+
+	return rc;
+}
+
+/******************************************************************************/
+static int trotPrintTokenTree( trotListRef *lrTokenTree, int indent )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	int i = 0;
+	int j = 0;
+	int count = 0;
+
+	trotListRef *lrChildren = NULL;
+	trotListRef *lrChildToken = NULL;
+	INT_TYPE childTokenType = 0;
+	INT_TYPE childTokenValueInt = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrTokenTree == NULL );
+
+
+	/* CODE */
+	if ( indent == 0 )
+	{
+		printf( "TokenTree:\n" );
+	}
+
+	printf( "\n" );
+	for ( j = 0; j < indent; j += 1 )
+	{
+		printf( "    " );
+	}
+
+	printf( "[ " );
+
+	i = 1;
+
+	rc = trotListRefGetListTwin( lrTokenTree, TOKEN_INDEX_VALUE, &lrChildren );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefGetCount( lrChildren, &count );
+	ERR_IF_PASSTHROUGH;
+
+	/* go through tree */
+	while ( i <= count )
+	{
+		/* get next child token */
+		trotListRefFree( &lrChildToken );
+
+		rc = trotListRefGetListTwin( lrChildren, i, &lrChildToken );
+		ERR_IF_PASSTHROUGH;
+
+		/* get tokenType */
+		rc = trotListRefGetInt( lrChildToken, TOKEN_INDEX_TYPE, &childTokenType );
+		ERR_IF_PASSTHROUGH;
+
+		/* handle token */
+		switch ( childTokenType )
+		{
+			case TOKEN_L_BRACKET:
+				trotPrintTokenTree( lrChildToken, indent + 1 );
+				for ( j = 0; j < indent; j += 1 )
+				{
+					printf( "    " );
+				}
+				break;
+
+			case TOKEN_R_BRACKET:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_L_BRACE:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_R_BRACE:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_L_PARENTHESIS:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_R_PARENTHESIS:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_WORD:
+				ERR_IF_PARANOID( 1 );
+				break;
+
+			case TOKEN_NUMBER:
+				/* get number */
+				rc = trotListRefGetInt( lrChildToken, TOKEN_INDEX_VALUE, &childTokenValueInt );
+				ERR_IF_PASSTHROUGH;
+
+				printf( "%d ", childTokenValueInt );
+
+				break;
+
+			case TOKEN_STRING:
+				/* TODO */
+				ERR_IF_PARANOID( 1 );
+				break;
+#if 0
+			case TODO:
+				there is probably going to be a TOKEN_TWIN type that we will need to twin here
+#endif
+
+			default:
+				ERR_IF( 1, TROT_LIST_ERROR_DECODE );
+				break;
+		}
+
 		i += 1;
 	}
 
-	/* give back */
-	(*lrTokenList_A) = newLrTokenList;
-	newLrTokenList = NULL;
-
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &newLrTokenList );
-	trotListRefFree( &lrToken );
-	trotListRefFree( &lrValue );
+	printf( "]\n" );
+
+	trotListRefFree( &lrChildren );
+	trotListRefFree( &lrChildToken );
 
 	return rc;
 }
 
-/******************************************************************************/
-/*!
-	\brief Creates a token
-	\param line Start line of token.
-	\param column Start column of token.
-	\param lrToken_A On success, new token.
-	\return TROT_RC
-*/
-static TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A )
+static void trotPrintTokenType( INT_TYPE tokenType )
 {
-	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
-
-	trotListRef *newToken = NULL;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( lrToken_A == NULL );
-	PRECOND_ERR_IF( (*lrToken_A) != NULL );
-
-
-	/* CODE */
-	/* create new token */
-	rc = trotListRefInit( &newToken );
-	ERR_IF_PASSTHROUGH;
-
-	/* add line, column, tokenType */
-	rc = trotListRefAppendInt( newToken, line );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( newToken, column );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( newToken, tokenType );
-	ERR_IF_PASSTHROUGH;
-
-	/* give back */
-	(*lrToken_A) = newToken;
-	newToken = NULL;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListRefFree( &newToken );
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief Checks to see if a word is a number, and if so changes the token.
-	\param lrToken Token
-	\return TROT_RC
-*/
-static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
-{
-	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
-
-	trotListRef *lrValue = NULL;
-
-	INT_TYPE index = 0;
-	INT_TYPE count = 0;
-
-	INT_TYPE character = 0;
-	INT_TYPE number = 0;
-
-	int i = 0;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( lrToken == NULL );
-
-
-	/* CODE */
-	/* get value */
-	rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
-	ERR_IF_PASSTHROUGH;
-	
-	/* get count */
-	rc = trotListRefGetCount( lrValue, &count );
-	ERR_IF_PASSTHROUGH;
-
-	/* get first character */
-	rc = trotListRefGetInt( lrValue, 1, &character );
-	ERR_IF_PASSTHROUGH;
-
-	/* SPECIAL CASE: if just '-', then it's a word */
-	if ( count == 1 && character == '-' )
+	char *strings[] =
 	{
-		goto cleanup;
-	}
+		"TOKEN_L_BRACKET",
+		"TOKEN_R_BRACKET",
+		"TOKEN_L_BRACE",
+		"TOKEN_R_BRACE",
+		"TOKEN_L_PARENTHESIS",
+		"TOKEN_R_PARENTHESIS",
+		"TOKEN_WORD",
+		"TOKEN_NUMBER",
+		"TOKEN_STRING"
+	};
 
-	/* if begin with '-' or 0-9, then it's a number */
-	if ( ! ( character == '-' || ( character >= '0' && character <= '9' ) ) )
+	if (    tokenType >= TOKEN_L_BRACKET
+	     && tokenType <= TOKEN_STRING
+	   )
 	{
-		goto cleanup;
-	}
-
-	/* it's a number, so now it must be in a proper format */
-
-	/* go ahead and mark token as a number */
-	rc = trotListRefRemove( lrToken, TOKEN_INDEX_TYPE );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
-	ERR_IF_PASSTHROUGH;
-
-	/* make sure it's a good format */
-	index = 1;
-	if ( character == '-' )
-	{
-		index += 1;
-	}
-
-	rc = trotListRefGetInt( lrValue, index, &character );
-	ERR_IF_PASSTHROUGH;
-
-	ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
-
-	ERR_IF( character == '0' && count != 1, TROT_LIST_ERROR_DECODE );
-
-	index += 1;
-
-	while ( index <= count )
-	{
-		rc = trotListRefGetInt( lrValue, index, &character );
-		ERR_IF_PASSTHROUGH;
-
-		ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
-
-		index += 1;
-	}
-
-	/* make sure number can fit into our INT_TYPE */
-	index = 1;
-
-	rc = trotListRefGetInt( lrValue, index, &character );
-	ERR_IF_PASSTHROUGH;
-
-	if ( character == '-' )
-	{
-		ERR_IF( count > INT_TYPE_MIN_STRING_LENGTH, TROT_LIST_ERROR_DECODE );
-
-		if ( count == INT_TYPE_MIN_STRING_LENGTH )
-		{
-			index += 1;
-			i = 1; /* to skip the '-' at the beginning of INT_TYPE_MIN */
-
-			while ( index <= count )
-			{	
-				rc = trotListRefGetInt( lrValue, index, &character );
-				ERR_IF_PASSTHROUGH;
-
-				ERR_IF ( character > INT_TYPE_MIN[ i ], TROT_LIST_ERROR_DECODE );
-
-				if ( character < INT_TYPE_MIN[ i ] )
-				{
-					break;
-				}
-
-				index += 1;
-				i += 1;
-			}
-		}
+		printf( "TokenType: %s\n", strings[ tokenType - 1 ] );
 	}
 	else
 	{
-		ERR_IF( count > INT_TYPE_MAX_STRING_LENGTH, TROT_LIST_ERROR_DECODE );
-
-		if ( count == INT_TYPE_MAX_STRING_LENGTH )
-		{
-			i = 0;
-
-			while ( index <= count )
-			{	
-				rc = trotListRefGetInt( lrValue, index, &character );
-				ERR_IF_PASSTHROUGH;
-
-				ERR_IF ( character > INT_TYPE_MAX[ i ], TROT_LIST_ERROR_DECODE );
-
-				if ( character < INT_TYPE_MAX[ i ] )
-				{
-					break;
-				}
-
-				index += 1;
-				i += 1;
-			}
-		}
+		printf( "TokenType: UNKNOWN! %d\n", tokenType );
 	}
 
-	/* get our number started */
-	index = 1;
-
-	rc = trotListRefGetInt( lrValue, index, &character );
-	ERR_IF_PASSTHROUGH;
-
-	/* if negative, get real first number */
-	if ( character == '-' )
-	{
-		index += 1;
-
-		rc = trotListRefGetInt( lrValue, index, &character );
-		ERR_IF_PASSTHROUGH;
-
-		number = character - '0';
-		number *= -1;
-
-		/* build rest of number */
-		index += 1;
-
-		while ( index <= count )
-		{
-			rc = trotListRefGetInt( lrValue, index, &character );
-			ERR_IF_PASSTHROUGH;
-	
-			number *= 10;
-			number -= character - '0';
-	
-			index += 1;
-		}
-	}
-	else
-	{
-		number = character - '0';
-
-		/* build rest of number */
-		index += 1;
-
-		while ( index <= count )
-		{
-			rc = trotListRefGetInt( lrValue, index, &character );
-			ERR_IF_PASSTHROUGH;
-	
-			number *= 10;
-			number += character - '0';
-	
-			index += 1;
-		}
-	}
-
-
-	/* remove old string value and replace with number value */
-	rc = trotListRefRemove( lrToken, TOKEN_INDEX_VALUE );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_VALUE, number );
-	ERR_IF_PASSTHROUGH;
-	
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListRefFree( &lrValue );
-
-	return rc;
+	return;
 }
+#endif
 

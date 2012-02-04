@@ -127,6 +127,8 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	newList -> previous = NULL;
 	newList -> nextToFree = NULL;
 
+	newList -> tag = TROT_TAG_DATA;
+
 	newList -> childrenCount = 0;
 
 	newList -> refListHead = newRefHead;

@@ -53,6 +53,20 @@ typedef enum
 } TROT_RC;
 
 /******************************************************************************/
+typedef enum
+{
+	TROT_TAG_DATA =  0,
+	TROT_TAG_TEXT = 1,
+
+	TROT_TAG_ACTOR = 2,
+	TROT_TAG_QUEUE = 3,
+
+	TROT_TAG_CODE = 4,
+	TROT_TAG_CODE_GROUP = 5,
+	TROT_TAG_FUNCTION = 6
+} TROT_TAG;
+
+/******************************************************************************/
 #define INT_TYPE_SIZE 4
 
 #if ( INT_TYPE_SIZE == 4 )
@@ -102,7 +116,8 @@ extern void *(*trotCalloc)( size_t nmemb, size_t size );
 extern void *(*trotMalloc)( size_t size );
 extern void (*trotFree)( void *ptr );
 
-extern TROT_RC (*trotLoad)( trotListRef *lrName, trotListRef **lrBytes );
+/******************************************************************************/
+typedef TROT_RC (*TrotLoadFunc)( trotListRef *lrName, trotListRef **lrBytes );
 
 /******************************************************************************/
 /* trotListPrimary.c */
@@ -126,6 +141,12 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
 TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A );
 TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
+
+/* TODO */
+/*
+	trotListRefReplaceWithInt( lr, index, newInt );
+	trotListRefReplaceWithList( lr, index, newList );
+*/
 
 /******************************************************************************/
 /* trotListSecondary.c */
@@ -151,7 +172,8 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes );
 
 /******************************************************************************/
 /* trotDecodingEncoding.c */
-TROT_RC trotDecode( trotListRef *lrCharacters, trotListRef **lrDecodedList_A );
+TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenameOfCharacters, trotListRef *lrCharacters, trotListRef **lrDecodedList_A );
+TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotListRef *lrFilename, trotListRef **lrDecodedList_A );
 TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A );
 
 /******************************************************************************/

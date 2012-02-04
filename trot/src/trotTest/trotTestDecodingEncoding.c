@@ -40,11 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PRINT_TOKENS 0
 
 /******************************************************************************/
-#define TEST_DIR_TOKENFILES "./trotTest/testData/TokenFiles/"
+#define TEST_DIR_TOKENFILES     "./trotTest/testData/TokenFiles/"
 #define TEST_DIR_ENDOFLINEFILES "./trotTest/testData/EndOfLineFiles/"
+#define TEST_DIR_DECODEFILES    "./trotTest/testData/DecodeFiles/"
 
 /******************************************************************************/
 static TROT_RC testTokenizing();
+static TROT_RC testDecodingEncodingFiles();
+/* TODO: another test for the "tags" of lists? */
 
 static TROT_RC load( trotListRef *lrName, trotListRef **lrBytes );
 
@@ -62,7 +65,14 @@ int testDecodingEncoding()
 
 
 	/* CODE */
+	printf( "Testing tokenizing...\n" ); fflush( stdout );
+
 	rc = testTokenizing();
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	printf( "Testing decoding and encoding...\n" ); fflush( stdout );
+
+	rc = testDecodingEncodingFiles();
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 	/* TODO: more */	
@@ -102,9 +112,6 @@ TROT_RC testTokenizing()
 
 
 	/* CODE */
-	/* point trotLoad to our load function */
-	trotLoad = load;
-
 	/* create trotList filename for "good" */
 	rc = trotListRefInit( &lrName );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
@@ -252,7 +259,7 @@ TROT_RC testTokenizing()
 	rc = appendCStringToList( "bad/", lrName );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-	/* foreach good directory */
+	/* foreach bad directory */
 	while ( 1 )
 	{
 		rc = trotListRefAppendInt( lrName, ( dirNumber / 10 ) + '0' );
@@ -272,7 +279,7 @@ TROT_RC testTokenizing()
 		rc = trotListRefAppendInt( lrName, '/' );
 		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-		/* foreach good file in this directory */
+		/* foreach bad file in this directory */
 		fileNumber = 1;
 
 		while ( 1 )
@@ -462,6 +469,230 @@ TROT_RC testTokenizing()
 	trotListRefFree( &lrBytes );
 	trotListRefFree( &lrCharacters );
 	trotListRefFree( &lrTokenList );
+
+	return rc;
+}
+
+/******************************************************************************/
+static TROT_RC testDecodingEncodingFiles()
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	int dirNumber = 1;
+	int fileNumber = 1;
+
+	INT_TYPE exist = 0;
+
+	trotListRef *lrName = NULL;
+	trotListRef *lrFinalList1 = NULL;
+
+	int flagTestedAtLeastOne = 0;
+
+
+	/* CODE */
+	/* create trotList filename for "good" */
+	rc = trotListRefInit( &lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = appendCStringToList( TEST_DIR_DECODEFILES, lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = appendCStringToList( "good/", lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	/* foreach good directory */
+	while ( 1 )
+	{
+		rc = trotListRefAppendInt( lrName, ( dirNumber / 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefAppendInt( lrName, ( dirNumber % 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* does directory exist? */
+		rc = doesFileExist( lrName, &exist );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		if ( exist == 0 )
+		{
+			break;
+		}
+
+		rc = trotListRefAppendInt( lrName, '/' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* foreach good file in this directory */
+		fileNumber = 1;
+
+		while ( 1 )
+		{
+			rc = trotListRefAppendInt( lrName, ( fileNumber / 10 ) + '0' );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			rc = trotListRefAppendInt( lrName, ( fileNumber % 10 ) + '0' );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			/* does file exist? */
+/* TODO: find better name for 'doesFileExist' and 'appendCStringToList' etc */
+			rc = doesFileExist( lrName, &exist );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			if ( exist == 0 )
+			{
+				/* remove our number from end of name */
+				rc = trotListRefRemove( lrName, -1 );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+				rc = trotListRefRemove( lrName, -1 );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+				break;
+			}
+
+			/* decode */
+			trotListRefFree( &lrFinalList1 );
+
+			rc = trotDecodeFilename( load, lrName, &lrFinalList1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			/* TODO: encode, decode, compare .. should be equal */
+
+			/* set flag */
+			flagTestedAtLeastOne = 1;
+
+			/* remove our number from end of name */
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			/* next */
+			fileNumber += 1;
+		}
+
+		/* remove the last '/' from end of name */
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* remove our number from end of name */
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* next */
+		dirNumber += 1;
+	}
+
+	/* make sure we tested at least one file */
+	TEST_ERR_IF( flagTestedAtLeastOne == 0 );
+
+
+	/* reset stuff */
+	flagTestedAtLeastOne = 0;
+	dirNumber = 1;
+	fileNumber = 1;
+
+	/* create trotList filename for "bad" */
+	trotListRefFree( &lrName );
+
+	rc = trotListRefInit( &lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = appendCStringToList( TEST_DIR_DECODEFILES, lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = appendCStringToList( "bad/", lrName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	/* foreach bad directory */
+	while ( 1 )
+	{
+		rc = trotListRefAppendInt( lrName, ( dirNumber / 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefAppendInt( lrName, ( dirNumber % 10 ) + '0' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* does directory exist? */
+		rc = doesFileExist( lrName, &exist );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		if ( exist == 0 )
+		{
+			break;
+		}
+
+		rc = trotListRefAppendInt( lrName, '/' );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* foreach good file in this directory */
+		fileNumber = 1;
+
+		while ( 1 )
+		{
+			rc = trotListRefAppendInt( lrName, ( fileNumber / 10 ) + '0' );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			rc = trotListRefAppendInt( lrName, ( fileNumber % 10 ) + '0' );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			/* does file exist? */
+/* TODO: find better name for 'doesFileExist' and 'appendCStringToList' etc */
+			rc = doesFileExist( lrName, &exist );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			if ( exist == 0 )
+			{
+				/* remove our number from end of name */
+				rc = trotListRefRemove( lrName, -1 );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+				rc = trotListRefRemove( lrName, -1 );
+				TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+				break;
+			}
+
+			/* decode */
+			trotListRefFree( &lrFinalList1 );
+
+			rc = trotDecodeFilename( load, lrName, &lrFinalList1 );
+			TEST_ERR_IF( rc != TROT_LIST_ERROR_DECODE );
+
+			/* TODO: encode, decode, compare .. should be equal */
+
+			/* set flag */
+			flagTestedAtLeastOne = 1;
+
+			/* remove our number from end of name */
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			rc = trotListRefRemove( lrName, -1 );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			/* next */
+			fileNumber += 1;
+		}
+
+		/* remove the last '/' from end of name */
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* remove our number from end of name */
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+		rc = trotListRefRemove( lrName, -1 );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* next */
+		dirNumber += 1;
+	}
+
+	/* make sure we tested at least one file */
+	TEST_ERR_IF( flagTestedAtLeastOne == 0 );
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrName );
+	trotListRefFree( &lrFinalList1 );
 
 	return rc;
 }
@@ -679,6 +910,7 @@ static TROT_RC doesFileExist( trotListRef *lrName, INT_TYPE *exist )
 	\param lrTokenList Token list.
 	\return TROT_RC
 */
+/* TODO: we have another type function in trotDecodingEncoding.c. Merge into 1? */
 static TROT_RC trotPrintTokens( trotListRef *lrTokenList )
 {
 	/* DATA */

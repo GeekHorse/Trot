@@ -243,6 +243,10 @@ TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
 	{
 		rc = trotListRefCopySpan( lr, 1, -1, lrCopy_A );
 		ERR_IF_PASSTHROUGH;
+
+/* TODO: add some unit tests for this */
+		/* make sure copied list has same tag */
+		(*lrCopy_A) -> lPointsTo -> tag = lr -> lPointsTo -> tag;
 	}
 
 	return 0;

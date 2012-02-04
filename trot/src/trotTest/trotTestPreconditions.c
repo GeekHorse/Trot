@@ -129,13 +129,20 @@ int testPreconditions()
 	TEST_ERR_IF( trotCharactersToUtf8( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotCharactersToUtf8( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotDecode( NULL, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+/* TODO
+	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( lr1, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( lr1, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotDecodeFilename( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotEncode( NULL, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+*/
 
 	trotListRefFree( &lr1 );
 

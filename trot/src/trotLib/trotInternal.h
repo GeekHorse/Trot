@@ -133,6 +133,9 @@ struct trotList_STRUCT
 	    reachable. We use this to keep a linked list of lists that need to
 	    be freed. */
 	trotList *nextToFree;
+
+	/*! Tag. Which "type" or "kind" of list this is. */
+	int tag;
 	/*! How many children are in the list */
 	int childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that
@@ -238,6 +241,10 @@ TROT_RC trotStackPop( trotStack *stack, int *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
+/* trotTokenize.c */
+TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A );
+
+/******************************************************************************/
 /* trotDecodingEncoding.c */
 TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A );
 
@@ -261,7 +268,10 @@ typedef enum
 	TOKEN_INDEX_LINE = 1,
 	TOKEN_INDEX_COLUMN = 2,
 	TOKEN_INDEX_TYPE = 3,
-	TOKEN_INDEX_VALUE = 4
+	TOKEN_INDEX_VALUE = 4,
+	TOKEN_INDEX_NAME = 5,
+	TOKEN_INDEX_ENUMS = 6,
+	TOKEN_INDEX_FINALLIST = 7
 } TOKEN_INFO;
 
 /******************************************************************************/
