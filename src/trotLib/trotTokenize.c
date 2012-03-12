@@ -489,9 +489,9 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 				rc = trotListRefGetInt( lrValue, index, &character );
 				ERR_IF_PASSTHROUGH;
 
-				ERR_IF ( character > INT_TYPE_MIN[ i ], TROT_LIST_ERROR_DECODE );
+				ERR_IF ( character > INT_TYPE_MIN_STRING[ i ], TROT_LIST_ERROR_DECODE );
 
-				if ( character < INT_TYPE_MIN[ i ] )
+				if ( character < INT_TYPE_MIN_STRING[ i ] )
 				{
 					break;
 				}
@@ -514,9 +514,9 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 				rc = trotListRefGetInt( lrValue, index, &character );
 				ERR_IF_PASSTHROUGH;
 
-				ERR_IF ( character > INT_TYPE_MAX[ i ], TROT_LIST_ERROR_DECODE );
+				ERR_IF ( character > INT_TYPE_MAX_STRING[ i ], TROT_LIST_ERROR_DECODE );
 
-				if ( character < INT_TYPE_MAX[ i ] )
+				if ( character < INT_TYPE_MAX_STRING[ i ] )
 				{
 					break;
 				}

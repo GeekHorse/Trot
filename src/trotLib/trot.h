@@ -48,9 +48,20 @@ typedef enum
 	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -8,
 	TROT_LIST_ERROR_UNICODE = -9,
 	TROT_LIST_ERROR_DECODE = -10,
-	TROT_LIST_ERROR_LOAD = -11,
-	TROT_LIST_ERROR_NOT_BYTE_VALUE = -12
+	TROT_LIST_ERROR_ENCODE = -11,
+	TROT_LIST_ERROR_LOAD = -12,
+	TROT_LIST_ERROR_NOT_BYTE_VALUE = -13
 } TROT_RC;
+
+/******************************************************************************/
+#if 0
+TODO
+typedef enum
+{
+	TROT_KIND_INT = 0,
+	TROT_KIND_LIST = 1
+} TROT_KIND;
+#endif
 
 /******************************************************************************/
 typedef enum
@@ -71,9 +82,10 @@ typedef enum
 
 #if ( INT_TYPE_SIZE == 4 )
 #define INT_TYPE int
-#define INT_TYPE_MAX "2147483647"
+#define INT_TYPE_MAX         2147483647
+#define INT_TYPE_MAX_STRING "2147483647"
 #define INT_TYPE_MAX_STRING_LENGTH 10
-#define INT_TYPE_MIN "-2147483648"
+#define INT_TYPE_MIN_STRING "-2147483648"
 #define INT_TYPE_MIN_STRING_LENGTH 11
 #else
 #error NEED TO DEFINE INT_TYPE FOR INT_TYPE_SIZE

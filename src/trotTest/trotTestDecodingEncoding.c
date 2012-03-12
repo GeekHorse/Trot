@@ -643,7 +643,18 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
-	trotListRef *lrDecodedList = NULL;
+	trotListRef *lrDecodedList1 = NULL;
+	trotListRef *lrEncodedList1 = NULL;
+	trotListRef *lrEmptyName = NULL;
+	trotListRef *lrDecodedList2A = NULL;
+	INT_TYPE count = 0;
+	trotListRef *lrDecodedList2B = NULL;
+	trotListRef *lrEncodedList2 = NULL;
+
+	TROT_LIST_COMPARE_RESULT compareResult;
+#if 1
+	char *s = NULL;
+#endif	
 
 
 	/* PRECOND */
@@ -654,16 +665,68 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	(void)dirNumber;
 	(void)fileNumber;
 
-	rc = trotDecodeFilename( load, lrName, &lrDecodedList );
+	rc = trotDecodeFilename( load, lrName, &lrDecodedList1 );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-	/* TODO: encode, decode, compare .. should be equal */
+	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+#if 0
+	rc = listToCString( lrEncodedList1, &s );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	printf( "lrEncodedList1: %s\n", s );
+
+	trotFree( s );
+	s = NULL;
+#endif
+
+	rc = trotListRefInit( &lrEmptyName );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = trotDecodeCharacters( load, lrEmptyName, lrEncodedList1, &lrDecodedList2A );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = trotListRefGetCount( lrDecodedList2A, &count );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( count != 1 );
+
+	rc = trotListRefGetListTwin( lrDecodedList2A, 1, &lrDecodedList2B );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	rc = trotEncode( lrDecodedList2B, &lrEncodedList2 );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+#if 1
+	rc = listToCString( lrEncodedList2, &s );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	printf( "lrEncodedList2: %s\n", s );
+
+	trotFree( s );
+	s = NULL;
+#endif
+
+	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2B, &compareResult );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+	
+	rc = trotListRefCompare( lrEncodedList1, lrEncodedList2, &compareResult );
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrDecodedList );
+	trotListRefFree( &lrDecodedList1 );
+	trotListRefFree( &lrEncodedList1 );
+	trotListRefFree( &lrEmptyName );
+	trotListRefFree( &lrDecodedList2A );
+	trotListRefFree( &lrDecodedList2B );
+	trotListRefFree( &lrEncodedList2 );
 
 	return rc;
 }

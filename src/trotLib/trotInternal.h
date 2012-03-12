@@ -134,6 +134,12 @@ struct trotList_STRUCT
 	    be freed. */
 	trotList *nextToFree;
 
+	/*! Pointer to "parent" when we're encoding a list */
+	trotList *encodingParent;
+	/*! The child number this list is of it's parent, used for managing
+	    twins when encoding */
+	INT_TYPE encodingChildNumber;
+
 	/*! Tag. Which "type" or "kind" of list this is. */
 	int tag;
 	/*! How many children are in the list */
