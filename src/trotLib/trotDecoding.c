@@ -81,6 +81,10 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 	trotListRef *lrTokenList = NULL;
 	trotListRef *lrTokenTree = NULL;
 
+	trotListRef *lrFinalList = NULL;
+	INT_TYPE finalListCount = 0;
+	int finalListKind = 0; /* TODO: this needs to be enum */
+
 
 	/* PRECOND */
 	PRECOND_ERR_IF( loadFunc == NULL );
@@ -223,14 +227,29 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 	rc = trotListRefGetListTwin( lrFileList, 1, &lrFile );
 	ERR_IF_PASSTHROUGH;
 
-	/* get it's tokenFree */
+	/* get it's tokenTree */
 	trotListRefFree( &lrTokenTree );
 
 	rc = trotListRefGetListTwin( lrFile, -1, &lrTokenTree );
 	ERR_IF_PASSTHROUGH;
 
 	/* get it's finalList */
-	rc = trotListRefGetListTwin( lrTokenTree, -1, &newLrDecodedList );
+	rc = trotListRefGetListTwin( lrTokenTree, -1, &lrFinalList );
+	ERR_IF_PASSTHROUGH;
+
+	/* final list here should only contain 1 single list */
+	rc = trotListRefGetCount( lrFinalList, &finalListCount );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( finalListCount != 1, TROT_LIST_ERROR_DECODE );
+
+	rc = trotListRefGetKind( lrFinalList, 1, &finalListKind );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( finalListKind != NODE_KIND_LIST, TROT_LIST_ERROR_DECODE );
+
+	/* get decoded list */
+	rc = trotListRefGetListTwin( lrFinalList, 1, &newLrDecodedList );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
@@ -248,6 +267,7 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 	trotListRefFree( &lrFileCharacters );
 	trotListRefFree( &lrTokenList );
 	trotListRefFree( &lrTokenTree );
+	trotListRefFree( &lrFinalList );
 
 	return rc;
 }

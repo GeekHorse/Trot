@@ -646,13 +646,11 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	trotListRef *lrDecodedList1 = NULL;
 	trotListRef *lrEncodedList1 = NULL;
 	trotListRef *lrEmptyName = NULL;
-	trotListRef *lrDecodedList2A = NULL;
-	INT_TYPE count = 0;
-	trotListRef *lrDecodedList2B = NULL;
+	trotListRef *lrDecodedList2 = NULL;
 	trotListRef *lrEncodedList2 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
-#if 1
+#if 0
 	char *s = NULL;
 #endif	
 
@@ -683,20 +681,12 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	rc = trotListRefInit( &lrEmptyName );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-	rc = trotDecodeCharacters( load, lrEmptyName, lrEncodedList1, &lrDecodedList2A );
+	rc = trotDecodeCharacters( load, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-	rc = trotListRefGetCount( lrDecodedList2A, &count );
+	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
-
-	TEST_ERR_IF( count != 1 );
-
-	rc = trotListRefGetListTwin( lrDecodedList2A, 1, &lrDecodedList2B );
-	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
-
-	rc = trotEncode( lrDecodedList2B, &lrEncodedList2 );
-	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
-#if 1
+#if 0
 	rc = listToCString( lrEncodedList2, &s );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
@@ -706,7 +696,7 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	s = NULL;
 #endif
 
-	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2B, &compareResult );
+	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2, &compareResult );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
@@ -724,8 +714,7 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	trotListRefFree( &lrDecodedList1 );
 	trotListRefFree( &lrEncodedList1 );
 	trotListRefFree( &lrEmptyName );
-	trotListRefFree( &lrDecodedList2A );
-	trotListRefFree( &lrDecodedList2B );
+	trotListRefFree( &lrDecodedList2 );
 	trotListRefFree( &lrEncodedList2 );
 
 	return rc;
