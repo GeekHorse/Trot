@@ -596,6 +596,8 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree )
 
 	trotListRef *lrChildToken = NULL;
 	trotListRef *lrChildTokenValue = NULL;
+	INT_TYPE childTokenValueChildrenCount = 0;
+	INT_TYPE childTokenValueChildrenIndex = 0;
 	trotListRef *lrChildTokenFinalList = NULL;
 	INT_TYPE childTokenType = 0;
 	INT_TYPE childTokenValueInt = 0;
@@ -767,8 +769,27 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree )
 				break;
 
 			case TOKEN_STRING:
-				/* TODO */
-				ERR_IF_PARANOID( 1 );
+				/* get string */
+				trotListRefFree( &lrChildTokenValue );
+
+				rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrChildTokenValue );
+				ERR_IF_PASSTHROUGH;
+
+				rc = trotListRefGetCount( lrChildTokenValue, &childTokenValueChildrenCount );
+				ERR_IF_PASSTHROUGH;
+
+				/* append each number */
+				childTokenValueChildrenIndex = 1;
+				while ( childTokenValueChildrenIndex <= childTokenValueChildrenCount )
+				{
+					rc = trotListRefGetInt( lrChildTokenValue, childTokenValueChildrenIndex, &childTokenValueInt );
+					ERR_IF_PASSTHROUGH;
+
+					rc = trotListRefAppendInt( lrTokenFinalList, childTokenValueInt );
+					ERR_IF_PASSTHROUGH;
+
+					childTokenValueChildrenIndex += 1;
+				}
 				break;
 #if 0
 			case TODO:

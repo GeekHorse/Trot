@@ -229,6 +229,11 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				currentTag = lrCurrentList -> lPointsTo -> tag;
 			}
 		}
+		/* TODO
+		else if { currentTag == TODO )
+		{
+		}
+		*/
 	}
 
 	ERR_IF_PARANOID( indentCount != 0 );

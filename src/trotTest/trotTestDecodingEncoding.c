@@ -650,7 +650,7 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 	trotListRef *lrEncodedList2 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
-#if 0
+#if 1
 	char *s = NULL;
 #endif	
 
@@ -686,7 +686,7 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 
 	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
-#if 0
+#if 1
 	rc = listToCString( lrEncodedList2, &s );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
