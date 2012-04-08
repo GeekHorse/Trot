@@ -52,6 +52,8 @@ static TROT_RC appendNumber( trotListRef *lrCharacters, INT_TYPE n, int *charact
 	\param 
 	\return TROT_RC
 */
+/* TODO: this needs another structure, instead of a loop and then check for our tag,
+         we need to just handle all ints, and then go up or down */
 TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 {
 	/* DATA */
@@ -72,7 +74,6 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 	unsigned int indentCount = 0;
 
 	int flagMoreChildren = 0;
-	int flagInsideString = 0;
 
 	int kind = 0; /* TODO: this needs to be changed into an enum */
 
@@ -143,13 +144,6 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 		/* are we out of children? */
 		if ( flagMoreChildren == 0 )
 		{
-			if ( flagInsideString )
-			{
-				/* TODO */
-
-				flagInsideString = 0;
-			}
-
 			/* appendRightB */
 			rc = appendRightB( lrCurrentList, newLrCharacters, &indentCount );
 			ERR_IF_PASSTHROUGH;
@@ -171,6 +165,9 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			ERR_IF_PASSTHROUGH;
 
 			parentStackCount -= 1;
+
+			ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
+			currentTag = lrCurrentList -> lPointsTo -> tag;
 
 			/* continue */
 			continue;
@@ -228,6 +225,20 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
 				currentTag = lrCurrentList -> lPointsTo -> tag;
 			}
+		}
+		else if ( currentTag == TROT_TAG_TEXT )
+		{
+			rc = trotListRefAppendInt( newLrCharacters, '\"' );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotCharactersToUtf8( lrCurrentList, newLrCharacters );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotListRefAppendInt( newLrCharacters, '\"' );
+			ERR_IF_PASSTHROUGH;
+
+			/* we must flag that we're done since we handled it all here */
+			index = childrenCount;
 		}
 		/* TODO
 		else if { currentTag == TODO )
@@ -292,15 +303,15 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, trotListRef *lrCharacters, un
 			break;
 
 		case TROT_TAG_TEXT:
-			s = "[(text)";
+			s = "[(tag text)";
 			break;
 
 		case TROT_TAG_ACTOR:
-			s = "[(actor)";
+			s = "[(tag actor)";
 			break;
 
 		case TROT_TAG_QUEUE:
-			s = "[(queue)";
+			s = "[(tag queue)";
 			break;
 
 		case TROT_TAG_CODE:
@@ -308,11 +319,11 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, trotListRef *lrCharacters, un
 			break;
 
 		case TROT_TAG_CODE_GROUP:
-			s = "[(codeGroup)";
+			s = "[(tag codeGroup)";
 			break;
 
 		case TROT_TAG_FUNCTION:
-			s = "{(function)";
+			s = "{(tag function)";
 			break;
 
 		default:

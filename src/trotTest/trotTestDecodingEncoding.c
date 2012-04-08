@@ -122,6 +122,9 @@ static TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
 	rc = listToCString( lrName, &name );
 	ERR_IF_PASSTHROUGH;
 
+/* TODO: remove me? */
+printf( "Loading: %s\n", name );
+
 	/* open */
 	fp = fopen( name, "rb" );
 	ERR_IF( fp == NULL, TROT_LIST_ERROR_LOAD );
@@ -668,7 +671,7 @@ static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotList
 
 	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
-#if 0
+#if 1
 	rc = listToCString( lrEncodedList1, &s );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
