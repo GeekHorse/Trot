@@ -48,7 +48,14 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree );
 static TROT_RC handleMetaData( trotListRef *lrTokenTree, trotListRef *lrFileList );
 static TROT_RC handleMetaData2( trotListRef *lrParentToken, trotListRef *lrParenthesisToken );
 
+static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum );
+
 static TROT_RC compareListToCString( trotListRef *lrValue, char *cstring, TROT_LIST_COMPARE_RESULT *result );
+
+#if 0
+well probably need this for our name1.name2.name3 stuff later 
+static TROT_RC splitList( trotListRef *lr, INT_TYPE separator, trotListRef **lrPartList );
+#endif
 
 /* TODO: put the above functions in the same order they appear below */
 /* TODO: change name of static functions to put an underscore in front? */
@@ -817,17 +824,19 @@ static TROT_RC handleMetaData2( trotListRef *lrParentToken, trotListRef *lrParen
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	trotListRef *lrChildren = NULL;
-	INT_TYPE count = 0;
+	INT_TYPE childrenCount = 0;
+	INT_TYPE childrenIndex = 0;
 	trotListRef *lrChildToken = NULL;
 	INT_TYPE childTokenType = 0;
 
-	trotListRef *lrValue = NULL;
+	trotListRef *lrChildValue = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
 	trotListRef *lrParentTokenFinalList = NULL;
 
-	
+	trotListRef *lrEnumList = NULL;
+
 
 	/* PRECOND */
 	PRECOND_ERR_IF( lrParentToken == NULL );
@@ -840,11 +849,11 @@ static TROT_RC handleMetaData2( trotListRef *lrParentToken, trotListRef *lrParen
 	ERR_IF_PASSTHROUGH;
 
 	/* get first token in parenthesis */
-	rc = trotListRefGetCount( lrChildren, &count );
+	rc = trotListRefGetCount( lrChildren, &childrenCount );
 	ERR_IF_PASSTHROUGH;
-printf( "count=%d\n", count );
+printf( "childrenCount=%d\n", childrenCount );
 
-	ERR_IF( count == 0, TROT_LIST_ERROR_DECODE );
+	ERR_IF( childrenCount == 0, TROT_LIST_ERROR_DECODE );
 
 	rc = trotListRefGetListTwin( lrChildren, 1, &lrChildToken );
 	ERR_IF_PASSTHROUGH;
@@ -856,11 +865,11 @@ printf( "count=%d\n", count );
 	ERR_IF( childTokenType != TOKEN_WORD, TROT_LIST_ERROR_DECODE );
 
 	/* get value */
-	rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrValue );
+	rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrChildValue );
 	ERR_IF_PASSTHROUGH;
 
 	/* comment? */
-	rc = compareListToCString( lrValue, "comment", &compareResult );
+	rc = compareListToCString( lrChildValue, "comment", &compareResult );
 	ERR_IF_PASSTHROUGH;
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
@@ -870,16 +879,16 @@ printf( "count=%d\n", count );
 	}
 
 	/* tag? */
-	rc = compareListToCString( lrValue, "tag", &compareResult );
+	rc = compareListToCString( lrChildValue, "tag", &compareResult );
 	ERR_IF_PASSTHROUGH;
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
 		/* there should be only 2 children
 		   one for 'tag' and one for the tag name */
-		ERR_IF( count != 2, TROT_LIST_ERROR_DECODE );
+		ERR_IF( childrenCount != 2, TROT_LIST_ERROR_DECODE );
 
-		trotListRefFree( &lrValue );
+		trotListRefFree( &lrChildValue );
 		trotListRefFree( &lrChildToken );
 
 		/* get finalList of parent token */
@@ -897,11 +906,11 @@ printf( "count=%d\n", count );
 		ERR_IF( childTokenType != TOKEN_WORD, TROT_LIST_ERROR_DECODE );
 
 		/* get value */
-		rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrValue );
+		rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrChildValue );
 		ERR_IF_PASSTHROUGH;
 	
 		/* text? */	
-		rc = compareListToCString( lrValue, "text", &compareResult );
+		rc = compareListToCString( lrChildValue, "text", &compareResult );
 		ERR_IF_PASSTHROUGH;
 
 		if ( compareResult == TROT_LIST_COMPARE_EQUAL )
@@ -914,6 +923,46 @@ printf( "count=%d\n", count );
 		/* TODO: all tags */
 	}
 
+	/* enum? */
+	rc = compareListToCString( lrChildValue, "enum", &compareResult );
+	ERR_IF_PASSTHROUGH;
+
+	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
+	{
+		/* there should be more than 1
+		   one for 'enum' and one more for each [name value] */
+		ERR_IF( childrenCount == 1, TROT_LIST_ERROR_DECODE );
+
+		/* get enum list of parent */
+		rc = trotListRefGetListTwin( lrParentToken, TOKEN_INDEX_ENUMS, &lrEnumList );
+		ERR_IF_PASSTHROUGH;
+
+		/* foreach new enum */
+		childrenIndex = 2; /* 1 was "enum" */
+		while ( childrenIndex <= childrenCount )
+		{
+			trotListRefFree( &lrChildValue );
+			trotListRefFree( &lrChildToken );
+
+			/* get next child */
+			rc = trotListRefGetListTwin( lrChildren, childrenIndex, &lrChildToken );
+			ERR_IF_PASSTHROUGH;
+
+			/* get tokenType */
+			rc = trotListRefGetInt( lrChildToken, TOKEN_INDEX_TYPE, &childTokenType );
+			ERR_IF_PASSTHROUGH;
+
+			ERR_IF( childTokenType != TOKEN_L_PARENTHESIS, TROT_LIST_ERROR_DECODE );
+
+			/* add enum */
+			rc = addEnum( lrEnumList, lrChildToken );
+			ERR_IF_PASSTHROUGH;
+
+			/* increment index */
+			childrenIndex += 1;
+		}
+	}
+
 	/* TODO: error if we dont' recognize first word in parenthesis */
 
 
@@ -922,12 +971,152 @@ printf( "count=%d\n", count );
 
 	trotListRefFree( &lrChildren );
 	trotListRefFree( &lrChildToken );
-	trotListRefFree( &lrValue );
+	trotListRefFree( &lrChildValue );
 	trotListRefFree( &lrParentTokenFinalList );
 
 	return rc;
 }
 
+/******************************************************************************/
+/*!
+	\brief Adds enum to an enum list.
+	\param lrEnumList Enum list.
+	\param lrEnum Enum. Should be a L_BRACKET token with 2 children. 1 word and 1 number
+	\return TROT_RC
+*/
+static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrEnumChildren = NULL;
+	INT_TYPE enumChildrenCount = 0;
+	trotListRef *lrEnumChild = NULL;
+	INT_TYPE enumChildTokenType = 0;
+	trotListRef *lrEnumName = NULL;
+	INT_TYPE enumValue = 0;
+
+	INT_TYPE enumListCount = 0;
+	INT_TYPE enumListIndex = 0;
+	trotListRef *lrEnumListEnum = NULL;
+	trotListRef *lrEnumListEnumName = NULL;
+
+	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
+
+	trotListRef *lrNewEnum = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrEnumList == NULL );
+	PRECOND_ERR_IF( lrEnum == NULL );
+
+
+	/* CODE */
+	/* *** */
+	/* make sure enum has only 2 children, 1 word and 1 number */
+
+	/* get children */
+	rc = trotListRefGetListTwin( lrEnum, TOKEN_INDEX_VALUE, &lrEnumChildren );
+	ERR_IF_PASSTHROUGH;
+
+	/* get count */
+	rc = trotListRefGetCount( lrEnumChildren, &enumChildrenCount );
+	ERR_IF_PASSTHROUGH;
+
+	/* must be 2 */
+	ERR_IF( enumChildrenCount != 2, TROT_LIST_ERROR_DECODE );
+
+	/* get 1st child */
+	rc = trotListRefGetListTwin( lrEnumChildren, 1, &lrEnumChild );
+	ERR_IF_PASSTHROUGH;
+
+	/* make sure it's a TOKEN_WORD */
+	rc = trotListRefGetInt( lrEnumChild, TOKEN_INDEX_TYPE, &enumChildTokenType );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( enumChildTokenType != TOKEN_WORD, TROT_LIST_ERROR_DECODE );
+
+	/* get it's value, which is our enum name */
+	rc = trotListRefGetListTwin( lrEnumChild, TOKEN_INDEX_VALUE, &lrEnumName );
+	ERR_IF_PASSTHROUGH;
+
+	/* get 2nd child */
+	trotListRefFree( &lrEnumChild );
+	rc = trotListRefGetListTwin( lrEnumChildren, 2, &lrEnumChild );
+	ERR_IF_PASSTHROUGH;
+
+	/* make sure it's a TOKEN_NUMBER */
+	rc = trotListRefGetInt( lrEnumChild, TOKEN_INDEX_TYPE, &enumChildTokenType );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( enumChildTokenType != TOKEN_NUMBER, TROT_LIST_ERROR_DECODE );
+
+	/* get it's value, which is our enum value */
+	rc = trotListRefGetInt( lrEnumChild, TOKEN_INDEX_VALUE, &enumValue );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	/* make sure this name isn't already in our enum list */
+
+	/* get count */
+	rc = trotListRefGetCount( lrEnumList, &enumListCount );
+	ERR_IF_PASSTHROUGH;
+
+	/* foreach enum in enumList */
+	enumListIndex = 1;
+	while ( enumListIndex <= enumListCount )
+	{
+		/* get enum */
+		trotListRefFree( &lrEnumListEnum );
+		rc = trotListRefGetListTwin( lrEnumList, enumListIndex, &lrEnumListEnum );
+		ERR_IF_PASSTHROUGH;
+
+		/* get name */
+		trotListRefFree( &lrEnumListEnumName );
+		rc = trotListRefGetListTwin( lrEnumListEnum, 1, &lrEnumListEnumName );
+		ERR_IF_PASSTHROUGH;
+
+		/* compare */
+		rc = trotListRefCompare( lrEnumListEnumName, lrEnumName, &compareResult );
+		ERR_IF_PASSTHROUGH;
+
+		/* if they matched, then this name is already in the list */
+		ERR_IF( compareResult == TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_DECODE );
+
+		/* increment index */
+		enumListIndex += 1;
+	}
+
+	/* *** */
+	/* create new enum and append it to the list */
+	rc = trotListRefInit( &lrNewEnum );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrNewEnum, lrEnumName );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendInt( lrNewEnum, enumValue );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( lrEnumList, lrNewEnum );
+	ERR_IF_PASSTHROUGH;
+	
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrEnumChildren );
+	trotListRefFree( &lrEnumChild );
+	trotListRefFree( &lrEnumName );
+	trotListRefFree( &lrEnumListEnum );
+	trotListRefFree( &lrEnumListEnumName );
+	trotListRefFree( &lrNewEnum );
+
+	return rc;
+}
+
+
+/* TODO: move this into some "tools.c" or "misc.c" file? */
 /******************************************************************************/
 /*!
 	\brief Compares list to a c string.
@@ -973,6 +1162,104 @@ static TROT_RC compareListToCString( trotListRef *lrValue, char *cstring, TROT_L
 
 	return rc;
 }
+
+#if 0
+/******************************************************************************/
+/*!
+	\brief Creates a new list of parts that were separated out of lr.
+	\param lr List that contains parts.
+	\param separator Separating character
+	\param lrParts On success, contains the parts.
+	\return TROT_RC
+
+	lr is not modified.
+
+	Example:
+	IN:
+		lr = ["abc.def.ghi"]
+		separator = '.'
+	OUT:
+		lr = ["abc.def.ghi"]
+		lrParts will be [["abc]["def"]["ghi"]]
+*/
+static TROT_RC splitList( trotListRef *lr, INT_TYPE separator trotListRef **lrPartList )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	INT_TYPE count = 0;
+	INT_TYPE index = 0;
+	INT_TYPE character = 0;
+
+	trotListRef *newLrPartList = NULL;
+	trotListRef *LrPart = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( lrPartList == NULL );
+	PRECOND_ERR_IF( (*lrPartList) != NULL );
+
+
+	/* CODE */
+	/* create giveback */
+	rc = trotListRefInit( &newLrPartList );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &LrPart );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendListTwin( newLrPartList, lrPart );
+	ERR_IF_PASSTHROUGH;
+
+	/* get count */
+	rc = trotListRefGetCount( lr, &count );
+	ERR_IF_PASSTHROUGH;
+
+	/* foreach character */
+	index = 1;
+	while ( index <= count )
+	{
+		/* get next character */
+		rc = trotListRefGetInt( lr, index, &character );
+		ERR_IF_PASSTHROUGH;
+
+		/* if separator */
+		if ( character == separator )
+		{
+			trotListRefFree( &lrPart );
+
+			rc = trotListRefInit( &lrPart );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotListRefAppendListTwin( newLrPartList, lrPart );
+			ERR_IF_PASSTHROUGH;
+		}
+		/* else add to current part */
+		else
+		{
+			rc = trotListRefAppendInt( lrPart, character );
+			ERR_IF_PASSTHROUGH;
+		}
+
+		/* increment index */
+		index += 1;
+	}
+
+	/* give back */
+	(*lrPartList) = lrNewPartList;
+	lrNewPartList = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrNewPartList );
+	trotListRefFree( &lrPart );
+
+	return rc;
+}
+#endif
 
 /******************************************************************************/
 /*!
