@@ -52,7 +52,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
-#define BE_PARANOID 0
+/* TODO: remove this after we're done all our tests */
+#define BE_PARANOID 1
 
 /******************************************************************************/
 #if ( PRINT_ERR == 1 )

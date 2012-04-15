@@ -1,0 +1,6 @@
+[(enum (cats 99) (dogs 98) (horses 97) )
+	[
+	10 20 30
+	cats dogs horses
+	]
+]

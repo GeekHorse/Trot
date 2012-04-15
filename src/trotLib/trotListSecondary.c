@@ -359,7 +359,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		ERR_IF_PARANOID( node == l -> tail );
 	}
 
 	/* split this node if necessary */

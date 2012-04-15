@@ -49,6 +49,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Remove
 */
 
+/* TODO: make sure inserts and appends don't add more children than our maximum positive INT_TYPE. then test that it works, and that minimum negative INT_TYPE still errors correctly */
+
 /******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
