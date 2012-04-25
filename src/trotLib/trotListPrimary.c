@@ -129,6 +129,9 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	newList -> previous = NULL;
 	newList -> nextToFree = NULL;
 
+	newList -> encodingParent = NULL;
+	newList -> encodingChildNumber = 0;
+
 	newList -> tag = TROT_TAG_DATA;
 
 	newList -> childrenCount = 0;

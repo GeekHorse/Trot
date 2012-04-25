@@ -249,11 +249,9 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 /* trotTokenize.c */
-TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A );
-
-/******************************************************************************/
-/* trotDecodingEncoding.c */
 TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A );
+TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A );
+TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number );
 
 /******************************************************************************/
 /* For trotDecodingEncoding and related tests */
@@ -267,7 +265,8 @@ typedef enum
 	TOKEN_R_PARENTHESIS = 6,
 	TOKEN_WORD = 7,
 	TOKEN_NUMBER = 8,
-	TOKEN_STRING = 9
+	TOKEN_STRING = 9,
+	TOKEN_TWIN = 10
 } TOKEN_TYPE;
 
 typedef enum

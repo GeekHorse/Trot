@@ -1,3 +1,3 @@
-[(enum (cats 99) (dogs 98) (horses 97) )
+[(name x)(enum (cats 99) (dogs 98) (horses 97) )
 	10 20 30
 ]

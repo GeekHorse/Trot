@@ -385,41 +385,40 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 
 /******************************************************************************/
 /*!
-	\brief Checks to see if a word is a number, and if so changes the token.
-	\param lrToken Token
+	\brief 
+	\param 
 	\return TROT_RC
 */
-static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
+TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
-
-	trotListRef *lrValue = NULL;
 
 	INT_TYPE index = 0;
 	INT_TYPE count = 0;
 
 	INT_TYPE character = 0;
-	INT_TYPE number = 0;
+	INT_TYPE newNumber = 0;
 
 	int i = 0;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lrToken == NULL );
+	PRECOND_ERR_IF( lrWord == NULL );
+	PRECOND_ERR_IF( isNumber == NULL );
+	PRECOND_ERR_IF( number == NULL );
 
 
 	/* CODE */
-	/* get value */
-	rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
-	ERR_IF_PASSTHROUGH;
-	
+	/* mark no number initially */
+	(*isNumber) = 0;
+
 	/* get count */
-	rc = trotListRefGetCount( lrValue, &count );
+	rc = trotListRefGetCount( lrWord, &count );
 	ERR_IF_PASSTHROUGH;
 
 	/* get first character */
-	rc = trotListRefGetInt( lrValue, 1, &character );
+	rc = trotListRefGetInt( lrWord, 1, &character );
 	ERR_IF_PASSTHROUGH;
 
 	/* SPECIAL CASE: if just '-', then it's a word */
@@ -435,13 +434,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	}
 
 	/* it's a number, so now it must be in a proper format */
-
-	/* go ahead and mark token as a number */
-	rc = trotListRefRemove( lrToken, TOKEN_INDEX_TYPE );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
-	ERR_IF_PASSTHROUGH;
+	(*isNumber) = 1;
 
 	/* make sure it's a good format */
 	index = 1;
@@ -450,7 +443,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 		index += 1;
 	}
 
-	rc = trotListRefGetInt( lrValue, index, &character );
+	rc = trotListRefGetInt( lrWord, index, &character );
 	ERR_IF_PASSTHROUGH;
 
 	ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
@@ -461,7 +454,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 
 	while ( index <= count )
 	{
-		rc = trotListRefGetInt( lrValue, index, &character );
+		rc = trotListRefGetInt( lrWord, index, &character );
 		ERR_IF_PASSTHROUGH;
 
 		ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
@@ -472,7 +465,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	/* make sure number can fit into our INT_TYPE */
 	index = 1;
 
-	rc = trotListRefGetInt( lrValue, index, &character );
+	rc = trotListRefGetInt( lrWord, index, &character );
 	ERR_IF_PASSTHROUGH;
 
 	if ( character == '-' )
@@ -486,7 +479,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 
 			while ( index <= count )
 			{	
-				rc = trotListRefGetInt( lrValue, index, &character );
+				rc = trotListRefGetInt( lrWord, index, &character );
 				ERR_IF_PASSTHROUGH;
 
 				ERR_IF ( character > INT_TYPE_MIN_STRING[ i ], TROT_LIST_ERROR_DECODE );
@@ -511,7 +504,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 
 			while ( index <= count )
 			{	
-				rc = trotListRefGetInt( lrValue, index, &character );
+				rc = trotListRefGetInt( lrWord, index, &character );
 				ERR_IF_PASSTHROUGH;
 
 				ERR_IF ( character > INT_TYPE_MAX_STRING[ i ], TROT_LIST_ERROR_DECODE );
@@ -530,7 +523,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	/* get our number started */
 	index = 1;
 
-	rc = trotListRefGetInt( lrValue, index, &character );
+	rc = trotListRefGetInt( lrWord, index, &character );
 	ERR_IF_PASSTHROUGH;
 
 	/* if negative, get real first number */
@@ -538,52 +531,101 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	{
 		index += 1;
 
-		rc = trotListRefGetInt( lrValue, index, &character );
+		rc = trotListRefGetInt( lrWord, index, &character );
 		ERR_IF_PASSTHROUGH;
 
-		number = character - '0';
-		number *= -1;
+		newNumber = character - '0';
+		newNumber *= -1;
 
 		/* build rest of number */
 		index += 1;
 
 		while ( index <= count )
 		{
-			rc = trotListRefGetInt( lrValue, index, &character );
+			rc = trotListRefGetInt( lrWord, index, &character );
 			ERR_IF_PASSTHROUGH;
 	
-			number *= 10;
-			number -= character - '0';
+			newNumber *= 10;
+			newNumber -= character - '0';
 	
 			index += 1;
 		}
 	}
 	else
 	{
-		number = character - '0';
+		newNumber = character - '0';
 
 		/* build rest of number */
 		index += 1;
 
 		while ( index <= count )
 		{
-			rc = trotListRefGetInt( lrValue, index, &character );
+			rc = trotListRefGetInt( lrWord, index, &character );
 			ERR_IF_PASSTHROUGH;
 	
-			number *= 10;
-			number += character - '0';
+			newNumber *= 10;
+			newNumber += character - '0';
 	
 			index += 1;
 		}
 	}
 
+	/* give back */
+	(*number) = newNumber;
 
-	/* remove old string value and replace with number value */
-	rc = trotListRefRemove( lrToken, TOKEN_INDEX_VALUE );
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Checks to see if a word is a number, and if so changes the token.
+	\param lrToken Token
+	\return TROT_RC
+*/
+static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrValue = NULL;
+	int isNumber = 0;
+	INT_TYPE number = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrToken == NULL );
+
+
+	/* CODE */
+	/* get value */
+	rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_VALUE, number );
+	/* is number? */
+	rc = _trotWordToNumber( lrValue, &isNumber, &number );
 	ERR_IF_PASSTHROUGH;
+
+	if ( isNumber == 1 )
+	{
+		/* mark token as a number */
+		/* TODO: replace this with replace */
+		rc = trotListRefRemove( lrToken, TOKEN_INDEX_TYPE );
+		ERR_IF_PASSTHROUGH;
+
+		rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
+		ERR_IF_PASSTHROUGH;
+
+		/* remove old string value and replace with number value */
+		rc = trotListRefRemove( lrToken, TOKEN_INDEX_VALUE );
+		ERR_IF_PASSTHROUGH;
+
+		rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_VALUE, number );
+		ERR_IF_PASSTHROUGH;
+	}
 	
 
 	/* CLEANUP */

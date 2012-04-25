@@ -1,0 +1,4 @@
+[(name a)
+	[(name aa) a.bb]
+	[(name bb) a.aa]
+]

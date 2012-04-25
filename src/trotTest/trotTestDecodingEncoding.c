@@ -301,6 +301,11 @@ static TROT_RC doesFileExist( trotListRef *lrName, INT_TYPE *exist )
 	/* CLEANUP */
 	cleanup:
 
+	if ( name != NULL )
+	{
+		trotFree( name );
+	}
+
 	return rc;
 }
 
