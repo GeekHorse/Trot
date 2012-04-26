@@ -65,7 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_LIST_ERROR_PRECOND; }
+#define PRECOND_ERR_IF( cond ) if ( (cond) ) { printf( "PRECOND_ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); return TROT_LIST_ERROR_PRECOND; }
 #else
 #define PRECOND_ERR_IF( cond )
 #endif
@@ -266,7 +266,8 @@ typedef enum
 	TOKEN_WORD = 7,
 	TOKEN_NUMBER = 8,
 	TOKEN_STRING = 9,
-	TOKEN_TWIN = 10
+	TOKEN_TWIN = 10,
+	TOKEN_INCLUDE = 11
 } TOKEN_TYPE;
 
 typedef enum
