@@ -633,7 +633,7 @@ void printList( trotListRef *lr, int indent )
 	trotList *l = lr -> lPointsTo;
 	trotListNode *node = l -> head -> next;
 	int i = 0;
-	//trotListRefListNode *refNode = l -> refListHead -> next;
+	/* trotListRefListNode *refNode = l -> refListHead -> next; */
 
 
 	/* CODE */
@@ -676,7 +676,7 @@ void printList( trotListRef *lr, int indent )
 			for ( i = 0; i < (node -> count); i += 1 )
 			{
 				printIndent( indent );
-				// printf( "(%p>%p)\n", (void *)node -> l[ i ], (void *)node -> l[ i ] -> lPointsTo );
+				/* printf( "(%p>%p)\n", (void *)node -> l[ i ], (void *)node -> l[ i ] -> lPointsTo ); */
 				printList( node -> l[ i ], indent + 1 );
 			}
 		}

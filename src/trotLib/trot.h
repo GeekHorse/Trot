@@ -100,26 +100,6 @@ typedef enum
 } TROT_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
-typedef enum
-{
-	TROT_INT_OPERAND_ADD = 1,
-	TROT_INT_OPERAND_SUB = 2,
-	TROT_INT_OPERAND_MUL = 3,
-	TROT_INT_OPERAND_DIV = 4,
-	TROT_INT_OPERAND_MOD = 5,
-
-	TROT_INT_OPERAND_LESS_THAN = 6,
-	TROT_INT_OPERAND_GREATER_THAN = 7,
-	TROT_INT_OPERAND_EQUALS = 8,
-
-	TROT_INT_OPERAND_LOGICAL_AND = 9,
-	TROT_INT_OPERAND_LOGICAL_OR =  10,
-	TROT_INT_OPERAND_LOGICAL_NOT = 11,
-
-	TROT_INT_OPERAND_NEG = 12
-} TROT_INT_OPERAND;
-
-/******************************************************************************/
 typedef struct trotListRef_STRUCT trotListRef;
 
 /******************************************************************************/
@@ -158,6 +138,9 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
 /*
 	trotListRefReplaceWithInt( lr, index, newInt );
 	trotListRefReplaceWithList( lr, index, newList );
+
+	get tag
+	set tag
 */
 
 /******************************************************************************/
@@ -171,11 +154,6 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index );
 
 TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A );
 TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
-
-/******************************************************************************/
-/* trotListInt.c */
-TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op );
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE value );
 
 /******************************************************************************/
 /* trotUnicode.c */

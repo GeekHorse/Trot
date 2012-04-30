@@ -91,6 +91,64 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
+/* For trotDecodingEncoding and related tests */
+typedef enum
+{
+	TOKEN_L_BRACKET = 1,
+	TOKEN_R_BRACKET = 2,
+	TOKEN_L_BRACE = 3,
+	TOKEN_R_BRACE = 4,
+	TOKEN_L_PARENTHESIS = 5,
+	TOKEN_R_PARENTHESIS = 6,
+	TOKEN_WORD = 7,
+	TOKEN_NUMBER = 8,
+	TOKEN_STRING = 9,
+	TOKEN_TWIN = 10,
+	TOKEN_INCLUDE = 11,
+	TOKEN_OP = 12
+} TOKEN_TYPE;
+
+typedef enum
+{
+	TOKEN_INDEX_LINE = 1,
+	TOKEN_INDEX_COLUMN = 2,
+	TOKEN_INDEX_TYPE = 3,
+	TOKEN_INDEX_VALUE = 4,
+	TOKEN_INDEX_NAME = 5,
+	TOKEN_INDEX_ENUMS = 6,
+	TOKEN_INDEX_VARS = 7,
+	TOKEN_INDEX_FINALLIST = 8
+} TOKEN_INFO;
+
+/******************************************************************************/
+typedef enum
+{
+	TROT_OP_ADD = 0,
+	TROT_OP_SUB = 1,
+	TROT_OP_MUL = 2,
+	TROT_OP_DIV = 3,
+	TROT_OP_MOD = 4,
+
+	TROT_OP_LESS_THAN = 5,
+	TROT_OP_GREATER_THAN = 6,
+	TROT_OP_EQUALS = 7,
+
+	TROT_OP_LOGICAL_AND = 8,
+	TROT_OP_LOGICAL_OR =  9,
+	TROT_OP_LOGICAL_NOT = 10,
+
+	TROT_OP_NEG = 11,
+
+	TROT_OP_PUSH_INT = 12,
+	TROT_OP_PUSH_LIST = 13,
+
+	TROT_OP_CALL = 14,
+	TROT_OP_CHANGE = 15,
+	TROT_OP_RETURN = 16,
+	TROT_OP_YIELD = 17
+} TROT_OP; 
+
+/******************************************************************************/
 typedef struct trotListNode_STRUCT trotListNode;
 typedef struct trotList_STRUCT trotList;
 typedef struct trotListRefListNode_STRUCT trotListRefListNode;
@@ -254,32 +312,15 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number );
 
 /******************************************************************************/
-/* For trotDecodingEncoding and related tests */
-typedef enum
-{
-	TOKEN_L_BRACKET = 1,
-	TOKEN_R_BRACKET = 2,
-	TOKEN_L_BRACE = 3,
-	TOKEN_R_BRACE = 4,
-	TOKEN_L_PARENTHESIS = 5,
-	TOKEN_R_PARENTHESIS = 6,
-	TOKEN_WORD = 7,
-	TOKEN_NUMBER = 8,
-	TOKEN_STRING = 9,
-	TOKEN_TWIN = 10,
-	TOKEN_INCLUDE = 11
-} TOKEN_TYPE;
+/* trotListInt.c */
+TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op );
+TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value );
 
-typedef enum
-{
-	TOKEN_INDEX_LINE = 1,
-	TOKEN_INDEX_COLUMN = 2,
-	TOKEN_INDEX_TYPE = 3,
-	TOKEN_INDEX_VALUE = 4,
-	TOKEN_INDEX_NAME = 5,
-	TOKEN_INDEX_ENUMS = 6,
-	TOKEN_INDEX_FINALLIST = 7
-} TOKEN_INFO;
+/******************************************************************************/
+/* trotDebug.c */
+TROT_RC _trotPrintList( trotListRef *lr );
+
+
 
 /******************************************************************************/
 #endif

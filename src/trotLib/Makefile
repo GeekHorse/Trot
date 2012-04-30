@@ -10,7 +10,7 @@ all: libTrot.a
 debug2: CFLAGS += -DPRINT_ERR=1
 debug2: debug
 
-debug: CFLAGS += -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -g
+debug: CFLAGS += -DTROT_DEBUG=1 -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -g
 debug: libTrot.a
 
 profile: CFLAGS += -pg

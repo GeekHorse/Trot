@@ -46,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param op Which operand to do.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op )
+TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -69,13 +69,15 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op )
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
 
 	/* handle single value ops */
-	if ( op == TROT_INT_OPERAND_NEG )
+	if ( op == TROT_OP_NEG )
 	{
+			/* TODO: should we check if the int is the most-negative int?
+			         because if so, it will still be negative. Should that be an error? */
 			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
 			return TROT_LIST_SUCCESS;
 	}
 
-	if ( op == TROT_INT_OPERAND_LOGICAL_NOT )
+	if ( op == TROT_OP_LOGICAL_NOT )
 	{
 			node -> n[ (node -> count) - 1 ] = ! ( node -> n[ (node -> count) - 1 ] );
 			return TROT_LIST_SUCCESS;
@@ -124,7 +126,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_INT_OPERAND op )
 	\param value Value to use with the last value in the list.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE value )
+TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -146,38 +148,38 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_INT_OPERAND op, INT_TYPE 
 
 	switch ( op )
 	{
-		case TROT_INT_OPERAND_ADD:
+		case TROT_OP_ADD:
 			node -> n[ (node -> count) - 1 ] += value;
 			break;
-		case TROT_INT_OPERAND_SUB:
+		case TROT_OP_SUB:
 			node -> n[ (node -> count) - 1 ] -= value;
 			break;
-		case TROT_INT_OPERAND_MUL:
+		case TROT_OP_MUL:
 			node -> n[ (node -> count) - 1 ] *= value;
 			break;
-		case TROT_INT_OPERAND_DIV:
+		case TROT_OP_DIV:
 			ERR_IF( value == 0, TROT_LIST_ERROR_DIVIDE_BY_ZERO );
 			node -> n[ (node -> count) - 1 ] /= value;
 			break;
-		case TROT_INT_OPERAND_MOD:
+		case TROT_OP_MOD:
 			ERR_IF( value == 0, TROT_LIST_ERROR_DIVIDE_BY_ZERO );
 			node -> n[ (node -> count) - 1 ] %= value;
 			break;
 
-		case TROT_INT_OPERAND_LESS_THAN:
+		case TROT_OP_LESS_THAN:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] < value;
 			break;
-		case TROT_INT_OPERAND_GREATER_THAN:
+		case TROT_OP_GREATER_THAN:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] > value;
 			break;
-		case TROT_INT_OPERAND_EQUALS:
+		case TROT_OP_EQUALS:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] == value;
 			break;
 
-		case TROT_INT_OPERAND_LOGICAL_AND:
+		case TROT_OP_LOGICAL_AND:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] && value;
 			break;
-		case TROT_INT_OPERAND_LOGICAL_OR:
+		case TROT_OP_LOGICAL_OR:
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] || value;
 			break;
 		default:
