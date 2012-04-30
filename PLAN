@@ -1,94 +1,23 @@
 Trot Build Plan:
-	0.1 ... COMPLETED 2011-04-17
-		List library primary functions
-			1. Init
-			2. Twin
-			3. Free
-			4. Get Count
-			5. Get Kind
-			6. Append Int
-			7. Append List Twin
-			8. Insert Int
-			9. Insert List Twin
-			10. Get Int
-			11. Get List Twin
-			12. Remove Int
-			13. Remove List
-			14. Remove
-	0.1.1 ... COMPLETED 2011-09-24
-		List library secondary functions
-			1. Copy
-			2. Compare
-			3. Expand Sub List ("delist")
-			4. Combine Items ("enlist")
-			5. Create New List From Span
-			6. Remove Span
-	0.1.2 ... COMPLETED 2011-10-09
-		List library math functions
-			1. Add
-			2. Subtract
-			3. Multiply
-			4. Divide
-			5. Modulus
-			6. Less Than
-			7. Greater Than
-			8. Equals
-			9. Logical And
-			10. Logical Or
-			11. Logical Not
-			12. Negate
-	0.2
-		Compiler
-			1. Open/Read/Close interface
-			2. Unicode UTF-8
-			3. Basic Hoof
-			4. Import Hoof
-			5. Import Binary
-			6. Define
-			7. Enum
-			8. Code
-			9. Twin
-			10. Name
-	0.3
-		Load a file with single agent "main", and run agent "main"
-			1. Primary functions
-			2. Secondary functions
-			3. Math functions
-			4. Execution functions
-				1. Loop
-				2. Do
-				3. If
-				4. Call
-				5. Switch
-				6. Return
-				7. New stack? co-routines?
-				8. ?
-	0.3.1
-		System calls
-			1. file open, close, read, write, seek, get position
-			2. file stat
-			3. delete file
-			4. get directory listing
-			5. execute?
-	0.3.2
-		Load a file with multiple agents, and run agent "main"
-			1. Create agent
-			2. Delete agent
-			3. Send message to agent
-			4. Copy agent?
-	0.3.3
-		Multithread
-	0.4
-		Improve garbage collection
-			1. Incremental
-			2. Dynamically Tunable
-	0.5
-		Optimization
-	0.6
-		Libraries
-			1. Big number
-			2. Sort
-			3. Network
-			4. Text
-	0.7
-		Neigh
+	0.1	List library primary functions
+		COMPLETED 2011-04-17
+
+	0.1.1	List library secondary functions
+		COMPLETED 2011-09-24
+
+	0.1.2	List library math functions
+		COMPLETED 2011-10-09
+
+	0.2	Compiler
+
+	0.3	Virtual Machine
+
+	0.4	Improve garbage collection
+
+	0.5	Optimization
+
+	0.6	Standard Libraries
+		Big number, sort, network, etc?
+
+	0.7	Neigh
+
