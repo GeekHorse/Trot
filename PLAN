@@ -1,20 +1,20 @@
 Trot Build Plan:
 	0.1	List library primary functions
 		COMPLETED 2011-04-17
-
 	0.1.1	List library secondary functions
 		COMPLETED 2011-09-24
-
 	0.1.2	List library math functions
 		COMPLETED 2011-10-09
 
 	0.2	Compiler
 
 	0.3	Virtual Machine
+	0.3.1	Tutorials
 
 	0.4	Improve garbage collection
 
 	0.5	Optimization
+		Benchmark programs
 
 	0.6	Standard Libraries
 		Big number, sort, network, etc?
