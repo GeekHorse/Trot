@@ -73,8 +73,8 @@ typedef enum
 	TROT_TAG_QUEUE = 3,
 
 	TROT_TAG_CODE = 4,
-	TROT_TAG_CODE_GROUP = 5,
-	TROT_TAG_FUNCTION = 6
+	TROT_TAG_FUNCTION = 5,
+	TROT_TAG_RAW_CODE = 6
 } TROT_TAG;
 
 /******************************************************************************/

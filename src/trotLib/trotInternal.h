@@ -102,10 +102,11 @@ typedef enum
 	TOKEN_R_PARENTHESIS = 6,
 	TOKEN_WORD = 7,
 	TOKEN_NUMBER = 8,
-	TOKEN_STRING = 9,
-	TOKEN_TWIN = 10,
-	TOKEN_INCLUDE = 11,
-	TOKEN_OP = 12
+	TOKEN_NUMBER_RAW = 9,
+	TOKEN_STRING = 10,
+	TOKEN_TWIN = 11,
+	TOKEN_INCLUDE = 12,
+	TOKEN_OP = 13
 } TOKEN_TYPE;
 
 typedef enum
@@ -116,7 +117,7 @@ typedef enum
 	TOKEN_INDEX_VALUE = 4,
 	TOKEN_INDEX_NAME = 5,
 	TOKEN_INDEX_ENUMS = 6,
-	TOKEN_INDEX_VARS = 7,
+	TOKEN_INDEX_VAR = 7,
 	TOKEN_INDEX_FINALLIST = 8
 } TOKEN_INFO;
 
@@ -145,7 +146,10 @@ typedef enum
 	TROT_OP_CALL = 14,
 	TROT_OP_CHANGE = 15,
 	TROT_OP_RETURN = 16,
-	TROT_OP_YIELD = 17
+	TROT_OP_YIELD = 17,
+
+	TROT_OP_LOAD_VAR = 18,
+	TROT_OP_SAVE_VAR = 19
 } TROT_OP; 
 
 /******************************************************************************/

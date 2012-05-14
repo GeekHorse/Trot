@@ -173,7 +173,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			characterCount = 0;
 		}
 
-		/* if we're inside DATA */
+		/* if we're inside DATA */ /* TODO: change this to switch */
 		if ( currentTag == TROT_TAG_DATA )
 		{
 			rc = trotListRefGetKind( lrCurrentList, index, &kind );
@@ -227,7 +227,10 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				}
 			}
 		}
-		else if ( currentTag == TROT_TAG_CODE )
+		else if (    currentTag == TROT_TAG_CODE
+		          || currentTag == TROT_TAG_FUNCTION
+		          || currentTag == TROT_TAG_RAW_CODE
+		        )
 		{
 			rc = trotListRefGetKind( lrCurrentList, index, &kind );
 			ERR_IF_PASSTHROUGH;
@@ -237,7 +240,32 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			rc = trotListRefGetInt( lrCurrentList, index, &n );
 			ERR_IF_PASSTHROUGH;
 
-			if ( n == TROT_OP_PUSH_INT )
+			/* do we need to append a space? */
+			rc = trotListRefGetInt( newLrCharacters, -1, &lastCharacter );
+			ERR_IF_PASSTHROUGH;
+
+			if ( lastCharacter != '\t' && lastCharacter != ' ' )
+			{
+				rc = trotListRefAppendInt( newLrCharacters, ' ' );
+				ERR_IF_PASSTHROUGH;
+
+				characterCount += 1;
+			}
+
+			/* TODO: check that it's a valid op */
+			s = opNames[ n ];
+			while ( (*s) != '\0' )
+			{
+				rc = trotListRefAppendInt( newLrCharacters, (*s) );
+				ERR_IF_PASSTHROUGH;
+
+				s += 1;
+			}
+
+			if (    n == TROT_OP_PUSH_INT
+			     || n == TROT_OP_LOAD_VAR
+			     || n == TROT_OP_SAVE_VAR
+			   )
 			{
 				ERR_IF( index == childrenCount, TROT_LIST_ERROR_ENCODE );
 
@@ -295,30 +323,6 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				{
 					rc = appendAbsTwinLocation( newLrCharacters, &characterCount, lrChildList );
 					ERR_IF_PASSTHROUGH;
-				}
-			}
-			else
-			{
-				/* do we need to append a space? */
-				rc = trotListRefGetInt( newLrCharacters, -1, &lastCharacter );
-				ERR_IF_PASSTHROUGH;
-
-				if ( lastCharacter != '\t' && lastCharacter != ' ' )
-				{
-					rc = trotListRefAppendInt( newLrCharacters, ' ' );
-					ERR_IF_PASSTHROUGH;
-
-					characterCount += 1;
-				}
-
-				/* TODO: check that it's a valid op */
-				s = opNames[ n ];
-				while ( (*s) != '\0' )
-				{
-					rc = trotListRefAppendInt( newLrCharacters, (*s) );
-					ERR_IF_PASSTHROUGH;
-
-					s += 1;
 				}
 			}
 		}
@@ -511,31 +515,24 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrC
 
 		case TROT_TAG_TEXT:
 			s1 = "[";
-			s2 = "(tag text)";
+			s2 = "(text)";
 			break;
 
 		case TROT_TAG_ACTOR:
 			s1 = "[";
-			s2 = "(tag actor)";
+			s2 = "(actor)";
 			break;
 
 		case TROT_TAG_QUEUE:
 			s1 = "[";
-			s2 = "(tag queue)";
+			s2 = "(queue)";
 			break;
 
 		case TROT_TAG_CODE:
-			s1 = "{";
-			break;
-
-		case TROT_TAG_CODE_GROUP:
-			s1 = "[";
-			s2 = "(tag codeGroup)";
-			break;
-
 		case TROT_TAG_FUNCTION:
+		case TROT_TAG_RAW_CODE:
 			s1 = "{";
-			s2 = "(tag function)";
+			s2 = "(raw)";
 			break;
 
 		default:
@@ -624,6 +621,7 @@ static TROT_RC appendRightB( trotListRef *lr, trotListRef *lrCharacters, unsigne
 
 	if (    lr -> lPointsTo -> tag == TROT_TAG_CODE
 	     || lr -> lPointsTo -> tag == TROT_TAG_FUNCTION
+	     || lr -> lPointsTo -> tag == TROT_TAG_RAW_CODE
 	   )
 	{
 		s = '}';
