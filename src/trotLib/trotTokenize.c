@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken );
+static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column );
 
 /******************************************************************************/
 /*!
@@ -232,6 +233,12 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			ERR_IF_PASSTHROUGH;
 
 			trotListRefFree( &lrValue );
+		}
+		/* if # */
+		else if ( character == '#' )
+		{
+			rc = trotSkipComments( lrCharacters, count, &i, &line, &column );
+			ERR_IF_PASSTHROUGH;
 		}
 		/* else word or number */
 		else 
@@ -632,6 +639,141 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	cleanup:
 
 	trotListRefFree( &lrValue );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	INT_TYPE character = 0;
+	INT_TYPE previousCharacter = 0;
+
+	int commentDepth = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lrCharacters == NULL );
+	PRECOND_ERR_IF( i == NULL );
+	PRECOND_ERR_IF( line == NULL  );
+	PRECOND_ERR_IF( column == NULL );
+
+
+	/* CODE */
+	/* next */
+	(*column) += 1;
+	(*i) += 1;
+
+	if ( (*i) > count )
+	{
+		goto cleanup;
+	}
+
+	/* get character */
+	previousCharacter = character;
+	rc = trotListRefGetInt( lrCharacters, (*i), &character );
+	ERR_IF_PASSTHROUGH;
+
+	/* can't be ')' without a beginning '(' */
+	ERR_IF( character == ')', TROT_LIST_ERROR_DECODE );
+
+	/* if multi-line comment */
+	if ( character == '(' )
+	{
+		commentDepth = 1;
+
+		/* skip comment */
+		while ( 1 )
+		{
+			/* increment */
+			(*column) += 1;
+			(*i) += 1;
+
+			/* are we past the end? */
+			/* this is an error because we shouldn't get to the end
+			   before we get to the last #) */
+			ERR_IF( (*i) > count, TROT_LIST_ERROR_DECODE );
+
+			/* get character */
+			previousCharacter = character;
+			rc = trotListRefGetInt( lrCharacters, (*i), &character );
+			ERR_IF_PASSTHROUGH;
+
+			if ( previousCharacter == '#' )
+			{
+				if ( character == ')' )
+				{
+					commentDepth -= 1;
+
+					if ( commentDepth == 0 )
+					{
+						break;
+					}
+				}
+				else if ( character == '(' )
+				{
+					commentDepth += 1;
+				}
+			}
+
+			/* keep track of lines */
+			if ( character == '\n' )
+			{
+				if ( previousCharacter != '\r' )
+				{
+					(*line) += 1;
+				}
+				(*column) = 0; /* this will be incremented to 1 below */
+			}
+			else if ( character == '\r' )
+			{
+				(*line) += 1;
+				(*column) = 0; /* this will be incremented to 1 below */
+			}
+		}
+	}
+	/* # to end of line comment */
+	else
+	{
+		/* skip comment */
+		while ( 1 )
+		{
+			/* increment */
+			(*column) += 1;
+			(*i) += 1;
+
+			/* are we past the end? */
+			if ( (*i) > count )
+			{
+				break;
+			}
+
+			/* get character */
+			rc = trotListRefGetInt( lrCharacters, (*i), &character );
+			ERR_IF_PASSTHROUGH;
+
+			/* if end of line */
+			if ( character == '\n' || character == '\r' )
+			{
+				/* set i back 1, so we'll handle the newline in caller */
+				(*i) -= 1;
+
+				break;
+			}
+		}
+	}
+
+
+	/* CLEANUP */
+	cleanup:
 
 	return rc;
 }

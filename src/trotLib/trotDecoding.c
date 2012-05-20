@@ -941,16 +941,6 @@ static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentTo
 	rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrChildValue );
 	ERR_IF_PASSTHROUGH;
 
-	/* comment? */
-	rc = compareListToCString( lrChildValue, "comment", &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
-	{
-		/* nothing to do, just allow it (don't error) */
-		goto cleanup;
-	}
-
 	/* name? */
 	rc = compareListToCString( lrChildValue, "name", &compareResult );
 	ERR_IF_PASSTHROUGH;
