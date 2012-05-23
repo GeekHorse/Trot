@@ -41,6 +41,7 @@ int testPreconditions()
 
 	trotListRef *lr1 = NULL;
 	trotListRef *lr2 = NULL;
+	int i = 0;
 	int kind = 0;
 	INT_TYPE n = 0;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
@@ -128,6 +129,18 @@ int testPreconditions()
 
 	TEST_ERR_IF( trotCharactersToUtf8( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotCharactersToUtf8( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotTokenize( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotTokenize( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotTokenize( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotCreateToken( 1, 1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotCreateToken( 1, 1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( _trotWordToNumber( NULL, &i, &n ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( _trotWordToNumber( lr1, NULL, &n ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( _trotWordToNumber( lr1, &i, NULL ) != TROT_LIST_ERROR_PRECOND );
+
 
 /* TODO
 	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );

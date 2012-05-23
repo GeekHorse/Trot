@@ -67,7 +67,8 @@ void *badMalloc( size_t size )
 /******************************************************************************/
 static int testMemoryManagement();
 static int testDeepList();
-static int testFailedMallocs();
+static int testFailedMallocs1();
+static int testFailedMallocs2();
 
 /******************************************************************************/
 int testMemory()
@@ -90,19 +91,38 @@ int testMemory()
 
 	trotCalloc = badCalloc;
 	trotMalloc = badMalloc;
+	failOnMallocCount = 0;
 
 	do
 	{
 		currentMallocCount = 0;
 		failOnMallocCount += 1;
 
-		rc = testFailedMallocs();
+		rc = testFailedMallocs1();
 		printf( "." ); fflush( stdout );
 	}
 	while ( rc == TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
+	printf( "\n" ); fflush( stdout );
+
+	/* *** */
+	failOnMallocCount = 0;
+
+	do
+	{
+		currentMallocCount = 0;
+		failOnMallocCount += 1;
+
+		rc = testFailedMallocs2();
+		printf( "." ); fflush( stdout );
+	}
+	while ( rc == TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+
+	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+	/* *** */
 	trotCalloc = calloc;
 	trotMalloc = malloc;
 
@@ -372,7 +392,7 @@ static int testDeepList()
 	return rc;
 }
 
-static int testFailedMallocs()
+static int testFailedMallocs1()
 {
 	/* DATA */
 	int rc = 0;
@@ -563,6 +583,51 @@ static int testFailedMallocs()
 	trotListRefFree( &lr1 );
 	trotListRefFree( &lr2 );
 	trotListRefFree( &lr3 );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static int testFailedMallocs2()
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrCharacters = NULL;
+	trotListRef *lrTokens = NULL;
+
+	char *s1 = "[](){} 1 \"a\" xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+	char *x = NULL;
+
+
+	/* CODE */
+/* TODO: create a cStringtoList (I think we already have one) and put it in a "common" c file to use here */
+	rc = trotListRefInit( &lrCharacters );
+	ERR_IF_PASSTHROUGH;
+
+	x = s1;
+	while ( (*x) != '\0' )
+	{
+		rc = trotListRefAppendInt( lrCharacters, (*x) );
+		ERR_IF_PASSTHROUGH;
+
+		x += 1;
+	}
+
+	rc = trotTokenize( lrCharacters, &lrTokens );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrCharacters );
+	trotListRefFree( &lrTokens );
 
 	return rc;
 }

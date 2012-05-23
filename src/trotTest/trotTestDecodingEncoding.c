@@ -35,11 +35,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sys/stat.h> /* stat */
 #include <errno.h> /* errno */
+#include <string.h> /* strlen */
 
 /******************************************************************************/
 #define PRINT_TOKENS 0
 
 /******************************************************************************/
+/* TODO: since we're using TEST_ERR_IF, we need these to return ints to be consistent */
 static TROT_RC load( trotListRef *lrName, trotListRef **lrBytes );
 
 static TROT_RC listToCString( trotListRef *lr, char **cString_A );
@@ -55,6 +57,8 @@ static TROT_RC testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrNam
 
 static TROT_RC testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef *lrName );
 static TROT_RC testDecodingEncodingBad( int dirNumber, int fileNumber, trotListRef *lrName );
+
+static int testTokenizeMore1();
 
 static TROT_RC trotPrintTokens( trotListRef *lrTokenList );
 
@@ -77,6 +81,9 @@ int testDecodingEncoding()
 	rc = processFiles( "./trotTest/testData/EndOfLineFiles/", testEndOfLines );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
+	rc = testTokenizeMore1();
+	TEST_ERR_IF( rc != 0 );
+
 	printf( "Testing decoding and encoding...\n" ); fflush( stdout );
 
 	rc = processFiles( "./trotTest/testData/DecodeFiles/good/", testDecodingEncodingGood );
@@ -85,7 +92,8 @@ int testDecodingEncoding()
 	rc = processFiles( "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-	/* TODO: more */	
+
+/* TODO: more */
 
 
 	/* CLEANUP */
@@ -755,6 +763,76 @@ static TROT_RC testDecodingEncodingBad( int dirNumber, int fileNumber, trotListR
 	cleanup:
 
 	trotListRefFree( &lrDecodedList );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static int testTokenizeMore1()
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrCharacters = NULL;
+	trotListRef *lrTokens = NULL;
+	trotListRef *lrTemp = NULL;
+
+	char *s = "[ \"xyz\" word w[ w] w( w) w{ w} word #( abc #) # comment";
+	int sLen = 0;
+	char *x = NULL;
+
+	int i = 0;
+
+
+
+	/* CODE */
+	sLen = strlen( s );
+
+	while ( i <= sLen )
+	{
+		/* create lrCharacters */
+		trotListRefFree( &lrCharacters );
+		rc = trotListRefInit( &lrCharacters );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		x = s;
+		while ( (*x) != '\0' )
+		{
+			rc = trotListRefAppendInt( lrCharacters, (*x) );
+			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+			x += 1;
+		}
+
+		/* add a list, which should never occur in a list to tokenize */
+		trotListRefFree( &lrTemp );
+		rc = trotListRefInit( &lrTemp );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		rc = trotListRefInsertListTwin( lrCharacters, i + 1, lrTemp );
+		TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+
+		/* try to tokenize */
+		rc = trotTokenize( lrCharacters, &lrTokens );
+		TEST_ERR_IF( rc != TROT_LIST_ERROR_WRONG_KIND );
+
+		/* increment */
+		i += 1;
+	}
+
+	rc = 0;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrCharacters );
+	trotListRefFree( &lrTemp );
 
 	return rc;
 }
