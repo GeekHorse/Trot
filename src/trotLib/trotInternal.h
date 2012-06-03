@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* TODO: so far this is only used in testing code. where should it belong? */
 
 /******************************************************************************/
-#define NODE_SIZE 64
+#define NODE_SIZE 16
 
 /******************************************************************************/
 #define NODE_KIND_HEAD_OR_TAIL 0

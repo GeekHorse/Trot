@@ -129,7 +129,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 		/* get count */
 		rc = trotListRefGetCount( lrCurrentList, &childrenCount );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* are we out of children? */
 		if ( index == childrenCount )
@@ -148,10 +148,10 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			/* go up to parent */
 			trotListRefFree( &lrCurrentList );
 			rc = trotListRefRemoveList( lrParentStack, -1, &lrCurrentList );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			rc = trotListRefRemoveInt( lrParentIndicesStack, -1, &index );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			parentStackCount -= 1;
 
@@ -173,178 +173,188 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			characterCount = 0;
 		}
 
-		/* if we're inside DATA */ /* TODO: change this to switch */
-		if ( currentTag == TROT_TAG_DATA )
+		switch ( currentTag )
 		{
-			rc = trotListRefGetKind( lrCurrentList, index, &kind );
-			ERR_IF_PASSTHROUGH;
-
-			if ( kind == NODE_KIND_INT )
-			{
-				rc = trotListRefGetInt( lrCurrentList, index, &n );
-				ERR_IF_PASSTHROUGH;
-
-				rc = appendNumber( newLrCharacters, &characterCount, n );
-				ERR_IF_PASSTHROUGH;
-			}
-			else /* kind == NODE_KIND_LIST */
-			{
-				trotListRefFree( &lrChildList );
-				rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
-				ERR_IF_PASSTHROUGH;
-
-				ERR_IF_PARANOID( lrChildList -> lPointsTo == NULL );
-				if ( lrChildList -> lPointsTo -> encodingChildNumber == 0 )
-				{
-					lrChildList -> lPointsTo -> encodingChildNumber = index;
-					lrChildList -> lPointsTo -> encodingParent = lrCurrentList -> lPointsTo;
-
-					rc = appendLeftBAndTag( lrChildList, 0, newLrCharacters, &indentCount );
-					ERR_IF_PASSTHROUGH;
-
-					/* push to parent stacks, setup vars */
-					rc = trotListRefAppendListTwin( lrParentStack, lrCurrentList );
-					ERR_IF_PASSTHROUGH;
-
-					rc = trotListRefAppendInt( lrParentIndicesStack, index );
-					ERR_IF_PASSTHROUGH;
-
-					parentStackCount += 1; /* TODO: do we need to check this for overflow? */
-
-					trotListRefFree( &lrCurrentList );
-					lrCurrentList = lrChildList;
-					lrChildList = NULL;
-
-					index = 0;
-
-					ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
-					currentTag = lrCurrentList -> lPointsTo -> tag;
-				}
-				else
-				{
-					rc = appendAbsTwinLocation( newLrCharacters, &characterCount, lrChildList );
-					ERR_IF_PASSTHROUGH;
-				}
-			}
-		}
-		else if (    currentTag == TROT_TAG_CODE
-		          || currentTag == TROT_TAG_FUNCTION
-		          || currentTag == TROT_TAG_RAW_CODE
-		        )
-		{
-			rc = trotListRefGetKind( lrCurrentList, index, &kind );
-			ERR_IF_PASSTHROUGH;
-
-			ERR_IF( kind != NODE_KIND_INT, TROT_LIST_ERROR_ENCODE );
-
-			rc = trotListRefGetInt( lrCurrentList, index, &n );
-			ERR_IF_PASSTHROUGH;
-
-			/* do we need to append a space? */
-			rc = trotListRefGetInt( newLrCharacters, -1, &lastCharacter );
-			ERR_IF_PASSTHROUGH;
-
-			if ( lastCharacter != '\t' && lastCharacter != ' ' )
-			{
-				rc = trotListRefAppendInt( newLrCharacters, ' ' );
-				ERR_IF_PASSTHROUGH;
-
-				characterCount += 1;
-			}
-
-			/* TODO: check that it's a valid op */
-			s = opNames[ n ];
-			while ( (*s) != '\0' )
-			{
-				rc = trotListRefAppendInt( newLrCharacters, (*s) );
-				ERR_IF_PASSTHROUGH;
-
-				s += 1;
-			}
-
-			if (    n == TROT_OP_PUSH_INT
-			     || n == TROT_OP_LOAD_VAR
-			     || n == TROT_OP_SAVE_VAR
-			   )
-			{
-				ERR_IF( index == childrenCount, TROT_LIST_ERROR_ENCODE );
-
-				index += 1;
-
-				rc = trotListRefGetInt( lrCurrentList, index, &n );
-				ERR_IF_PASSTHROUGH;
-
-				rc = appendNumber( newLrCharacters, &characterCount, n );
-				ERR_IF_PASSTHROUGH;
-			}
-			else if ( n == TROT_OP_PUSH_LIST )
-			{
-				ERR_IF( index == childrenCount, TROT_LIST_ERROR_ENCODE );
-
-				index += 1;
+			case TROT_TAG_CODE:
+			case TROT_TAG_FUNCTION:
+			case TROT_TAG_RAW_CODE:
 
 				rc = trotListRefGetKind( lrCurrentList, index, &kind );
+				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+				ERR_IF( kind != NODE_KIND_INT, TROT_LIST_ERROR_ENCODE );
+
+				rc = trotListRefGetInt( lrCurrentList, index, &n );
+				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+				/* do we need to append a space? */
+				rc = trotListRefGetInt( newLrCharacters, -1, &lastCharacter );
+				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+				if ( lastCharacter != '\t' )
+				{
+					rc = trotListRefAppendInt( newLrCharacters, ' ' );
+					ERR_IF_PASSTHROUGH;
+
+					characterCount += 1;
+				}
+
+				/* TODO: check that it's a valid op */
+				s = opNames[ n ];
+				while ( (*s) != '\0' )
+				{
+					rc = trotListRefAppendInt( newLrCharacters, (*s) );
+					ERR_IF_PASSTHROUGH;
+
+					characterCount += 1;
+					s += 1;
+				}
+
+				if (    n == TROT_OP_PUSH_INT
+				     || n == TROT_OP_LOAD_VAR
+				     || n == TROT_OP_SAVE_VAR
+				   )
+				{
+					/* TODO: do we really need this? */
+					ERR_IF( index == childrenCount, TROT_LIST_ERROR_ENCODE );
+
+					index += 1;
+
+					rc = trotListRefGetKind( lrCurrentList, index, &kind );
+					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+					ERR_IF( kind != NODE_KIND_INT, TROT_LIST_ERROR_ENCODE );
+
+					rc = trotListRefGetInt( lrCurrentList, index, &n );
+					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+					rc = appendNumber( newLrCharacters, &characterCount, n );
+					ERR_IF_PASSTHROUGH;
+				}
+				else if ( n == TROT_OP_PUSH_LIST )
+				{
+					/* TODO: do we really need this? */
+					ERR_IF( index == childrenCount, TROT_LIST_ERROR_ENCODE );
+
+					index += 1;
+
+					rc = trotListRefGetKind( lrCurrentList, index, &kind );
+					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+					ERR_IF( kind != NODE_KIND_LIST, TROT_LIST_ERROR_ENCODE );
+
+					trotListRefFree( &lrChildList );
+					rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
+					ERR_IF_PASSTHROUGH;
+
+					ERR_IF_PARANOID( lrChildList -> lPointsTo == NULL );
+					if ( lrChildList -> lPointsTo -> encodingChildNumber == 0 )
+					{
+						lrChildList -> lPointsTo -> encodingChildNumber = index;
+						lrChildList -> lPointsTo -> encodingParent = lrCurrentList -> lPointsTo;
+
+						rc = appendLeftBAndTag( lrChildList, 0, newLrCharacters, &indentCount );
+						ERR_IF_PASSTHROUGH;
+
+						/* push to parent stacks, setup vars */
+						rc = trotListRefAppendListTwin( lrParentStack, lrCurrentList );
+						ERR_IF_PASSTHROUGH;
+
+						rc = trotListRefAppendInt( lrParentIndicesStack, index );
+						ERR_IF_PASSTHROUGH;
+
+						parentStackCount += 1; /* TODO: do we need to check this for overflow? */
+
+						trotListRefFree( &lrCurrentList );
+						lrCurrentList = lrChildList;
+						lrChildList = NULL;
+
+						index = 0;
+
+						ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
+						currentTag = lrCurrentList -> lPointsTo -> tag;
+					}
+					else
+					{
+						rc = appendAbsTwinLocation( newLrCharacters, &characterCount, lrChildList );
+						ERR_IF_PASSTHROUGH;
+					}
+				}
+
+				break;
+
+			case TROT_TAG_TEXT:
+
+				rc = trotListRefAppendInt( newLrCharacters, '\"' );
 				ERR_IF_PASSTHROUGH;
 
-				ERR_IF( kind != NODE_KIND_LIST, TROT_LIST_ERROR_ENCODE );
-
-				trotListRefFree( &lrChildList );
-				rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
+				rc = trotCharactersToUtf8( lrCurrentList, newLrCharacters );
 				ERR_IF_PASSTHROUGH;
 
-				ERR_IF_PARANOID( lrChildList -> lPointsTo == NULL );
-				if ( lrChildList -> lPointsTo -> encodingChildNumber == 0 )
+				rc = trotListRefAppendInt( newLrCharacters, '\"' );
+				ERR_IF_PASSTHROUGH;
+
+				/* we must flag that we're done since we handled it all here */
+				index = childrenCount;
+
+				break;
+
+			/* if we're inside DATA */
+			default:
+
+				rc = trotListRefGetKind( lrCurrentList, index, &kind );
+				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+				if ( kind == NODE_KIND_INT )
 				{
-					lrChildList -> lPointsTo -> encodingChildNumber = index;
-					lrChildList -> lPointsTo -> encodingParent = lrCurrentList -> lPointsTo;
+					rc = trotListRefGetInt( lrCurrentList, index, &n );
+					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-					rc = appendLeftBAndTag( lrChildList, 0, newLrCharacters, &indentCount );
-					ERR_IF_PASSTHROUGH;
-
-					/* push to parent stacks, setup vars */
-					rc = trotListRefAppendListTwin( lrParentStack, lrCurrentList );
-					ERR_IF_PASSTHROUGH;
-
-					rc = trotListRefAppendInt( lrParentIndicesStack, index );
-					ERR_IF_PASSTHROUGH;
-
-					parentStackCount += 1; /* TODO: do we need to check this for overflow? */
-
-					trotListRefFree( &lrCurrentList );
-					lrCurrentList = lrChildList;
-					lrChildList = NULL;
-
-					index = 0;
-
-					ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
-					currentTag = lrCurrentList -> lPointsTo -> tag;
-				}
-				else
-				{
-					rc = appendAbsTwinLocation( newLrCharacters, &characterCount, lrChildList );
+					rc = appendNumber( newLrCharacters, &characterCount, n );
 					ERR_IF_PASSTHROUGH;
 				}
-			}
-		}
-		else if ( currentTag == TROT_TAG_TEXT )
-		{
-			rc = trotListRefAppendInt( newLrCharacters, '\"' );
-			ERR_IF_PASSTHROUGH;
+				else /* kind == NODE_KIND_LIST */
+				{
+					trotListRefFree( &lrChildList );
+					rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
+					ERR_IF_PASSTHROUGH;
 
-			rc = trotCharactersToUtf8( lrCurrentList, newLrCharacters );
-			ERR_IF_PASSTHROUGH;
+					ERR_IF_PARANOID( lrChildList -> lPointsTo == NULL );
+					if ( lrChildList -> lPointsTo -> encodingChildNumber == 0 )
+					{
+						lrChildList -> lPointsTo -> encodingChildNumber = index;
+						lrChildList -> lPointsTo -> encodingParent = lrCurrentList -> lPointsTo;
 
-			rc = trotListRefAppendInt( newLrCharacters, '\"' );
-			ERR_IF_PASSTHROUGH;
+						rc = appendLeftBAndTag( lrChildList, 0, newLrCharacters, &indentCount );
+						ERR_IF_PASSTHROUGH;
 
-			/* we must flag that we're done since we handled it all here */
-			index = childrenCount;
+						/* push to parent stacks, setup vars */
+						rc = trotListRefAppendListTwin( lrParentStack, lrCurrentList );
+						ERR_IF_PASSTHROUGH;
+
+						rc = trotListRefAppendInt( lrParentIndicesStack, index );
+						ERR_IF_PASSTHROUGH;
+
+						parentStackCount += 1; /* TODO: do we need to check this for overflow? */
+
+						trotListRefFree( &lrCurrentList );
+						lrCurrentList = lrChildList;
+						lrChildList = NULL;
+
+						index = 0;
+
+						ERR_IF_PARANOID( lrCurrentList -> lPointsTo == NULL );
+						currentTag = lrCurrentList -> lPointsTo -> tag;
+					}
+					else
+					{
+						rc = appendAbsTwinLocation( newLrCharacters, &characterCount, lrChildList );
+						ERR_IF_PASSTHROUGH;
+					}
+				}
+
+				break;
 		}
-		/* TODO
-		else if { currentTag == TODO )
-		{
-		}
-		*/
 	}
 
 	ERR_IF_PARANOID( indentCount != 0 );
@@ -375,7 +385,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 		/* get count */
 		rc = trotListRefGetCount( lrCurrentList, &childrenCount );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* are we out of children? */
 		if ( index == childrenCount )
@@ -390,10 +400,10 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			/* go up to parent */
 			trotListRefFree( &lrCurrentList );
 			rc = trotListRefRemoveList( lrParentStack, -1, &lrCurrentList );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			rc = trotListRefRemoveInt( lrParentIndicesStack, -1, &index );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			parentStackCount -= 1;
 
@@ -418,7 +428,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 		else
 		{
 			rc = trotListRefGetKind( lrCurrentList, index, &kind );
-			ERR_IF_PASSTHROUGH;
+			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			if ( kind == NODE_KIND_LIST )
 			{
@@ -493,13 +503,11 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrC
 	char *t = "(name top)";
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( indentCount == NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( lr == NULL );
+	ERR_IF_PARANOID( lrCharacters == NULL );
+	ERR_IF_PARANOID( indentCount == NULL );
+
 	/* append newlines and indents */
 	rc = appendNewlineIndents( lrCharacters, (*indentCount) );
 	ERR_IF_PASSTHROUGH;
@@ -509,23 +517,9 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrC
 
 	switch ( lr -> lPointsTo -> tag )
 	{
-		case TROT_TAG_DATA:
-			s1 = "[";
-			break;
-
 		case TROT_TAG_TEXT:
 			s1 = "[";
 			s2 = "(text)";
-			break;
-
-		case TROT_TAG_ACTOR:
-			s1 = "[";
-			s2 = "(actor)";
-			break;
-
-		case TROT_TAG_QUEUE:
-			s1 = "[";
-			s2 = "(queue)";
 			break;
 
 		case TROT_TAG_CODE:
@@ -536,7 +530,7 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrC
 			break;
 
 		default:
-			ERR_IF( 1, TROT_LIST_ERROR_ENCODE );
+			s1 = "[";
 			break;
 	}
 
@@ -555,7 +549,10 @@ static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrC
 		while ( (*t) != '\0' )
 		{
 			rc = trotListRefAppendInt( lrCharacters, (*t) );
-			ERR_IF_PASSTHROUGH;
+#if ( NODE_SIZE < 11 )
+#error NODE_SIZE TOO SMALL, MUST UNCOMMENT THE ERR_IF_PASSTHROUGH BELOW
+#endif
+			/* ERR_IF_PASSTHROUGH; */
 
 			t += 1;
 		}
@@ -602,13 +599,11 @@ static TROT_RC appendRightB( trotListRef *lr, trotListRef *lrCharacters, unsigne
 	char s = ']';
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( indentCount == NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( lr == NULL );
+	ERR_IF_PARANOID( lrCharacters == NULL );
+	ERR_IF_PARANOID( indentCount == NULL );
+
 	/* decrement indentCount */
 	(*indentCount) -= 1;
 
@@ -658,11 +653,9 @@ static TROT_RC appendNewlineIndents( trotListRef *lrCharacters, unsigned int ind
 	unsigned int i = 0;
 
 
-	/* PRECOND */
-	PRECOND_ERR_IF( lrCharacters == NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( lrCharacters == NULL );
+
 	/* append newline */
 	rc = trotListRefAppendInt( lrCharacters, '\n' );
 	ERR_IF_PASSTHROUGH;
@@ -701,20 +694,16 @@ static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, INT
 	char numberString[ INT_TYPE_MIN_STRING_LENGTH + 1 ];
 	char *s = NULL;
 
-	int flagNegative = 0;
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( characterCount == NULL );
-
 
 	/* CODE */
+	ERR_IF_PARANOID( lrCharacters == NULL );
+	ERR_IF_PARANOID( characterCount == NULL );
+
 	/* do we need to append a space? */
 	rc = trotListRefGetInt( lrCharacters, -1, &lastCharacter );
-	ERR_IF_PASSTHROUGH;
+	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-	if ( lastCharacter != '\t' && lastCharacter != ' ' && lastCharacter != '.' )
+	if ( lastCharacter != '\t' && lastCharacter != '.' )
 	{
 		rc = trotListRefAppendInt( lrCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
@@ -733,28 +722,33 @@ static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, INT
 		goto cleanup;
 	}
 
-	/* set flagNegative */
-	if ( n < 0 )
-	{
-		flagNegative = 1;
-	}
-
 	/* create numberString */
 	s = &(numberString[ INT_TYPE_MIN_STRING_LENGTH ]);
 	(*s) = '\0';
 
-	while ( n != 0 )
+	/* create number string */
+	if ( n < 0 )
 	{
-		s -= 1;
-		(*s) =  '0' + ( n % 10 );
+		while ( n != 0 )
+		{
+			s -= 1;
+			(*s) =  '0' - ( n % 10 );
 
-		n /= 10;
-	}
+			n /= 10;
+		}
 
-	if ( flagNegative )
-	{
 		s -= 1;
 		(*s) = '-';
+	}
+	else
+	{
+		while ( n != 0 )
+		{
+			s -= 1;
+			(*s) =  '0' + ( n % 10 );
+
+			n /= 10;
+		}
 	}
 
 	/* append numberString to lrCharacters */
@@ -799,20 +793,16 @@ static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterC
 	trotList *lParent = NULL;
 
 
-
-
-	/* PRECOND */
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( characterCount == NULL );
-	PRECOND_ERR_IF( lr == NULL );
-
-
 	/* CODE */
+	ERR_IF_PARANOID( lrCharacters == NULL );
+	ERR_IF_PARANOID( characterCount == NULL );
+	ERR_IF_PARANOID( lr == NULL );
+
 	/* do we need to append a space? */
 	rc = trotListRefGetInt( lrCharacters, -1, &lastCharacter );
-	ERR_IF_PASSTHROUGH;
+	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-	if ( lastCharacter != '\t' && lastCharacter != ' ' )
+	if ( lastCharacter != '\t' )
 	{
 		rc = trotListRefAppendInt( lrCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
@@ -853,7 +843,7 @@ static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterC
 
 	/* get count */
 	rc = trotListRefGetCount( lrAddress, &count );
-	ERR_IF_PASSTHROUGH;
+	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 	/* foreach parent */
 	index = 1;
@@ -861,7 +851,7 @@ static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterC
 	{
 		/* get parent */
 		rc = trotListRefGetInt( lrAddress, index, &address );
-		ERR_IF_PASSTHROUGH;
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* append '.' */
 		rc = trotListRefAppendInt( lrCharacters, '.' );

@@ -692,3 +692,173 @@ void printList( trotListRef *lr, int indent )
 	return;
 }
 
+/******************************************************************************/
+#define LOAD_BUFFER_SIZE 1024
+TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	size_t bytesRead = 0;
+	size_t i = 0;
+
+	char *name = NULL;
+
+	FILE *fp = NULL;
+
+	trotListRef *newLrBytes = NULL;
+
+	BYTE_TYPE buffer[ LOAD_BUFFER_SIZE ];
+
+
+	/* CODE */
+	/* create our new byte list */
+	rc = trotListRefInit( &newLrBytes );
+	ERR_IF_PASSTHROUGH;
+
+	/* convert our trotListRef name to a cString */
+	rc = listToCString( lrName, &name );
+	ERR_IF_PASSTHROUGH;
+
+/* TODO: remove me? */
+printf( "Loading: %s\n", name );
+
+	/* open */
+	fp = fopen( name, "rb" );
+	ERR_IF( fp == NULL, TROT_LIST_ERROR_LOAD );
+
+	/* read all bytes */
+	while ( 1 )
+	{
+		/* read as much as we can into our buffer */
+		bytesRead = fread( buffer, 1, LOAD_BUFFER_SIZE, fp );
+
+		/* append what we read to our bytes */
+		i = 0;
+		while ( i < bytesRead )
+		{
+			rc = trotListRefAppendInt( newLrBytes, buffer[ i ] );
+			ERR_IF_PASSTHROUGH;
+
+			i += 1;
+		}
+
+		/* if short read, check error, or break */
+		if ( bytesRead < LOAD_BUFFER_SIZE )
+		{
+			ERR_IF( ! feof( fp ), TROT_LIST_ERROR_LOAD );
+			break;
+		}
+	}
+
+	/* give back */
+	(*lrBytes) = newLrBytes;
+	newLrBytes = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	if ( fp != NULL )
+	{
+		fclose( fp );
+	}
+
+	if ( name != NULL )
+	{
+		trotFree( name );
+	}
+
+	trotListRefFree( &newLrBytes );
+
+	return rc;
+}
+#undef LOAD_BUFFER_SIZE
+
+/******************************************************************************/
+TROT_RC listToCString( trotListRef *lr, char **cString_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	char *newCString = NULL;
+
+	INT_TYPE count = 0;
+	INT_TYPE i = 1;
+
+	INT_TYPE c = 0;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( cString_A == NULL );
+	PRECOND_ERR_IF( (*cString_A) != NULL );
+
+
+	/* CODE */
+	rc = trotListRefGetCount( lr, &count );
+	ERR_IF_PASSTHROUGH;
+
+	newCString = trotMalloc( count + 1 );
+	ERR_IF( newCString == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+
+	i = 1;
+	while ( i <= count )
+	{
+		rc = trotListRefGetInt( lr, i, &c );
+		ERR_IF_PASSTHROUGH;
+
+		ERR_IF( c < 0, TROT_LIST_ERROR_NOT_BYTE_VALUE );
+		ERR_IF( c > 255, TROT_LIST_ERROR_NOT_BYTE_VALUE );
+
+		newCString[ i - 1 ] = (char)c;
+
+		i += 1;
+	}
+
+	newCString[ i - 1 ] = '\0';
+
+	/* give back */
+	(*cString_A) = newCString;
+	newCString = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	if ( newCString != NULL )
+	{
+		trotFree( newCString );
+	}
+
+	return rc;
+}
+
+/******************************************************************************/
+TROT_RC appendCStringToList( char *cString, trotListRef *lr )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( cString == NULL );
+	PRECOND_ERR_IF( lr == NULL );
+
+
+	/* CODE */
+	while ( *cString != '\0' )
+	{
+		rc = trotListRefAppendInt( lr, (*cString) );
+		ERR_IF_PASSTHROUGH;
+
+		cString += 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+

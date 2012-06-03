@@ -141,6 +141,9 @@ int testPreconditions()
 	TEST_ERR_IF( _trotWordToNumber( lr1, NULL, &n ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( _trotWordToNumber( lr1, &i, NULL ) != TROT_LIST_ERROR_PRECOND );
 
+	TEST_ERR_IF( trotEncode( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
 /* TODO
 	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );

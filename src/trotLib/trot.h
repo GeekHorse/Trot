@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h> /* for size_t, in memory hook functions */
 
 /******************************************************************************/
+/* TODO: these all don't need LIST in their name */
 typedef enum
 {
 	TROT_LIST_SUCCESS =  0,
@@ -69,12 +70,9 @@ typedef enum
 	TROT_TAG_DATA =  0,
 	TROT_TAG_TEXT = 1,
 
-	TROT_TAG_ACTOR = 2,
-	TROT_TAG_QUEUE = 3,
-
-	TROT_TAG_CODE = 4,
-	TROT_TAG_FUNCTION = 5,
-	TROT_TAG_RAW_CODE = 6
+	TROT_TAG_CODE = 2,
+	TROT_TAG_FUNCTION = 3,
+	TROT_TAG_RAW_CODE = 4
 } TROT_TAG;
 
 /******************************************************************************/

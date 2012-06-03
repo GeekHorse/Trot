@@ -530,6 +530,7 @@ TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTokenTree
 
 				trotListRefFree( &lrParent );
 				rc = trotListRefTwin( lrToken, &lrParent );
+				ERR_IF_PASSTHROUGH;
 
 				/* add value for this token */
 				trotListRefFree( &lrChildren );
@@ -2843,6 +2844,15 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree )
 
 				rc = trotListRefGetListTwin( lrChildToken, TOKEN_INDEX_VALUE, &lrChildTokenValue );
 				ERR_IF_PASSTHROUGH;
+
+				/* if in brace, add push first */
+				if (    lrTokenFinalList -> lPointsTo -> tag == TROT_TAG_CODE
+				     || lrTokenFinalList -> lPointsTo -> tag == TROT_TAG_FUNCTION
+				   )
+				{
+					rc = trotListRefAppendInt( lrTokenFinalList, TROT_OP_PUSH_LIST );
+					ERR_IF_PASSTHROUGH;
+				}
 
 				/* append */
 				rc = trotListRefAppendListTwin( lrTokenFinalList, lrChildTokenValue );
