@@ -165,8 +165,9 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			rc = trotCreateToken( line, column, TOKEN_STRING, &lrToken );
 			ERR_IF_PASSTHROUGH;
 
-			/* create value */
-			rc = trotListRefInit( &lrValue );
+			/* get value */
+			trotListRefFree( &lrValue );
+			rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
 			ERR_IF_PASSTHROUGH;
 
 			/* get value of string */
@@ -227,12 +228,6 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 				/* strings cannot touch words */
 				ERR_IF ( character == '"', TROT_LIST_ERROR_DECODE );
 			}
-
-			/* append value */
-			rc = trotListRefAppendListTwin( lrToken, lrValue );
-			ERR_IF_PASSTHROUGH;
-
-			trotListRefFree( &lrValue );
 		}
 		/* if # */
 		else if ( character == '#' )
@@ -257,8 +252,9 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			rc = trotCreateToken( line, column, TOKEN_WORD, &lrToken );
 			ERR_IF_PASSTHROUGH;
 
-			/* create value */
-			rc = trotListRefInit( &lrValue );
+			/* get value */
+			trotListRefFree( &lrValue );
+			rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue );
 			ERR_IF_PASSTHROUGH;
 
 			/* append character */
@@ -302,12 +298,6 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 				rc = trotListRefAppendInt( lrValue, character );
 				ERR_IF_PASSTHROUGH;
 			}
-
-			/* append value */
-			rc = trotListRefAppendListTwin( lrToken, lrValue );
-			ERR_IF_PASSTHROUGH;
-
-			trotListRefFree( &lrValue );
 
 			/* is word a number? */
 			rc = trotUpgradeWordToNumber( lrToken );
@@ -358,6 +348,8 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 
 	trotListRef *newToken = NULL;
 
+	trotListRef *lr = NULL;
+
 
 	/* PRECOND */
 	PRECOND_ERR_IF( lrToken_A == NULL );
@@ -381,6 +373,79 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 	rc = trotListRefAppendInt( newToken, tokenType );
 	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+
+	/* these need a value */
+	if (    tokenType == TOKEN_L_BRACKET
+	     || tokenType == TOKEN_L_BRACE
+	     || tokenType == TOKEN_L_PARENTHESIS
+	     || tokenType == TOKEN_STRING
+	     || tokenType == TOKEN_WORD
+	     || tokenType == TOKEN_NUMBER_RAW
+	   )
+	{
+/* TODO: add int value for some? */
+		/* add value */
+		rc = trotListRefInit( &lr );
+		ERR_IF_PASSTHROUGH;
+
+		rc = trotListRefAppendListTwin( newToken, lr );
+		ERR_IF_PASSTHROUGH;
+
+		trotListRefFree( &lr );
+
+		/* these tokens need finallist */
+		if (    tokenType == TOKEN_L_BRACKET
+		     || tokenType == TOKEN_L_BRACE
+		     || tokenType == TOKEN_WORD /* in case it's changed into TWIN and becomes a list */
+		   )
+		{
+			/* add finallist */
+			rc = trotListRefInit( &lr );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotListRefAppendListTwin( newToken, lr );
+			ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+
+			trotListRefFree( &lr );
+
+			/* these tokens needs name, enums */
+			if (    tokenType == TOKEN_L_BRACKET
+			     || tokenType == TOKEN_L_BRACE
+			   )
+			{
+				/* add name */
+				rc = trotListRefInit( &lr );
+				ERR_IF_PASSTHROUGH;
+
+				rc = trotListRefAppendListTwin( newToken, lr );
+				ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+
+				trotListRefFree( &lr );
+
+				/* add enums */
+				rc = trotListRefInit( &lr );
+				ERR_IF_PASSTHROUGH;
+
+				rc = trotListRefAppendListTwin( newToken, lr );
+				ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+
+				trotListRefFree( &lr );
+
+				/* this token needs vars */
+				if ( tokenType == TOKEN_L_BRACE )
+				{
+					/* add vars */
+					rc = trotListRefInit( &lr );
+					ERR_IF_PASSTHROUGH;
+
+					rc = trotListRefAppendListTwin( newToken, lr );
+					ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+
+					trotListRefFree( &lr );
+				} /* end adding vars */
+			} /* end adding name, enums */
+		} /* end adding finallist */
+	} /* end adding value */
 
 	/* give back */
 	(*lrToken_A) = newToken;

@@ -64,12 +64,46 @@ void *badMalloc( size_t size )
 	return malloc( size );
 }
 
+TROT_RC badLoad( trotListRef *lrName, trotListRef **lrBytes )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *newLrBytes = NULL;
+
+
+	/* CODE */
+	(void)lrName;
+
+	/* create our new byte list */
+	rc = trotListRefInit( &newLrBytes );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefAppendInt( newLrBytes, '[' );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefAppendInt( newLrBytes, ']' );
+	ERR_IF_PASSTHROUGH;
+
+	/* give back */
+	(*lrBytes) = newLrBytes;
+	newLrBytes = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newLrBytes );
+
+	return rc;
+}
+
 /******************************************************************************/
 static int testMemoryManagement();
 static int testDeepList();
 static int testFailedMallocs1( int test );
 static int testFailedMallocs2( int test );
 static int testFailedMallocs3( int test );
+static int testFailedMallocs4( int test );
 
 typedef struct
 {
@@ -81,7 +115,8 @@ FailedFunc failedFuncs[] =
 {
 	{ testFailedMallocs1, 1 },
 	{ testFailedMallocs2, 1 },
-	{ testFailedMallocs3, 14 },
+	{ testFailedMallocs3, 18 },
+	{ testFailedMallocs4, 1 },
 	{ NULL, 0 }
 };
 
@@ -664,6 +699,7 @@ static int testFailedMallocs3( int test )
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	char *d[] = {
+	/* for encoding */
 	"[]",
 	"[100 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 ]",
 	"[(name A) [(name B)] [A.B] ]",
@@ -677,7 +713,13 @@ static int testFailedMallocs3( int test )
 	"[12 3]",
 	"[1 0]",
 	"[(name top)[(name A)][(name B) 1 top.A]]",
-	"[(name top)[(name A)][(name B) 1 1234567890 top.A]]"
+	"[(name top)[(name A)][(name B) 1 1234567890 top.A]]",
+
+	/* for decoding */
+	"[ [(include \"x\")] [(include \"x\")] ]",
+	"{(function x y) x}",
+	"[(name x)(enum (cats 99) (dogs 98) ) x.cats]",
+	"[(name x) x]"
 	};
 
 	trotListRef *lrCharacters = NULL;
@@ -705,7 +747,7 @@ static int testFailedMallocs3( int test )
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
-	rc = trotDecodeCharacters( load, lrEmptyName, lrCharacters, &lrDecodedList1 );
+	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrCharacters, &lrDecodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
@@ -721,7 +763,94 @@ static int testFailedMallocs3( int test )
 #endif
 
 
-	rc = trotDecodeCharacters( load, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
+	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
+	ERR_IF_PASSTHROUGH;
+#if 1
+	rc = listToCString( lrEncodedList2, &s );
+	ERR_IF_PASSTHROUGH;
+
+	printf( "lrEncodedList2: %s\n", s );
+
+	trotFree( s );
+	s = NULL;
+#endif
+
+	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2, &compareResult );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
+	
+	rc = trotListRefCompare( lrEncodedList1, lrEncodedList2, &compareResult );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
+
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &lrEmptyName );
+	trotListRefFree( &lrDecodedList1 );
+	trotListRefFree( &lrEncodedList1 );
+	trotListRefFree( &lrDecodedList2 );
+	trotListRefFree( &lrEncodedList2 );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static int testFailedMallocs4( int test )
+{
+	/* TODO: this was copied from testDecodingEncodingGood(), but with the TEST_ERR_IF
+	         changed to ERR_IF_PASTHROUGH */
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotListRef *lrDecodedList1 = NULL;
+	trotListRef *lrEncodedList1 = NULL;
+	trotListRef *lrEmptyName = NULL;
+	trotListRef *lrDecodedList2 = NULL;
+	trotListRef *lrEncodedList2 = NULL;
+
+	TROT_LIST_COMPARE_RESULT compareResult;
+#if 1
+	char *s = NULL;
+#endif	
+
+
+	/* CODE */
+	(void)test;
+
+	rc = trotListRefInit( &lrEmptyName );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	rc = trotDecodeFilename( badLoad, lrEmptyName, &lrDecodedList1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
+	ERR_IF_PASSTHROUGH;
+#if 1
+	rc = listToCString( lrEncodedList1, &s );
+	ERR_IF_PASSTHROUGH;
+
+	printf( "lrEncodedList1: %s\n", s );
+
+	trotFree( s );
+	s = NULL;
+#endif
+
+
+	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );

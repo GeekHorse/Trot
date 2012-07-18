@@ -95,19 +95,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* For trotDecodingEncoding and related tests */
 typedef enum
 {
+	/* NOTE: These first 9 tokens are ones that our tokenizer produces */
 	TOKEN_L_BRACKET = 1,
 	TOKEN_R_BRACKET = 2,
 	TOKEN_L_BRACE = 3,
 	TOKEN_R_BRACE = 4,
 	TOKEN_L_PARENTHESIS = 5,
 	TOKEN_R_PARENTHESIS = 6,
-	TOKEN_WORD = 7,
-	TOKEN_NUMBER = 8,
-	TOKEN_NUMBER_RAW = 9,
-	TOKEN_STRING = 10,
-	TOKEN_TWIN = 11,
-	TOKEN_INCLUDE = 12,
-	TOKEN_OP = 13
+	TOKEN_STRING = 7,
+	TOKEN_WORD = 8,
+	TOKEN_NUMBER = 9, /* NOTE: this is not created, but changed from TOKEN_WORD in tokenizer */
+
+	/* NOTE: These next 3 tokens are ones that our decoder changes tokens into */
+	TOKEN_TWIN = 10, /* from TOKEN_WORD */
+	TOKEN_INCLUDE = 11, /* from TOKEN_L_BRACKET and TOKEN_L_BRACE */
+	TOKEN_OP = 12, /* from TOKEN_WORD */
+
+	/* NOTE: this next token is one that our decoder produces */
+	TOKEN_NUMBER_RAW = 13
 } TOKEN_TYPE;
 
 typedef enum
@@ -116,11 +121,13 @@ typedef enum
 	TOKEN_INDEX_COLUMN = 2,
 	TOKEN_INDEX_TYPE = 3,
 	TOKEN_INDEX_VALUE = 4,
-	TOKEN_INDEX_NAME = 5,
-	TOKEN_INDEX_ENUMS = 6,
-	TOKEN_INDEX_VAR = 7,
-	TOKEN_INDEX_FINALLIST = 8
+	TOKEN_INDEX_FINALLIST = 5,
+	TOKEN_INDEX_NAME = 6,
+	TOKEN_INDEX_ENUMS = 7,
+	TOKEN_INDEX_VAR = 8
 } TOKEN_INFO;
+#define TOKEN_INDEX_MAX 8
+
 
 /******************************************************************************/
 typedef enum

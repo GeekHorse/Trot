@@ -33,6 +33,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "trotTestCommon.h"
 
+static int testLoadFunc( trotListRef *lrName, trotListRef **lrBytes )
+{
+	(void)lrName;
+	(void)lrBytes;
+	return 0;
+}
+
 /******************************************************************************/
 int testPreconditions()
 {
@@ -145,20 +152,16 @@ int testPreconditions()
 	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
-/* TODO
-	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( lr1, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( lr1, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotDecodeFilename( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotEncode( NULL, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-*/
+	TEST_ERR_IF( trotDecodeFilename( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
 
 	trotListRefFree( &lr1 );
 

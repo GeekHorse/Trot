@@ -586,6 +586,7 @@ static TROT_RC testDecodingEncodingBad( int dirNumber, int fileNumber, trotListR
 	(void)fileNumber;
 
 	rc = trotDecodeFilename( load, lrName, &lrDecodedList );
+	TEST_ERR_IF( rc == TROT_LIST_SUCCESS );
 	TEST_ERR_IF( rc != TROT_LIST_ERROR_DECODE );
 
 	rc = TROT_LIST_SUCCESS;
