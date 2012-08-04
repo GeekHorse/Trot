@@ -467,6 +467,96 @@ static int testFailedMallocs1( int test )
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendInt( lr1,  1 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendListTwin( lr1, lr2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendInt( lr1,  1 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 2) + 1, 0 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 4), 0 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 3) + 2, 0 );
+	ERR_IF_PASSTHROUGH;
+
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+
+
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendListTwin( lr1, lr2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendInt( lr1, 1 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListRefAppendListTwin( lr1, lr2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 2) + 1, lr2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 4), lr2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 3) + 2, lr2 );
+	ERR_IF_PASSTHROUGH;
+
+
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+
+
+	rc = trotListRefInit( &lr1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListRefInit( &lr2 );
+	ERR_IF_PASSTHROUGH;
+
+	i = 0;
 	while ( i < NODE_SIZE + 1 )
 	{
 		rc = trotListRefInsertInt( lr1, 1, 1 );

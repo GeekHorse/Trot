@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-#define MAGIC_NUMBER (NODE_SIZE * 3)
+#define MAGIC_NUMBER (NODE_SIZE * 4)
 
 #define TEST_ADDING_INTS  1
 #define TEST_ADDING_LISTS 2
@@ -64,6 +64,8 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
 static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
 static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+
+static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegativeIndices );
 
 static int (*testFunctions[])( trotListRef *, int, int, int ) = 
 	{
@@ -141,6 +143,29 @@ int testPrimaryFunctionality()
 				j += 1;
 			}
 
+			/* replace is different, we don't care about removing. so we just call it here instead */
+			printf( "." ); fflush( stdout );
+
+			TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
+			TEST_ERR_IF( testReplace( lr, TEST_ADDING_INTS, TEST_POSITIVE_INDICES ) != 0 );
+
+			trotListRefFree( &lr );
+
+			TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
+			TEST_ERR_IF( testReplace( lr, TEST_ADDING_INTS, TEST_NEGATIVE_INDICES ) != 0 );
+
+			trotListRefFree( &lr );
+
+			TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
+			TEST_ERR_IF( testReplace( lr, TEST_ADDING_LISTS, TEST_POSITIVE_INDICES ) != 0 );
+
+			trotListRefFree( &lr );
+
+			TEST_ERR_IF( createFunctions[ i ]( &lr, count ) != 0 );
+			TEST_ERR_IF( testReplace( lr, TEST_ADDING_LISTS, TEST_NEGATIVE_INDICES ) != 0 );
+
+			trotListRefFree( &lr );
+
 			i += 1;
 		}
 
@@ -211,7 +236,7 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != 0 ); /* TODO: change all these to check for SUCCESS instead of just '0' */
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -928,3 +953,105 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 	return rc;
 }
 
+/******************************************************************************/
+static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegativeIndices )
+{
+	/* DATA */
+	int rc = 0;
+
+	INT_TYPE countAtStart = 0;
+	INT_TYPE countAfter = 0;
+
+	INT_TYPE addingAtIndex = 0;
+	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+
+	int kind; /* TODO: change all kinds to enum */
+
+	trotListRef *newList = NULL;
+
+	INT_TYPE index = 0;
+
+
+	/* CODE */
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != 0 );
+
+	/* test replace */
+	addingAtIndex = 1;
+	while ( addingAtIndex <= countAtStart )
+	{
+		/* replace */
+		if ( positiveOrNegativeIndices == TEST_POSITIVE_INDICES )
+		{
+			addingAtIndexB = addingAtIndex;
+		}
+		else if ( positiveOrNegativeIndices == TEST_NEGATIVE_INDICES )
+		{
+			addingAtIndexB = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( addingAtIndex, countAtStart );
+		}
+
+		TEST_ERR_IF( trotListRefGetKind( lr, addingAtIndexB, &kind ) != TROT_LIST_SUCCESS );
+
+		if ( intsOrLists == TEST_ADDING_INTS )
+		{
+			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, -1 ) != TROT_LIST_SUCCESS )
+		}
+		else if ( intsOrLists == TEST_ADDING_LISTS )
+		{
+			TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, -1 ) != 0 );
+			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != 0 );
+			trotListRefFree( &newList );
+		}
+		else
+		{
+			TEST_ERR_IF( 1 );
+		}
+
+		/* check */
+		TEST_ERR_IF( checkList( lr ) != 0 );
+
+		TEST_ERR_IF( trotListRefGetCount( lr, &countAfter ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( countAfter != countAtStart );
+
+		index = 1;
+		while ( index <= countAtStart )
+		{
+			if ( index == addingAtIndex )
+			{
+				TEST_ERR_IF( check( lr, index, -1 ) != 0 );
+			}
+			else
+			{
+				TEST_ERR_IF( check( lr, index, index ) != 0 );
+			}
+
+			index += 1;
+		}
+
+		/* replace back to original */
+		if ( kind == NODE_KIND_INT )
+		{
+			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, addingAtIndex ) != TROT_LIST_SUCCESS )
+		}
+		else
+		{
+			TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, addingAtIndex ) != 0 );
+			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != 0 );
+			trotListRefFree( &newList );
+		}
+
+		/* increment */
+		addingAtIndex += 1;
+	}
+
+	return 0;
+	
+
+	/* CLEANUP */
+	cleanup:
+
+	printf( "\x1b[31;1mFAILED AT %d index:%d addingAtIndex:%d\n\x1b[0m", rc, index, addingAtIndex );
+
+	return rc;
+}

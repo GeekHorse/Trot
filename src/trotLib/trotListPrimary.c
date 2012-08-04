@@ -1370,6 +1370,407 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 
 /******************************************************************************/
 /*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotList *l = NULL;
+
+	trotListNode *node = NULL;
+
+	INT_TYPE count = 0;
+
+	trotListRef *tempL = NULL;
+
+	int i = 0;
+	int j = 0;
+
+	trotListNode *newNode = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+
+
+	/* CODE */
+	l = lr -> lPointsTo;
+
+	/* Turn negative index into positive equivalent. */
+	if ( index < 0 )
+	{
+		index = (l -> childrenCount) + index + 1;
+	}
+
+	/* Make sure index is in range */
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+
+	/* Find node where int needs to be replaced into */
+	node = l -> head -> next;
+	while ( 1 )
+	{
+		if ( count + (node -> count) >= index )
+		{
+			break;
+		}
+
+		count += node -> count;
+		node = node -> next;
+
+		ERR_IF_PARANOID( node == l -> tail );
+	}
+
+	/* *** */
+	if ( node -> kind == NODE_KIND_INT )
+	{
+		i = index - count - 1;
+
+		/* replace int into node */
+		node -> n[ i ] = n;
+	}
+	else /* node -> kind == NODE_KIND_LIST */
+	{
+		i = index - count - 1;
+
+		/* If at beginning of node */
+		if ( i == 0 )
+		{
+			/* If the previous node is an int node with space, we
+			   can just append in that node. */
+			if (    node -> prev -> kind == NODE_KIND_INT
+			     && node -> prev -> count != NODE_SIZE 
+			   )
+			{
+				/* append int into prev node */
+				node -> prev -> n[ node -> prev -> count ] = n;
+
+				node -> prev -> count += 1;
+			}
+			else
+			{
+				/* *** */
+				rc = newIntNode( &newNode );
+				ERR_IF_PASSTHROUGH;
+
+				newNode -> n[ 0 ] = n;
+				newNode -> count = 1;
+
+				/* Insert node into list */
+				newNode -> next = node;
+				newNode -> prev = node -> prev;
+
+				node -> prev -> next = newNode;
+				node -> prev = newNode;
+			}
+		}
+		/* else if end of node */
+		else if ( i == (node -> count) - 1 )
+		{
+			/* if the next node is an int node with room, we can just prepend to
+			   that node. */
+			if (    node -> next -> kind == NODE_KIND_INT
+			     && node -> next -> count != NODE_SIZE 
+			   )
+			{
+				/* prepend int */
+				j = node -> next -> count;
+				while ( j != 0 )
+				{
+					node -> next -> n[ j ] = node -> next -> n[ j - 1 ];
+					j -= 1;
+				}
+
+				node -> next -> n[ 0 ] = n;
+
+				node -> next -> count += 1;
+			}
+			else
+			{
+				/* *** */
+				rc = newIntNode( &newNode );
+				ERR_IF_PASSTHROUGH;
+
+				newNode -> n[ 0 ] = n;
+				newNode -> count = 1;
+
+				/* Insert node into list */
+				newNode -> prev = node;
+				newNode -> next = node -> next;
+
+				node -> next -> prev = newNode;
+				node -> next = newNode;
+			}
+		}
+		/* we'll have to split the node */
+		else
+		{
+			rc = trotListNodeSplit( node, i + 1 );
+			ERR_IF_PASSTHROUGH;
+
+			/* *** */
+			rc = newIntNode( &newNode );
+			ERR_IF_PASSTHROUGH;
+
+			newNode -> n[ 0 ] = n;
+			newNode -> count = 1;
+
+			/* Insert node into list */
+			newNode -> prev = node;
+			newNode -> next = node -> next;
+
+			node -> next -> prev = newNode;
+			node -> next = newNode;
+		}
+
+		/* we've put in our int, now we need to remove a list */
+		tempL = node -> l[ i ];
+		tempL -> lParent = NULL;
+		trotListRefFree( &tempL );
+		while ( i < ( (node -> count) - 1 ) )
+		{
+			node -> l[ i ] = node -> l[ i + 1 ];
+			i += 1;
+		}
+		node -> l[ i ] = NULL;
+
+		node -> count -= 1;
+		if ( node -> count == 0 )
+		{
+			node -> prev -> next = node -> next;
+			node -> next -> prev = node -> prev;
+
+			trotFree( node -> l );
+			trotFree( node );
+		}
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotList *l = NULL;
+
+	trotListNode *node = NULL;
+
+	INT_TYPE count = 0;
+
+	trotListRef *tempL = NULL;
+
+	trotListRef *newLr = NULL;
+
+	int i = 0;
+	int j = 0;
+
+	trotListNode *newNode = NULL;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( lrToInsert == NULL );
+
+
+	/* CODE */
+	l = lr -> lPointsTo;
+
+	/* Turn negative index into positive equivalent. */
+	if ( index < 0 )
+	{
+		index = (l -> childrenCount) + index + 1;
+	}
+
+	/* Make sure index is in range */
+	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+
+	/* Find node where list needs to be replaced into */
+	node = l -> head -> next;
+	while ( 1 )
+	{
+		if ( count + (node -> count) >= index )
+		{
+			break;
+		}
+
+		count += node -> count;
+		node = node -> next;
+
+		ERR_IF_PARANOID( node == l -> tail );
+	}
+
+	/* create our new twin */
+	rc = trotListRefTwin( lrToInsert, &newLr );
+	ERR_IF_PASSTHROUGH;
+
+	/* *** */
+	if ( node -> kind == NODE_KIND_LIST )
+	{
+		i = index - count - 1;
+
+		/* free old */
+		tempL = node -> l[ i ];
+		tempL -> lParent = NULL;
+		trotListRefFree( &tempL );
+
+		/* replace with new */
+		node -> l[ i ] = newLr;
+		newLr -> lParent = l;
+		newLr = NULL;
+	}
+	else /* node -> kind == NODE_KIND_INT */
+	{
+		i = index - count - 1;
+
+		/* If at beginning of node */
+		if ( i == 0 )
+		{
+			/* If the previous node is a list node with space, we
+			   can just append in that node. */
+			if (    node -> prev -> kind == NODE_KIND_LIST
+			     && node -> prev -> count != NODE_SIZE 
+			   )
+			{
+				/* append into prev node */
+				node -> prev -> l[ node -> prev -> count ] = newLr;
+				newLr -> lParent = l;
+				newLr = NULL;
+
+				node -> prev -> count += 1;
+			}
+			else
+			{
+				/* *** */
+				rc = newListNode( &newNode );
+				ERR_IF_PASSTHROUGH;
+
+				newNode -> l[ 0 ] = newLr;
+				newLr -> lParent = l;
+				newLr = NULL;
+
+				newNode -> count = 1;
+
+				/* Insert node into list */
+				newNode -> next = node;
+				newNode -> prev = node -> prev;
+
+				node -> prev -> next = newNode;
+				node -> prev = newNode;
+			}
+		}
+		/* else if end of node */
+		else if ( i == (node -> count) - 1 )
+		{
+			/* if the next node is a list node with room, we can just prepend to
+			   that node. */
+			if (    node -> next -> kind == NODE_KIND_LIST
+			     && node -> next -> count != NODE_SIZE 
+			   )
+			{
+				/* prepend int */
+				j = node -> next -> count;
+				while ( j != 0 )
+				{
+					node -> next -> l[ j ] = node -> next -> l[ j - 1 ];
+					j -= 1;
+				}
+
+				node -> next -> l[ 0 ] = newLr;
+				newLr -> lParent = l;
+				newLr = NULL;
+
+				node -> next -> count += 1;
+			}
+			else
+			{
+				/* *** */
+				rc = newListNode( &newNode );
+				ERR_IF_PASSTHROUGH;
+
+				newNode -> l[ 0 ] = newLr;
+				newLr -> lParent = l;
+				newLr = NULL;
+
+				newNode -> count = 1;
+
+				/* Insert node into list */
+				newNode -> prev = node;
+				newNode -> next = node -> next;
+
+				node -> next -> prev = newNode;
+				node -> next = newNode;
+			}
+		}
+		/* we'll have to split the node */
+		else
+		{
+			rc = trotListNodeSplit( node, i + 1 );
+			ERR_IF_PASSTHROUGH;
+
+			/* *** */
+			rc = newListNode( &newNode );
+			ERR_IF_PASSTHROUGH;
+
+			newNode -> l[ 0 ] = newLr;
+			newLr -> lParent = l;
+			newLr = NULL;
+
+			newNode -> count = 1;
+
+			/* Insert node into list */
+			newNode -> prev = node;
+			newNode -> next = node -> next;
+
+			node -> next -> prev = newNode;
+			node -> next = newNode;
+		}
+
+		/* we've put in our list, now we need to remove an int */
+		while ( i < ( (node -> count) - 1 ) )
+		{
+			node -> n[ i ] = node -> n[ i + 1 ];
+			i += 1;
+		}
+
+		node -> count -= 1;
+		if ( node -> count == 0 )
+		{
+			node -> prev -> next = node -> next;
+			node -> next -> prev = node -> prev;
+
+			trotFree( node -> n );
+			trotFree( node );
+		}
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListRefFree( &newLr );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
 	\brief Splits a node, leaving keepInLeft into the left/prev node, and
 		moving the rest into the new right/next node.
 	\param n Node to split.

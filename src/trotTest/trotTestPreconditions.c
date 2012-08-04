@@ -109,6 +109,11 @@ int testPreconditions()
 
 	TEST_ERR_IF( trotListRefRemove( NULL, 1 ) != TROT_LIST_ERROR_PRECOND );
 
+	TEST_ERR_IF( trotListRefReplaceWithInt( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotListRefReplaceWithList( NULL, 1, lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefReplaceWithList( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+
 	TEST_ERR_IF( trotListRefCompare( NULL, lr1, &compareResult ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lr1, NULL, &compareResult ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );

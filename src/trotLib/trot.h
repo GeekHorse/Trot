@@ -117,7 +117,7 @@ void trotListRefFree( trotListRef **lr_F );
 
 TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
 
-TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind );
+TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind ); /* TODO: change kind to enum */
 
 TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
 TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
@@ -132,11 +132,11 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
 TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A );
 TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
 
+TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
+TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert );
+
 /* TODO */
 /*
-	trotListRefReplaceWithInt( lr, index, newInt );
-	trotListRefReplaceWithList( lr, index, newList );
-
 	get tag
 	set tag
 */
