@@ -456,6 +456,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 	cleanup:
 
 	trotListRefFree( &newToken );
+	trotListRefFree( &lr );
 
 	return rc;
 }

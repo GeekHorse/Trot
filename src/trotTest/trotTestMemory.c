@@ -883,6 +883,7 @@ static int testFailedMallocs3( int test )
 	/* CLEANUP */
 	cleanup:
 
+	trotListRefFree( &lrCharacters );
 	trotListRefFree( &lrEmptyName );
 	trotListRefFree( &lrDecodedList1 );
 	trotListRefFree( &lrEncodedList1 );
