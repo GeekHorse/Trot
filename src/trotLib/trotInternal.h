@@ -159,6 +159,7 @@ typedef enum
 	TROT_OP_LOAD_VAR = 18,
 	TROT_OP_SAVE_VAR = 19
 } TROT_OP; 
+#define TROT_OP_COUNT 20
 
 /******************************************************************************/
 typedef struct trotListNode_STRUCT trotListNode;

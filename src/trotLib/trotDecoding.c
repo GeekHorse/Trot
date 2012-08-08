@@ -71,6 +71,8 @@ static TROT_RC splitList( trotListRef *lr, INT_TYPE separator, trotListRef **lrP
 
 /* TODO: make sure names cannot be same as op names */
 
+/* TODO: in here, and elsewhere, if we ever have an "index count" or another INT_TYPE we increment, we need to think about overflow */
+
 #if 0
 /* DEBUG FUNCTIONS */
 static TROT_RC trotPrintTokens( trotListRef *lrTokenList );

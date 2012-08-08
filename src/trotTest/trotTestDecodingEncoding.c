@@ -41,6 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PRINT_TOKENS 0
 
 /******************************************************************************/
+extern const char *opNames[];
+
+/******************************************************************************/
 /* TODO: since we're using TEST_ERR_IF, we need these to return ints to be consistent */
 static TROT_RC doesFileExist( trotListRef *lrName, INT_TYPE *exist );
 
@@ -70,6 +73,9 @@ int testDecodingEncoding()
 
 	/* CODE */
 	printf( "Testing tokenizing...\n" ); fflush( stdout );
+
+	TEST_ERR_IF( opNames[ TROT_OP_COUNT - 1 ] == NULL );
+	TEST_ERR_IF( opNames[ TROT_OP_COUNT ] != NULL );
 
 	rc = processFiles( "./trotTest/testData/TokenFiles/good/", testTokenizingGood );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
@@ -949,6 +955,41 @@ static TROT_RC testEncodingMore()
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
+
+	/* *** */
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+	trotListRefFree( &lrCharacters );
+
+	trotRc = trotListRefInit( &lr1 );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
+
+	trotRc = trotListRefAppendInt( lr1, -1 );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
+
+	/* TODO: make and use tag function */
+	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+
+	trotRc = trotEncode( lr1, &lrCharacters );
+	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
+
+	/* *** */
+	trotListRefFree( &lr1 );
+	trotListRefFree( &lr2 );
+	trotListRefFree( &lrCharacters );
+
+	trotRc = trotListRefInit( &lr1 );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
+
+	trotRc = trotListRefAppendInt( lr1, TROT_OP_COUNT );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
+
+	/* TODO: make and use tag function */
+	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+
+	trotRc = trotEncode( lr1, &lrCharacters );
+	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
+
 
 	/* CLEANUP */
 	cleanup:

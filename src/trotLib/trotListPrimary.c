@@ -476,6 +476,8 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 	/* CODE */
 	l = lr -> lPointsTo;
 
+/* TODO: for all insert/appends, we need to make sure list doesn't contain maximum amount of children */
+
 	/* *** */
 	node = l -> tail -> prev;
 
