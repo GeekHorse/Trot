@@ -965,7 +965,7 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 	INT_TYPE addingAtIndex = 0;
 	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	int kind; /* TODO: change all kinds to enum */
+	TROT_KIND kind;
 
 	trotListRef *newList = NULL;
 
@@ -1029,7 +1029,7 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 		}
 
 		/* replace back to original */
-		if ( kind == NODE_KIND_INT )
+		if ( kind == TROT_KIND_INT )
 		{
 			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, addingAtIndex ) != TROT_LIST_SUCCESS )
 		}

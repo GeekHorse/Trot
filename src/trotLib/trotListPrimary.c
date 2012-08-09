@@ -385,7 +385,7 @@ TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 	\param kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
+TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 {
 	PRECOND_ERR_IF( lr == NULL );
 	return trotListGetKind( lr -> lPointsTo, index, kind );
@@ -399,7 +399,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind )
 	\param kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind )
+TROT_RC trotListGetKind( trotList *l, INT_TYPE index, TROT_KIND *kind )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;

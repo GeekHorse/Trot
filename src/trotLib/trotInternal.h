@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NODE_SIZE 16
 
 /******************************************************************************/
+/* NOTE: Need to keep this in sync with TROT_KIND */
 #define NODE_KIND_HEAD_OR_TAIL 0
 #define NODE_KIND_INT 1
 #define NODE_KIND_LIST 2
@@ -301,7 +302,8 @@ struct trotStackNode_STRUCT
 
 /******************************************************************************/
 /* trotListPrimary.c */
-TROT_RC trotListGetKind( trotList *l, INT_TYPE index, int *kind );
+/* TODO: are these trotList versions necessary? */
+TROT_RC trotListGetKind( trotList *l, INT_TYPE index, TROT_KIND *kind );
 TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
 
 TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );

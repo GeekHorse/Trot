@@ -391,7 +391,7 @@ int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 	/* DATA */
 	int rc = 0;
 
-	int kind = 0;
+	TROT_KIND kind = 0;
 
 	INT_TYPE valueInList = 0;
 
@@ -401,12 +401,12 @@ int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 	/* CODE */
 	TEST_ERR_IF( trotListRefGetKind( lr, index, &kind ) != 0 );
 
-	if ( kind == NODE_KIND_INT )
+	if ( kind == TROT_KIND_INT )
 	{
 		TEST_ERR_IF( trotListRefGetInt( lr, index, &valueInList ) != 0 );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
-	else if ( kind == NODE_KIND_LIST )
+	else if ( kind == TROT_KIND_LIST )
 	{
 		TEST_ERR_IF( trotListRefGetListTwin( lr, index, &subList ) != 0 );
 		TEST_ERR_IF( trotListRefGetInt( subList, 1, &valueInList ) != 0 );

@@ -49,7 +49,7 @@ int testPreconditions()
 	trotListRef *lr1 = NULL;
 	trotListRef *lr2 = NULL;
 	int i = 0;
-	int kind = 0;
+	TROT_KIND kind = 0;
 	INT_TYPE n = 0;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 

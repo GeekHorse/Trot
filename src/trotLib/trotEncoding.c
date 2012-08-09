@@ -76,7 +76,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 	unsigned int indentCount = 0;
 
-	int kind = 0; /* TODO: this needs to be changed into an enum */
+	TROT_KIND kind = 0;
 
 	int characterCount = 0;
 
@@ -181,7 +181,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				rc = trotListRefGetKind( lrCurrentList, index, &kind );
 				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-				ERR_IF( kind != NODE_KIND_INT, TROT_LIST_ERROR_ENCODE );
+				ERR_IF( kind != TROT_KIND_INT, TROT_LIST_ERROR_ENCODE );
 
 				rc = trotListRefGetInt( lrCurrentList, index, &n );
 				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
@@ -220,7 +220,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 					rc = trotListRefGetKind( lrCurrentList, index, &kind );
 					ERR_IF( rc != TROT_LIST_SUCCESS, TROT_LIST_ERROR_ENCODE );
 
-					ERR_IF( kind != NODE_KIND_INT, TROT_LIST_ERROR_ENCODE );
+					ERR_IF( kind != TROT_KIND_INT, TROT_LIST_ERROR_ENCODE );
 
 					rc = trotListRefGetInt( lrCurrentList, index, &n );
 					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
@@ -235,7 +235,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 					rc = trotListRefGetKind( lrCurrentList, index, &kind );
 					ERR_IF( rc != TROT_LIST_SUCCESS, TROT_LIST_ERROR_ENCODE );
 
-					ERR_IF( kind != NODE_KIND_LIST, TROT_LIST_ERROR_ENCODE );
+					ERR_IF( kind != TROT_KIND_LIST, TROT_LIST_ERROR_ENCODE );
 
 					trotListRefFree( &lrChildList );
 					rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
@@ -297,7 +297,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				rc = trotListRefGetKind( lrCurrentList, index, &kind );
 				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-				if ( kind == NODE_KIND_INT )
+				if ( kind == TROT_KIND_INT )
 				{
 					rc = trotListRefGetInt( lrCurrentList, index, &n );
 					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
@@ -305,7 +305,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 					rc = appendNumber( newLrCharacters, &characterCount, n );
 					ERR_IF_PASSTHROUGH;
 				}
-				else /* kind == NODE_KIND_LIST */
+				else /* kind == TROT_KIND_LIST */
 				{
 					trotListRefFree( &lrChildList );
 					rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );
@@ -421,7 +421,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 			rc = trotListRefGetKind( lrCurrentList, index, &kind );
 			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-			if ( kind == NODE_KIND_LIST )
+			if ( kind == TROT_KIND_LIST )
 			{
 				trotListRefFree( &lrChildList );
 				rc = trotListRefGetListTwin( lrCurrentList, index, &lrChildList );

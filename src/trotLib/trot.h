@@ -55,14 +55,11 @@ typedef enum
 } TROT_RC;
 
 /******************************************************************************/
-#if 0
-TODO
 typedef enum
 {
-	TROT_KIND_INT = 0,
-	TROT_KIND_LIST = 1
+	TROT_KIND_INT = 1,
+	TROT_KIND_LIST = 2
 } TROT_KIND;
-#endif
 
 /******************************************************************************/
 typedef enum
@@ -76,6 +73,7 @@ typedef enum
 } TROT_TAG;
 
 /******************************************************************************/
+/* TODO: these need the TROT_ prefix */
 #define INT_TYPE_SIZE 4
 
 #if ( INT_TYPE_SIZE == 4 )
@@ -117,7 +115,7 @@ void trotListRefFree( trotListRef **lr_F );
 
 TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
 
-TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, int *kind ); /* TODO: change kind to enum */
+TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind );
 
 TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
 TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
