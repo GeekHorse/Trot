@@ -486,15 +486,7 @@ static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTo
 	/* since the first token we add to all files is TOKEN_L_BRACKET, we need to make sure it actually
 	   matches the first token in the file */
 	/* TODO: this can be moved into the "if L_BRACE" below, since it'll be BRACKET already */
-	/* TODO: change this to a replace */
-	rc = trotListRefRemove( lrParent, TOKEN_INDEX_TYPE );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-	/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-	rc = trotListRefInsertInt( lrParent, TOKEN_INDEX_TYPE, tokenType );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+	rc = trotListRefReplaceWithInt( lrParent, TOKEN_INDEX_TYPE, tokenType );
 	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 	/* TODO: not sure where this should go */
@@ -1236,25 +1228,14 @@ static TROT_RC handleMetaDataInclude( trotListRef *lrFileList, trotListRef *lrPa
 	/* change our parent token to be a TOKEN_INCLUDE and put the lrFile as it's value */
 
 	/* set type */
-	/* TODO: change this to a replace */
-	rc = trotListRefRemove( lrParentToken, TOKEN_INDEX_TYPE );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
 	/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-	rc = trotListRefInsertInt( lrParentToken, TOKEN_INDEX_TYPE, TOKEN_INCLUDE );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+	rc = trotListRefReplaceWithInt( lrParentToken, TOKEN_INDEX_TYPE, TOKEN_INCLUDE );
 	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 	/* change value */
-	/* TODO: change this to a replace */
-	rc = trotListRefRemove( lrParentToken, TOKEN_INDEX_VALUE );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
 	/* NOTE: the file may or may not have a final list yet, so we just add lrFile for now.
 	         when we create our final lists, we'll get the file's final list then */
-	rc = trotListRefInsertListTwin( lrParentToken, TOKEN_INDEX_VALUE, lrFileTokenTreeFinalList );
+	rc = trotListRefReplaceWithList( lrParentToken, TOKEN_INDEX_VALUE, lrFileTokenTreeFinalList );
 	ERR_IF_PASSTHROUGH;
 	
 
@@ -1642,36 +1623,19 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 
 		/* change to op */
 		/* set type */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_TYPE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
 		/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-		rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_OP );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_OP );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* change value */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_VALUE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
 		if ( firstCharacter == ':' )
 		{
-			rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_VALUE, TROT_OP_SAVE_VAR );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+			rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_VALUE, TROT_OP_SAVE_VAR );
 			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 		}
 		else
 		{
-			rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_VALUE, TROT_OP_LOAD_VAR );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+			rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_VALUE, TROT_OP_LOAD_VAR );
 			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 		}
 
@@ -1679,14 +1643,8 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 		rc = trotCreateToken( 1, 1, TOKEN_NUMBER_RAW, &newLrToken );
 		ERR_IF_PASSTHROUGH;
 
-		/* add value TODO: change this to replace value */
-		rc = trotListRefRemove( newLrToken, TOKEN_INDEX_VALUE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		rc = trotListRefInsertInt( newLrToken, TOKEN_INDEX_VALUE, varIndex );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		/* add value */
+		rc = trotListRefReplaceWithInt( newLrToken, TOKEN_INDEX_VALUE, varIndex );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		rc = trotListRefInsertListTwin( lrParentValue, parentIndex + 1, newLrToken );
@@ -1700,15 +1658,7 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 	{
 		/* change token from word to twin */
 		/* set type */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_TYPE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-		rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_TWIN );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_TWIN );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* change value */
@@ -1716,11 +1666,7 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 		rc = trotListRefGetListTwin( lrParent, TOKEN_INDEX_FINALLIST, &lrParentFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_VALUE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		rc = trotListRefInsertListTwin( lrTokenWord, TOKEN_INDEX_VALUE, lrParentFinalList );
+		rc = trotListRefReplaceWithList( lrTokenWord, TOKEN_INDEX_VALUE, lrParentFinalList );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
@@ -1735,15 +1681,7 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 	{
 		/* change token from word to twin */
 		/* set type */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_TYPE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-		rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_TWIN );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_TWIN );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* change value */
@@ -1751,11 +1689,7 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 		rc = trotListRefGetListTwin( lrTokenFound, TOKEN_INDEX_FINALLIST, &lrTokenFoundFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_VALUE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		rc = trotListRefInsertListTwin( lrTokenWord, TOKEN_INDEX_VALUE, lrTokenFoundFinalList );
+		rc = trotListRefReplaceWithList( lrTokenWord, TOKEN_INDEX_VALUE, lrTokenFoundFinalList );
 		ERR_IF_PASSTHROUGH;
 	}
 	/* else, we found enum */
@@ -1763,26 +1697,11 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 	{
 		/* change token from word to number */
 		/* set type */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_TYPE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-		rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* change value */
-		/* TODO: change this to a replace */
-		rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_VALUE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_VALUE, enumFound );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_VALUE, enumFound );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 	}
 
@@ -1843,26 +1762,11 @@ static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp )
 			/* change token */
 
 			/* set type */
-			/* TODO: change this to a replace */
-			rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_TYPE );
-			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-			/* TODO: we should probably change our token type enums to be TOKEN_TYPE_~ instead of TOKEN_~ */
-			rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_OP );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+			rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_OP );
 			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			/* change value */
-			/* TODO: change this to a replace */
-			rc = trotListRefRemove( lrTokenWord, TOKEN_INDEX_VALUE );
-			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-			rc = trotListRefInsertInt( lrTokenWord, TOKEN_INDEX_VALUE, i );
-#if TOKEN_INDEX_MAX > NODE_SIZE
-#error NODE_SIZE TOO SMALL, NEED TO CHANGE ERR_IF_PARANOID TO ERR_IF
-#endif
+			rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_VALUE, i );
 			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 			break;
