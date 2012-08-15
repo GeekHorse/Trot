@@ -720,8 +720,7 @@ TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
 	rc = listToCString( lrName, &name );
 	ERR_IF_PASSTHROUGH;
 
-/* TODO: remove me? */
-printf( "Loading: %s\n", name );
+	printf( "Loading: %s\n", name );
 
 	/* open */
 	fp = fopen( name, "rb" );
