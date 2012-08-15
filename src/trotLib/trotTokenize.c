@@ -40,6 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken );
 static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column );
+static int trotIsWhitespace( INT_TYPE character );
+static int trotIsNewline( INT_TYPE character );
 
 /******************************************************************************/
 /*!
@@ -65,10 +67,8 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 	INT_TYPE line = 1;
 	INT_TYPE column = 1;
 
-	INT_TYPE previousCharacter = 0;
-	INT_TYPE character = 0;
-
-	int flagPreviousWasCR = 0;
+	INT_TYPE previousCharacter = -1;
+	INT_TYPE character = -1;
 
 
 	/* PRECOND */
@@ -91,35 +91,22 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 	while ( i <= count )
 	{
 		/* get character */
+		previousCharacter = character;
 		rc = trotListRefGetInt( lrCharacters, i, &character );
 		ERR_IF_PASSTHROUGH;
 
-/* TODO: get list of all unicode whitespace */
 		/* if whitespace */
-		if (
-			   character == ' '
-			|| character == '\t'
-			|| character == '\n'
-			|| character == '\r'
-		   )
+		if ( trotIsWhitespace( character ) )
 		{
 			/* keep track of lines */
-			if ( character == '\n' )
+			if ( trotIsNewline( character ) )
 			{
-				if ( ! flagPreviousWasCR )
+				if ( ! ( character == '\n' && previousCharacter == '\r' ) )
 				{
 					line += 1;
 				}
-				column = 0; /* this will be incremented to 1 below */
 
-				flagPreviousWasCR = 0;
-			}
-			else if ( character == '\r' )
-			{
-				line += 1;
-				column = 0; /* this will be incremented to 1 below */
-
-				flagPreviousWasCR = 1;
+				column = 0;
 			}
 		}
 		/* if [ */
@@ -161,6 +148,9 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 		/* if " */
 		else if ( character == '"' )
 		{
+			/* strings cannot touch strings */
+			ERR_IF ( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
+
 			/* create token */
 			rc = trotCreateToken( line, column, TOKEN_STRING, &lrToken );
 			ERR_IF_PASSTHROUGH;
@@ -180,6 +170,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			while ( i <= count )
 			{
 				/* get character */
+				previousCharacter = character;
 				rc = trotListRefGetInt( lrCharacters, i, &character );
 				ERR_IF_PASSTHROUGH;
 				
@@ -189,22 +180,14 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 					break;
 				}
 				/* keep track of lines */
-				else if ( character == '\n' )
+				else if ( trotIsNewline( character ) )
 				{
-					if ( ! flagPreviousWasCR )
+					if ( ! ( character == '\n' && previousCharacter == '\r' ) )
 					{
 						line += 1;
 					}
-					column = 0; /* this will be incremented to 1 below */
 
-					flagPreviousWasCR = 0;
-				}
-				else if ( character == '\r' )
-				{
-					line += 1;
-					column = 0; /* this will be incremented to 1 below */
-
-					flagPreviousWasCR = 1;
+					column = 0;
 				}
 
 				/* append character */
@@ -217,17 +200,6 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			}
 
 			ERR_IF ( character != '"', TROT_LIST_ERROR_DECODE )
-
-			/* strings cannot touch strings */
-			if ( (i + 1) <= count )
-			{
-				/* get next character */
-				rc = trotListRefGetInt( lrCharacters, i + 1, &character );
-				ERR_IF_PASSTHROUGH;
-				
-				/* strings cannot touch words */
-				ERR_IF ( character == '"', TROT_LIST_ERROR_DECODE );
-			}
 		}
 		/* if # */
 		else if ( character == '#' )
@@ -239,14 +211,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 		else 
 		{
 			/* strings cannot touch words */
-			if ( (i - 1) >= 1 )
-			{
-				/* get previous character */
-				rc = trotListRefGetInt( lrCharacters, i - 1, &previousCharacter );
-				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-				ERR_IF( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
-			}
+			ERR_IF( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
 
 			/* create token */
 			rc = trotCreateToken( line, column, TOKEN_WORD, &lrToken );
@@ -274,10 +239,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 				/* if end of word */
 				if (
 					/* whitespace */
-					   character == ' '
-					|| character == '\t'
-					|| character == '\n'
-					|| character == '\r'
+					   trotIsWhitespace( character )
 					/* list character */
 					|| character == '['
 					|| character == ']'
@@ -383,7 +345,6 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 	     || tokenType == TOKEN_NUMBER_RAW
 	   )
 	{
-/* TODO: add int value for some? */
 		/* add value */
 		rc = trotListRefInit( &lr );
 		ERR_IF_PASSTHROUGH;
@@ -404,7 +365,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 			ERR_IF_PASSTHROUGH;
 
 			rc = trotListRefAppendListTwin( newToken, lr );
-			ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+			ERR_IF_PASSTHROUGH;
 
 			trotListRefFree( &lr );
 
@@ -418,7 +379,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 				ERR_IF_PASSTHROUGH;
 
 				rc = trotListRefAppendListTwin( newToken, lr );
-				ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+				ERR_IF_PASSTHROUGH;
 
 				trotListRefFree( &lr );
 
@@ -427,7 +388,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 				ERR_IF_PASSTHROUGH;
 
 				rc = trotListRefAppendListTwin( newToken, lr );
-				ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+				ERR_IF_PASSTHROUGH;
 
 				trotListRefFree( &lr );
 
@@ -439,7 +400,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 					ERR_IF_PASSTHROUGH;
 
 					rc = trotListRefAppendListTwin( newToken, lr );
-					ERR_IF_PASSTHROUGH; /* TODO: paranoid */
+					ERR_IF_PASSTHROUGH;
 
 					trotListRefFree( &lr );
 				} /* end adding vars */
@@ -688,23 +649,12 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	if ( isNumber == 1 )
 	{
 		/* mark token as a number */
-		/* TODO: replace this with replace */
-		rc = trotListRefRemove( lrToken, TOKEN_INDEX_TYPE );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-#if ( NODE_SIZE < TOKEN_INDEX_TYPE )
-#error NODE_SIZE TOO SMALL, MUST CHANGE THE FOLLOWING ERR_IF_PARANOID TO REAL ERR_IF
-#endif
-
-		rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
+		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* remove old string value and replace with number value */
-		rc = trotListRefRemove( lrToken, TOKEN_INDEX_VALUE );
+		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_VALUE, number );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
-
-		rc = trotListRefInsertInt( lrToken, TOKEN_INDEX_VALUE, number );
-		ERR_IF_PASSTHROUGH;
 	}
 	
 
@@ -796,18 +746,14 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 			}
 
 			/* keep track of lines */
-			if ( character == '\n' )
+			if ( trotIsNewline( character ) )
 			{
-				if ( previousCharacter != '\r' )
+				if ( ! ( character == '\n' && previousCharacter == '\r' ) )
 				{
 					(*line) += 1;
 				}
-				(*column) = 0; /* this will be incremented to 1 below */
-			}
-			else if ( character == '\r' )
-			{
-				(*line) += 1;
-				(*column) = 0; /* this will be incremented to 1 below */
+
+				(*column) = 0;
 			}
 		}
 	}
@@ -832,7 +778,7 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 			ERR_IF_PASSTHROUGH;
 
 			/* if end of line */
-			if ( character == '\n' || character == '\r' )
+			if ( trotIsNewline( character ) )
 			{
 				/* set i back 1, so we'll handle the newline in caller */
 				(*i) -= 1;
@@ -849,3 +795,67 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 	return rc;
 }
 
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static int trotIsWhitespace( INT_TYPE character )
+{
+	if (    character == '\t'   /* horizontal tab */
+	     || character == '\n'   /* newline */
+	     || character == 0x0B   /* vertical tab */
+	     || character == 0x0C   /* form feed */ 
+	     || character == '\r'   /* carriage return */
+	     || character == ' '    /* space */
+	     || character == 0x85   /* next line */
+	     || character == 0xA0   /* no break space */
+	     || character == 0x1680 /* ogham space mark */
+	     || character == 0x180E /* mongolian vowel separator */
+	     || character == 0x2000 /* en quad */
+	     || character == 0x2001 /* em quad */
+	     || character == 0x2002 /* en space */
+	     || character == 0x2003 /* em space */
+	     || character == 0x2004 /* three-per-em space */
+	     || character == 0x2005 /* four-per-em space */
+	     || character == 0x2006 /* six-per-em space */
+	     || character == 0x2007 /* figure space */
+	     || character == 0x2008 /* punctuation space */
+	     || character == 0x2009 /* thin space */
+	     || character == 0x200A /* hair space */
+	     || character == 0x2028 /* line separator */
+	     || character == 0x2029 /* paragraph separator */
+	     || character == 0x202F /* narrow no-break space */
+	     || character == 0x205F /* medium mathematical space */
+	     || character == 0x3000 /* ideographic space */
+	   )
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static int trotIsNewline( INT_TYPE character )
+{
+	if (    character == '\n'   /* newline */
+	     || character == 0x0B   /* vertical tab */
+	     || character == 0x0C   /* form feed */
+	     || character == '\r'   /* carriage return */
+	     || character == 0x85   /* next line */
+	     || character == 0x2028 /* line separator */
+	     || character == 0x2029 /* paragraph separator */
+	   )
+	{
+		return 1;
+	}
+
+	return 0;
+}
