@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #define MEMORY_MANAGEMENT_REFS_COUNT 10
 
+#define PRINT_ENCODED_LISTS 0
+
 /******************************************************************************/
 /* which malloc to fail on */
 static int failOnMallocCount = 0;
@@ -100,14 +102,15 @@ TROT_RC badLoad( trotListRef *lrName, trotListRef **lrBytes )
 /******************************************************************************/
 static int testMemoryManagement();
 static int testDeepList();
-static int testFailedMallocs1( int test );
-static int testFailedMallocs2( int test );
-static int testFailedMallocs3( int test );
-static int testFailedMallocs4( int test );
+
+static TROT_RC testFailedMallocs1( int test );
+static TROT_RC testFailedMallocs2( int test );
+static TROT_RC testFailedMallocs3( int test );
+static TROT_RC testFailedMallocs4( int test );
 
 typedef struct
 {
-	int (*func)( int test );
+	TROT_RC (*func)( int test );
 	int numberOfTests;
 } FailedFunc;
 
@@ -131,6 +134,9 @@ int testMemory()
 	int i = 0;
 	int j = 0;
 
+	char *spinner = "-\\|/";
+	unsigned int spinnerI = 0;
+
 
 	/* CODE */
 	/* **************************************** */
@@ -146,12 +152,11 @@ int testMemory()
 	i = 0;
 	while ( failedFuncs[ i ].func != NULL )
 	{
-		printf( "    %d\n", i );
-
 		j = 0;
 		while ( j < failedFuncs[ i ].numberOfTests )
 		{
 			failOnMallocCount = 0;
+			spinnerI = 0;
 
 			do
 			{
@@ -159,16 +164,18 @@ int testMemory()
 				failOnMallocCount += 1;
 
 				rc = failedFuncs[ i ].func( j );
-				printf( "." ); fflush( stdout );
+
+				spinnerI += 1;
+				printf( "\r%d %c", i, spinner[ spinnerI % 4 ]  ); fflush( stdout );
 			}
 			while ( rc == TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
 
 			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
 
-			printf( "\n" ); fflush( stdout );
-
 			j += 1;
 		}
+
+		printf( "\r%d  \n", i ); fflush( stdout );
 
 		i += 1;
 	}
@@ -390,7 +397,7 @@ static int testMemoryManagement()
 static int testDeepList()
 {
 	/* DATA */
-	int rc = TROT_LIST_SUCCESS;
+	int rc = 0;
 
 	int i = 0;
 
@@ -441,10 +448,10 @@ static int testDeepList()
 	return rc;
 }
 
-static int testFailedMallocs1( int test )
+static TROT_RC testFailedMallocs1( int test )
 {
 	/* DATA */
-	int rc = 0;
+	TROT_RC rc = TROT_LIST_SUCCESS;
 
 	int i = 0;
 	int j = 0;
@@ -734,7 +741,7 @@ static int testFailedMallocs1( int test )
 	\param 
 	\return TROT_RC
 */
-static int testFailedMallocs2( int test )
+static TROT_RC testFailedMallocs2( int test )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -743,24 +750,16 @@ static int testFailedMallocs2( int test )
 	trotListRef *lrTokens = NULL;
 
 	char *s1 = "[](){} 1 \"a\" xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	char *x = NULL;
 
 
 	/* CODE */
 	(void)test;
 
-/* TODO: create a cStringtoList (I think we already have one) and put it in a "common" c file to use here */
 	rc = trotListRefInit( &lrCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	x = s1;
-	while ( (*x) != '\0' )
-	{
-		rc = trotListRefAppendInt( lrCharacters, (*x) );
-		ERR_IF_PASSTHROUGH;
-
-		x += 1;
-	}
+	rc = appendCStringToList( s1, lrCharacters );
+	ERR_IF_PASSTHROUGH;
 
 	rc = trotTokenize( lrCharacters, &lrTokens );
 	ERR_IF_PASSTHROUGH;
@@ -781,10 +780,8 @@ static int testFailedMallocs2( int test )
 	\param 
 	\return TROT_RC
 */
-static int testFailedMallocs3( int test )
+static TROT_RC testFailedMallocs3( int test )
 {
-	/* TODO: this was copied from testDecodingEncodingGood(), but with the TEST_ERR_IF
-	         changed to ERR_IF_PASTHROUGH */
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
@@ -819,8 +816,7 @@ static int testFailedMallocs3( int test )
 	trotListRef *lrDecodedList2 = NULL;
 	trotListRef *lrEncodedList2 = NULL;
 
-	TROT_LIST_COMPARE_RESULT compareResult;
-#if 1
+#if PRINT_ENCODED_LISTS
 	char *s = NULL;
 #endif	
 
@@ -842,7 +838,8 @@ static int testFailedMallocs3( int test )
 
 	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
 	ERR_IF_PASSTHROUGH;
-#if 1
+
+#if PRINT_ENCODED_LISTS
 	rc = listToCString( lrEncodedList1, &s );
 	ERR_IF_PASSTHROUGH;
 
@@ -858,7 +855,8 @@ static int testFailedMallocs3( int test )
 
 	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
 	ERR_IF_PASSTHROUGH;
-#if 1
+
+#if PRINT_ENCODED_LISTS
 	rc = listToCString( lrEncodedList2, &s );
 	ERR_IF_PASSTHROUGH;
 
@@ -867,17 +865,6 @@ static int testFailedMallocs3( int test )
 	trotFree( s );
 	s = NULL;
 #endif
-
-	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2, &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
-	
-	rc = trotListRefCompare( lrEncodedList1, lrEncodedList2, &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
-
 
 
 	/* CLEANUP */
@@ -899,10 +886,8 @@ static int testFailedMallocs3( int test )
 	\param 
 	\return TROT_RC
 */
-static int testFailedMallocs4( int test )
+static TROT_RC testFailedMallocs4( int test )
 {
-	/* TODO: this was copied from testDecodingEncodingGood(), but with the TEST_ERR_IF
-	         changed to ERR_IF_PASTHROUGH */
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
 
@@ -912,8 +897,7 @@ static int testFailedMallocs4( int test )
 	trotListRef *lrDecodedList2 = NULL;
 	trotListRef *lrEncodedList2 = NULL;
 
-	TROT_LIST_COMPARE_RESULT compareResult;
-#if 1
+#if PRINT_ENCODED_LISTS
 	char *s = NULL;
 #endif	
 
@@ -930,7 +914,8 @@ static int testFailedMallocs4( int test )
 
 	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
 	ERR_IF_PASSTHROUGH;
-#if 1
+
+#if PRINT_ENCODED_LISTS
 	rc = listToCString( lrEncodedList1, &s );
 	ERR_IF_PASSTHROUGH;
 
@@ -946,7 +931,8 @@ static int testFailedMallocs4( int test )
 
 	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
 	ERR_IF_PASSTHROUGH;
-#if 1
+
+#if PRINT_ENCODED_LISTS
 	rc = listToCString( lrEncodedList2, &s );
 	ERR_IF_PASSTHROUGH;
 
@@ -955,17 +941,6 @@ static int testFailedMallocs4( int test )
 	trotFree( s );
 	s = NULL;
 #endif
-
-	rc = trotListRefCompare( lrDecodedList1, lrDecodedList2, &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
-	
-	rc = trotListRefCompare( lrEncodedList1, lrEncodedList2, &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL, TROT_LIST_ERROR_ENCODE ); /* TODO: this really isn't an encode error */
-
 
 
 	/* CLEANUP */
