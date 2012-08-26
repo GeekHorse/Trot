@@ -694,6 +694,7 @@ void printList( trotListRef *lr, int indent )
 
 /******************************************************************************/
 #define LOAD_BUFFER_SIZE 1024
+#define BYTE_TYPE unsigned char
 TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
 {
 	/* DATA */
@@ -712,6 +713,8 @@ TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
 
 
 	/* CODE */
+	ERR_IF_PARANOID( sizeof( BYTE_TYPE ) != 1 );
+
 	/* create our new byte list */
 	rc = trotListRefInit( &newLrBytes );
 	ERR_IF_PASSTHROUGH;
@@ -773,6 +776,7 @@ TROT_RC load( trotListRef *lrName, trotListRef **lrBytes )
 	return rc;
 }
 #undef LOAD_BUFFER_SIZE
+#undef BYTE_TYPE
 
 /******************************************************************************/
 TROT_RC listToCString( trotListRef *lr, char **cString_A )

@@ -36,11 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h> /* for NULL */
 
 /******************************************************************************/
-/* this should be a 1-byte unsigned type that can only hold values 0-255 */
-#define BYTE_TYPE unsigned char
-/* TODO: so far this is only used in testing code. where should it belong? */
-
-/******************************************************************************/
 #define NODE_SIZE 16
 
 /******************************************************************************/
