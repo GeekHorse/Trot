@@ -133,34 +133,35 @@ typedef enum
 /******************************************************************************/
 typedef enum
 {
-	TROT_OP_ADD = 0,
-	TROT_OP_SUB = 1,
-	TROT_OP_MUL = 2,
-	TROT_OP_DIV = 3,
-	TROT_OP_MOD = 4,
+	TROT_OP_ADD = 1,
+	TROT_OP_SUB = 2,
+	TROT_OP_MUL = 3,
+	TROT_OP_DIV = 4,
+	TROT_OP_MOD = 5,
 
-	TROT_OP_LESS_THAN = 5,
-	TROT_OP_GREATER_THAN = 6,
-	TROT_OP_EQUALS = 7,
+	TROT_OP_LESS_THAN = 6,
+	TROT_OP_GREATER_THAN = 7,
+	TROT_OP_EQUALS = 8,
 
-	TROT_OP_LOGICAL_AND = 8,
-	TROT_OP_LOGICAL_OR =  9,
-	TROT_OP_LOGICAL_NOT = 10,
+	TROT_OP_LOGICAL_AND = 9,
+	TROT_OP_LOGICAL_OR =  10,
+	TROT_OP_LOGICAL_NOT = 11,
 
-	TROT_OP_NEG = 11,
+	TROT_OP_NEG = 12,
 
-	TROT_OP_PUSH_INT = 12,
-	TROT_OP_PUSH_LIST = 13,
+	TROT_OP_PUSH_INT = 13,
+	TROT_OP_PUSH_LIST = 14,
 
-	TROT_OP_CALL = 14,
-	TROT_OP_CHANGE = 15,
-	TROT_OP_RETURN = 16,
-	TROT_OP_YIELD = 17,
+	TROT_OP_CALL = 15,
+	TROT_OP_CHANGE = 16,
+	TROT_OP_RETURN = 17,
+	TROT_OP_YIELD = 18,
 
-	TROT_OP_LOAD_VAR = 18,
-	TROT_OP_SAVE_VAR = 19
+	TROT_OP_LOAD_VAR = 19,
+	TROT_OP_SAVE_VAR = 20
 } TROT_OP; 
-#define TROT_OP_COUNT 20
+#define TROT_OP_MIN 1
+#define TROT_OP_MAX 20
 
 /******************************************************************************/
 typedef struct trotListNode_STRUCT trotListNode;
@@ -214,7 +215,7 @@ struct trotList_STRUCT
 	INT_TYPE encodingChildNumber;
 
 	/*! Tag. Which "type" or "kind" of list this is. */
-	int tag;
+	TROT_TAG tag;
 	/*! How many children are in the list */
 	int childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that

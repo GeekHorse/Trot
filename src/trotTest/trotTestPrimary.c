@@ -87,10 +87,20 @@ int testPrimaryFunctionality()
 	int j = 0;
 
 	trotListRef *lr = NULL;
+	TROT_TAG tag = TROT_TAG_DATA;
 
 
 	/* CODE */
 	printf( "Testing primary functionality..." ); fflush( stdout );
+
+	/* test tags */
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_CODE ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetTag( lr, &tag ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( tag != TROT_TAG_CODE );
+	trotListRefFree( &lr );
+
+	/* *** */
 	count = 0;
 	while ( count <= MAGIC_NUMBER )
 	{

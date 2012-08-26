@@ -46,12 +46,13 @@ typedef enum
 	TROT_LIST_ERROR_BAD_INDEX = -5,
 	TROT_LIST_ERROR_WRONG_KIND = -6,
 	TROT_LIST_ERROR_INVALID_OP = -7,
-	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -8,
-	TROT_LIST_ERROR_UNICODE = -9,
-	TROT_LIST_ERROR_DECODE = -10,
-	TROT_LIST_ERROR_ENCODE = -11,
-	TROT_LIST_ERROR_LOAD = -12,
-	TROT_LIST_ERROR_NOT_BYTE_VALUE = -13
+	TROT_LIST_ERROR_BAD_TAG = -8,
+	TROT_LIST_ERROR_DIVIDE_BY_ZERO = -9,
+	TROT_LIST_ERROR_UNICODE = -10,
+	TROT_LIST_ERROR_DECODE = -11,
+	TROT_LIST_ERROR_ENCODE = -12,
+	TROT_LIST_ERROR_LOAD = -13,
+	TROT_LIST_ERROR_NOT_BYTE_VALUE = -14
 } TROT_RC;
 
 /******************************************************************************/
@@ -64,13 +65,15 @@ typedef enum
 /******************************************************************************/
 typedef enum
 {
-	TROT_TAG_DATA =  0,
-	TROT_TAG_TEXT = 1,
+	TROT_TAG_DATA =  1,
+	TROT_TAG_TEXT = 2,
 
-	TROT_TAG_CODE = 2,
-	TROT_TAG_FUNCTION = 3,
-	TROT_TAG_RAW_CODE = 4
+	TROT_TAG_CODE = 3,
+	TROT_TAG_FUNCTION = 4,
+	TROT_TAG_RAW_CODE = 5
 } TROT_TAG;
+#define TROT_TAG_MIN 1
+#define TROT_TAG_MAX 5
 
 /******************************************************************************/
 /* TODO: these need the TROT_ prefix */
@@ -133,11 +136,8 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
 TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
 TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert );
 
-/* TODO */
-/*
-	get tag
-	set tag
-*/
+TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag );
+TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag );
 
 /******************************************************************************/
 /* trotListSecondary.c */

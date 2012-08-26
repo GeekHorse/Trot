@@ -74,8 +74,8 @@ int testDecodingEncoding()
 	/* CODE */
 	printf( "Testing tokenizing...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( opNames[ TROT_OP_COUNT - 1 ] == NULL );
-	TEST_ERR_IF( opNames[ TROT_OP_COUNT ] != NULL );
+	TEST_ERR_IF( opNames[ TROT_OP_MAX - 1 ] == NULL );
+	TEST_ERR_IF( opNames[ TROT_OP_MAX ] != NULL );
 
 	rc = processFiles( "./trotTest/testData/TokenFiles/good/", testTokenizingGood );
 	TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
@@ -873,8 +873,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendListTwin( lr1, lr2 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 	
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -890,8 +890,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendInt( lr1, TROT_OP_PUSH_INT );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -913,8 +913,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendListTwin( lr1, lr2 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -930,8 +930,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendInt( lr1, TROT_OP_PUSH_LIST );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -950,8 +950,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendInt( lr1, 5 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -967,8 +967,8 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefAppendInt( lr1, -1 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );
@@ -981,11 +981,11 @@ static TROT_RC testEncodingMore()
 	trotRc = trotListRefInit( &lr1 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	trotRc = trotListRefAppendInt( lr1, TROT_OP_COUNT );
+	trotRc = trotListRefAppendInt( lr1, TROT_OP_MAX + 1 );
 	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
-	/* TODO: make and use tag function */
-	lr1 -> lPointsTo -> tag = TROT_TAG_CODE;
+	trotRc = trotListRefSetTag( lr1, TROT_TAG_CODE );
+	TEST_ERR_IF( trotRc != TROT_LIST_SUCCESS );
 
 	trotRc = trotEncode( lr1, &lrCharacters );
 	TEST_ERR_IF( trotRc != TROT_LIST_ERROR_ENCODE );

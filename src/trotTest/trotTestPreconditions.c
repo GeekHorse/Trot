@@ -51,6 +51,7 @@ int testPreconditions()
 	int i = 0;
 	TROT_KIND kind = 0;
 	INT_TYPE n = 0;
+	TROT_TAG tag = TROT_TAG_DATA;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
 
@@ -113,6 +114,10 @@ int testPreconditions()
 
 	TEST_ERR_IF( trotListRefReplaceWithList( NULL, 1, lr1 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefReplaceWithList( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotListRefGetTag( NULL, &tag ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetTag( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefSetTag( NULL, TROT_TAG_DATA ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefCompare( NULL, lr1, &compareResult ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lr1, NULL, &compareResult ) != TROT_LIST_ERROR_PRECOND );

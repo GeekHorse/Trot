@@ -186,7 +186,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 				rc = trotListRefGetInt( lrCurrentList, index, &n );
 				ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
-				ERR_IF( n < 0 || n >= TROT_OP_COUNT, TROT_LIST_ERROR_ENCODE );
+				ERR_IF( n < TROT_OP_MIN || n > TROT_OP_MAX, TROT_LIST_ERROR_ENCODE );
 
 				/* do we need to append a space? */
 				rc = trotListRefGetInt( newLrCharacters, -1, &lastCharacter );
@@ -200,7 +200,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 					characterCount += 1;
 				}
 
-				s = opNames[ n ];
+				s = opNames[ n - 1 ];
 				while ( (*s) != '\0' )
 				{
 					rc = trotListRefAppendInt( newLrCharacters, (*s) );

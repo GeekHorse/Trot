@@ -162,7 +162,7 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	(*lr_A) = newListRef;
 	newListRef = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_LIST_SUCCESS; /* TODO: go through other functions, and see if we can return success before cleanup */
 
 
 	/* CLEANUP */
@@ -1767,6 +1767,61 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef
 	cleanup:
 
 	trotListRefFree( &newLr );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( tag == NULL );
+
+
+	/* CODE */
+	(*tag) = lr -> lPointsTo -> tag;
+
+
+	/* CLEANUP */
+	/* cleanup: */
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag )
+{
+	/* DATA */
+	TROT_RC rc = TROT_LIST_SUCCESS;
+
+
+	/* PRECOND */
+	PRECOND_ERR_IF( lr == NULL );
+
+
+	/* CODE */
+	ERR_IF( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_LIST_ERROR_BAD_TAG );
+
+	lr -> lPointsTo -> tag = tag;
+
+
+	/* CLEANUP */
+	cleanup:
 
 	return rc;
 }

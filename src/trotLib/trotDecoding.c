@@ -102,7 +102,7 @@ const char *opNames[] = {
 	"yield",
 	"loadVar",
 	"saveVar",
-	NULL /*sentinel */
+	NULL /* sentinel */
 };
 
 /******************************************************************************/
@@ -1750,9 +1750,10 @@ static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp )
 	rc = trotListRefGetListTwin( lrTokenWord, TOKEN_INDEX_VALUE, &lrTokenWordValue );
 	ERR_IF_PASSTHROUGH;
 
-	while ( opNames[ i ] != NULL )
+	i = 1;
+	while ( opNames[ i - 1 ] != NULL )
 	{
-		rc = compareListToCString( lrTokenWordValue, opNames[ i ], &compareResult );
+		rc = compareListToCString( lrTokenWordValue, opNames[ i - 1 ], &compareResult );
 		ERR_IF_PASSTHROUGH;
 
 		if ( compareResult == TROT_LIST_COMPARE_EQUAL )

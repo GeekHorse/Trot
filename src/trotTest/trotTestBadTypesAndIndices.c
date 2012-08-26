@@ -95,6 +95,9 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( trotListRefReplaceWithList( lr, 11, lr ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefReplaceWithList( lr, -11, lr ) != TROT_LIST_ERROR_BAD_INDEX );
 
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MIN - 1 ) != TROT_LIST_ERROR_BAD_TAG );
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MAX + 1 ) != TROT_LIST_ERROR_BAD_TAG );
+
 	TEST_ERR_IF( trotListRefEnlist( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefEnlist( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListRefEnlist( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
