@@ -387,22 +387,10 @@ TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 */
 TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 {
-	PRECOND_ERR_IF( lr == NULL );
-	return trotListGetKind( lr -> lPointsTo, index, kind );
-}
-
-/******************************************************************************/
-/*!
-	\brief Gets the kind of an item in the list.
-	\param l Pointer to a trotList pointer.
-	\param index Index of the item.
-	\param kind On success, will contain the kind of the item.
-	\return TROT_RC
-*/
-TROT_RC trotListGetKind( trotList *l, INT_TYPE index, TROT_KIND *kind )
-{
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotList *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -410,11 +398,13 @@ TROT_RC trotListGetKind( trotList *l, INT_TYPE index, TROT_KIND *kind )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lr == NULL );
 	PRECOND_ERR_IF( kind == NULL );
 
 
 	/* CODE */
+	l = lr -> lPointsTo;
+
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
@@ -956,22 +946,10 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 */
 TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
-	PRECOND_ERR_IF( lr == NULL );
-	return trotListGetInt( lr -> lPointsTo, index, n );
-}
-
-/******************************************************************************/
-/*!
-	\brief Gets copy of int in list.
-	\param l Pointer to a trotList pointer.
-	\param index Which int to get.
-	\param n On success, will point to int.
-	\return TROT_RC
-*/
-TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
-{
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
+
+	trotList *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -979,11 +957,13 @@ TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lr == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
 	/* CODE */
+	l = lr -> lPointsTo;
+
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{

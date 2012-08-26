@@ -80,8 +80,6 @@ int testPreconditions()
 	TEST_ERR_IF( trotListRefGetKind( NULL, 1, &kind ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetKind( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListGetKind( NULL, 1, &kind ) != TROT_LIST_ERROR_PRECOND );
-
 	TEST_ERR_IF( trotListRefAppendInt( NULL, 0 ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefAppendListTwin( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
@@ -94,8 +92,6 @@ int testPreconditions()
 
 	TEST_ERR_IF( trotListRefGetInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetInt( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListRefGetListTwin( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );

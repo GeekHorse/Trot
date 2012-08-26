@@ -303,10 +303,6 @@ struct trotStackNode_STRUCT
 
 /******************************************************************************/
 /* trotListPrimary.c */
-/* TODO: are these trotList versions necessary? */
-TROT_RC trotListGetKind( trotList *l, INT_TYPE index, TROT_KIND *kind );
-TROT_RC trotListGetInt( trotList *l, INT_TYPE index, INT_TYPE *n );
-
 TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
 
 TROT_RC newIntNode( trotListNode **n_A );
