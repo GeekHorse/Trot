@@ -43,9 +43,9 @@ int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
-	TEST_ERR_IF( trotListRefAppendInt( newList, value ) != 0 );
-	TEST_ERR_IF( trotListRefInsertListTwin( lr, index, newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( newList, value ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, index, newList ) != TROT_LIST_SUCCESS );
 
 
 	/* CLEANUP */
@@ -67,12 +67,12 @@ int createAllInts( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != TROT_LIST_SUCCESS );
 
 		i += 1;
 	}
@@ -111,7 +111,7 @@ int createAllLists( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
@@ -155,14 +155,14 @@ int createIntListAlternating( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
 		if ( i % 2 == 1 )
 		{
-			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != TROT_LIST_SUCCESS );
 		}
 		else
 		{
@@ -206,7 +206,7 @@ int createListIntAlternating( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
@@ -217,7 +217,7 @@ int createListIntAlternating( trotListRef **lr, int count )
 		}
 		else
 		{
-			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
+			TEST_ERR_IF( trotListRefAppendInt( newList, i ) != TROT_LIST_SUCCESS );
 		}
 
 		i += 1;
@@ -257,12 +257,12 @@ int createHalfIntHalfList( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != TROT_LIST_SUCCESS );
 
 		i += 1;
 	}
@@ -308,7 +308,7 @@ int createHalfListHalfInt( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
@@ -319,7 +319,7 @@ int createHalfListHalfInt( trotListRef **lr, int count )
 	}
 	while ( i <= count )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != 0 );
+		TEST_ERR_IF( trotListRefAppendInt( newList, i ) != TROT_LIST_SUCCESS );
 
 		i += 1;
 	}
@@ -359,12 +359,12 @@ int createSelfRefs( trotListRef **lr, int count )
 	INT_TYPE i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &newList ) != 0 );
+	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( trotListRefAppendListTwin( newList, newList ) != 0 );
+		TEST_ERR_IF( trotListRefAppendListTwin( newList, newList ) != TROT_LIST_SUCCESS );
 
 		i += 1;
 	}
@@ -399,17 +399,17 @@ int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetKind( lr, index, &kind ) != 0 );
+	TEST_ERR_IF( trotListRefGetKind( lr, index, &kind ) != TROT_LIST_SUCCESS );
 
 	if ( kind == TROT_KIND_INT )
 	{
-		TEST_ERR_IF( trotListRefGetInt( lr, index, &valueInList ) != 0 );
+		TEST_ERR_IF( trotListRefGetInt( lr, index, &valueInList ) != TROT_LIST_SUCCESS );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else if ( kind == TROT_KIND_LIST )
 	{
-		TEST_ERR_IF( trotListRefGetListTwin( lr, index, &subList ) != 0 );
-		TEST_ERR_IF( trotListRefGetInt( subList, 1, &valueInList ) != 0 );
+		TEST_ERR_IF( trotListRefGetListTwin( lr, index, &subList ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefGetInt( subList, 1, &valueInList ) != TROT_LIST_SUCCESS );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else
@@ -722,7 +722,7 @@ int load( trotListRef *lrName, trotListRef **lrBytes )
 	TEST_ERR_IF( trotListRefInit( &newLrBytes ) != TROT_LIST_SUCCESS );
 
 	/* convert our trotListRef name to a cString */
-	TEST_ERR_IF( listToCString( lrName, &name ) != 0 );
+	TEST_ERR_IF( listToCString( lrName, &name ) != TROT_LIST_SUCCESS );
 
 	printf( "Loading: %s\n", name );
 

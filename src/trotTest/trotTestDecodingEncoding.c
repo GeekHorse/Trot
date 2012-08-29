@@ -114,7 +114,7 @@ static int doesFileExist( trotListRef *lrName, INT_TYPE *exist )
 	TEST_ERR_IF( lrName == NULL );
 	TEST_ERR_IF( exist == NULL );
 
-	TEST_ERR_IF( listToCString( lrName, &name ) != 0 );
+	TEST_ERR_IF( listToCString( lrName, &name ) != TROT_LIST_SUCCESS );
 
 	if ( stat( name, &st ) == 0 )
 	{
@@ -170,7 +170,7 @@ static int processFiles( char *directory, ProcessFunction func )
 	/* create trotList filename */
 	TEST_ERR_IF( trotListRefInit( &lrName ) != TROT_LIST_SUCCESS );
 
-	TEST_ERR_IF( appendCStringToList( lrName, directory ) != 0 );
+	TEST_ERR_IF( appendCStringToList( lrName, directory ) != TROT_LIST_SUCCESS );
 
 	/* foreach directory */
 	while ( 1 )
@@ -457,7 +457,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef 
 
 	TEST_ERR_IF( trotEncode( lrDecodedList1, &lrEncodedList1 ) != TROT_LIST_SUCCESS );
 #if 1
-	TEST_ERR_IF( listToCString( lrEncodedList1, &s ) != 0 );
+	TEST_ERR_IF( listToCString( lrEncodedList1, &s ) != TROT_LIST_SUCCESS );
 
 	printf( "lrEncodedList1: %s\n", s );
 
@@ -471,7 +471,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef 
 
 	TEST_ERR_IF( trotEncode( lrDecodedList2, &lrEncodedList2 ) != TROT_LIST_SUCCESS );
 #if 1
-	TEST_ERR_IF( listToCString( lrEncodedList2, &s ) != 0 );
+	TEST_ERR_IF( listToCString( lrEncodedList2, &s ) != TROT_LIST_SUCCESS );
 
 	printf( "lrEncodedList2: %s\n", s );
 
