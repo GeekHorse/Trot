@@ -758,7 +758,7 @@ static TROT_RC testFailedMallocs2( int test )
 	rc = trotListRefInit( &lrCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	rc = appendCStringToList( s1, lrCharacters );
+	rc = appendCStringToList( lrCharacters, s1 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotTokenize( lrCharacters, &lrTokens );
@@ -829,7 +829,7 @@ static TROT_RC testFailedMallocs3( int test )
 	rc = trotListRefInit( &lrCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	rc = appendCStringToList( d[ test ], lrCharacters );
+	rc = appendCStringToList( lrCharacters, d[ test ] );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */

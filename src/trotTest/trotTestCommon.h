@@ -83,15 +83,10 @@ int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );
 int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
 int checkList( trotListRef *lr );
 void printList( trotListRef *lr, int indent );
-/* TODO: since we're using TEST_ERR_IF, we need these to return ints to be consistent */
-/* TODO: also consider prepending these with TROT */
-TROT_RC load( trotListRef *lrName, trotListRef **lrBytes );
+int load( trotListRef *lrName, trotListRef **lrBytes );
+
 TROT_RC listToCString( trotListRef *lr, char **cString_A );
-/* TODO: switch the params below */
-TROT_RC appendCStringToList( char *cString, trotListRef *lr );
-
-
-/* TODO: these need to be named better, with "trot" in front? */
+TROT_RC appendCStringToList( trotListRef *lr, char *cString );
 
 /******************************************************************************/
 #endif

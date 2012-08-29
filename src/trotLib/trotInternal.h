@@ -325,7 +325,9 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value );
 
 /******************************************************************************/
 /* trotDebug.c */
+/* TODO: do debug functions return int or TROT_RC? I think int ... then we can get rid of our NOT_BYTE_VALUE enum */
 TROT_RC _trotPrintList( trotListRef *lr );
+/* TODO: move more debug functions here? */
 
 
 
