@@ -68,6 +68,9 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree );
 
 /* TODO: in here, and elsewhere, if we ever have an "index count" or another INT_TYPE we increment, we need to think about overflow */
 
+/* FUTURE OPTIMIZATION: Some functions have similar, but not identical, "go through token tree" code.
+   We may be able to create a single "go through token tree" function to factor out this common code. */
+
 #if 0
 /* DEBUG FUNCTIONS */
 static TROT_RC trotPrintTokens( trotListRef *lrTokenList );
@@ -1341,11 +1344,7 @@ static TROT_RC handleMetaDataFunction( trotListRef *lrParentToken, trotListRef *
 	\param lrTokenTree Token Tree.
 	\return TROT_RC
 
-	A word can either be:
-	- name of enum
-	- name of list
-	- name of op
-	- TODO? name of function var
+	Goes through entire token tree, and passes each word token to handleWord()
 */
 static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 {
@@ -1371,7 +1370,6 @@ static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 	/* CODE */
 	PARANOID_ERR_IF( lrTokenTree == NULL );
 
-/* TODO: this is almost the same code as "creatFinalList". maybe we can have a single function that goes through token trees that calls another function to do the work on each token? */
 	/* create parent stack, so we can "go up" */
 	rc = trotListRefInit( &lrParentTokenStack );
 	ERR_IF_PASSTHROUGH;
@@ -1481,10 +1479,10 @@ static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 		else if ( childTokenType == TOKEN_TYPE_WORD )
 		{
 			/* lrToken isn't in parent Stack, so let's add it temporarily so handleWord will see it */
-			/* TODO: we may need to rearrange this "go through token tree" code so lrToken is in the parent stack */
 			rc = trotListRefAppendListTwin( lrParentTokenStack, lrToken );
 			ERR_IF_PASSTHROUGH;
 
+			/* handle the word */
 			rc = handleWord( lrParentTokenStack, tokenChildrenIndex, lrChildToken );
 			ERR_IF_PASSTHROUGH;
 
@@ -1510,11 +1508,22 @@ static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 
 /******************************************************************************/
 /*!
-	\brief 
-	\param lrParentTokenStack Parent Token Stack.
-	\param TODO
-	\param lrTokenWord Token that is the word we need to handle.
+	\brief Handles a word token
+	\param lrParentTokenStack Parent Token Stack
+	\param parentIndex Index of the word token in it's parent 
+	\param lrTokenWord Token that is the word we need to handle
 	\return TROT_RC
+
+	A word may be:
+	- name of op
+	- name of var in function to load
+	- name of var in function to save to (if prefixed with ':')
+	- name of list to twin
+	- name of enum
+
+	parentIndex is only needed because if the word is a var name, we have to change
+	the token into a "save var op" or "load var op", and then append a "raw number"
+	token (index of var) after the word (now op) token.
 */
 static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex, trotListRef *lrTokenWord )
 {
@@ -1590,7 +1599,7 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 	/* is it an op? */
 	if ( wordPartListCount == 1 )
 	{
-		rc = handleWordOp( lrTokenWord, &wasOp ); /* TODO: change this to take our lrWordPart instead of lrTokenWord */
+		rc = handleWordOp( lrTokenWord, &wasOp );
 		ERR_IF_PASSTHROUGH;
 
 		if ( wasOp == 1 )
@@ -1598,8 +1607,6 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 			goto cleanup;
 		}
 	}
-
-	/* TODO: later we need to check for extra added ops */
 
 	rc = findParentName( lrParentTokenStack, lrWordPart, &foundName, &lrParent, &foundVar, &varIndex );
 	ERR_IF_PASSTHROUGH;
@@ -1613,16 +1620,8 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 	{
 		ERR_IF( wordPartListCount != 1, TROT_LIST_ERROR_DECODE );
 
-		/* get parent */
-		trotListRefFree( &lrParent );
-		rc = trotListRefGetListTwin( lrParentTokenStack, -1, &lrParent );
-		ERR_IF_PASSTHROUGH;
+		/* change word to op */
 
-		/* get parent value */
-		rc = trotListRefGetListTwin( lrParent, TOKEN_INDEX_VALUE, &lrParentValue );
-		ERR_IF_PASSTHROUGH;
-
-		/* change to op */
 		/* set type */
 		rc = trotListRefReplaceWithInt( lrTokenWord, TOKEN_INDEX_TYPE, TOKEN_TYPE_OP );
 		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
@@ -1639,7 +1638,9 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 			PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 		}
 
-		/* insert int token after our word token */
+		/* insert raw number token after our word token, which is now an op token */
+
+		/* create our new raw number token, which will hold the var's index */
 		rc = trotCreateToken( 1, 1, TOKEN_TYPE_NUMBER_RAW, &newLrToken );
 		ERR_IF_PASSTHROUGH;
 
@@ -1647,6 +1648,16 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 		rc = trotListRefReplaceWithInt( newLrToken, TOKEN_INDEX_VALUE, varIndex );
 		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
+		/* get parent */
+		trotListRefFree( &lrParent );
+		rc = trotListRefGetListTwin( lrParentTokenStack, -1, &lrParent );
+		ERR_IF_PASSTHROUGH;
+
+		/* get parent value */
+		rc = trotListRefGetListTwin( lrParent, TOKEN_INDEX_VALUE, &lrParentValue );
+		ERR_IF_PASSTHROUGH;
+
+		/* add new raw number token after our save/load var op */
 		rc = trotListRefInsertListTwin( lrParentValue, parentIndex + 1, newLrToken );
 		ERR_IF_PASSTHROUGH;
 
@@ -1724,8 +1735,9 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 
 /******************************************************************************/
 /*!
-	\brief 
-	\param 
+	\brief Checks to see if a word is an op, and if so changes the word token into an op token.
+	\param lrTokenWord Word token
+	\param wasOp Is set to 0 or 1 to flag to the caller whether word was or was not an op.
 	\return TROT_RC
 */
 static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp )
