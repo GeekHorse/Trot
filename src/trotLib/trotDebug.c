@@ -52,10 +52,10 @@ TROT_RC _trotPrintList( trotListRef *lr )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE count = 0;
-	INT_TYPE i = 1;
+	TROT_INT count = 0;
+	TROT_INT i = 1;
 
-	INT_TYPE c = 0;
+	TROT_INT c = 0;
 
 
 	/* PRECOND */

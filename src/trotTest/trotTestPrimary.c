@@ -206,20 +206,20 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE countAtStart = 0;
-	INT_TYPE countAtEnd = 0;
-	INT_TYPE countAdded = 0;
+	TROT_INT countAtStart = 0;
+	TROT_INT countAtEnd = 0;
+	TROT_INT countAdded = 0;
 
-	INT_TYPE newNumber = 0;
-	INT_TYPE addingAtIndex = 0;
-	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+	TROT_INT newNumber = 0;
+	TROT_INT addingAtIndex = 0;
+	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE testNew = 0;
-	INT_TYPE testOriginal = 0;
+	TROT_INT testNew = 0;
+	TROT_INT testOriginal = 0;
 
-	INT_TYPE removedN = 0;
+	TROT_INT removedN = 0;
 	trotListRef *removedL = NULL;
 
 
@@ -383,20 +383,20 @@ static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGen
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE countAtStart = 0;
-	INT_TYPE countAtEnd = 0;
-	INT_TYPE countAdded = 0;
+	TROT_INT countAtStart = 0;
+	TROT_INT countAtEnd = 0;
+	TROT_INT countAdded = 0;
 
-	INT_TYPE newNumber = 0;
-	INT_TYPE addingAtIndex = 0;
-	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+	TROT_INT newNumber = 0;
+	TROT_INT addingAtIndex = 0;
+	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE testNew = 0;
-	INT_TYPE testOriginal = 0;
+	TROT_INT testNew = 0;
+	TROT_INT testOriginal = 0;
 
-	INT_TYPE removedN = 0;
+	TROT_INT removedN = 0;
 	trotListRef *removedL = NULL;
 
 
@@ -560,23 +560,23 @@ static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecific
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE countAtStart = 0;
-	INT_TYPE countAtEnd = 0;
-	INT_TYPE countAdded = 0;
+	TROT_INT countAtStart = 0;
+	TROT_INT countAtEnd = 0;
+	TROT_INT countAdded = 0;
 
-	INT_TYPE newNumber = 0;
-	INT_TYPE addingAtIndex = 0;
-	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+	TROT_INT newNumber = 0;
+	TROT_INT addingAtIndex = 0;
+	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE testNew = 0;
-	INT_TYPE testOriginal = 0;
+	TROT_INT testNew = 0;
+	TROT_INT testOriginal = 0;
 
-	INT_TYPE removedN = 0;
+	TROT_INT removedN = 0;
 	trotListRef *removedL = NULL;
 
-	INT_TYPE startedAddingAtIndex = 0;
+	TROT_INT startedAddingAtIndex = 0;
 
 
 	/* CODE */
@@ -763,20 +763,20 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE countAtStart = 0;
-	INT_TYPE countAtEnd = 0;
-	INT_TYPE countAdded = 0;
+	TROT_INT countAtStart = 0;
+	TROT_INT countAtEnd = 0;
+	TROT_INT countAdded = 0;
 
-	INT_TYPE newNumber = 0;
-	INT_TYPE addingAtIndex = 0;
-	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+	TROT_INT newNumber = 0;
+	TROT_INT addingAtIndex = 0;
+	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE testNew = 0;
-	INT_TYPE testOriginal = 0;
+	TROT_INT testNew = 0;
+	TROT_INT testOriginal = 0;
 
-	INT_TYPE removedN = 0;
+	TROT_INT removedN = 0;
 	trotListRef *removedL = NULL;
 
 
@@ -969,17 +969,17 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE countAtStart = 0;
-	INT_TYPE countAfter = 0;
+	TROT_INT countAtStart = 0;
+	TROT_INT countAfter = 0;
 
-	INT_TYPE addingAtIndex = 0;
-	INT_TYPE addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
+	TROT_INT addingAtIndex = 0;
+	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
 	TROT_KIND kind;
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
 
 	/* CODE */

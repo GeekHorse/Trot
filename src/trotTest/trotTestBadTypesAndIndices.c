@@ -42,7 +42,7 @@ int testBadTypesAndIndices()
 	trotListRef *lr = NULL;
 	trotListRef *lr2 = NULL;
 	TROT_KIND kind = 0;
-	INT_TYPE n = 0;
+	TROT_INT n = 0;
 
 
 	/* CODE */

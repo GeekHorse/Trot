@@ -147,7 +147,7 @@ int main( int argc, char **argv )
 	timeStart = time( NULL );
 
 	/* **************************************** */
-	TEST_ERR_IF( sizeof( INT_TYPE ) != INT_TYPE_SIZE );
+	TEST_ERR_IF( sizeof( TROT_INT ) != TROT_INT_SIZE );
 
 	/* **************************************** */
 	if ( flagTestAll || flagTestPreconditions )

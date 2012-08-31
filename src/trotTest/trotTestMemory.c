@@ -244,8 +244,8 @@ static int testMemoryManagement()
 	trotListRef *ref = NULL;
 
 	int howManyToAdd = 0;
-	INT_TYPE count = 0;
-	INT_TYPE randomIndex = 0;
+	TROT_INT count = 0;
+	TROT_INT randomIndex = 0;
 
 	int clientRefIndex = 0;
 

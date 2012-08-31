@@ -53,7 +53,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
-	INT_TYPE value = 0;
+	TROT_INT value = 0;
 
 
 	/* PRECOND */
@@ -126,7 +126,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 	\param value Value to use with the last value in the list.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
+TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, TROT_INT value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

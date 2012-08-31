@@ -79,8 +79,8 @@ int createSelfRefs( trotListRef **lr, int count );
 
 /******************************************************************************/
 /* misc functions */
-int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value );
-int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst );
+int addListWithValue( trotListRef *lr, TROT_INT index, TROT_INT value );
+int check( trotListRef *lr, TROT_INT index, TROT_INT valueToCheckAgainst );
 int checkList( trotListRef *lr );
 void printList( trotListRef *lr, int indent );
 int load( trotListRef *lrName, trotListRef **lrBytes );

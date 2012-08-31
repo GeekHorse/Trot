@@ -47,7 +47,7 @@ extern const char *opNames[];
 static TROT_RC appendLeftBAndTag( trotListRef *lr, int topList, trotListRef *lrCharacters, unsigned int *indentCount );
 static TROT_RC appendRightB( trotListRef *lr, trotListRef *lrCharacters, unsigned int *indentCount );
 static TROT_RC appendNewlineIndents( trotListRef *lrCharacters, unsigned int indentCount );
-static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, INT_TYPE n );
+static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, TROT_INT n );
 static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterCount, trotListRef *lr );
 
 /******************************************************************************/
@@ -62,17 +62,17 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *newLrCharacters = NULL;
-	INT_TYPE lastCharacter = 0;
+	TROT_INT lastCharacter = 0;
 
 	trotListRef *lrParentStack = NULL;
-	INT_TYPE parentStackCount = 0;
+	TROT_INT parentStackCount = 0;
 
 	trotListRef *lrParentIndicesStack = NULL;
 
 	TROT_TAG currentTag = TROT_TAG_DATA;
 	trotListRef *lrCurrentList = NULL;
-	INT_TYPE childrenCount = 0;
-	INT_TYPE index = 0;
+	TROT_INT childrenCount = 0;
+	TROT_INT index = 0;
 
 	unsigned int indentCount = 0;
 
@@ -80,7 +80,7 @@ TROT_RC trotEncode( trotListRef *lr, trotListRef **lrCharacters_A )
 
 	int characterCount = 0;
 
-	INT_TYPE n = 0;
+	TROT_INT n = 0;
 
 	trotListRef *lrChildList = NULL;
 
@@ -672,14 +672,14 @@ static TROT_RC appendNewlineIndents( trotListRef *lrCharacters, unsigned int ind
 	\param characterCount Current character count that we'll update.
 	\return TROT_RC
 */
-static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, INT_TYPE n )
+static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE lastCharacter = 0;
+	TROT_INT lastCharacter = 0;
 
-	char numberString[ INT_TYPE_MIN_STRING_LENGTH + 1 ];
+	char numberString[ TROT_INT_MIN_STRING_LENGTH + 1 ];
 	char *s = NULL;
 
 
@@ -711,7 +711,7 @@ static TROT_RC appendNumber( trotListRef *lrCharacters, int *characterCount, INT
 	}
 
 	/* create numberString */
-	s = &(numberString[ INT_TYPE_MIN_STRING_LENGTH ]);
+	s = &(numberString[ TROT_INT_MIN_STRING_LENGTH ]);
 	(*s) = '\0';
 
 	/* create number string */
@@ -767,15 +767,15 @@ static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterC
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE lastCharacter = 0;
+	TROT_INT lastCharacter = 0;
 
 	char *s = "top";
 
 	trotListRef *lrAddress = NULL;
-	INT_TYPE address = 0;
+	TROT_INT address = 0;
 
-	INT_TYPE index = 0;
-	INT_TYPE count = 0;
+	TROT_INT index = 0;
+	TROT_INT count = 0;
 
 /* TODO: this will need to change (and all other trotList's when we change trotListRef to trotList and trotList to trotListInternal */
 	trotList *lParent = NULL;

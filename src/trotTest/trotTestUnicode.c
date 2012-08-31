@@ -34,10 +34,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-static int testCharacterToUtf8ToCharacter( INT_TYPE start, INT_TYPE end, int numberOfBytes );
-static int testBadByte( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE byte4 );
-static int testBadKind( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE byte4 );
-static int testBadCharacter( INT_TYPE character );
+static int testCharacterToUtf8ToCharacter( TROT_INT start, TROT_INT end, int numberOfBytes );
+static int testBadByte( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT byte4 );
+static int testBadKind( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT byte4 );
+static int testBadCharacter( TROT_INT character );
 
 /******************************************************************************/
 int testUnicode()
@@ -160,19 +160,19 @@ int testUnicode()
 }
 
 /******************************************************************************/
-static int testCharacterToUtf8ToCharacter( INT_TYPE start, INT_TYPE end, int numberOfBytesShouldBe )
+static int testCharacterToUtf8ToCharacter( TROT_INT start, TROT_INT end, int numberOfBytesShouldBe )
 {
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE characterIn = 0;
-	INT_TYPE characterOut = 0;
+	TROT_INT characterIn = 0;
+	TROT_INT characterOut = 0;
 	trotListRef *lrCharacterIn = NULL;
 	trotListRef *lrBytes = NULL;
 	trotListRef *lrCharacterOut = NULL;
 
-	INT_TYPE numberOfBytesActual = 0;
-	INT_TYPE numberOfCharacters = 0;
+	TROT_INT numberOfBytesActual = 0;
+	TROT_INT numberOfCharacters = 0;
 
 
 	/* CODE */
@@ -215,7 +215,7 @@ static int testCharacterToUtf8ToCharacter( INT_TYPE start, INT_TYPE end, int num
 }
 
 /******************************************************************************/
-static int testBadKind( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE byte4 )
+static int testBadKind( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT byte4 )
 {
 	/* DATA */
 	int rc = 0;
@@ -277,7 +277,7 @@ static int testBadKind( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE
 }
 
 /******************************************************************************/
-static int testBadByte( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE byte4 )
+static int testBadByte( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT byte4 )
 {
 	/* DATA */
 	int rc = 0;
@@ -308,7 +308,7 @@ static int testBadByte( INT_TYPE byte1, INT_TYPE byte2, INT_TYPE byte3, INT_TYPE
 }
 
 /******************************************************************************/
-static int testBadCharacter( INT_TYPE character )
+static int testBadCharacter( TROT_INT character )
 {
 	/* DATA */
 	int rc = 0;

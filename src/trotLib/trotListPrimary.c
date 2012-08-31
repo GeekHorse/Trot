@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Remove
 */
 
-/* TODO: make sure inserts and appends don't add more children than our maximum positive INT_TYPE. then test that it works, and that minimum negative INT_TYPE still errors correctly */
+/* TODO: make sure inserts and appends don't add more children than our maximum positive TROT_INT. then test that it works, and that minimum negative TROT_INT still errors correctly */
 
 /******************************************************************************/
 #include "trot.h"
@@ -364,7 +364,7 @@ void trotListRefFree( trotListRef **lr_F )
 	\param c On success, will contain the count of this list.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
+TROT_RC trotListRefGetCount( trotListRef *lr, TROT_INT *c )
 {
 	/* PRECOND */
 	PRECOND_ERR_IF( lr == NULL );
@@ -385,7 +385,7 @@ TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 	\param kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
+TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -394,7 +394,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 
 	/* PRECOND */
@@ -448,7 +448,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
+TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -586,7 +586,7 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
+TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -595,7 +595,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	int i = 0;
 	int j = 0;
@@ -749,7 +749,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	\param lrToInsert The listRef to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert )
+TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -758,7 +758,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	int i = 0;
 	int j = 0;
@@ -944,7 +944,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
+TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -953,7 +953,7 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 
 	/* PRECOND */
@@ -1011,14 +1011,14 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	\param lrTwin_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **lrTwin_A )
+TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **lrTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListRef *newL = NULL;
 
@@ -1081,16 +1081,16 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
+TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
-	INT_TYPE giveBackN = 0;
+	TROT_INT giveBackN = 0;
 
 	int i = 0;
 
@@ -1168,14 +1168,14 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	\param lrRemoved_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A )
+TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lrRemoved_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListRef *giveBackL = NULL;
 
@@ -1256,14 +1256,14 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 	\param index What to remove.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
+TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListRef *tempL = NULL;
 
@@ -1356,7 +1356,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
+TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1365,7 +1365,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListRef *tempL = NULL;
 
@@ -1544,7 +1544,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert )
+TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1553,7 +1553,7 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListRef *tempL = NULL;
 
@@ -1835,7 +1835,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> l = NULL;
-		TROT_MALLOC( newNode -> n, INT_TYPE, NODE_SIZE );
+		TROT_MALLOC( newNode -> n, TROT_INT, NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1908,7 +1908,7 @@ TROT_RC newIntNode( trotListNode **n_A )
 	newNode -> count = 0;
 
 	newNode -> l = NULL;
-	TROT_MALLOC( newNode -> n, INT_TYPE, NODE_SIZE );
+	TROT_MALLOC( newNode -> n, TROT_INT, NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;

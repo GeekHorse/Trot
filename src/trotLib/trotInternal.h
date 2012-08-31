@@ -171,11 +171,11 @@ struct trotListNode_STRUCT
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
 	NODE_KIND_LIST. */
 	int kind;
-	/*! count is how many INT_TYPEs or trotListRefs are in this node. */
+	/*! count is how many TROT_INTs or trotListRefs are in this node. */
 	int count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
-	NODE_SIZE of type INT_TYPE, else n will be NULL. */
-	INT_TYPE *n;
+	NODE_SIZE of type TROT_INT, else n will be NULL. */
+	TROT_INT *n;
 	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
 	NODE_SIZE of type trotListRef*, else l will be NULL. */
 	trotListRef **l;
@@ -209,7 +209,7 @@ struct trotList_STRUCT
 	trotList *encodingParent;
 	/*! The child number this list is of it's parent, used for managing
 	    twins when encoding */
-	INT_TYPE encodingChildNumber;
+	TROT_INT encodingChildNumber;
 
 	/*! Tag. Which "type" or "kind" of list this is. */
 	TROT_TAG tag;
@@ -280,17 +280,17 @@ struct trotStackNode_STRUCT
 	/*! current node in list1 */
 	trotListNode *l1Node;
 	/*! current item in l1Node */
-	INT_TYPE l1Count;
+	TROT_INT l1Count;
 
 	/*! list2 */
 	trotList *l2;
 	/*! current node in list2 */
 	trotListNode *l2Node;
 	/*! current item in l2Node */
-	INT_TYPE l2Count;
+	TROT_INT l2Count;
 
 	/*! current index */
-	INT_TYPE index;
+	TROT_INT index;
 
 	/*! previous trotStackNode */
 	trotStackNode *prev;
@@ -317,13 +317,13 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 /******************************************************************************/
 /* trotTokenize.c */
 TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A );
-TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A );
-TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number );
+TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotListRef **lrToken_A );
+TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, TROT_INT *number );
 
 /******************************************************************************/
 /* trotListInt.c */
 TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op );
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value );
+TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, TROT_INT value );
 
 /******************************************************************************/
 /* trotDebug.c */

@@ -39,9 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken );
-static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column );
-static int trotIsWhitespace( INT_TYPE character );
-static int trotIsNewline( INT_TYPE character );
+static TROT_RC trotSkipComments( trotListRef *lrCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column );
+static int trotIsWhitespace( TROT_INT character );
+static int trotIsNewline( TROT_INT character );
 
 /******************************************************************************/
 /*!
@@ -61,14 +61,14 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 
 	trotListRef *lrValue = NULL;
 
-	INT_TYPE count = 0;
-	INT_TYPE i = 0;
+	TROT_INT count = 0;
+	TROT_INT i = 0;
 
-	INT_TYPE line = 1;
-	INT_TYPE column = 1;
+	TROT_INT line = 1;
+	TROT_INT column = 1;
 
-	INT_TYPE previousCharacter = -1;
-	INT_TYPE character = -1;
+	TROT_INT previousCharacter = -1;
+	TROT_INT character = -1;
 
 
 	/* PRECOND */
@@ -303,7 +303,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 	\param lrToken_A On success, new token.
 	\return TROT_RC
 */
-TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A )
+TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotListRef **lrToken_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -428,16 +428,16 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 	\param 
 	\return TROT_RC
 */
-TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number )
+TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, TROT_INT *number )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE index = 0;
-	INT_TYPE count = 0;
+	TROT_INT index = 0;
+	TROT_INT count = 0;
 
-	INT_TYPE character = 0;
-	INT_TYPE newNumber = 0;
+	TROT_INT character = 0;
+	TROT_INT newNumber = 0;
 
 	int i = 0;
 
@@ -501,7 +501,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 		index += 1;
 	}
 
-	/* make sure number can fit into our INT_TYPE */
+	/* make sure number can fit into our TROT_INT */
 	index = 1;
 
 	rc = trotListRefGetInt( lrWord, index, &character );
@@ -509,21 +509,21 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 
 	if ( character == '-' )
 	{
-		ERR_IF( count > INT_TYPE_MIN_STRING_LENGTH, TROT_RC_ERROR_DECODE );
+		ERR_IF( count > TROT_INT_MIN_STRING_LENGTH, TROT_RC_ERROR_DECODE );
 
-		if ( count == INT_TYPE_MIN_STRING_LENGTH )
+		if ( count == TROT_INT_MIN_STRING_LENGTH )
 		{
 			index += 1;
-			i = 1; /* to skip the '-' at the beginning of INT_TYPE_MIN */
+			i = 1; /* to skip the '-' at the beginning of TROT_INT_MIN */
 
 			while ( index <= count )
 			{	
 				rc = trotListRefGetInt( lrWord, index, &character );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF ( character > INT_TYPE_MIN_STRING[ i ], TROT_RC_ERROR_DECODE );
+				ERR_IF ( character > TROT_INT_MIN_STRING[ i ], TROT_RC_ERROR_DECODE );
 
-				if ( character < INT_TYPE_MIN_STRING[ i ] )
+				if ( character < TROT_INT_MIN_STRING[ i ] )
 				{
 					break;
 				}
@@ -535,9 +535,9 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 	}
 	else
 	{
-		ERR_IF( count > INT_TYPE_MAX_STRING_LENGTH, TROT_RC_ERROR_DECODE );
+		ERR_IF( count > TROT_INT_MAX_STRING_LENGTH, TROT_RC_ERROR_DECODE );
 
-		if ( count == INT_TYPE_MAX_STRING_LENGTH )
+		if ( count == TROT_INT_MAX_STRING_LENGTH )
 		{
 			i = 0;
 
@@ -546,9 +546,9 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 				rc = trotListRefGetInt( lrWord, index, &character );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF ( character > INT_TYPE_MAX_STRING[ i ], TROT_RC_ERROR_DECODE );
+				ERR_IF ( character > TROT_INT_MAX_STRING[ i ], TROT_RC_ERROR_DECODE );
 
-				if ( character < INT_TYPE_MAX_STRING[ i ] )
+				if ( character < TROT_INT_MAX_STRING[ i ] )
 				{
 					break;
 				}
@@ -632,7 +632,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 
 	trotListRef *lrValue = NULL;
 	int isNumber = 0;
-	INT_TYPE number = 0;
+	TROT_INT number = 0;
 
 
 	/* CODE */
@@ -672,13 +672,13 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	\param 
 	\return TROT_RC
 */
-static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column )
+static TROT_RC trotSkipComments( trotListRef *lrCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE character = 0;
-	INT_TYPE previousCharacter = 0;
+	TROT_INT character = 0;
+	TROT_INT previousCharacter = 0;
 
 	int commentDepth = 0;
 
@@ -801,7 +801,7 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 	\param 
 	\return TROT_RC
 */
-static int trotIsWhitespace( INT_TYPE character )
+static int trotIsWhitespace( TROT_INT character )
 {
 	if (    character == '\t'   /* horizontal tab */
 	     || character == '\n'   /* newline */
@@ -843,7 +843,7 @@ static int trotIsWhitespace( INT_TYPE character )
 	\param 
 	\return TROT_RC
 */
-static int trotIsNewline( INT_TYPE character )
+static int trotIsNewline( TROT_INT character )
 {
 	if (    character == '\n'   /* newline */
 	     || character == 0x0B   /* vertical tab */

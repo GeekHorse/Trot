@@ -75,18 +75,17 @@ typedef enum
 #define TROT_TAG_MAX 5
 
 /******************************************************************************/
-/* TODO: these need the TROT_ prefix */
-#define INT_TYPE_SIZE 4
+#define TROT_INT_SIZE 4
 
-#if ( INT_TYPE_SIZE == 4 )
-#define INT_TYPE int
-#define INT_TYPE_MAX         2147483647
-#define INT_TYPE_MAX_STRING "2147483647"
-#define INT_TYPE_MAX_STRING_LENGTH 10
-#define INT_TYPE_MIN_STRING "-2147483648"
-#define INT_TYPE_MIN_STRING_LENGTH 11
+#if ( TROT_INT_SIZE == 4 )
+#define TROT_INT int
+#define TROT_INT_MAX         2147483647
+#define TROT_INT_MAX_STRING "2147483647"
+#define TROT_INT_MAX_STRING_LENGTH 10
+#define TROT_INT_MIN_STRING "-2147483648"
+#define TROT_INT_MIN_STRING_LENGTH 11
 #else
-#error NEED TO DEFINE INT_TYPE FOR INT_TYPE_SIZE
+#error NEED TO DEFINE TROT_INT FOR TROT_INT_SIZE
 #endif
 
 /******************************************************************************/
@@ -115,25 +114,25 @@ TROT_RC trotListRefInit( trotListRef **lr_A );
 TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A );
 void trotListRefFree( trotListRef **lr_F );
 
-TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c );
+TROT_RC trotListRefGetCount( trotListRef *lr, TROT_INT *c );
 
-TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind );
+TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind );
 
-TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n );
+TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n );
 TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend );
 
-TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
-TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert );
+TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n );
+TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert );
 
-TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **lrTwin_A );
+TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n );
+TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **lrTwin_A );
 
-TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n );
-TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A );
-TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index );
+TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n );
+TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lrRemoved_A );
+TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index );
 
-TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n );
-TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert );
+TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n );
+TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert );
 
 TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag );
 TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag );
@@ -144,11 +143,11 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 
 TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A );
 
-TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
-TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index );
+TROT_RC trotListRefEnlist( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd );
+TROT_RC trotListRefDelist( trotListRef *lr, TROT_INT index );
 
-TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A );
-TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd );
+TROT_RC trotListRefCopySpan( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd, trotListRef **lrCopy_A );
+TROT_RC trotListRefRemoveSpan( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd );
 
 /******************************************************************************/
 /* trotUnicode.c */

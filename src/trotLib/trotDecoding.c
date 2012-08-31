@@ -48,25 +48,25 @@ static TROT_RC handleMetaDataEnum( trotListRef *lrParentToken, trotListRef *lrPa
 static TROT_RC handleMetaDataInclude( trotListRef *lrFileList, trotListRef *lrParentToken, trotListRef *lrParenthesisTokenValue );
 static TROT_RC handleMetaDataFunction( trotListRef *lrParentToken, trotListRef *lrParenthesisTokenValue );
 static TROT_RC handleAllWords( trotListRef *lrTokenTree );
-static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex, trotListRef *lrTokenWord );
+static TROT_RC handleWord( trotListRef *lrParentTokenStack, TROT_INT parentIndex, trotListRef *lrTokenWord );
 static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp );
 
-static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, INT_TYPE *varIndex );
-static TROT_RC findChildByNameList( trotListRef *lrParentTokenPassedIn, trotListRef *lrNameList, trotListRef **lrTokenFound, INT_TYPE *enumFound );
+static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, TROT_INT *varIndex );
+static TROT_RC findChildByNameList( trotListRef *lrParentTokenPassedIn, trotListRef *lrNameList, trotListRef **lrTokenFound, TROT_INT *enumFound );
 
 static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum );
-static TROT_RC getEnumValue( trotListRef *lrToken, trotListRef *lrName, INT_TYPE *found, INT_TYPE *value );
+static TROT_RC getEnumValue( trotListRef *lrToken, trotListRef *lrName, TROT_INT *found, TROT_INT *value );
 
 static TROT_RC compareListToCString( trotListRef *lrValue, const char *cstring, TROT_LIST_COMPARE_RESULT *result );
 
-static TROT_RC splitList( trotListRef *lr, INT_TYPE separator, trotListRef **lrPartList );
+static TROT_RC splitList( trotListRef *lr, TROT_INT separator, trotListRef **lrPartList );
 
 static TROT_RC createFinalList( trotListRef *lrTokenTree );
 
 /* TODO: make sure enum name doesn't have same value as child list, and vice versa */
 /* TODO: make sure names cannot be same as op names */
 
-/* TODO: in here, and elsewhere, if we ever have an "index count" or another INT_TYPE we increment, we need to think about overflow */
+/* TODO: in here, and elsewhere, if we ever have an "index count" or another TROT_INT we increment, we need to think about overflow */
 
 /* FUTURE OPTIMIZATION: Some functions have similar, but not identical, "go through token tree" code.
    We may be able to create a single "go through token tree" function to factor out this common code. */
@@ -75,7 +75,7 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree );
 /* DEBUG FUNCTIONS */
 static TROT_RC trotPrintTokens( trotListRef *lrTokenList );
 static TROT_RC trotPrintTokenTree( trotListRef *lrTokenTree, int indent );
-static void trotPrintTokenType( INT_TYPE tokenType );
+static void trotPrintTokenType( TROT_INT tokenType );
 #endif
 
 /******************************************************************************/
@@ -120,8 +120,8 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 	int pass = 0;
 
 	trotListRef *lrFileList = NULL;
-	INT_TYPE fileCount = 0;
-	INT_TYPE fileIndex = 0;
+	TROT_INT fileCount = 0;
+	TROT_INT fileIndex = 0;
 
 	trotListRef *lrFile = NULL;
 	trotListRef *lrFileName = NULL;
@@ -432,12 +432,12 @@ static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTo
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrParentStack = NULL;
-	INT_TYPE parentStackCount = 0;
+	TROT_INT parentStackCount = 0;
 
 	trotListRef *lrParent = NULL;
 	trotListRef *lrChildren = NULL;
 
-	INT_TYPE parentTokenType = 0;
+	TROT_INT parentTokenType = 0;
 
 	trotListRef *lrToken = NULL;
 
@@ -446,10 +446,10 @@ static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTo
 	/* We only need this for when we have a BRACE as top token */
 	trotListRef *lrVars = NULL; 
 
-	INT_TYPE tokenCount = 0;
-	INT_TYPE tokenIndex = 0;
+	TROT_INT tokenCount = 0;
+	TROT_INT tokenIndex = 0;
 
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenType = 0;
 
 
 
@@ -650,19 +650,19 @@ static TROT_RC handleMetaData( trotListRef *lrTokenTree, trotListRef *lrFileList
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrParentTokenStack = NULL;
-	INT_TYPE parentTokenStackCount = 0;
+	TROT_INT parentTokenStackCount = 0;
 
 	trotListRef *lrParentTokenIndicesStack = NULL;
 
 	trotListRef *lrToken = NULL;
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrTokenChildren = NULL;
-	INT_TYPE tokenChildrenCount = 0;
-	INT_TYPE tokenChildrenIndex = 0;
+	TROT_INT tokenChildrenCount = 0;
+	TROT_INT tokenChildrenIndex = 0;
 
 	trotListRef *lrChildToken = NULL;
 
-	INT_TYPE childTokenType = 0;
+	TROT_INT childTokenType = 0;
 
 
 	/* CODE */
@@ -824,21 +824,21 @@ static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentTo
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrChildren = NULL; /* TODO: rename this lrParenthesisTokenValue */
-	INT_TYPE childrenCount = 0;
+	TROT_INT childrenCount = 0;
 	trotListRef *lrChildToken = NULL;
-	INT_TYPE childTokenType = 0;
+	TROT_INT childTokenType = 0;
 
 	trotListRef *lrChildValue = NULL;
-	INT_TYPE childValueCount = 0;
-	INT_TYPE childValueIndex = 0;
-	INT_TYPE childValueCharacter = 0;
+	TROT_INT childValueCount = 0;
+	TROT_INT childValueIndex = 0;
+	TROT_INT childValueCharacter = 0;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
 	trotListRef *lrParentTokenFinalList = NULL;
 
 	trotListRef *lrName = NULL;
-	INT_TYPE nameCount = 0;
+	TROT_INT nameCount = 0;
 
 
 	/* CODE */
@@ -1063,11 +1063,11 @@ static TROT_RC handleMetaDataEnum( trotListRef *lrParentToken, trotListRef *lrPa
 
 	trotListRef *lrEnumList = NULL;
 
-	INT_TYPE parenthesisTokenValueCount = 0;
-	INT_TYPE parenthesisTokenValueIndex = 0;
+	TROT_INT parenthesisTokenValueCount = 0;
+	TROT_INT parenthesisTokenValueIndex = 0;
 
 	trotListRef *lrChildToken = NULL;
-	INT_TYPE childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
+	TROT_INT childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
 	
 
 	/* CODE */
@@ -1128,15 +1128,15 @@ static TROT_RC handleMetaDataInclude( trotListRef *lrFileList, trotListRef *lrPa
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE parenthesisTokenValueCount = 0;
+	TROT_INT parenthesisTokenValueCount = 0;
 
 	trotListRef *lrStringToken = NULL;
-	INT_TYPE stringTokenType = 0;
+	TROT_INT stringTokenType = 0;
 	trotListRef *lrStringTokenValue = NULL;
-	INT_TYPE stringTokenCount = 0;
+	TROT_INT stringTokenCount = 0;
 
-	INT_TYPE fileListCount = 0;
-	INT_TYPE fileListIndex = 0;
+	TROT_INT fileListCount = 0;
+	TROT_INT fileListIndex = 0;
 	trotListRef *lrFile = NULL;
 	trotListRef *lrFileName = NULL;
 	trotListRef *lrFileTokenTree = NULL;
@@ -1267,15 +1267,15 @@ static TROT_RC handleMetaDataFunction( trotListRef *lrParentToken, trotListRef *
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenType = 0;
 
 	trotListRef *lrVarList = NULL;
 
-	INT_TYPE parenthesisTokenValueCount = 0;
-	INT_TYPE parenthesisTokenValueIndex = 0;
+	TROT_INT parenthesisTokenValueCount = 0;
+	TROT_INT parenthesisTokenValueIndex = 0;
 
 	trotListRef *lrChildToken = NULL;
-	INT_TYPE childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
+	TROT_INT childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
 	trotListRef *lrChildTokenValue = NULL;
 
 
@@ -1352,19 +1352,19 @@ static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrParentTokenStack = NULL;
-	INT_TYPE parentTokenStackCount = 0;
+	TROT_INT parentTokenStackCount = 0;
 
 	trotListRef *lrParentTokenIndicesStack = NULL;
 
 	trotListRef *lrToken = NULL;
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrTokenChildren = NULL;
-	INT_TYPE tokenChildrenCount = 0;
-	INT_TYPE tokenChildrenIndex = 0;
+	TROT_INT tokenChildrenCount = 0;
+	TROT_INT tokenChildrenIndex = 0;
 
 	trotListRef *lrChildToken = NULL;
 
-	INT_TYPE childTokenType = 0;
+	TROT_INT childTokenType = 0;
 
 
 	/* CODE */
@@ -1525,7 +1525,7 @@ static TROT_RC handleAllWords( trotListRef *lrTokenTree )
 	the token into a "save var op" or "load var op", and then append a "raw number"
 	token (index of var) after the word (now op) token.
 */
-static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex, trotListRef *lrTokenWord )
+static TROT_RC handleWord( trotListRef *lrParentTokenStack, TROT_INT parentIndex, trotListRef *lrTokenWord )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1536,22 +1536,22 @@ static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex
 
 	trotListRef *lrWord = NULL;
 	trotListRef *lrWordPartList = NULL;
-	INT_TYPE wordPartListCount = 0;
+	TROT_INT wordPartListCount = 0;
 	trotListRef *lrWordPart = NULL;
-	INT_TYPE wordPartCount = 0;
+	TROT_INT wordPartCount = 0;
 
-	INT_TYPE firstCharacter = 0;
+	TROT_INT firstCharacter = 0;
 
 	int wasOp = 0;
 
 	int foundName = 0;
 	int foundVar = 0;
 
-	INT_TYPE varIndex = 0;
+	TROT_INT varIndex = 0;
 
 	trotListRef *lrTokenFound = NULL;
 	trotListRef *lrTokenFoundFinalList = NULL;
-	INT_TYPE enumFound = 0;
+	TROT_INT enumFound = 0;
 
 	trotListRef *newLrToken = NULL;
 
@@ -1804,20 +1804,20 @@ static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp )
 	\param 
 	\return TROT_RC
 */
-static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, INT_TYPE *varIndex )
+static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, TROT_INT *varIndex )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE parentTokenStackIndex = 0;
+	TROT_INT parentTokenStackIndex = 0;
 
 	/* TODO: we're using lrParent in this function, should we be using a local variable instead? */
 	trotListRef *lrParentName = NULL;
 	trotListRef *lrParentFinalList = NULL;
 	trotListRef *lrParentVarList = NULL;
 	trotListRef *lrVar = NULL;
-	INT_TYPE parentVarListIndex = 0;
-	INT_TYPE parentVarListCount = 0; /* TODO: change this (and all others) to only need parentVarCount and go down to 0.
+	TROT_INT parentVarListIndex = 0;
+	TROT_INT parentVarListCount = 0; /* TODO: change this (and all others) to only need parentVarCount and go down to 0.
 	                                      this would reduce our need for the index variable and comparing against count.
 	                                      comparing against 0 may be faster? */
 
@@ -1935,28 +1935,28 @@ static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrN
 	\return TROT_RC
 */
 	
-static TROT_RC findChildByNameList( trotListRef *lrParentTokenPassedIn, trotListRef *lrNameList, trotListRef **lrTokenFound, INT_TYPE *enumFound )
+static TROT_RC findChildByNameList( trotListRef *lrParentTokenPassedIn, trotListRef *lrNameList, trotListRef **lrTokenFound, TROT_INT *enumFound )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrParentToken = NULL;
 	trotListRef *lrParentTokenValue = NULL;
-	INT_TYPE parentTokenValueCount = 0;
-	INT_TYPE parentTokenValueIndex = 0;
+	TROT_INT parentTokenValueCount = 0;
+	TROT_INT parentTokenValueIndex = 0;
 
-	INT_TYPE foundEnum = 0;
+	TROT_INT foundEnum = 0;
 
 	int foundChild = 0;
 
-	INT_TYPE nameListCount = 0;
-	INT_TYPE nameListIndex = 0;
+	TROT_INT nameListCount = 0;
+	TROT_INT nameListIndex = 0;
 	trotListRef *lrName = NULL;
 	int isNumber = 0;
-	INT_TYPE nameNumber = 0;
+	TROT_INT nameNumber = 0;
 
 	trotListRef *lrChildToken = NULL;
-	INT_TYPE childTokenCount = 0;
+	TROT_INT childTokenCount = 0;
 	trotListRef *lrChildTokenName = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
@@ -2110,14 +2110,14 @@ static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrEnumChildren = NULL;
-	INT_TYPE enumChildrenCount = 0;
+	TROT_INT enumChildrenCount = 0;
 	trotListRef *lrEnumChild = NULL;
-	INT_TYPE enumChildTokenType = 0;
+	TROT_INT enumChildTokenType = 0;
 	trotListRef *lrEnumName = NULL;
-	INT_TYPE enumValue = 0;
+	TROT_INT enumValue = 0;
 
-	INT_TYPE enumListCount = 0;
-	INT_TYPE enumListIndex = 0;
+	TROT_INT enumListCount = 0;
+	TROT_INT enumListIndex = 0;
 	trotListRef *lrEnumListEnum = NULL;
 	trotListRef *lrEnumListEnumName = NULL;
 
@@ -2245,14 +2245,14 @@ static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum )
 	\param value On function success and if found was 1, this will be the value of enum.
 	\return TROT_RC
 */
-static TROT_RC getEnumValue( trotListRef *lrToken, trotListRef *lrName, INT_TYPE *found, INT_TYPE *value )
+static TROT_RC getEnumValue( trotListRef *lrToken, trotListRef *lrName, TROT_INT *found, TROT_INT *value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrEnumList = NULL;
-	INT_TYPE enumListCount = 0;
-	INT_TYPE enumListIndex = 0;
+	TROT_INT enumListCount = 0;
+	TROT_INT enumListIndex = 0;
 	trotListRef *lrEnum = NULL;
 	trotListRef *lrEnumName = NULL;
 
@@ -2383,14 +2383,14 @@ static TROT_RC compareListToCString( trotListRef *lrValue, const char *cstring, 
 		lr = ["abc.def.ghi"]
 		lrParts will be [["abc]["def"]["ghi"]]
 */
-static TROT_RC splitList( trotListRef *lr, INT_TYPE separator, trotListRef **lrPartList )
+static TROT_RC splitList( trotListRef *lr, TROT_INT separator, trotListRef **lrPartList )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE count = 0;
-	INT_TYPE index = 0;
-	INT_TYPE character = 0;
+	TROT_INT count = 0;
+	TROT_INT index = 0;
+	TROT_INT character = 0;
 
 	trotListRef *newLrPartList = NULL;
 	trotListRef *lrPart = NULL;
@@ -2471,25 +2471,25 @@ static TROT_RC createFinalList( trotListRef *lrTokenTree )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrParentTokenStack = NULL;
-	INT_TYPE parentTokenStackCount = 0;
+	TROT_INT parentTokenStackCount = 0;
 
 	trotListRef *lrParentTokenIndicesStack = NULL;
 
-	INT_TYPE parentTokenType = 0;
+	TROT_INT parentTokenType = 0;
 
 	trotListRef *lrToken = NULL;
 	trotListRef *lrTokenChildren = NULL;
 	trotListRef *lrTokenFinalList = NULL;
-	INT_TYPE tokenChildrenCount = 0;
-	INT_TYPE tokenChildrenIndex = 0;
+	TROT_INT tokenChildrenCount = 0;
+	TROT_INT tokenChildrenIndex = 0;
 
 	trotListRef *lrChildToken = NULL;
 	trotListRef *lrChildTokenValue = NULL;
-	INT_TYPE childTokenValueChildrenCount = 0; /* TODO: rename this, remove the "children" */
-	INT_TYPE childTokenValueChildrenIndex = 0; /* TODO: same here */
+	TROT_INT childTokenValueChildrenCount = 0; /* TODO: rename this, remove the "children" */
+	TROT_INT childTokenValueChildrenIndex = 0; /* TODO: same here */
 	trotListRef *lrChildTokenFinalList = NULL;
-	INT_TYPE childTokenType = 0;
-	INT_TYPE childTokenValueInt = 0;
+	TROT_INT childTokenType = 0;
+	TROT_INT childTokenValueInt = 0;
 
 
 	/* CODE */
@@ -2767,22 +2767,22 @@ static TROT_RC trotPrintTokens( trotListRef *lrTokenList )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE count = 0;
-	INT_TYPE index = 0;
+	TROT_INT count = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE currentLine = 1;
+	TROT_INT currentLine = 1;
 
 	trotListRef *lrToken = NULL;
 
-	INT_TYPE tokenLine = 0;
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenLine = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrValue = NULL;
-	INT_TYPE tokenNumber = 0;
+	TROT_INT tokenNumber = 0;
 
 	trotListRef *lrUtf8Bytes = NULL;
-	INT_TYPE utf8Count = 0;
-	INT_TYPE utf8Index = 0;
-	INT_TYPE utf8Byte = 0;
+	TROT_INT utf8Count = 0;
+	TROT_INT utf8Index = 0;
+	TROT_INT utf8Byte = 0;
 
 
 	/* CODE */
@@ -2931,19 +2931,19 @@ static int trotPrintTokenTree( trotListRef *lrTokenTree, int indent )
 	int j = 0;
 	int count = 0;
 
-	INT_TYPE tokenType = 0; /* TODO: do we have an enum for this? */
+	TROT_INT tokenType = 0; /* TODO: do we have an enum for this? */
 
 	trotListRef *lrChildren = NULL;
 	trotListRef *lrChildToken = NULL;
-	INT_TYPE childTokenType = 0;
-	INT_TYPE childTokenValueInt = 0;
+	TROT_INT childTokenType = 0;
+	TROT_INT childTokenValueInt = 0;
 
 	trotListRef *lrValue = NULL;
 
 	trotListRef *lrUtf8Bytes = NULL;
-	INT_TYPE utf8Count = 0;
-	INT_TYPE utf8Index = 0;
-	INT_TYPE utf8Byte = 0;
+	TROT_INT utf8Count = 0;
+	TROT_INT utf8Index = 0;
+	TROT_INT utf8Byte = 0;
 
 
 	/* PRECOND */
@@ -3135,7 +3135,7 @@ static int trotPrintTokenTree( trotListRef *lrTokenTree, int indent )
 	return rc;
 }
 
-static void trotPrintTokenType( INT_TYPE tokenType )
+static void trotPrintTokenType( TROT_INT tokenType )
 {
 	char *strings[] =
 	{

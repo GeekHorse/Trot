@@ -184,7 +184,7 @@ static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int si
 
 	trotListRef *lr2 = NULL;
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
 
 	/* CODE */
@@ -310,15 +310,15 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 
 	trotListRef *lrEmpty = NULL;
 
-	INT_TYPE index1 = 0;
-	INT_TYPE index2 = 0;
+	TROT_INT index1 = 0;
+	TROT_INT index2 = 0;
 
-	INT_TYPE usedIndex1 = 0;
-	INT_TYPE usedIndex2 = 0;
+	TROT_INT usedIndex1 = 0;
+	TROT_INT usedIndex2 = 0;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
-	INT_TYPE delistIndex = 0;
+	TROT_INT delistIndex = 0;
 
 
 	/* CODE */
@@ -404,15 +404,15 @@ static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
 
 	trotListRef *lrSpan = NULL;
 
-	INT_TYPE index1 = 0;
-	INT_TYPE index2 = 0;
+	TROT_INT index1 = 0;
+	TROT_INT index2 = 0;
 
-	INT_TYPE usedIndex1 = 0;
-	INT_TYPE usedIndex2 = 0;
+	TROT_INT usedIndex1 = 0;
+	TROT_INT usedIndex2 = 0;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
-	INT_TYPE delistIndex = 0;
+	TROT_INT delistIndex = 0;
 
 
 	/* CODE */

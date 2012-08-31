@@ -65,18 +65,18 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 	int stackEmpty = 0;
 
 	trotList *l1 = NULL;
-	INT_TYPE count1 = 0;
-	INT_TYPE n1 = 0;
+	TROT_INT count1 = 0;
+	TROT_INT n1 = 0;
 	int kind1 = NODE_KIND_HEAD_OR_TAIL;
 	trotList *subL1 = NULL;
 
 	trotList *l2 = NULL;
-	INT_TYPE count2 = 0;
-	INT_TYPE n2 = 0;
+	TROT_INT count2 = 0;
+	TROT_INT n2 = 0;
 	int kind2 = NODE_KIND_HEAD_OR_TAIL;
 	trotList *subL2 = NULL;
 
-	INT_TYPE index = 0;
+	TROT_INT index = 0;
 
 
 	/* PRECOND */
@@ -266,17 +266,17 @@ TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
 	\param indexEnd end index of items you want to enlist.
 	\return TROT_RC
 */
-TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefEnlist( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
-	INT_TYPE tempI = 0;
+	TROT_INT tempI = 0;
 
 	trotListNode *node = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListNode *startNode = NULL;
 
@@ -458,14 +458,14 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 	\param index index of list you want to delist.
 	\return TROT_RC
 */
-TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
+TROT_RC trotListRefDelist( trotListRef *lr, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	trotListNode *node = NULL;
 	trotListNode *insertBeforeThisNode = NULL;
@@ -627,21 +627,21 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 		On success, this will be a copy of the span.
 	\return TROT_RC
 */
-TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A )
+TROT_RC trotListRefCopySpan( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd, trotListRef **lrCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
-	INT_TYPE tempI = 0;
+	TROT_INT tempI = 0;
 
 	trotListRef *newListRef = NULL;
 
 	trotListNode *node = NULL;
 	trotListNode *tail = NULL;
 
-	INT_TYPE count = 0;
+	TROT_INT count = 0;
 
 	int i = 0;
 
@@ -753,7 +753,7 @@ TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE inde
 	\param indexEnd index of end of span.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
+TROT_RC trotListRefRemoveSpan( trotListRef *lr, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

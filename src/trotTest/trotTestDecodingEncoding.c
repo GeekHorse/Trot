@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern const char *opNames[];
 
 /******************************************************************************/
-static int doesFileExist( trotListRef *lrName, INT_TYPE *exist );
+static int doesFileExist( trotListRef *lrName, TROT_INT *exist );
 
 typedef int (*ProcessFunction)( int dirNumber, int fileNumber, trotListRef *lrName );
 static int processFiles( char *directory, ProcessFunction func );
@@ -100,7 +100,7 @@ int testDecodingEncoding()
 }
 
 /******************************************************************************/
-static int doesFileExist( trotListRef *lrName, INT_TYPE *exist )
+static int doesFileExist( trotListRef *lrName, TROT_INT *exist )
 {
 	/* DATA */
 	int rc = 0;
@@ -156,7 +156,7 @@ static int processFiles( char *directory, ProcessFunction func )
 	int dirNumber = 1;
 	int fileNumber = 1;
 
-	INT_TYPE exist = 0;
+	TROT_INT exist = 0;
 
 	trotListRef *lrName = NULL;
 
@@ -256,9 +256,9 @@ static int testTokenizingGood( int dirNumber, int fileNumber, trotListRef *lrNam
 	trotListRef *lrCharacters = NULL;
 	trotListRef *lrTokenList = NULL;
 
-	INT_TYPE count = 0;
-	INT_TYPE index = 0;
-	INT_TYPE tokenType = 0;
+	TROT_INT count = 0;
+	TROT_INT index = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrToken = NULL;
 
 
@@ -363,13 +363,13 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName )
 	trotListRef *lrCharacters = NULL;
 	trotListRef *lrTokenList = NULL;
 
-	INT_TYPE count = 0;
-	INT_TYPE index = 0;
-	INT_TYPE tokenType = 0;
+	TROT_INT count = 0;
+	TROT_INT index = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrToken = NULL;
 
-	INT_TYPE line = 0;
-	INT_TYPE numberValue = 0;
+	TROT_INT line = 0;
+	TROT_INT numberValue = 0;
 
 
 	/* CODE */
@@ -599,22 +599,22 @@ static int printTokens( trotListRef *lrTokenList )
 	/* DATA */
 	int rc = 0;
 
-	INT_TYPE count = 0;
-	INT_TYPE index = 0;
+	TROT_INT count = 0;
+	TROT_INT index = 0;
 
-	INT_TYPE currentLine = 1;
+	TROT_INT currentLine = 1;
 
 	trotListRef *lrToken = NULL;
 
-	INT_TYPE tokenLine = 0;
-	INT_TYPE tokenType = 0;
+	TROT_INT tokenLine = 0;
+	TROT_INT tokenType = 0;
 	trotListRef *lrValue = NULL;
-	INT_TYPE tokenNumber = 0;
+	TROT_INT tokenNumber = 0;
 
 	trotListRef *lrUtf8Bytes = NULL;
-	INT_TYPE utf8Count = 0;
-	INT_TYPE utf8Index = 0;
-	INT_TYPE utf8Byte = 0;
+	TROT_INT utf8Count = 0;
+	TROT_INT utf8Index = 0;
+	TROT_INT utf8Byte = 0;
 
 
 	/* CODE */

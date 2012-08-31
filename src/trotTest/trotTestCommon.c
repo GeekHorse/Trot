@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int addListWithValue( trotListRef *lr, INT_TYPE index, INT_TYPE value )
+int addListWithValue( trotListRef *lr, TROT_INT index, TROT_INT value )
 {
 	/* DATA */
 	int rc = 0;
@@ -64,7 +64,7 @@ int createAllInts( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -108,7 +108,7 @@ int createAllLists( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -152,7 +152,7 @@ int createIntListAlternating( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -203,7 +203,7 @@ int createListIntAlternating( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -254,7 +254,7 @@ int createHalfIntHalfList( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -305,7 +305,7 @@ int createHalfListHalfInt( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -356,7 +356,7 @@ int createSelfRefs( trotListRef **lr, int count )
 
 	trotListRef *newList = NULL;
 
-	INT_TYPE i = 1;
+	TROT_INT i = 1;
 
 	/* CODE */
 	TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
@@ -386,14 +386,14 @@ int createSelfRefs( trotListRef **lr, int count )
 }
 
 /******************************************************************************/
-int check( trotListRef *lr, INT_TYPE index, INT_TYPE valueToCheckAgainst )
+int check( trotListRef *lr, TROT_INT index, TROT_INT valueToCheckAgainst )
 {
 	/* DATA */
 	int rc = 0;
 
 	TROT_KIND kind = 0;
 
-	INT_TYPE valueInList = 0;
+	TROT_INT valueInList = 0;
 
 	trotListRef *subList = NULL;
 
@@ -786,10 +786,10 @@ TROT_RC listToCString( trotListRef *lr, char **cString_A )
 
 	char *newCString = NULL;
 
-	INT_TYPE count = 0;
-	INT_TYPE i = 1;
+	TROT_INT count = 0;
+	TROT_INT i = 1;
 
-	INT_TYPE c = 0;
+	TROT_INT c = 0;
 
 
 	/* CODE */

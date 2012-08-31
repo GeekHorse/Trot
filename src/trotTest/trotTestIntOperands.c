@@ -34,8 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_OP op, INT_TYPE resultWanted );
-static int testSingleOp( INT_TYPE value1, TROT_OP op, INT_TYPE resultWanted );
+static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT resultWanted );
+static int testSingleOp( TROT_INT value1, TROT_OP op, TROT_INT resultWanted );
 
 /******************************************************************************/
 int testIntOperands()
@@ -158,14 +158,14 @@ int testIntOperands()
 }
 
 /******************************************************************************/
-static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_OP op, INT_TYPE resultWanted )
+static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT resultWanted )
 {
 	/* DATA */
 	int rc = 0;
 
 	trotListRef *lr = NULL;
 
-	INT_TYPE resultActual = 0;
+	TROT_INT resultActual = 0;
 
 	int i = 0;
 
@@ -299,14 +299,14 @@ static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_OP op, INT_TYPE 
 }
 
 /******************************************************************************/
-static int testSingleOp( INT_TYPE value1, TROT_OP op, INT_TYPE resultWanted )
+static int testSingleOp( TROT_INT value1, TROT_OP op, TROT_INT resultWanted )
 {
 	/* DATA */
 	int rc = 0;
 
 	trotListRef *lr = NULL;
 
-	INT_TYPE resultActual = 0;
+	TROT_INT resultActual = 0;
 
 
 	/* CODE */

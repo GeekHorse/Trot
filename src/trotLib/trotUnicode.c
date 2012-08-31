@@ -57,14 +57,14 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE numberOfBytes = 0;
-	INT_TYPE index = 1;
+	TROT_INT numberOfBytes = 0;
+	TROT_INT index = 1;
 
-	INT_TYPE byte1 = 0;
-	INT_TYPE byte2 = 0;
-	INT_TYPE byte3 = 0;
-	INT_TYPE byte4 = 0;
-	INT_TYPE character = 0;
+	TROT_INT byte1 = 0;
+	TROT_INT byte2 = 0;
+	TROT_INT byte3 = 0;
+	TROT_INT byte4 = 0;
+	TROT_INT character = 0;
 
 
 	/* PRECOND */
@@ -267,14 +267,14 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	INT_TYPE numberOfCharacters = 0;
-	INT_TYPE index = 1;
+	TROT_INT numberOfCharacters = 0;
+	TROT_INT index = 1;
 
-	INT_TYPE character = 0;
-	INT_TYPE byte1 = 0;
-	INT_TYPE byte2 = 0;
-	INT_TYPE byte3 = 0;
-	INT_TYPE byte4 = 0;
+	TROT_INT character = 0;
+	TROT_INT byte1 = 0;
+	TROT_INT byte2 = 0;
+	TROT_INT byte3 = 0;
+	TROT_INT byte4 = 0;
 
 
 	/* PRECOND */
