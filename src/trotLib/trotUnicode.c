@@ -75,7 +75,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 	/* CODE */
 	/* get numberOfBytes */
 	rc = trotListRefGetCount( lrBytes, &numberOfBytes );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 	/* go through bytes */
 	index = 1;
@@ -285,7 +285,7 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 	/* CODE */
 	/* get numberOfCharacters */
 	rc = trotListRefGetCount( lrCharacters, &numberOfCharacters );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 	/* go through characters */
 	index = 1;

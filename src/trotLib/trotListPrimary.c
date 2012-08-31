@@ -264,14 +264,14 @@ void trotListRefFree( trotListRef **lr_F )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( lr_F == NULL );
+	PARANOID_ERR_IF( lr_F == NULL );
 
 	if ( (*lr_F) == NULL )
 	{
 		return;
 	}
 
-	ERR_IF_PARANOID( (*lr_F) -> lParent != NULL );
+	PARANOID_ERR_IF( (*lr_F) -> lParent != NULL );
 
 	list = (*lr_F) -> lPointsTo;
 
@@ -427,7 +427,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	(*kind) = node -> kind;
@@ -642,7 +642,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* *** */
@@ -808,7 +808,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* *** */
@@ -986,7 +986,7 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
@@ -1052,7 +1052,7 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
@@ -1124,7 +1124,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
@@ -1211,7 +1211,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
@@ -1297,7 +1297,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
 	i = (node -> count) - 1 - (count - index);
@@ -1404,7 +1404,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* *** */
@@ -1595,7 +1595,7 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* create our new twin */
@@ -1825,7 +1825,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( n == NULL );
+	PARANOID_ERR_IF( n == NULL );
 
 	TROT_MALLOC( newNode, trotListNode, 1 );
 
@@ -1899,8 +1899,8 @@ TROT_RC newIntNode( trotListNode **n_A )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( n_A == NULL );
-	ERR_IF_PARANOID( (*n_A) != NULL );
+	PARANOID_ERR_IF( n_A == NULL );
+	PARANOID_ERR_IF( (*n_A) != NULL );
 
 	TROT_MALLOC( newNode, trotListNode, 1 );
 
@@ -1940,8 +1940,8 @@ TROT_RC newListNode( trotListNode **n_A )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( n_A == NULL );
-	ERR_IF_PARANOID( (*n_A) != NULL );
+	PARANOID_ERR_IF( n_A == NULL );
+	PARANOID_ERR_IF( (*n_A) != NULL );
 
 	TROT_MALLOC( newNode, trotListNode, 1 );
 
@@ -1978,8 +1978,8 @@ static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( l == NULL );
-	ERR_IF_PARANOID( r == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( r == NULL );
 
 	refNode = l -> refListHead -> next;
 	while ( refNode != l -> refListTail )
@@ -2030,8 +2030,8 @@ static void _refListRemove( trotList *l, trotListRef *r )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( l == NULL );
-	ERR_IF_PARANOID( r == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( r == NULL );
 
 	/* foreach refNode */
 	refNode = l -> refListHead -> next;
@@ -2074,10 +2074,10 @@ static void _refListRemove( trotList *l, trotListRef *r )
 
 		refNode = refNode -> next;
 
-		ERR_IF_PARANOID( refNode == l -> refListTail );
+		PARANOID_ERR_IF( refNode == l -> refListTail );
 	}
 
-	ERR_IF_PARANOID( 1 );
+	PARANOID_ERR_IF( 1 );
 
 	return;
 }
@@ -2096,8 +2096,8 @@ static void _isListReachable( trotList *l )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( l == NULL );
-	ERR_IF_PARANOID( l -> reachable == 0 );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( l -> reachable == 0 );
 
 	/* go "up" trying to find a client ref */
 	currentL = l;
@@ -2176,8 +2176,8 @@ static int _findNextParent( trotList *l, int queryVisited, trotList **parent )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( l == NULL );
-	ERR_IF_PARANOID( parent == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( parent == NULL );
 
 	/* for each reference that points to this list */
 	refNode = l -> refListHead;

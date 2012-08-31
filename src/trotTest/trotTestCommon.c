@@ -793,9 +793,9 @@ TROT_RC listToCString( trotListRef *lr, char **cString_A )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( lr == NULL );
-	ERR_IF_PARANOID( cString_A == NULL );
-	ERR_IF_PARANOID( (*cString_A) != NULL );
+	PARANOID_ERR_IF( lr == NULL );
+	PARANOID_ERR_IF( cString_A == NULL );
+	PARANOID_ERR_IF( (*cString_A) != NULL );
 
 	rc = trotListRefGetCount( lr, &count );
 	ERR_IF_PASSTHROUGH;
@@ -808,8 +808,8 @@ TROT_RC listToCString( trotListRef *lr, char **cString_A )
 		rc = trotListRefGetInt( lr, i, &c );
 		ERR_IF_PASSTHROUGH;
 
-		ERR_IF_PARANOID( c < 0 );
-		ERR_IF_PARANOID( c > 255 );
+		PARANOID_ERR_IF( c < 0 );
+		PARANOID_ERR_IF( c > 255 );
 
 		newCString[ i - 1 ] = (char)c;
 
@@ -842,8 +842,8 @@ TROT_RC appendCStringToList( trotListRef *lr, char *cString )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( lr == NULL );
-	ERR_IF_PARANOID( cString == NULL );
+	PARANOID_ERR_IF( lr == NULL );
+	PARANOID_ERR_IF( cString == NULL );
 
 	while ( *cString != '\0' )
 	{

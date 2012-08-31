@@ -107,7 +107,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 	{
 		/* increment top of stack */
 		rc = trotStackIncrementTopIndex( stack );
-		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 		/* get both stack info */
 		stackNode = stack -> tail -> prev;
@@ -123,7 +123,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 		if ( index > count1 && index > count2 )
 		{
 			rc = trotStackPop( stack, &stackEmpty );
-			ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+			PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 			if ( stackEmpty )
 			{
@@ -167,7 +167,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 		/* get and compare ints */
 		if ( kind1 == NODE_KIND_INT )
 		{
-			ERR_IF_PARANOID( kind2 != NODE_KIND_INT );
+			PARANOID_ERR_IF( kind2 != NODE_KIND_INT );
 
 			n1 = stackNode -> l1Node -> n[ stackNode -> l1Count ];
 			n2 = stackNode -> l2Node -> n[ stackNode -> l2Count ];
@@ -186,8 +186,8 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 			continue;
 		}
 
-		ERR_IF_PARANOID( kind1 != NODE_KIND_LIST );
-		ERR_IF_PARANOID( kind2 != NODE_KIND_LIST );
+		PARANOID_ERR_IF( kind1 != NODE_KIND_LIST );
+		PARANOID_ERR_IF( kind2 != NODE_KIND_LIST );
 
 		/* get lists */
 		subL1 = stackNode -> l1Node -> l[ stackNode -> l1Count ] -> lPointsTo;
@@ -332,7 +332,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* split this node if necessary */
@@ -359,7 +359,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* split this node if necessary */
@@ -505,7 +505,7 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == l -> tail );
+		PARANOID_ERR_IF( node == l -> tail );
 	}
 
 	/* check kind */
@@ -700,7 +700,7 @@ TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE inde
 		count += node -> count;
 		node = node -> next;
 
-		ERR_IF_PARANOID( node == tail );
+		PARANOID_ERR_IF( node == tail );
 	}
 
 	/* begin to copy */
@@ -782,7 +782,7 @@ TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE in
 
 	/* remove list */
 	rc = trotListRefRemoveList( lr, indexStart < indexEnd ? indexStart : indexEnd, &lrRemoved );
-	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
 
 	/* free removed list */
 	trotListRefFree( &lrRemoved );

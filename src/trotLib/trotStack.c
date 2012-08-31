@@ -57,8 +57,8 @@ TROT_RC trotStackInit( trotStack **stack )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
-	ERR_IF_PARANOID( (*stack) != NULL );
+	PARANOID_ERR_IF( stack == NULL );
+	PARANOID_ERR_IF( (*stack) != NULL );
 
 	TROT_MALLOC( newHead, trotStackNode, 1 );
 	TROT_MALLOC( newTail, trotStackNode, 1 );
@@ -117,7 +117,7 @@ void trotStackFree( trotStack **stack )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
+	PARANOID_ERR_IF( stack == NULL );
 
 	if ( (*stack) == NULL )
 	{
@@ -159,7 +159,7 @@ TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
+	PARANOID_ERR_IF( stack == NULL );
 
 	/* are these two lists already in the stack? */
 	node = stack -> head -> next;
@@ -216,10 +216,10 @@ TROT_RC trotStackPop( trotStack *stack, int *empty )
 
 
 	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
-	ERR_IF_PARANOID( empty == NULL );
+	PARANOID_ERR_IF( stack == NULL );
+	PARANOID_ERR_IF( empty == NULL );
 
-	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
+	PARANOID_ERR_IF( stack -> tail -> prev == stack -> head );
 
 	node = stack -> tail -> prev;
 
@@ -252,9 +252,9 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack )
 	trotStackNode *stackNode = NULL;
 
 	/* CODE */
-	ERR_IF_PARANOID( stack == NULL );
+	PARANOID_ERR_IF( stack == NULL );
 
-	ERR_IF_PARANOID( stack -> tail -> prev == stack -> head );
+	PARANOID_ERR_IF( stack -> tail -> prev == stack -> head );
 
 	stackNode = stack -> tail -> prev;
 

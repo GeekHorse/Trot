@@ -68,9 +68,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if ( BE_PARANOID == 1 )
-#define ERR_IF_PARANOID( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
+#define PARANOID_ERR_IF( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
 #else
-#define ERR_IF_PARANOID( cond )
+#define PARANOID_ERR_IF( cond )
 #endif
 
 /******************************************************************************/
