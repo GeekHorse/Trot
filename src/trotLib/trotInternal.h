@@ -92,24 +92,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef enum
 {
 	/* NOTE: These first 9 tokens are ones that our tokenizer produces */
-	TOKEN_L_BRACKET = 1,
-	TOKEN_R_BRACKET = 2,
-	TOKEN_L_BRACE = 3,
-	TOKEN_R_BRACE = 4,
-	TOKEN_L_PARENTHESIS = 5,
-	TOKEN_R_PARENTHESIS = 6,
-	TOKEN_STRING = 7,
-	TOKEN_WORD = 8,
-	TOKEN_NUMBER = 9, /* NOTE: this is not created, but changed from TOKEN_WORD in tokenizer */
+	TOKEN_TYPE_L_BRACKET = 1,
+	TOKEN_TYPE_R_BRACKET = 2,
+	TOKEN_TYPE_L_BRACE = 3,
+	TOKEN_TYPE_R_BRACE = 4,
+	TOKEN_TYPE_L_PARENTHESIS = 5,
+	TOKEN_TYPE_R_PARENTHESIS = 6,
+	TOKEN_TYPE_STRING = 7,
+	TOKEN_TYPE_WORD = 8,
+	TOKEN_TYPE_NUMBER = 9, /* NOTE: this is not created, but changed from TOKEN_WORD in tokenizer */
 
 	/* NOTE: These next 3 tokens are ones that our decoder changes tokens into */
-	TOKEN_TWIN = 10, /* from TOKEN_WORD */
-	TOKEN_INCLUDE = 11, /* from TOKEN_L_BRACKET and TOKEN_L_BRACE */
-	TOKEN_OP = 12, /* from TOKEN_WORD */
+	TOKEN_TYPE_TWIN = 10, /* from TOKEN_WORD */
+	TOKEN_TYPE_INCLUDE = 11, /* from TOKEN_L_BRACKET and TOKEN_L_BRACE */
+	TOKEN_TYPE_OP = 12, /* from TOKEN_WORD */
 
 	/* NOTE: this next token is one that our decoder produces */
-	TOKEN_NUMBER_RAW = 13
+	TOKEN_TYPE_NUMBER_RAW = 13
 } TOKEN_TYPE;
+#define TOKEN_TYPE_MIN 1
+#define TOKEN_TYPE_MAX 13
 
 typedef enum
 {

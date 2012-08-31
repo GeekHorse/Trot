@@ -405,7 +405,7 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName )
 
 		TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_LIST_SUCCESS );
 
-		if ( tokenType == TOKEN_NUMBER )
+		if ( tokenType == TOKEN_TYPE_NUMBER )
 		{
 			TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_LINE, &line ) != TROT_LIST_SUCCESS );
 
@@ -651,31 +651,31 @@ static int printTokens( trotListRef *lrTokenList )
 		}
 
 		/* print */
-		if ( tokenType == TOKEN_L_BRACKET )
+		if ( tokenType == TOKEN_TYPE_L_BRACKET )
 		{
 			printf( "[ " );
 		}
-		else if ( tokenType == TOKEN_R_BRACKET )
+		else if ( tokenType == TOKEN_TYPE_R_BRACKET )
 		{
 			printf( "] " );
 		}
-		else if ( tokenType == TOKEN_L_PARENTHESIS )
+		else if ( tokenType == TOKEN_TYPE_L_PARENTHESIS )
 		{
 			printf( "( " );
 		}
-		else if ( tokenType == TOKEN_R_PARENTHESIS )
+		else if ( tokenType == TOKEN_TYPE_R_PARENTHESIS )
 		{
 			printf( ") " );
 		}
-		else if ( tokenType == TOKEN_L_BRACE )
+		else if ( tokenType == TOKEN_TYPE_L_BRACE )
 		{
 			printf( "{ " );
 		}
-		else if ( tokenType == TOKEN_R_BRACE )
+		else if ( tokenType == TOKEN_TYPE_R_BRACE )
 		{
 			printf( "} " );
 		}
-		else if ( tokenType == TOKEN_STRING || tokenType == TOKEN_WORD )
+		else if ( tokenType == TOKEN_TYPE_STRING || tokenType == TOKEN_TYPE_WORD )
 		{
 			/* get value */
 			trotListRefFree( &lrValue );
@@ -689,7 +689,7 @@ static int printTokens( trotListRef *lrTokenList )
 
 			TEST_ERR_IF( trotCharactersToUtf8( lrValue, lrUtf8Bytes ) != TROT_LIST_SUCCESS );
 
-			if ( tokenType == TOKEN_STRING )
+			if ( tokenType == TOKEN_TYPE_STRING )
 			{
 				printf( "\"" );
 			}
@@ -713,7 +713,7 @@ static int printTokens( trotListRef *lrTokenList )
 			}
 			
 
-			if ( tokenType == TOKEN_STRING )
+			if ( tokenType == TOKEN_TYPE_STRING )
 			{
 				printf( "\" " );
 			}

@@ -112,37 +112,37 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 		/* if [ */
 		else if ( character == '[' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_L_BRACKET, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_L_BRACKET, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if ] */
 		else if ( character == ']' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_R_BRACKET, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_R_BRACKET, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if ( */
 		else if ( character == '(' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_L_PARENTHESIS, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_L_PARENTHESIS, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if ) */
 		else if ( character == ')' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_R_PARENTHESIS, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_R_PARENTHESIS, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if { */
 		else if ( character == '{' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_L_BRACE, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_L_BRACE, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if } */
 		else if ( character == '}' )
 		{
-			rc = trotCreateToken( line, column, TOKEN_R_BRACE, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_R_BRACE, &lrToken );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if " */
@@ -152,7 +152,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			ERR_IF ( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
 
 			/* create token */
-			rc = trotCreateToken( line, column, TOKEN_STRING, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_STRING, &lrToken );
 			ERR_IF_PASSTHROUGH;
 
 			/* get value */
@@ -214,7 +214,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			ERR_IF( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
 
 			/* create token */
-			rc = trotCreateToken( line, column, TOKEN_WORD, &lrToken );
+			rc = trotCreateToken( line, column, TOKEN_TYPE_WORD, &lrToken );
 			ERR_IF_PASSTHROUGH;
 
 			/* get value */
@@ -337,12 +337,12 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 	ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 	/* these need a value */
-	if (    tokenType == TOKEN_L_BRACKET
-	     || tokenType == TOKEN_L_BRACE
-	     || tokenType == TOKEN_L_PARENTHESIS
-	     || tokenType == TOKEN_STRING
-	     || tokenType == TOKEN_WORD
-	     || tokenType == TOKEN_NUMBER_RAW
+	if (    tokenType == TOKEN_TYPE_L_BRACKET
+	     || tokenType == TOKEN_TYPE_L_BRACE
+	     || tokenType == TOKEN_TYPE_L_PARENTHESIS
+	     || tokenType == TOKEN_TYPE_STRING
+	     || tokenType == TOKEN_TYPE_WORD
+	     || tokenType == TOKEN_TYPE_NUMBER_RAW
 	   )
 	{
 		/* add value */
@@ -355,9 +355,9 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 		trotListRefFree( &lr );
 
 		/* these tokens need finallist */
-		if (    tokenType == TOKEN_L_BRACKET
-		     || tokenType == TOKEN_L_BRACE
-		     || tokenType == TOKEN_WORD /* in case it's changed into TWIN and becomes a list */
+		if (    tokenType == TOKEN_TYPE_L_BRACKET
+		     || tokenType == TOKEN_TYPE_L_BRACE
+		     || tokenType == TOKEN_TYPE_WORD /* in case it's changed into TWIN and becomes a list */
 		   )
 		{
 			/* add finallist */
@@ -370,8 +370,8 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 			trotListRefFree( &lr );
 
 			/* these tokens needs name, enums */
-			if (    tokenType == TOKEN_L_BRACKET
-			     || tokenType == TOKEN_L_BRACE
+			if (    tokenType == TOKEN_TYPE_L_BRACKET
+			     || tokenType == TOKEN_TYPE_L_BRACE
 			   )
 			{
 				/* add name */
@@ -393,7 +393,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 				trotListRefFree( &lr );
 
 				/* this token needs vars */
-				if ( tokenType == TOKEN_L_BRACE )
+				if ( tokenType == TOKEN_TYPE_L_BRACE )
 				{
 					/* add vars */
 					rc = trotListRefInit( &lr );
@@ -649,7 +649,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	if ( isNumber == 1 )
 	{
 		/* mark token as a number */
-		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_NUMBER );
+		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_TYPE_NUMBER );
 		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* remove old string value and replace with number value */
