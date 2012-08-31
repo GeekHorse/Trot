@@ -38,23 +38,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC _addFileToFileList( trotListRef *lrFileList, trotListRef *lrFileName, trotListRef **lrFileFinalList_A );
+static TROT_RC addFileToFileList( trotListRef *lrFileList, trotListRef *lrFileName, trotListRef **lrFileFinalList_A );
 
 static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTokenTree );
-
-static TROT_RC createFinalList( trotListRef *lrTokenTree );
 
 static TROT_RC handleMetaData( trotListRef *lrTokenTree, trotListRef *lrFileList );
 static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentToken, trotListRef *lrParenthesisToken );
 static TROT_RC handleMetaDataEnum( trotListRef *lrParentToken, trotListRef *lrParenthesisTokenValue );
 static TROT_RC handleMetaDataInclude( trotListRef *lrFileList, trotListRef *lrParentToken, trotListRef *lrParenthesisTokenValue );
 static TROT_RC handleMetaDataFunction( trotListRef *lrParentToken, trotListRef *lrParenthesisTokenValue );
-
 static TROT_RC handleAllWords( trotListRef *lrTokenTree );
 static TROT_RC handleWord( trotListRef *lrParentTokenStack, INT_TYPE parentIndex, trotListRef *lrTokenWord );
 static TROT_RC handleWordOp( trotListRef *lrTokenWord, int *wasOp );
-static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, INT_TYPE *varIndex );
 
+static TROT_RC findParentName( trotListRef *lrParentTokenStack, trotListRef *lrName, int *foundName, trotListRef **lrParent, int *foundVar, INT_TYPE *varIndex );
 static TROT_RC findChildByNameList( trotListRef *lrParentTokenPassedIn, trotListRef *lrNameList, trotListRef **lrTokenFound, INT_TYPE *enumFound );
 
 static TROT_RC addEnum( trotListRef *lrEnumList, trotListRef *lrEnum );
@@ -64,8 +61,7 @@ static TROT_RC compareListToCString( trotListRef *lrValue, const char *cstring, 
 
 static TROT_RC splitList( trotListRef *lr, INT_TYPE separator, trotListRef **lrPartList );
 
-/* TODO: put the above functions in the same order they appear below */
-/* TODO: change name of static functions to put an underscore in front? */
+static TROT_RC createFinalList( trotListRef *lrTokenTree );
 
 /* TODO: make sure enum name doesn't have same value as child list, and vice versa */
 
@@ -151,7 +147,7 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 
 	/* *** */
 	/* create our first File */
-	rc = _addFileToFileList( lrFileList, lrGivenFilenameOfCharacters, NULL );
+	rc = addFileToFileList( lrFileList, lrGivenFilenameOfCharacters, NULL );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -235,13 +231,8 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 				rc = handleAllWords( lrTokenTree );
 				ERR_IF_PASSTHROUGH;
 			}
-			/* handle twins: TODO merge this with pass 2? */
-			else if ( pass == 3 )
-			{
-				/* TODO */
-			}
 			/* optimize code lists */
-			else if ( pass == 4 )
+			else if ( pass == 3 )
 			{
 				/* TODO */
 			}
@@ -271,7 +262,7 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotListRef *lrGivenFilenam
 		/* next pass */
 		pass += 1;
 
-	} while ( pass <= 5 );
+	} while ( pass <= 4 );
 
 	/* get first file */
 	trotListRefFree( &lrFile );
@@ -366,7 +357,7 @@ TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotListRef *lrFilename, trot
 	\param 
 	\return TROT_RC
 */
-static TROT_RC _addFileToFileList( trotListRef *lrFileList, trotListRef *lrFileName, trotListRef **lrFileFinalList_A )
+static TROT_RC addFileToFileList( trotListRef *lrFileList, trotListRef *lrFileName, trotListRef **lrFileFinalList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_LIST_SUCCESS;
@@ -495,7 +486,8 @@ static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTo
 		rc = trotListRefGetListTwin( lrParent, TOKEN_INDEX_FINALLIST, &lrFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		lrFinalList -> lPointsTo -> tag = TROT_TAG_CODE;
+		rc = trotListRefSetTag( lrFinalList, TROT_TAG_CODE );
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* TODO: think of a better way to do this */
 		/* add in 'vars' since L_BRACE needs it but L_BRACKET doesn't */
@@ -555,7 +547,8 @@ static TROT_RC tokenListToTokenTree( trotListRef *lrTokenList, trotListRef *lrTo
 					rc = trotListRefGetListTwin( lrToken, TOKEN_INDEX_FINALLIST, &lrFinalList );
 					ERR_IF_PASSTHROUGH;
 
-					lrFinalList -> lPointsTo -> tag = TROT_TAG_CODE;
+					rc = trotListRefSetTag( lrFinalList, TROT_TAG_CODE );
+					ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 				}
 
 				break;
@@ -969,9 +962,9 @@ static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentTo
 		ERR_IF_PASSTHROUGH;
 
 		/* TODO: make sure list wasn't tagged twice */
-		ERR_IF_PARANOID( lrParentTokenFinalList == NULL );
-		ERR_IF_PARANOID( lrParentTokenFinalList -> lPointsTo == NULL );
-		lrParentTokenFinalList -> lPointsTo -> tag = TROT_TAG_FUNCTION;
+
+		rc = trotListRefSetTag( lrParentTokenFinalList, TROT_TAG_FUNCTION );
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		/* handle */
 		rc = handleMetaDataFunction( lrParentToken, lrChildren );
@@ -996,9 +989,8 @@ static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentTo
 		rc = trotListRefGetListTwin( lrParentToken, TOKEN_INDEX_FINALLIST, &lrParentTokenFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		/* TODO: make setting and getting tags a function */
-		ERR_IF_PARANOID( lrParentTokenFinalList -> lPointsTo == NULL );
-		lrParentTokenFinalList -> lPointsTo -> tag = TROT_TAG_TEXT;
+		rc = trotListRefSetTag( lrParentTokenFinalList, TROT_TAG_TEXT );
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		goto cleanup;
 	}
@@ -1018,9 +1010,8 @@ static TROT_RC handleMetaData2( trotListRef *lrFileList, trotListRef *lrParentTo
 		rc = trotListRefGetListTwin( lrParentToken, TOKEN_INDEX_FINALLIST, &lrParentTokenFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		/* TODO: make setting and getting tags a function */
-		ERR_IF_PARANOID( lrParentTokenFinalList -> lPointsTo == NULL );
-		lrParentTokenFinalList -> lPointsTo -> tag = TROT_TAG_RAW_CODE;
+		rc = trotListRefSetTag( lrParentTokenFinalList, TROT_TAG_RAW_CODE );
+		ERR_IF_PARANOID( rc != TROT_LIST_SUCCESS );
 
 		goto cleanup;
 	}
@@ -1219,7 +1210,7 @@ static TROT_RC handleMetaDataInclude( trotListRef *lrFileList, trotListRef *lrPa
 	/* if the filename isn't already in our file list, we need to create it */
 	if ( fileNameFound == 0 )
 	{
-		rc = _addFileToFileList( lrFileList, lrStringTokenValue, &lrFileTokenTreeFinalList );
+		rc = addFileToFileList( lrFileList, lrStringTokenValue, &lrFileTokenTreeFinalList );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -2305,7 +2296,6 @@ static TROT_RC getEnumValue( trotListRef *lrToken, trotListRef *lrName, INT_TYPE
 
 	return rc;
 }
-
 
 /* TODO: move this into some "tools.c" or "misc.c" file? */
 /******************************************************************************/
