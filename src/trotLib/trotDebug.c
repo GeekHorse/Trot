@@ -50,7 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TROT_RC _trotPrintList( trotListRef *lr )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	INT_TYPE count = 0;
 	INT_TYPE i = 1;
@@ -72,8 +72,8 @@ TROT_RC _trotPrintList( trotListRef *lr )
 		rc = trotListRefGetInt( lr, i, &c );
 		ERR_IF_PASSTHROUGH;
 
-		ERR_IF( c < 0, TROT_LIST_ERROR_NOT_BYTE_VALUE );
-		ERR_IF( c > 255, TROT_LIST_ERROR_NOT_BYTE_VALUE );
+		ERR_IF( c < 0, TROT_RC_ERROR_NOT_BYTE_VALUE );
+		ERR_IF( c > 255, TROT_RC_ERROR_NOT_BYTE_VALUE );
 
 		printf( "%c", c );
 

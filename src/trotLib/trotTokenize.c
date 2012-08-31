@@ -53,7 +53,7 @@ static int trotIsNewline( INT_TYPE character );
 TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *newLrTokenList = NULL;
 
@@ -84,7 +84,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 
 	/* get count */
 	rc = trotListRefGetCount( lrCharacters, &count );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* foreach character */
 	i = 1;
@@ -149,7 +149,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 		else if ( character == '"' )
 		{
 			/* strings cannot touch strings */
-			ERR_IF ( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
+			ERR_IF ( previousCharacter == '"', TROT_RC_ERROR_DECODE );
 
 			/* create token */
 			rc = trotCreateToken( line, column, TOKEN_TYPE_STRING, &lrToken );
@@ -165,7 +165,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 			i += 1;
 
 			/* there must be at least one character after the quote */
-			ERR_IF( i > count, TROT_LIST_ERROR_DECODE );
+			ERR_IF( i > count, TROT_RC_ERROR_DECODE );
 
 			while ( i <= count )
 			{
@@ -199,7 +199,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 				i += 1;
 			}
 
-			ERR_IF ( character != '"', TROT_LIST_ERROR_DECODE )
+			ERR_IF ( character != '"', TROT_RC_ERROR_DECODE )
 		}
 		/* if # */
 		else if ( character == '#' )
@@ -211,7 +211,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 		else 
 		{
 			/* strings cannot touch words */
-			ERR_IF( previousCharacter == '"', TROT_LIST_ERROR_DECODE );
+			ERR_IF( previousCharacter == '"', TROT_RC_ERROR_DECODE );
 
 			/* create token */
 			rc = trotCreateToken( line, column, TOKEN_TYPE_WORD, &lrToken );
@@ -234,7 +234,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 				ERR_IF_PASSTHROUGH;
 				
 				/* strings cannot touch words */
-				ERR_IF ( character == '"', TROT_LIST_ERROR_DECODE );
+				ERR_IF ( character == '"', TROT_RC_ERROR_DECODE );
 
 				/* if end of word */
 				if (
@@ -306,7 +306,7 @@ TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A )
 TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, trotListRef **lrToken_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *newToken = NULL;
 
@@ -332,9 +332,9 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 #endif
 
 	rc = trotListRefAppendInt( newToken, column );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	rc = trotListRefAppendInt( newToken, tokenType );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* these need a value */
 	if (    tokenType == TOKEN_TYPE_L_BRACKET
@@ -431,7 +431,7 @@ TROT_RC trotCreateToken( INT_TYPE line, INT_TYPE column, INT_TYPE tokenType, tro
 TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	INT_TYPE index = 0;
 	INT_TYPE count = 0;
@@ -454,11 +454,11 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 
 	/* get count */
 	rc = trotListRefGetCount( lrWord, &count );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* get first character */
 	rc = trotListRefGetInt( lrWord, 1, &character );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* SPECIAL CASE: if just '-', then it's a word */
 	if ( count == 1 && character == '-' )
@@ -483,20 +483,20 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 	}
 
 	rc = trotListRefGetInt( lrWord, index, &character );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
+	ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE );
 
-	ERR_IF( character == '0' && count != 1, TROT_LIST_ERROR_DECODE );
+	ERR_IF( character == '0' && count != 1, TROT_RC_ERROR_DECODE );
 
 	index += 1;
 
 	while ( index <= count )
 	{
 		rc = trotListRefGetInt( lrWord, index, &character );
-		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_LIST_ERROR_DECODE );
+		ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE );
 
 		index += 1;
 	}
@@ -505,11 +505,11 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 	index = 1;
 
 	rc = trotListRefGetInt( lrWord, index, &character );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	if ( character == '-' )
 	{
-		ERR_IF( count > INT_TYPE_MIN_STRING_LENGTH, TROT_LIST_ERROR_DECODE );
+		ERR_IF( count > INT_TYPE_MIN_STRING_LENGTH, TROT_RC_ERROR_DECODE );
 
 		if ( count == INT_TYPE_MIN_STRING_LENGTH )
 		{
@@ -519,9 +519,9 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 			while ( index <= count )
 			{	
 				rc = trotListRefGetInt( lrWord, index, &character );
-				PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF ( character > INT_TYPE_MIN_STRING[ i ], TROT_LIST_ERROR_DECODE );
+				ERR_IF ( character > INT_TYPE_MIN_STRING[ i ], TROT_RC_ERROR_DECODE );
 
 				if ( character < INT_TYPE_MIN_STRING[ i ] )
 				{
@@ -535,7 +535,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 	}
 	else
 	{
-		ERR_IF( count > INT_TYPE_MAX_STRING_LENGTH, TROT_LIST_ERROR_DECODE );
+		ERR_IF( count > INT_TYPE_MAX_STRING_LENGTH, TROT_RC_ERROR_DECODE );
 
 		if ( count == INT_TYPE_MAX_STRING_LENGTH )
 		{
@@ -544,9 +544,9 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 			while ( index <= count )
 			{	
 				rc = trotListRefGetInt( lrWord, index, &character );
-				PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF ( character > INT_TYPE_MAX_STRING[ i ], TROT_LIST_ERROR_DECODE );
+				ERR_IF ( character > INT_TYPE_MAX_STRING[ i ], TROT_RC_ERROR_DECODE );
 
 				if ( character < INT_TYPE_MAX_STRING[ i ] )
 				{
@@ -563,7 +563,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 	index = 1;
 
 	rc = trotListRefGetInt( lrWord, index, &character );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* if negative, get real first number */
 	if ( character == '-' )
@@ -571,7 +571,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 		index += 1;
 
 		rc = trotListRefGetInt( lrWord, index, &character );
-		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		newNumber = character - '0';
 		newNumber *= -1;
@@ -582,7 +582,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 		while ( index <= count )
 		{
 			rc = trotListRefGetInt( lrWord, index, &character );
-			PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	
 			newNumber *= 10;
 			newNumber -= character - '0';
@@ -600,7 +600,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 		while ( index <= count )
 		{
 			rc = trotListRefGetInt( lrWord, index, &character );
-			PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	
 			newNumber *= 10;
 			newNumber += character - '0';
@@ -628,7 +628,7 @@ TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, INT_TYPE *number 
 static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrValue = NULL;
 	int isNumber = 0;
@@ -650,11 +650,11 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 	{
 		/* mark token as a number */
 		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_TYPE, TOKEN_TYPE_NUMBER );
-		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* remove old string value and replace with number value */
 		rc = trotListRefReplaceWithInt( lrToken, TOKEN_INDEX_VALUE, number );
-		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	}
 	
 
@@ -675,7 +675,7 @@ static TROT_RC trotUpgradeWordToNumber( trotListRef *lrToken )
 static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_TYPE *i, INT_TYPE *line, INT_TYPE *column )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	INT_TYPE character = 0;
 	INT_TYPE previousCharacter = 0;
@@ -704,7 +704,7 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 	ERR_IF_PASSTHROUGH;
 
 	/* can't be ')' without a beginning '(' */
-	ERR_IF( character == ')', TROT_LIST_ERROR_DECODE );
+	ERR_IF( character == ')', TROT_RC_ERROR_DECODE );
 
 	/* if multi-line comment */
 	if ( character == '(' )
@@ -721,7 +721,7 @@ static TROT_RC trotSkipComments( trotListRef *lrCharacters, INT_TYPE count, INT_
 			/* are we past the end? */
 			/* this is an error because we shouldn't get to the end
 			   before we get to the last #) */
-			ERR_IF( (*i) > count, TROT_LIST_ERROR_DECODE );
+			ERR_IF( (*i) > count, TROT_RC_ERROR_DECODE );
 
 			/* get character */
 			previousCharacter = character;

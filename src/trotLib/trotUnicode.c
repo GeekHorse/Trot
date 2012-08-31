@@ -55,7 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	INT_TYPE numberOfBytes = 0;
 	INT_TYPE index = 1;
@@ -75,7 +75,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 	/* CODE */
 	/* get numberOfBytes */
 	rc = trotListRefGetCount( lrBytes, &numberOfBytes );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* go through bytes */
 	index = 1;
@@ -109,7 +109,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			/* validate second byte */
 			if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 			}
 
 			/* append character */
@@ -135,28 +135,28 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			{
 				if ( ! ( byte2 >= 0xA0 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 			else if ( byte1 <= 0xEC )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 			else if ( byte1 == 0xED )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0x9F ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 			else 
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 
@@ -168,7 +168,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			/* validate third byte */
 			if ( ! ( byte3 >= 0x80 && byte3 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 			}
 
 			/* append character */
@@ -194,21 +194,21 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			{
 				if ( ! ( byte2 >= 0x90 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 			else if ( byte1 <= 0xF3 )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 			else 
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0x8F ) )
 				{
-					ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 				}
 			}
 
@@ -220,7 +220,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			/* validate third byte */
 			if ( ! ( byte3 >= 0x80 && byte3 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 			}
 
 			/* get fourth byte */
@@ -231,7 +231,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 			/* validate fourth byte */
 			if ( ! ( byte4 >= 0x80 && byte4 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 			}
 
 			/* append character */
@@ -245,7 +245,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 		}
 
 		/* invalid first byte */
-		ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+		ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 	}
 
 
@@ -265,7 +265,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	INT_TYPE numberOfCharacters = 0;
 	INT_TYPE index = 1;
@@ -285,7 +285,7 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 	/* CODE */
 	/* get numberOfCharacters */
 	rc = trotListRefGetCount( lrCharacters, &numberOfCharacters );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* go through characters */
 	index = 1;
@@ -358,7 +358,7 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 		}
 		else
 		{
-			ERR_IF( 1, TROT_LIST_ERROR_UNICODE );
+			ERR_IF( 1, TROT_RC_ERROR_UNICODE );
 		}
 
 		/* *** */

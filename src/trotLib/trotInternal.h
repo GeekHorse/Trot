@@ -62,7 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if ( TEST_PRECOND == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { printf( "PRECOND_ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); return TROT_LIST_ERROR_PRECOND; }
+#define PRECOND_ERR_IF( cond ) if ( (cond) ) { printf( "PRECOND_ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); return TROT_RC_ERROR_PRECOND; }
 #else
 #define PRECOND_ERR_IF( cond )
 #endif
@@ -80,12 +80,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE * ) trotMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
-	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE ** ) trotCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
-	ERR_IF( POINTER == NULL, TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 /* For trotDecodingEncoding and related tests */

@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -66,7 +66,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 	node = l -> tail -> prev;
 
 	/* check that last value in list is an int */
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 
 	/* handle single value ops */
 	if ( op == TROT_OP_NEG )
@@ -74,13 +74,13 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 			/* TODO: should we check if the int is the most-negative int?
 			         because if so, it will still be negative. Should that be an error? */
 			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 	}
 
 	if ( op == TROT_OP_LOGICAL_NOT )
 	{
 			node -> n[ (node -> count) - 1 ] = ! ( node -> n[ (node -> count) - 1 ] );
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 	}
 
 	/* check that second-to-last value in list is an int */
@@ -89,7 +89,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 	   untouched on error. So let's catch the error here. */
 	if ( node -> count <= 1 ) 
 	{
-		ERR_IF( node -> prev -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+		ERR_IF( node -> prev -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 	}
 
 	/* remove last int */
@@ -129,7 +129,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -144,7 +144,7 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
 
 	node = l -> tail -> prev;
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 
 	switch ( op )
 	{
@@ -158,11 +158,11 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
 			node -> n[ (node -> count) - 1 ] *= value;
 			break;
 		case TROT_OP_DIV:
-			ERR_IF( value == 0, TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+			ERR_IF( value == 0, TROT_RC_ERROR_DIVIDE_BY_ZERO );
 			node -> n[ (node -> count) - 1 ] /= value;
 			break;
 		case TROT_OP_MOD:
-			ERR_IF( value == 0, TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+			ERR_IF( value == 0, TROT_RC_ERROR_DIVIDE_BY_ZERO );
 			node -> n[ (node -> count) - 1 ] %= value;
 			break;
 
@@ -183,10 +183,10 @@ TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, INT_TYPE value )
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] || value;
 			break;
 		default:
-			ERR_IF( 1, TROT_LIST_ERROR_INVALID_OP );
+			ERR_IF( 1, TROT_RC_ERROR_INVALID_OP );
 	}
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */

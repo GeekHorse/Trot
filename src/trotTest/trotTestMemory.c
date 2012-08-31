@@ -69,7 +69,7 @@ void *badMalloc( size_t size )
 TROT_RC badLoad( trotListRef *lrName, trotListRef **lrBytes )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *newLrBytes = NULL;
 
@@ -168,9 +168,9 @@ int testMemory()
 				spinnerI += 1;
 				printf( "\r%d %c", i, spinner[ spinnerI % 4 ]  ); fflush( stdout );
 			}
-			while ( rc == TROT_LIST_ERROR_MEMORY_ALLOCATION_FAILED );
+			while ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
-			TEST_ERR_IF( rc != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			j += 1;
 		}
@@ -267,12 +267,12 @@ static int testMemoryManagement()
 		if ( r == 0 && i > 0 )
 		{
 			j = rand() % i;
-			TEST_ERR_IF( trotListRefTwin( clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 		/* create new list */
 		else
 		{
-			TEST_ERR_IF( trotListRefInit( &( clientRefs[ i ] ) ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 
 		i += 1;
@@ -286,13 +286,13 @@ static int testMemoryManagement()
 		/* create new list */
 		if ( r <= 7 )
 		{
-			TEST_ERR_IF( trotListRefInit( &ref ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &ref ) != TROT_RC_SUCCESS );
 		}
 		/* twin client list */
 		else
 		{
 			r = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
-			TEST_ERR_IF( trotListRefTwin( clientRefs[ r ], &ref ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefTwin( clientRefs[ r ], &ref ) != TROT_RC_SUCCESS );
 		}
 
 		/* how many are we going to add? */
@@ -305,12 +305,12 @@ static int testMemoryManagement()
 			clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 			/* where to add it to? */
-			TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 			randomIndex = ( rand() % ( count + 1 ) ) + 1;
 
 			/* add */
-			TEST_ERR_IF( trotListRefInsertListTwin( clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertListTwin( clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_RC_SUCCESS );
 
 			countAdded += 1;
 
@@ -334,7 +334,7 @@ static int testMemoryManagement()
 		clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 		/* which index to remove? */
-		TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 		if ( count > 0 )
 		{
@@ -344,12 +344,12 @@ static int testMemoryManagement()
 			r = rand() % 2;
 			if ( r == 0 )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_RC_SUCCESS );
 				trotListRefFree( &ref );
 			}
 			else
 			{
-				TEST_ERR_IF( trotListRefRemove( clientRefs[ clientRefIndex ], randomIndex ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemove( clientRefs[ clientRefIndex ], randomIndex ) != TROT_RC_SUCCESS );
 			}
 		}
 
@@ -408,15 +408,15 @@ static int testDeepList()
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &refHead ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &refHead ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefTwin( refHead, &ref1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefTwin( refHead, &ref1 ) != TROT_RC_SUCCESS );
 
 	while ( i < 1000 ) /* MAGIC */
 	{
-		TEST_ERR_IF( trotListRefInit( &ref2 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefInit( &ref2 ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefAppendListTwin( ref1, ref2 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendListTwin( ref1, ref2 ) != TROT_RC_SUCCESS );
 
 		trotListRefFree( &ref1 );
 
@@ -431,7 +431,7 @@ static int testDeepList()
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendListTwin( ref1, refHead ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendListTwin( ref1, refHead ) != TROT_RC_SUCCESS );
 
 	trotListRefFree( &ref1 );
 
@@ -439,7 +439,7 @@ static int testDeepList()
 
 	trotListRefFree( &refHead );
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -451,7 +451,7 @@ static int testDeepList()
 static TROT_RC testFailedMallocs1( int test )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	int i = 0;
 	int j = 0;
@@ -744,7 +744,7 @@ static TROT_RC testFailedMallocs1( int test )
 static TROT_RC testFailedMallocs2( int test )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrCharacters = NULL;
 	trotListRef *lrTokens = NULL;
@@ -783,7 +783,7 @@ static TROT_RC testFailedMallocs2( int test )
 static TROT_RC testFailedMallocs3( int test )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	char *d[] = {
 	/* for encoding */
@@ -889,7 +889,7 @@ static TROT_RC testFailedMallocs3( int test )
 static TROT_RC testFailedMallocs4( int test )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrDecodedList1 = NULL;
 	trotListRef *lrEncodedList1 = NULL;

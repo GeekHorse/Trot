@@ -48,7 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TROT_RC trotStackInit( trotStack **stack )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotStack *newStack = NULL;
 
@@ -91,7 +91,7 @@ TROT_RC trotStackInit( trotStack **stack )
 	(*stack) = newStack;
 	newStack = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -151,7 +151,7 @@ void trotStackFree( trotStack **stack )
 TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotStackNode *node = NULL;
 
@@ -170,7 +170,7 @@ TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 		   )
 		{
 			/* yes, so nothing to do */
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 		}
 
 		node = node -> next;
@@ -192,7 +192,7 @@ TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
 	stack -> tail -> prev -> next = newNode;
 	stack -> tail -> prev = newNode;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -237,7 +237,7 @@ TROT_RC trotStackPop( trotStack *stack, int *empty )
 		(*empty) = 0;
 	}
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 }
 
 /******************************************************************************/
@@ -274,6 +274,6 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack )
 		stackNode -> l2Count = 0;
 	}
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 }
 

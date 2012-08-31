@@ -49,80 +49,80 @@ int testBadTypesAndIndices()
 	/* **************************************** */
 	/* test bad indices, bad types */
 	printf( "Testing bad indices and bad types...\n" ); fflush( stdout );
-	TEST_ERR_IF( createHalfIntHalfList( &lr, 10 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( createHalfIntHalfList( &lr, 10 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefGetKind( lr, 0, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetKind( lr, 11, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetKind( lr, -11, &kind ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, 0, &kind ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, 11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetKind( lr, -11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefInsertInt( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefInsertInt( lr, 12, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefInsertInt( lr, -12, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, 12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertInt( lr, -12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
 	
-	TEST_ERR_IF( trotListRefInsertListTwin( lr, 0, lr ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefInsertListTwin( lr, 12, lr ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefInsertListTwin( lr, -12, lr ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 0, lr ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, 12, lr ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr, -12, lr ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, 0, &n	) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetInt( lr, -11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetInt( lr, 6, &n ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefGetInt( lr, 0, &n	) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetInt( lr, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRefGetListTwin( lr, 0, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetListTwin( lr, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetListTwin( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefGetListTwin( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 0, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, -11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefGetListTwin( lr, 5, &lr2 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRefRemoveInt( lr, 0, &n ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveInt( lr, 11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveInt( lr, -11, &n ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveInt( lr, 6, &n ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 0, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveInt( lr, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRefRemoveList( lr, 0, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveList( lr, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveList( lr, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveList( lr, 5, &lr2 ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 0, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, -11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveList( lr, 5, &lr2 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRefRemove( lr, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemove( lr, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemove( lr, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemove( lr, -11 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefReplaceWithInt( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefReplaceWithInt( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefReplaceWithInt( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithInt( lr, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithInt( lr, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithInt( lr, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefReplaceWithList( lr, 0, lr ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefReplaceWithList( lr, 11, lr ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefReplaceWithList( lr, -11, lr ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithList( lr, 0, lr ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithList( lr, 11, lr ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefReplaceWithList( lr, -11, lr ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MIN - 1 ) != TROT_LIST_ERROR_BAD_TAG );
-	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MAX + 1 ) != TROT_LIST_ERROR_BAD_TAG );
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MIN - 1 ) != TROT_RC_ERROR_BAD_TAG );
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_MAX + 1 ) != TROT_RC_ERROR_BAD_TAG );
 
-	TEST_ERR_IF( trotListRefEnlist( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefEnlist( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefEnlist( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefEnlist( lr, 1, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefEnlist( lr, 1, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefEnlist( lr, 1, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefEnlist( lr, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefDelist( lr, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefDelist( lr, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefDelist( lr, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefDelist( lr, 1 ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefDelist( lr, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefDelist( lr, 1 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRefCopySpan( lr, 0, 1, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefCopySpan( lr, -11, 1, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefCopySpan( lr, 11, 1, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefCopySpan( lr, 1, 0, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefCopySpan( lr, 1, -11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefCopySpan( lr, 1, 11, &lr2 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, 0, 1, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, -11, 1, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, 11, 1, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, 1, 0, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, 1, -11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefCopySpan( lr, 1, 11, &lr2 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, 0, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, -11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, 11, 1 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 0 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, -11 ) != TROT_LIST_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 11 ) != TROT_LIST_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRefRemoveSpan( lr, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
 
 	trotListRefFree( &lr );
 

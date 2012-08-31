@@ -72,7 +72,7 @@ static int _findNextParent( trotList *l, int queryVisited, trotList **parent );
 TROT_RC trotListRefInit( trotListRef **lr_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRefListNode *newRefHead = NULL;
 	trotListRefListNode *newRefTail = NULL;
@@ -162,7 +162,7 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	(*lr_A) = newListRef;
 	newListRef = NULL;
 
-	return TROT_LIST_SUCCESS; /* TODO: go through other functions, and see if we can return success before cleanup */
+	return TROT_RC_SUCCESS; /* TODO: go through other functions, and see if we can return success before cleanup */
 
 
 	/* CLEANUP */
@@ -204,7 +204,7 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *newListRef = NULL;
 
@@ -229,7 +229,7 @@ TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A )
 	(*lrTwin_A) = newListRef;
 	newListRef = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -374,7 +374,7 @@ TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 	/* CODE */
 	(*c) = lr -> lPointsTo -> childrenCount;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 }
 
 /******************************************************************************/
@@ -388,7 +388,7 @@ TROT_RC trotListRefGetCount( trotListRef *lr, INT_TYPE *c )
 TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -412,8 +412,8 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = l -> head -> next;
@@ -432,7 +432,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 
 	(*kind) = node -> kind;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -451,7 +451,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, INT_TYPE index, TROT_KIND *kind )
 TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -496,7 +496,7 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 
 	l -> childrenCount += 1;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -515,7 +515,7 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, INT_TYPE n )
 TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 	trotListNode *node = NULL;
@@ -567,7 +567,7 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 
 	l -> childrenCount += 1;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -589,7 +589,7 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -623,12 +623,12 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 		rc = trotListRefAppendInt( lr, n );
 		ERR_IF_PASSTHROUGH;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be added into */
 	node = l -> head -> next;
@@ -681,7 +681,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 
 		l -> childrenCount += 1;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 	else /* node -> kind == NODE_KIND_LIST */
 	{
@@ -703,7 +703,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 
 			l -> childrenCount += 1;
 
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 		}
 
 		/* if not at beginning, we'll have to split the node */
@@ -731,7 +731,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 
 		l -> childrenCount += 1;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 
 
@@ -752,7 +752,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -789,12 +789,12 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 		rc = trotListRefAppendListTwin( lr, lrToInsert );
 		ERR_IF_PASSTHROUGH;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be added into */
 	node = l -> head -> next;
@@ -855,7 +855,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 
 		l -> childrenCount += 1;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 	else /* node -> kind == NODE_KIND_INT */
 	{
@@ -883,7 +883,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 
 			l -> childrenCount += 1;
 
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 		}
 
 		/* if not at beginning, we'll have to split the node */
@@ -918,7 +918,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 
 		l -> childrenCount += 1;
 
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 
 
@@ -947,7 +947,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, INT_TYPE index, trotListRef 
 TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -971,8 +971,8 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = l -> head -> next;
@@ -989,12 +989,12 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 		PARANOID_ERR_IF( node == l -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 
 	/* give back */
 	(*n) = node -> n[ (node -> count) - 1 - (count - index) ];
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1014,7 +1014,7 @@ TROT_RC trotListRefGetInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **lrTwin_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1037,8 +1037,8 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = lr -> lPointsTo -> head -> next;
@@ -1055,7 +1055,7 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
 
 	rc = trotListRefTwin( node -> l[ (node -> count) - 1 - (count - index) ], &newL );
 	ERR_IF_PASSTHROUGH;
@@ -1064,7 +1064,7 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 	(*lrTwin_A) = newL;
 	newL = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1084,7 +1084,7 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, INT_TYPE index, trotListRef **l
 TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1109,8 +1109,8 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = lr -> lPointsTo -> head -> next;
@@ -1127,7 +1127,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackN = node -> n[ i ];
@@ -1151,7 +1151,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 	/* give back */
 	(*n) = giveBackN;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1171,7 +1171,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, INT_TYPE index, INT_TYPE *n )
 TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lrRemoved_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1196,8 +1196,8 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = lr -> lPointsTo -> head -> next;
@@ -1214,7 +1214,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackL = node -> l[ i ];
@@ -1240,7 +1240,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 	/* give back */
 	(*lrRemoved_A) = giveBackL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1259,7 +1259,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, INT_TYPE index, trotListRef **lr
 TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *node = NULL;
 
@@ -1282,8 +1282,8 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
 	node = lr -> lPointsTo -> head -> next;
@@ -1341,7 +1341,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 		trotFree( node );
 	}
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1359,7 +1359,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, INT_TYPE index )
 TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -1389,8 +1389,8 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be replaced into */
 	node = l -> head -> next;
@@ -1547,7 +1547,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, INT_TYPE index, INT_TYPE n )
 TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef *lrToInsert )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -1580,8 +1580,8 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be replaced into */
 	node = l -> head -> next;
@@ -1760,7 +1760,7 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, INT_TYPE index, trotListRef
 TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 
 	/* PRECOND */
@@ -1787,7 +1787,7 @@ TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag )
 TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 
 	/* PRECOND */
@@ -1795,7 +1795,7 @@ TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag )
 
 
 	/* CODE */
-	ERR_IF( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_LIST_ERROR_BAD_TAG );
+	ERR_IF( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG );
 
 	lr -> lPointsTo -> tag = tag;
 
@@ -1817,7 +1817,7 @@ TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag )
 TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1873,7 +1873,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 	n -> next -> prev = newNode;
 	n -> next = newNode;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1893,7 +1893,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 TROT_RC newIntNode( trotListNode **n_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1914,7 +1914,7 @@ TROT_RC newIntNode( trotListNode **n_A )
 	(*n_A) = newNode;
 	newNode = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1934,7 +1934,7 @@ TROT_RC newIntNode( trotListNode **n_A )
 TROT_RC newListNode( trotListNode **n_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
@@ -1955,7 +1955,7 @@ TROT_RC newListNode( trotListNode **n_A )
 	(*n_A) = newNode;
 	newNode = NULL;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -1970,7 +1970,7 @@ TROT_RC newListNode( trotListNode **n_A )
 static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRefListNode *refNode = NULL;
 
@@ -1989,7 +1989,7 @@ static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 			refNode -> r[ refNode -> count ] = r;
 			refNode -> count += 1;
 
-			return TROT_LIST_SUCCESS;
+			return TROT_RC_SUCCESS;
 		}
 
 		refNode = refNode -> next;
@@ -2009,7 +2009,7 @@ static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 	l -> refListTail -> prev -> next = newRefNode;
 	l -> refListTail -> prev = newRefNode;
 
-	return TROT_LIST_SUCCESS;
+	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */

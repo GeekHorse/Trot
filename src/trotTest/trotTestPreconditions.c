@@ -66,108 +66,108 @@ int testPreconditions()
 	return 0;
 	#endif
 
-	TEST_ERR_IF( trotListRefInit( NULL ) == TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInit( NULL ) == TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefTwin( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefTwin( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefTwin( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefTwin( lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefGetCount( NULL, &n ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetCount( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetCount( NULL, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetCount( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefGetKind( NULL, 1, &kind ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetKind( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetKind( NULL, 1, &kind ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetKind( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefAppendInt( NULL, 0 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendInt( NULL, 0 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefAppendListTwin( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendListTwin( NULL, lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefAppendListTwin( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefInsertInt( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertInt( NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefInsertListTwin( NULL, 1, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefInsertListTwin( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertListTwin( NULL, 1, lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefInsertListTwin( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefGetInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetInt( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetInt( NULL, 1, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetInt( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefGetListTwin( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( NULL, 1, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetListTwin( lr1, 1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefRemoveInt( NULL, 1, &n ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefRemoveInt( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveInt( NULL, 1, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveInt( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefRemoveList( NULL, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefRemoveList( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefRemoveList( lr1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( NULL, 1, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveList( lr1, 1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefRemove( NULL, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemove( NULL, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefReplaceWithInt( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefReplaceWithInt( NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefReplaceWithList( NULL, 1, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefReplaceWithList( lr1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefReplaceWithList( NULL, 1, lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefReplaceWithList( lr1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefGetTag( NULL, &tag ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefGetTag( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefSetTag( NULL, TROT_TAG_DATA ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetTag( NULL, &tag ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefGetTag( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefSetTag( NULL, TROT_TAG_DATA ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefCompare( NULL, lr1, &compareResult ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCompare( lr1, NULL, &compareResult ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCompare( lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCompare( NULL, lr1, &compareResult ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCompare( lr1, NULL, &compareResult ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCompare( lr1, lr1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefCopy( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopy( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopy( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopy( lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefEnlist( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefEnlist( NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefDelist( NULL, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefDelist( NULL, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCopySpan( NULL, 1, 1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( lr1, 1, 1, &lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefCopySpan( NULL, 1, 1, &lr2 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListRefRemoveSpan( NULL, 1, 1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListRefRemoveSpan( NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListIntOperand( NULL, TROT_OP_ADD ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListIntOperand( NULL, TROT_OP_ADD ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotListIntOperandValue( NULL, TROT_OP_ADD, 0 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotListIntOperandValue( NULL, TROT_OP_ADD, 0 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotUtf8ToCharacters( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotUtf8ToCharacters( NULL, lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotUtf8ToCharacters( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotCharactersToUtf8( NULL, lr1 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotCharactersToUtf8( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotCharactersToUtf8( NULL, lr1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotCharactersToUtf8( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotTokenize( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotTokenize( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotTokenize( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotTokenize( NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotTokenize( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotTokenize( lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotCreateToken( 1, 1, 1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotCreateToken( 1, 1, 1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotCreateToken( 1, 1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotCreateToken( 1, 1, 1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( _trotWordToNumber( NULL, &i, &n ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( _trotWordToNumber( lr1, NULL, &n ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( _trotWordToNumber( lr1, &i, NULL ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( _trotWordToNumber( NULL, &i, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( _trotWordToNumber( lr1, NULL, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( _trotWordToNumber( lr1, &i, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotEncode( NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotEncode( lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( NULL, lr1, lr1, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, NULL, lr1, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, lr1, lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotDecodeFilename( NULL, lr1, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, NULL, &lr2 ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, NULL ) != TROT_LIST_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, &lr1 ) != TROT_LIST_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( NULL, lr1, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, NULL, &lr2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, lr1, &lr1 ) != TROT_RC_ERROR_PRECOND );
 
 	trotListRefFree( &lr1 );
 

@@ -94,9 +94,9 @@ int testPrimaryFunctionality()
 	printf( "Testing primary functionality..." ); fflush( stdout );
 
 	/* test tags */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_CODE ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefGetTag( lr, &tag ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefSetTag( lr, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefGetTag( lr, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != TROT_TAG_CODE );
 	trotListRefFree( &lr );
 
@@ -224,7 +224,7 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test prepending */
 	addingAtIndex = 0;
@@ -246,7 +246,7 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -303,19 +303,19 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_LIST_SUCCESS );
-				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
 				trotListRefFree( &removedL );
@@ -363,7 +363,7 @@ static int testPrepend( trotListRef *lr, int intsOrLists, int removeSpecificOrGe
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -401,7 +401,7 @@ static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGen
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test appending */
 	addingAtIndex = countAtStart;
@@ -423,7 +423,7 @@ static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGen
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -480,19 +480,19 @@ static int testAppend( trotListRef *lr, int intsOrLists, int removeSpecificOrGen
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_LIST_SUCCESS );
-				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
 				trotListRefFree( &removedL );
@@ -580,7 +580,7 @@ static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecific
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test adding to middle */
 	startedAddingAtIndex = (countAtStart / 2 );
@@ -608,7 +608,7 @@ static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecific
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -674,19 +674,19 @@ static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecific
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_LIST_SUCCESS );
-				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
 				trotListRefFree( &removedL );
@@ -743,7 +743,7 @@ static int testAddToMiddle( trotListRef *lr, int intsOrLists, int removeSpecific
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -781,7 +781,7 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test prepending */
 	addingAtIndex = -1;
@@ -808,7 +808,7 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInsertInt( lr, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
@@ -877,19 +877,19 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefRemove( lr, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveInt( lr, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_LIST_SUCCESS );
-				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_LIST_SUCCESS );
+				TEST_ERR_IF( trotListRefRemoveList( lr, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRefGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
 				trotListRefFree( &removedL );
@@ -949,7 +949,7 @@ static int testAddAtOddIndices( trotListRef *lr, int intsOrLists, int removeSpec
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -983,7 +983,7 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetCount( lr, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test replace */
 	addingAtIndex = 1;
@@ -999,17 +999,17 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 			addingAtIndexB = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( addingAtIndex, countAtStart );
 		}
 
-		TEST_ERR_IF( trotListRefGetKind( lr, addingAtIndexB, &kind ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefGetKind( lr, addingAtIndexB, &kind ) != TROT_RC_SUCCESS );
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, -1 ) != TROT_LIST_SUCCESS )
+			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, -1 ) != TROT_RC_SUCCESS )
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
-			TEST_ERR_IF( trotListRefAppendInt( newList, -1 ) != TROT_LIST_SUCCESS );
-			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRefAppendInt( newList, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != TROT_RC_SUCCESS );
 			trotListRefFree( &newList );
 		}
 		else
@@ -1020,7 +1020,7 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 		/* check */
 		TEST_ERR_IF( checkList( lr ) != 0 );
 
-		TEST_ERR_IF( trotListRefGetCount( lr, &countAfter ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefGetCount( lr, &countAfter ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( countAfter != countAtStart );
 
 		index = 1;
@@ -1041,13 +1041,13 @@ static int testReplace( trotListRef *lr, int intsOrLists, int positiveOrNegative
 		/* replace back to original */
 		if ( kind == TROT_KIND_INT )
 		{
-			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, addingAtIndex ) != TROT_LIST_SUCCESS )
+			TEST_ERR_IF( trotListRefReplaceWithInt( lr, addingAtIndexB, addingAtIndex ) != TROT_RC_SUCCESS )
 		}
 		else
 		{
-			TEST_ERR_IF( trotListRefInit( &newList ) != TROT_LIST_SUCCESS );
-			TEST_ERR_IF( trotListRefAppendInt( newList, addingAtIndex ) != TROT_LIST_SUCCESS );
-			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != TROT_LIST_SUCCESS );
+			TEST_ERR_IF( trotListRefInit( &newList ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRefAppendInt( newList, addingAtIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRefReplaceWithList( lr, addingAtIndexB, newList ) != TROT_RC_SUCCESS );
 			trotListRefFree( &newList );
 		}
 

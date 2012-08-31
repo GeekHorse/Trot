@@ -47,50 +47,50 @@ int testBadIntegerOps()
 	/* test wrong kinds */
 	printf( "Testing bad integer ops...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_ADD ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListIntOperandValue( lr, TROT_OP_ADD, 1 ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListIntOperandValue( lr, TROT_OP_ADD, 1 ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( addListWithValue( lr, -1, 1 ) != 0 );
-	TEST_ERR_IF( trotListIntOperandValue( lr, TROT_OP_ADD, 1 ) != TROT_LIST_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListIntOperandValue( lr, TROT_OP_ADD, 1 ) != TROT_RC_ERROR_WRONG_KIND );
 	trotListRefFree( &lr );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListIntOperandValue( lr, -99, 1 ) != TROT_LIST_ERROR_INVALID_OP );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListIntOperandValue( lr, -99, 1 ) != TROT_RC_ERROR_INVALID_OP );
 	trotListRefFree( &lr );
 
 	return 0;

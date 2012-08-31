@@ -127,25 +127,25 @@ int testIntOperands()
 	TEST_ERR_IF( testSingleOp( -5, TROT_OP_LOGICAL_NOT,  0 ) != 0 );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_DIV ) != TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_DIV ) != TROT_RC_ERROR_DIVIDE_BY_ZERO );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, 0 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_MOD ) != TROT_LIST_ERROR_DIVIDE_BY_ZERO );
+	TEST_ERR_IF( trotListIntOperand( lr, TROT_OP_MOD ) != TROT_RC_ERROR_DIVIDE_BY_ZERO );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
 	trotListRefFree( &lr );
@@ -171,120 +171,120 @@ static int testDoubleOp( INT_TYPE value1, INT_TYPE value2, TROT_OP op, INT_TYPE 
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
 	i = 0;
 	while ( i < NODE_SIZE )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
 	i = 0;
 	while ( i < ( NODE_SIZE - 1 ) )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
 	i = 0;
 	while ( i < NODE_SIZE )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
 
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
 	i = 0;
 	while ( i < ( NODE_SIZE - 1 ) )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_LIST_SUCCESS );
+		TEST_ERR_IF( trotListRefAppendInt( lr, 50 ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperandValue( lr, op, value2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );
@@ -310,15 +310,15 @@ static int testSingleOp( INT_TYPE value1, TROT_OP op, INT_TYPE resultWanted )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefAppendInt( lr, value1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( checkList( lr ) != 0 );
-	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListIntOperand( lr, op ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( checkList( lr ) != 0 );
 
-	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_LIST_SUCCESS );
+	TEST_ERR_IF( trotListRefGetInt( lr, -1, &resultActual ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( resultActual != resultWanted );
 
 	trotListRefFree( &lr );

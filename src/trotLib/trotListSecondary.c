@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotStack *stack = NULL;
 	trotStackNode *stackNode = NULL;
@@ -92,7 +92,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 	/* no need to test if they point to same list */
 	if ( lr -> lPointsTo == lrCompareTo -> lPointsTo )
 	{
-		return TROT_LIST_SUCCESS;
+		return TROT_RC_SUCCESS;
 	}
 
 	/* init stack */
@@ -107,7 +107,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 	{
 		/* increment top of stack */
 		rc = trotStackIncrementTopIndex( stack );
-		PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* get both stack info */
 		stackNode = stack -> tail -> prev;
@@ -123,7 +123,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 		if ( index > count1 && index > count2 )
 		{
 			rc = trotStackPop( stack, &stackEmpty );
-			PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( stackEmpty )
 			{
@@ -222,7 +222,7 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 
 	/* PRECOND */
@@ -269,7 +269,7 @@ TROT_RC trotListRefCopy( trotListRef *lr, trotListRef **lrCopy_A )
 TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 	INT_TYPE tempI = 0;
@@ -306,11 +306,11 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 	}
 
 	/* Make sure indices are in range */
-	ERR_IF( indexStart <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( indexStart > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( indexStart > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
-	ERR_IF( indexEnd <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( indexEnd > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( indexEnd > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
@@ -461,7 +461,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexE
 TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -490,8 +490,8 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* find index */
 	node = l -> head -> next;
@@ -509,7 +509,7 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 	}
 
 	/* check kind */
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_LIST_ERROR_WRONG_KIND );
+	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
 
 	/* split this node if necessary */
 	if ( count + 1 != index )
@@ -630,7 +630,7 @@ TROT_RC trotListRefDelist( trotListRef *lr, INT_TYPE index )
 TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd, trotListRef **lrCopy_A )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotList *l = NULL;
 
@@ -666,11 +666,11 @@ TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE inde
 	}
 
 	/* Make sure indices are in range */
-	ERR_IF( indexStart <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( indexStart > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( indexStart > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
-	ERR_IF( indexEnd <= 0, TROT_LIST_ERROR_BAD_INDEX );
-	ERR_IF( indexEnd > (l -> childrenCount), TROT_LIST_ERROR_BAD_INDEX );
+	ERR_IF( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( indexEnd > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
@@ -756,7 +756,7 @@ TROT_RC trotListRefCopySpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE inde
 TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE indexEnd )
 {
 	/* DATA */
-	TROT_RC rc = TROT_LIST_SUCCESS;
+	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListRef *lrRemoved = NULL;
 
@@ -782,7 +782,7 @@ TROT_RC trotListRefRemoveSpan( trotListRef *lr, INT_TYPE indexStart, INT_TYPE in
 
 	/* remove list */
 	rc = trotListRefRemoveList( lr, indexStart < indexEnd ? indexStart : indexEnd, &lrRemoved );
-	PARANOID_ERR_IF( rc != TROT_LIST_SUCCESS );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* free removed list */
 	trotListRefFree( &lrRemoved );
