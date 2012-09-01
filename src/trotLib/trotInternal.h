@@ -162,7 +162,7 @@ typedef enum
 
 /******************************************************************************/
 typedef struct trotListNode_STRUCT trotListNode;
-typedef struct trotList_STRUCT trotList;
+typedef struct trotListActual_STRUCT trotListActual;
 typedef struct trotListRefListNode_STRUCT trotListRefListNode;
 
 /*! Data in a trotList is stored in a linked list of trotListNodes. */
@@ -188,8 +188,8 @@ struct trotListNode_STRUCT
 	struct trotListNode_STRUCT *next;
 };
 
-/*! trotList is the main data structure in Trot. */
-struct trotList_STRUCT
+/*! trotListActual is the main data structure in Trot. */
+struct trotListActual_STRUCT
 {
 	/*! Flag that says whether this list is still reachable or not. If not
 	reachable, then this list can be freed */
@@ -199,14 +199,14 @@ struct trotList_STRUCT
 	int flagVisited;
 	/*! Pointer to "previous" list. Used when we're seeing if a list is
 	    reachable */
-	trotList *previous;
+	trotListActual *previous;
 	/*! Pointer to "nextToFree" list. Only set when this list is no longer
 	    reachable. We use this to keep a linked list of lists that need to
 	    be freed. */
-	trotList *nextToFree;
+	trotListActual *nextToFree;
 
 	/*! Pointer to "parent" when we're encoding a list */
-	trotList *encodingParent;
+	trotListActual *encodingParent;
 	/*! The child number this list is of it's parent, used for managing
 	    twins when encoding */
 	TROT_INT encodingChildNumber;
@@ -235,9 +235,9 @@ struct trotList_STRUCT
 struct trotListRef_STRUCT
 {
 	/*! The list that this ref is inside of. */
-	trotList *lParent;
+	trotListActual *lParent;
 	/*! The list that this ref points to. */
-	trotList *lPointsTo;
+	trotListActual *lPointsTo;
 };
 
 /*! Structure for holding a linked list of references. Used in trotList to keep
@@ -276,14 +276,14 @@ struct trotStack_STRUCT
 struct trotStackNode_STRUCT
 {
 	/*! list1 */
-	trotList *l1;
+	trotListActual *l1;
 	/*! current node in list1 */
 	trotListNode *l1Node;
 	/*! current item in l1Node */
 	TROT_INT l1Count;
 
 	/*! list2 */
-	trotList *l2;
+	trotListActual *l2;
 	/*! current node in list2 */
 	trotListNode *l2Node;
 	/*! current item in l2Node */
@@ -310,7 +310,7 @@ TROT_RC newListNode( trotListNode **n_A );
 TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
-TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 );
+TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 );
 TROT_RC trotStackPop( trotStack *stack, int *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 

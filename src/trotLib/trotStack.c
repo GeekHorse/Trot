@@ -148,7 +148,7 @@ void trotStackFree( trotStack **stack )
 	\param l2 The second list.
 	\return TROT_RC
 */
-TROT_RC trotStackPush( trotStack *stack, trotList *l1, trotList *l2 )
+TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

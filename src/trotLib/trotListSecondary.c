@@ -64,17 +64,17 @@ TROT_RC trotListRefCompare( trotListRef *lr, trotListRef *lrCompareTo, TROT_LIST
 	trotStackNode *stackNode = NULL;
 	int stackEmpty = 0;
 
-	trotList *l1 = NULL;
+	trotListActual *l1 = NULL;
 	TROT_INT count1 = 0;
 	TROT_INT n1 = 0;
 	int kind1 = NODE_KIND_HEAD_OR_TAIL;
-	trotList *subL1 = NULL;
+	trotListActual *subL1 = NULL;
 
-	trotList *l2 = NULL;
+	trotListActual *l2 = NULL;
 	TROT_INT count2 = 0;
 	TROT_INT n2 = 0;
 	int kind2 = NODE_KIND_HEAD_OR_TAIL;
-	trotList *subL2 = NULL;
+	trotListActual *subL2 = NULL;
 
 	TROT_INT index = 0;
 
@@ -271,7 +271,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, TROT_INT indexStart, TROT_INT indexE
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 	TROT_INT tempI = 0;
 
 	trotListNode *node = NULL;
@@ -281,7 +281,7 @@ TROT_RC trotListRefEnlist( trotListRef *lr, TROT_INT indexStart, TROT_INT indexE
 	trotListNode *startNode = NULL;
 
 	trotListRef *newListRef = NULL;
-	trotList *newList = NULL;
+	trotListActual *newList = NULL;
 
 	trotListNode *newNode = NULL;
 
@@ -463,7 +463,7 @@ TROT_RC trotListRefDelist( trotListRef *lr, TROT_INT index )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	TROT_INT count = 0;
 
@@ -632,7 +632,7 @@ TROT_RC trotListRefCopySpan( trotListRef *lr, TROT_INT indexStart, TROT_INT inde
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	TROT_INT tempI = 0;
 

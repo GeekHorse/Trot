@@ -56,11 +56,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotList *l, trotListRef *r );
-static void _refListRemove( trotList *l, trotListRef *r );
+static TROT_RC _refListAdd( trotListActual *l, trotListRef *r );
+static void _refListRemove( trotListActual *l, trotListRef *r );
 
-static void _isListReachable( trotList *l );
-static int _findNextParent( trotList *l, int queryVisited, trotList **parent );
+static void _isListReachable( trotListActual *l );
+static int _findNextParent( trotListActual *l, int queryVisited, trotListActual **parent );
 
 /******************************************************************************/
 /*!
@@ -79,7 +79,7 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 
 	trotListNode *newHead = NULL;
 	trotListNode *newTail = NULL;
-	trotList *newList = NULL;
+	trotListActual *newList = NULL;
 	trotListRef *newListRef = NULL;
 
 
@@ -122,7 +122,7 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	newTail -> next = newTail;
 
 	/* create actual list structure */
-	TROT_MALLOC( newList, trotList, 1 );
+	TROT_MALLOC( newList, trotListActual, 1 );
 
 	newList -> reachable = 1;
 	newList -> flagVisited = 0;
@@ -252,15 +252,15 @@ TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A )
 void trotListRefFree( trotListRef **lr_F )
 {
 	/* DATA */
-	trotList *list = NULL;
+	trotListActual *list = NULL;
 
 	trotListNode *node = NULL;
 
 	int j = 0;
-	trotList *tempList = NULL;
+	trotListActual *tempList = NULL;
 
-	trotList *nextL = NULL;
-	trotList *currentL = NULL;
+	trotListActual *nextL = NULL;
+	trotListActual *currentL = NULL;
 
 
 	/* CODE */
@@ -390,7 +390,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -453,7 +453,7 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 	trotListNode *node = NULL;
 
 	trotListNode *newNode = NULL;
@@ -517,7 +517,7 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 	trotListNode *node = NULL;
 
 	trotListNode *newNode = NULL;
@@ -591,7 +591,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -754,7 +754,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -949,7 +949,7 @@ TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -1361,7 +1361,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -1549,7 +1549,7 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	trotListActual *l = NULL;
 
 	trotListNode *node = NULL;
 
@@ -1967,7 +1967,7 @@ TROT_RC newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotList *l, trotListRef *r )
+static TROT_RC _refListAdd( trotListActual *l, trotListRef *r )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2021,7 +2021,7 @@ static TROT_RC _refListAdd( trotList *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static void _refListRemove( trotList *l, trotListRef *r )
+static void _refListRemove( trotListActual *l, trotListRef *r )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
@@ -2083,16 +2083,16 @@ static void _refListRemove( trotList *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static void _isListReachable( trotList *l )
+static void _isListReachable( trotListActual *l )
 {
 	/* DATA */
 	int flagFoundClientRef = 0;
 
-	trotList *currentL = NULL;
+	trotListActual *currentL = NULL;
 
-	trotList *parent = NULL;
+	trotListActual *parent = NULL;
 
-	trotList *tempL = NULL;
+	trotListActual *tempL = NULL;
 
 
 	/* CODE */
@@ -2165,14 +2165,14 @@ static void _isListReachable( trotList *l )
 }
 
 /******************************************************************************/
-static int _findNextParent( trotList *l, int queryVisited, trotList **parent )
+static int _findNextParent( trotListActual *l, int queryVisited, trotListActual **parent )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
 
 	int i = 0;
 
-	trotList *tempParent = NULL;
+	trotListActual *tempParent = NULL;
 
 
 	/* CODE */

@@ -777,8 +777,7 @@ static TROT_RC appendAbsTwinLocation( trotListRef *lrCharacters, int *characterC
 	TROT_INT index = 0;
 	TROT_INT count = 0;
 
-/* TODO: this will need to change (and all other trotList's when we change trotListRef to trotList and trotList to trotListInternal */
-	trotList *lParent = NULL;
+	trotListActual *lParent = NULL;
 
 
 	/* CODE */
