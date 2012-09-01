@@ -42,28 +42,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
 	\brief Does an int operand on the last single or last two values in the
 	       list.
-	\param lr Pointer to a trotListRef.
+	\param l Pointer to a trotList.
 	\param op Which operand to do.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
+TROT_RC trotListIntOperand( trotList *l, TROT_OP op )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 	trotListNode *node = NULL;
 	TROT_INT value = 0;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
-	node = l -> tail -> prev;
+	node = la -> tail -> prev;
 
 	/* check that last value in list is an int */
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
@@ -95,7 +95,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 	/* remove last int */
 	value = node -> n[ (node -> count) - 1 ];
 	node -> count -= 1;
-	l -> childrenCount -= 1;
+	la -> childrenCount -= 1;
 
 	if ( node -> count == 0 )
 	{
@@ -107,7 +107,7 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 	}
 
 	/* now we can call trotListIntOperandValue */
-	rc = trotListIntOperandValue( lr, op, value );
+	rc = trotListIntOperandValue( l, op, value );
 	return rc;
 
 
@@ -121,28 +121,28 @@ TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op )
 /******************************************************************************/
 /*!
 	\brief Does an int operand on the last value in the list and the passed in value.
-	\param lr Pointer to a trotListRef.
+	\param l Pointer to a trotList.
 	\param op Which operand to do.
 	\param value Value to use with the last value in the list.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, TROT_INT value )
+TROT_RC trotListIntOperandValue( trotList *l, TROT_OP op, TROT_INT value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 	trotListNode *node = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
-	node = l -> tail -> prev;
+	node = la -> tail -> prev;
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
 

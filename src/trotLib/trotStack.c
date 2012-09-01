@@ -64,22 +64,22 @@ TROT_RC trotStackInit( trotStack **stack )
 	TROT_MALLOC( newTail, trotStackNode, 1 );
 	TROT_MALLOC( newStack, trotStack, 1 );
 
-	newHead -> l1 = NULL;
-	newHead -> l1Node = NULL;
-	newHead -> l1Count = 0;
-	newHead -> l2 = NULL;
-	newHead -> l2Node = NULL;
-	newHead -> l2Count = 0;
+	newHead -> la1 = NULL;
+	newHead -> la1Node = NULL;
+	newHead -> la1Count = 0;
+	newHead -> la2 = NULL;
+	newHead -> la2Node = NULL;
+	newHead -> la2Count = 0;
 	newHead -> index = 0;
 	newHead -> prev = newHead;
 	newHead -> next = newTail;
 
-	newTail -> l1 = NULL;
-	newTail -> l1Node = NULL;
-	newTail -> l1Count = 0;
-	newTail -> l2 = NULL;
-	newTail -> l2Node = NULL;
-	newTail -> l2Count = 0;
+	newTail -> la1 = NULL;
+	newTail -> la1Node = NULL;
+	newTail -> la1Count = 0;
+	newTail -> la2 = NULL;
+	newTail -> la2Node = NULL;
+	newTail -> la2Count = 0;
 	newTail -> index = 0;
 	newTail -> prev = newHead;
 	newTail -> next = newTail;
@@ -144,11 +144,11 @@ void trotStackFree( trotStack **stack )
 /*!
 	\brief Pushes a new node on the stack .
 	\param stack The stack to push to.
-	\param l1 The first list.
-	\param l2 The second list.
+	\param la1 The first list.
+	\param la2 The second list.
 	\return TROT_RC
 */
-TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 )
+TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la2 )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -165,8 +165,8 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 
 	node = stack -> head -> next;
 	while ( node != stack -> tail )
 	{
-		if (    ( node -> l1 == l1 && node -> l2 == l2 )
-		     || ( node -> l1 == l2 && node -> l2 == l1 )
+		if (    ( node -> la1 == la1 && node -> la2 == la2 )
+		     || ( node -> la1 == la2 && node -> la2 == la1 )
 		   )
 		{
 			/* yes, so nothing to do */
@@ -179,12 +179,12 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 
 	/* not already in stack, so lets add */
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
-	newNode -> l1 = l1;
-	newNode -> l1Node = l1 -> head;
-	newNode -> l1Count = 0;
-	newNode -> l2 = l2;
-	newNode -> l2Node = l2 -> head;
-	newNode -> l2Count = 0;
+	newNode -> la1 = la1;
+	newNode -> la1Node = la1 -> head;
+	newNode -> la1Count = 0;
+	newNode -> la2 = la2;
+	newNode -> la2Node = la2 -> head;
+	newNode -> la2Count = 0;
 	newNode -> index = 0;
 	newNode -> next = stack -> tail;
 	newNode -> prev = stack -> tail -> prev;
@@ -260,18 +260,18 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack )
 
 	stackNode -> index += 1;
 
-	stackNode -> l1Count += 1;
-	if ( stackNode -> l1Count >= stackNode -> l1Node -> count )
+	stackNode -> la1Count += 1;
+	if ( stackNode -> la1Count >= stackNode -> la1Node -> count )
 	{
-		stackNode -> l1Node = stackNode -> l1Node -> next;
-		stackNode -> l1Count = 0;
+		stackNode -> la1Node = stackNode -> la1Node -> next;
+		stackNode -> la1Count = 0;
 	}
 
-	stackNode -> l2Count += 1;
-	if ( stackNode -> l2Count >= stackNode -> l2Node -> count )
+	stackNode -> la2Count += 1;
+	if ( stackNode -> la2Count >= stackNode -> la2Node -> count )
 	{
-		stackNode -> l2Node = stackNode -> l2Node -> next;
-		stackNode -> l2Count = 0;
+		stackNode -> la2Node = stackNode -> la2Node -> next;
+		stackNode -> la2Count = 0;
 	}
 
 	return TROT_RC_SUCCESS;

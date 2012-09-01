@@ -38,11 +38,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* helper functions */
-static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual );
+static int compare( trotList *l1, trotList *l2, int shouldBeEqual );
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( trotListRef **, int ) =
+static int (*createFunctions[])( trotList **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -58,11 +58,11 @@ static int (*createFunctions[])( trotListRef **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int size );
-static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int size );
-static int testSpans( int (*createFunction)( trotListRef **, int ), int size );
+static int testCopyCompare( int (*createFunction)( trotList **, int ), int size );
+static int testEnlistDelist( int (*createFunction)( trotList **, int ), int size );
+static int testSpans( int (*createFunction)( trotList **, int ), int size );
 
-static int (*testFunctions[])( int (*)( trotListRef **, int ), int ) = 
+static int (*testFunctions[])( int (*)( trotList **, int ), int ) = 
 	{
 		testCopyCompare,
 		testEnlistDelist,
@@ -128,7 +128,7 @@ int testSecondaryFunctionality()
 }
 
 /******************************************************************************/
-static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
+static int compare( trotList *l1, trotList *l2, int shouldBeEqual )
 {
 	/* DATA */
 	int rc = 0;
@@ -140,18 +140,18 @@ static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
 	/* CODE */
 	if ( shouldBeEqual )
 	{
-		TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCompare( l1, l2, &compareResult1 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compareResult1 != TROT_LIST_COMPARE_EQUAL );
 
-		TEST_ERR_IF( trotListRefCompare( lr2, lr1, &compareResult1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCompare( l2, l1, &compareResult1 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compareResult1 != TROT_LIST_COMPARE_EQUAL );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListRefCompare( lr1, lr2, &compareResult1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCompare( l1, l2, &compareResult1 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compareResult1 == TROT_LIST_COMPARE_EQUAL );
 
-		TEST_ERR_IF( trotListRefCompare( lr2, lr1, &compareResult2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCompare( l2, l1, &compareResult2 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compareResult2 == TROT_LIST_COMPARE_EQUAL );
 
 		if ( compareResult1 == TROT_LIST_COMPARE_LESS_THAN )
@@ -174,117 +174,117 @@ static int compare( trotListRef *lr1, trotListRef *lr2, int shouldBeEqual )
 }
 
 /******************************************************************************/
-static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int size )
+static int testCopyCompare( int (*createFunction)( trotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lr1 = NULL;
-	trotListRef *lr1Copy = NULL;
+	trotList *l1 = NULL;
+	trotList *l1Copy = NULL;
 
-	trotListRef *lr2 = NULL;
+	trotList *l2 = NULL;
 
 	TROT_INT index = 0;
 
 
 	/* CODE */
 	/* create l1 */
-	TEST_ERR_IF( (*createFunction)( &lr1, 0 ) != 0 );
+	TEST_ERR_IF( (*createFunction)( &l1, 0 ) != 0 );
 
-	TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
+	TEST_ERR_IF( compare( l1, l1, 1 ) != 0 );
 
 	/* create copy */
-	TEST_ERR_IF( trotListRefCopy( lr1, &lr1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
+	TEST_ERR_IF( compare( l1, l1Copy, 1 ) != 0 );
 
 	/* *** */
-	TEST_ERR_IF( (*createFunction)( &lr2, 0 ) != 0 );
+	TEST_ERR_IF( (*createFunction)( &l2, 0 ) != 0 );
 
-	TEST_ERR_IF( trotListRefAppendListTwin( lr1, lr2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr2, lr1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( l1, l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( l2, l1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+	TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 	/* free lists */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lr1Copy );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &l1Copy );
 	
 
 	index = 1;
 	while ( index <= size )
 	{
 		/* create l1 */
-		TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
+		TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
 
-		TEST_ERR_IF( compare( lr1, lr1, 1 ) != 0 );
+		TEST_ERR_IF( compare( l1, l1, 1 ) != 0 );
 
 		/* create copy */
-		TEST_ERR_IF( trotListRefCopy( lr1, &lr1Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( compare( lr1, lr1Copy, 1 ) != 0 );
+		TEST_ERR_IF( compare( l1, l1Copy, 1 ) != 0 );
 
 		/* create l2 with same create function */
-		TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
+		TEST_ERR_IF( (*createFunction)( &l2, size ) != 0 );
 
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* test adding int */
-		TEST_ERR_IF( trotListRefInsertInt( lr2, index, 0 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertInt( l2, index, 0 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRefInsertInt( lr1, index, 0 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertInt( l1, index, 0 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRefRemove( lr1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefRemove( lr2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* test adding twin of self */
-		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr2 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l2, index, l2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l1, index, l1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRefRemove( lr1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefRemove( lr2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* test adding twin of l1 */
-		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l2, index, l1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l1, index, l1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRefRemove( lr1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefRemove( lr2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* test adding copy of l1 */
-		TEST_ERR_IF( trotListRefInsertListTwin( lr2, index, lr1Copy ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l2, index, l1Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRefInsertListTwin( lr1, index, lr1Copy ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( l1, index, l1Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRefRemove( lr1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefRemove( lr2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* test deleting item */
-		TEST_ERR_IF( trotListRefRemove( lr1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRefRemove( lr2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 		/* free our lists */
-		trotListRefFree( &lr1 );
-		trotListRefFree( &lr1Copy );
-		trotListRefFree( &lr2 );
+		trotListFree( &l1 );
+		trotListFree( &l1Copy );
+		trotListFree( &l2 );
 
 		index += 1;
 	}
@@ -300,15 +300,15 @@ static int testCopyCompare( int (*createFunction)( trotListRef **, int ), int si
 }
 
 /******************************************************************************/
-static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int size )
+static int testEnlistDelist( int (*createFunction)( trotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lr1 = NULL;
-	trotListRef *lr2 = NULL;
+	trotList *l1 = NULL;
+	trotList *l2 = NULL;
 
-	trotListRef *lrEmpty = NULL;
+	trotList *lEmpty = NULL;
 
 	TROT_INT index1 = 0;
 	TROT_INT index2 = 0;
@@ -329,12 +329,12 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 		while ( index2 <= size )
 		{
 			/* create our lists */
-			TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-			TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
+			TEST_ERR_IF( (*createFunction)( &l2, size ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 			/* enlist */
-			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( l1, &count ) != TROT_RC_SUCCESS );
 
 			usedIndex1 = index1;
 			if ( rand() % 100 > 50 )
@@ -348,12 +348,12 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
 			}
 
-			TEST_ERR_IF( trotListRefEnlist( lr1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lr1 ) != 0 );
-			TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+			TEST_ERR_IF( trotListEnlist( l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( l1 ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
 			/* delist */
-			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( l1, &count ) != TROT_RC_SUCCESS );
 
 			delistIndex = index1 < index2 ? index1 : index2;
 
@@ -362,20 +362,20 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 				delistIndex = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( delistIndex, count );
 			}
 
-			TEST_ERR_IF( trotListRefDelist( lr1, delistIndex ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lr1 ) != 0 );
-			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( trotListDelist( l1, delistIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( l1 ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 			/* delist empty list */
-			TEST_ERR_IF( trotListRefInit( &lrEmpty ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListRefInsertListTwin( lr1, 1, lrEmpty ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListRefDelist( lr1, 1 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( trotListInit( &lEmpty ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( l1, 1, lEmpty ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListDelist( l1, 1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 			/* free our lists */
-			trotListRefFree( &lr1 );
-			trotListRefFree( &lr2 );
-			trotListRefFree( &lrEmpty );
+			trotListFree( &l1 );
+			trotListFree( &l2 );
+			trotListFree( &lEmpty );
 
 			index2 += 1;
 		}
@@ -394,15 +394,15 @@ static int testEnlistDelist( int (*createFunction)( trotListRef **, int ), int s
 }
 
 /******************************************************************************/
-static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
+static int testSpans( int (*createFunction)( trotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lr1 = NULL;
-	trotListRef *lr2 = NULL;
+	trotList *l1 = NULL;
+	trotList *l2 = NULL;
 
-	trotListRef *lrSpan = NULL;
+	trotList *lSpan = NULL;
 
 	TROT_INT index1 = 0;
 	TROT_INT index2 = 0;
@@ -423,12 +423,12 @@ static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
 		while ( index2 <= size )
 		{
 			/* create our lists */
-			TEST_ERR_IF( (*createFunction)( &lr1, size ) != 0 );
-			TEST_ERR_IF( (*createFunction)( &lr2, size ) != 0 );
-			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
+			TEST_ERR_IF( (*createFunction)( &l2, size ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 			/* create span copy */
-			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( l1, &count ) != TROT_RC_SUCCESS );
 
 			usedIndex1 = index1;
 			if ( rand() % 100 > 50 )
@@ -442,19 +442,19 @@ static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
 				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
 			}
 
-			TEST_ERR_IF( trotListRefCopySpan( lr1, usedIndex1, usedIndex2, &lrSpan ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lrSpan ) != 0 );
-			TEST_ERR_IF( checkList( lr1 ) != 0 );
+			TEST_ERR_IF( trotListCopySpan( l1, usedIndex1, usedIndex2, &lSpan ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( lSpan ) != 0 );
+			TEST_ERR_IF( checkList( l1 ) != 0 );
 
 			/* remove span */
-			TEST_ERR_IF( trotListRefRemoveSpan( lr1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lr1 ) != 0 );
+			TEST_ERR_IF( trotListRemoveSpan( l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( l1 ) != 0 );
 
 			/* compare */
-			TEST_ERR_IF( compare( lr1, lr2, 0 ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 0 ) != 0 );
 
 			/* insert and delist span */
-			TEST_ERR_IF( trotListRefGetCount( lr1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( l1, &count ) != TROT_RC_SUCCESS );
 
 			delistIndex = index1 < index2 ? index1 : index2;
 
@@ -463,17 +463,17 @@ static int testSpans( int (*createFunction)( trotListRef **, int ), int size )
 				delistIndex = INDEX_TO_NEGATIVE_VERSION_INSERT( delistIndex, count );
 			}
 
-			TEST_ERR_IF( trotListRefInsertListTwin( lr1, delistIndex, lrSpan ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( l1, delistIndex, lSpan ) != TROT_RC_SUCCESS );
 
-			TEST_ERR_IF( trotListRefDelist( lr1, delistIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListDelist( l1, delistIndex ) != TROT_RC_SUCCESS );
 
 			/* compare */
-			TEST_ERR_IF( compare( lr1, lr2, 1 ) != 0 );
+			TEST_ERR_IF( compare( l1, l2, 1 ) != 0 );
 
 			/* free our lists */
-			trotListRefFree( &lr1 );
-			trotListRefFree( &lr2 );
-			trotListRefFree( &lrSpan );
+			trotListFree( &l1 );
+			trotListFree( &l2 );
+			trotListFree( &lSpan );
 
 			index2 += 1;
 		}

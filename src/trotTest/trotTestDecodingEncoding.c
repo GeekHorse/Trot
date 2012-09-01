@@ -44,24 +44,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern const char *opNames[];
 
 /******************************************************************************/
-static int doesFileExist( trotListRef *lrName, TROT_INT *exist );
+static int doesFileExist( trotList *lName, TROT_INT *exist );
 
-typedef int (*ProcessFunction)( int dirNumber, int fileNumber, trotListRef *lrName );
+typedef int (*ProcessFunction)( int dirNumber, int fileNumber, trotList *lName );
 static int processFiles( char *directory, ProcessFunction func );
 
-static int testTokenizingGood( int dirNumber, int fileNumber, trotListRef *lrName );
-static int testTokenizingBad( int dirNumber, int fileNumber, trotListRef *lrName );
-static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName );
+static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName );
+static int testTokenizingBad( int dirNumber, int fileNumber, trotList *lName );
+static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName );
 
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef *lrName );
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotListRef *lrName );
+static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lName );
+static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lName );
 
 /* TODO: name this better */
 static int testTokenizeMore1();
 
 static int testEncodingMore();
 
-static int printTokens( trotListRef *lrTokenList );
+static int printTokens( trotList *lTokenList );
 
 /******************************************************************************/
 int testDecodingEncoding()
@@ -100,7 +100,7 @@ int testDecodingEncoding()
 }
 
 /******************************************************************************/
-static int doesFileExist( trotListRef *lrName, TROT_INT *exist )
+static int doesFileExist( trotList *lName, TROT_INT *exist )
 {
 	/* DATA */
 	int rc = 0;
@@ -111,10 +111,10 @@ static int doesFileExist( trotListRef *lrName, TROT_INT *exist )
 
 
 	/* CODE */
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 	TEST_ERR_IF( exist == NULL );
 
-	TEST_ERR_IF( listToCString( lrName, &name ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
 
 	if ( stat( name, &st ) == 0 )
 	{
@@ -158,7 +158,7 @@ static int processFiles( char *directory, ProcessFunction func )
 
 	TROT_INT exist = 0;
 
-	trotListRef *lrName = NULL;
+	trotList *lName = NULL;
 
 	int flagTestedAtLeastOne = 0;
 
@@ -168,67 +168,67 @@ static int processFiles( char *directory, ProcessFunction func )
 	TEST_ERR_IF( func == NULL );
 
 	/* create trotList filename */
-	TEST_ERR_IF( trotListRefInit( &lrName ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lName ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( appendCStringToList( lrName, directory ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( appendCStringToList( lName, directory ) != TROT_RC_SUCCESS );
 
 	/* foreach directory */
 	while ( 1 )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lrName, ( dirNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefAppendInt( lrName, ( dirNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lName, ( dirNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lName, ( dirNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
 
 		/* does directory exist? */
-		TEST_ERR_IF( doesFileExist( lrName, &exist ) != 0 );
+		TEST_ERR_IF( doesFileExist( lName, &exist ) != 0 );
 
 		if ( exist == 0 )
 		{
 			break;
 		}
 
-		TEST_ERR_IF( trotListRefAppendInt( lrName, '/' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lName, '/' ) != TROT_RC_SUCCESS );
 
 		/* foreach file in this directory */
 		fileNumber = 1;
 
 		while ( 1 )
 		{
-			TEST_ERR_IF( trotListRefAppendInt( lrName, ( fileNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListRefAppendInt( lrName, ( fileNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lName, ( fileNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lName, ( fileNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
 
 			/* does file exist? */
 /* TODO: find better name for 'doesFileExist' and 'appendCStringToList' etc */
-			TEST_ERR_IF( doesFileExist( lrName, &exist ) != 0 );
+			TEST_ERR_IF( doesFileExist( lName, &exist ) != 0 );
 
 			if ( exist == 0 )
 			{
 				/* remove our number from end of name */
-				TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
 
 				break;
 			}
 
 			/* send to func */
-			TEST_ERR_IF( func( dirNumber, fileNumber, lrName ) != 0 );
+			TEST_ERR_IF( func( dirNumber, fileNumber, lName ) != 0 );
 
 			/* set flag */
 			flagTestedAtLeastOne = 1;
 
 			/* remove our number from end of name */
-			TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
 
 			/* next */
 			fileNumber += 1;
 		}
 
 		/* remove the last '/' from end of name */
-		TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
 
 		/* remove our number from end of name */
-		TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefRemove( lrName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
 
 		/* next */
 		dirNumber += 1;
@@ -241,60 +241,60 @@ static int processFiles( char *directory, ProcessFunction func )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrName );
+	trotListFree( &lName );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testTokenizingGood( int dirNumber, int fileNumber, trotListRef *lrName )
+static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrBytes = NULL;
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrTokenList = NULL;
+	trotList *lBytes = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lTokenList = NULL;
 
 	TROT_INT count = 0;
 	TROT_INT index = 0;
 	TROT_INT tokenType = 0;
-	trotListRef *lrToken = NULL;
+	trotList *lToken = NULL;
 
 
 	/* CODE */
 	(void)fileNumber;
 
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 
 	/* call load */
-	TEST_ERR_IF( load( lrName, &lrBytes ) != 0 );
+	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
 
 	/* convert unicode */
-	trotListRefFree( &lrCharacters );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lCharacters ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lrBytes, lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotUtf8ToCharacters( lBytes, lCharacters ) != TROT_RC_SUCCESS );
 
 	/* tokenize */
-	trotListRefFree( &lrTokenList );
+	trotListFree( &lTokenList );
 
-	TEST_ERR_IF( trotTokenize( lrCharacters, &lrTokenList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotTokenize( lCharacters, &lTokenList ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( printTokens( lrTokenList ) != 0 );
+	TEST_ERR_IF( printTokens( lTokenList ) != 0 );
 
 	/* make sure each token is the appropriate type */
-	TEST_ERR_IF( trotListRefGetCount( lrTokenList, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lTokenList, &count ) != TROT_RC_SUCCESS );
 
 	index = 1;
 	while ( index <= count )
 	{
-		trotListRefFree( &lrToken );
+		trotListFree( &lToken );
 
-		TEST_ERR_IF( trotListRefGetListTwin( lrTokenList, index, &lrToken ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetList( lTokenList, index, &lToken ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
 
 		TEST_ERR_IF( tokenType != dirNumber );
 
@@ -305,68 +305,68 @@ static int testTokenizingGood( int dirNumber, int fileNumber, trotListRef *lrNam
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrBytes );
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrTokenList );
-	trotListRefFree( &lrToken );
+	trotListFree( &lBytes );
+	trotListFree( &lCharacters );
+	trotListFree( &lTokenList );
+	trotListFree( &lToken );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testTokenizingBad( int dirNumber, int fileNumber, trotListRef *lrName )
+static int testTokenizingBad( int dirNumber, int fileNumber, trotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrBytes = NULL;
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrTokenList = NULL;
+	trotList *lBytes = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lTokenList = NULL;
 
 
 	/* CODE */
 	(void)dirNumber;
 	(void)fileNumber;
 
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 
 	/* call load */
-	TEST_ERR_IF( load( lrName, &lrBytes ) != 0 );
+	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
 
 	/* convert unicode */
-	TEST_ERR_IF( trotListRefInit( &lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lCharacters ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lrBytes, lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotUtf8ToCharacters( lBytes, lCharacters ) != TROT_RC_SUCCESS );
 
 	/* tokenize, which should FAIL */
-	TEST_ERR_IF( trotTokenize( lrCharacters, &lrTokenList ) != TROT_RC_ERROR_DECODE );
+	TEST_ERR_IF( trotTokenize( lCharacters, &lTokenList ) != TROT_RC_ERROR_DECODE );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrBytes );
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrTokenList );
+	trotListFree( &lBytes );
+	trotListFree( &lCharacters );
+	trotListFree( &lTokenList );
 
 	return rc;
 }
 
 
 /******************************************************************************/
-static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName )
+static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrBytes = NULL;
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrTokenList = NULL;
+	trotList *lBytes = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lTokenList = NULL;
 
 	TROT_INT count = 0;
 	TROT_INT index = 0;
 	TROT_INT tokenType = 0;
-	trotListRef *lrToken = NULL;
+	trotList *lToken = NULL;
 
 	TROT_INT line = 0;
 	TROT_INT numberValue = 0;
@@ -376,40 +376,40 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName )
 	(void)dirNumber;
 	(void)fileNumber;
 
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 
 	/* call load */
-	TEST_ERR_IF( load( lrName, &lrBytes ) != 0 );
+	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
 
 	/* convert unicode */
-	trotListRefFree( &lrCharacters );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lCharacters ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lrBytes, lrCharacters ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotUtf8ToCharacters( lBytes, lCharacters ) != TROT_RC_SUCCESS );
 
 	/* tokenize */
-	trotListRefFree( &lrTokenList );
+	trotListFree( &lTokenList );
 
-	TEST_ERR_IF( trotTokenize( lrCharacters, &lrTokenList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotTokenize( lCharacters, &lTokenList ) != TROT_RC_SUCCESS );
 
 	/* make sure each number token is on the right line */
-	TEST_ERR_IF( trotListRefGetCount( lrTokenList, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lTokenList, &count ) != TROT_RC_SUCCESS );
 
 	index = 1;
 	while ( index <= count )
 	{
-		trotListRefFree( &lrToken );
+		trotListFree( &lToken );
 
-		TEST_ERR_IF( trotListRefGetListTwin( lrTokenList, index, &lrToken ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetList( lTokenList, index, &lToken ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
 
 		if ( tokenType == TOKEN_TYPE_NUMBER )
 		{
-			TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_LINE, &line ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_LINE, &line ) != TROT_RC_SUCCESS );
 
-			TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_VALUE, &numberValue ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_VALUE, &numberValue ) != TROT_RC_SUCCESS );
 
 			TEST_ERR_IF( line != numberValue );
 		}
@@ -421,25 +421,25 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotListRef *lrName )
 	/* CLEANUP */
 	cleanup:
 	
-	trotListRefFree( &lrBytes );
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrTokenList );
-	trotListRefFree( &lrToken );
+	trotListFree( &lBytes );
+	trotListFree( &lCharacters );
+	trotListFree( &lTokenList );
+	trotListFree( &lToken );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef *lrName )
+static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrDecodedList1 = NULL;
-	trotListRef *lrEncodedList1 = NULL;
-	trotListRef *lrEmptyName = NULL;
-	trotListRef *lrDecodedList2 = NULL;
-	trotListRef *lrEncodedList2 = NULL;
+	trotList *lDecodedList1 = NULL;
+	trotList *lEncodedList1 = NULL;
+	trotList *lEmptyName = NULL;
+	trotList *lDecodedList2 = NULL;
+	trotList *lEncodedList2 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 #if 1
@@ -451,75 +451,75 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotListRef 
 	(void)dirNumber;
 	(void)fileNumber;
 
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 
-	TEST_ERR_IF( trotDecodeFilename( load, lrName, &lrDecodedList1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotDecodeFilename( load, lName, &lDecodedList1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lrDecodedList1, &lrEncodedList1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lDecodedList1, &lEncodedList1 ) != TROT_RC_SUCCESS );
 #if 1
-	TEST_ERR_IF( listToCString( lrEncodedList1, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lEncodedList1, &s ) != TROT_RC_SUCCESS );
 
-	printf( "lrEncodedList1: %s\n", s );
+	printf( "lEncodedList1: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotListRefInit( &lrEmptyName ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lEmptyName ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotDecodeCharacters( load, lrEmptyName, lrEncodedList1, &lrDecodedList2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotDecodeCharacters( load, lEmptyName, lEncodedList1, &lDecodedList2 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lrDecodedList2, &lrEncodedList2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lDecodedList2, &lEncodedList2 ) != TROT_RC_SUCCESS );
 #if 1
-	TEST_ERR_IF( listToCString( lrEncodedList2, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lEncodedList2, &s ) != TROT_RC_SUCCESS );
 
-	printf( "lrEncodedList2: %s\n", s );
+	printf( "lEncodedList2: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotListRefCompare( lrDecodedList1, lrDecodedList2, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCompare( lDecodedList1, lDecodedList2, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 	
-	TEST_ERR_IF( trotListRefCompare( lrEncodedList1, lrEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrDecodedList1 );
-	trotListRefFree( &lrEncodedList1 );
-	trotListRefFree( &lrEmptyName );
-	trotListRefFree( &lrDecodedList2 );
-	trotListRefFree( &lrEncodedList2 );
+	trotListFree( &lDecodedList1 );
+	trotListFree( &lEncodedList1 );
+	trotListFree( &lEmptyName );
+	trotListFree( &lDecodedList2 );
+	trotListFree( &lEncodedList2 );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotListRef *lrName )
+static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrDecodedList = NULL;
+	trotList *lDecodedList = NULL;
 
 
 	/* CODE */
 	(void)dirNumber;
 	(void)fileNumber;
 
-	TEST_ERR_IF( lrName == NULL );
+	TEST_ERR_IF( lName == NULL );
 
-	TEST_ERR_IF( trotDecodeFilename( load, lrName, &lrDecodedList ) != TROT_RC_ERROR_DECODE );
+	TEST_ERR_IF( trotDecodeFilename( load, lName, &lDecodedList ) != TROT_RC_ERROR_DECODE );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrDecodedList );
+	trotListFree( &lDecodedList );
 
 	return rc;
 }
@@ -535,9 +535,9 @@ static int testTokenizeMore1()
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrTokens = NULL;
-	trotListRef *lrTemp = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lTokens = NULL;
+	trotList *lTemp = NULL;
 
 	char *s = "[ \"xyz\" word w[ w] w( w) w{ w} word #( abc #) # comment";
 	int sLen = 0;
@@ -552,26 +552,26 @@ static int testTokenizeMore1()
 
 	while ( i <= sLen )
 	{
-		/* create lrCharacters */
-		trotListRefFree( &lrCharacters );
-		TEST_ERR_IF( trotListRefInit( &lrCharacters ) != TROT_RC_SUCCESS );
+		/* create lCharacters */
+		trotListFree( &lCharacters );
+		TEST_ERR_IF( trotListInit( &lCharacters ) != TROT_RC_SUCCESS );
 
 		x = s;
 		while ( (*x) != '\0' )
 		{
-			TEST_ERR_IF( trotListRefAppendInt( lrCharacters, (*x) ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lCharacters, (*x) ) != TROT_RC_SUCCESS );
 
 			x += 1;
 		}
 
 		/* add a list, which should never occur in a list to tokenize */
-		trotListRefFree( &lrTemp );
-		TEST_ERR_IF( trotListRefInit( &lrTemp ) != TROT_RC_SUCCESS );
+		trotListFree( &lTemp );
+		TEST_ERR_IF( trotListInit( &lTemp ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefInsertListTwin( lrCharacters, i + 1, lrTemp ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInsertList( lCharacters, i + 1, lTemp ) != TROT_RC_SUCCESS );
 
 		/* try to tokenize */
-		TEST_ERR_IF( trotTokenize( lrCharacters, &lrTokens ) != TROT_RC_ERROR_WRONG_KIND );
+		TEST_ERR_IF( trotTokenize( lCharacters, &lTokens ) != TROT_RC_ERROR_WRONG_KIND );
 
 		/* increment */
 		i += 1;
@@ -581,8 +581,8 @@ static int testTokenizeMore1()
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrTemp );
+	trotListFree( &lCharacters );
+	trotListFree( &lTemp );
 
 	return rc;
 }
@@ -590,11 +590,11 @@ static int testTokenizeMore1()
 /******************************************************************************/
 /*!
 	\brief Prints out a tokenList for debugging.
-	\param lrTokenList Token list.
+	\param lTokenList Token list.
 	\return int
 */
 /* TODO: we have another type function in trotDecodingEncoding.c. Merge into 1? */
-static int printTokens( trotListRef *lrTokenList )
+static int printTokens( trotList *lTokenList )
 {
 	/* DATA */
 	int rc = 0;
@@ -604,21 +604,21 @@ static int printTokens( trotListRef *lrTokenList )
 
 	TROT_INT currentLine = 1;
 
-	trotListRef *lrToken = NULL;
+	trotList *lToken = NULL;
 
 	TROT_INT tokenLine = 0;
 	TROT_INT tokenType = 0;
-	trotListRef *lrValue = NULL;
+	trotList *lValue = NULL;
 	TROT_INT tokenNumber = 0;
 
-	trotListRef *lrUtf8Bytes = NULL;
+	trotList *lUtf8Bytes = NULL;
 	TROT_INT utf8Count = 0;
 	TROT_INT utf8Index = 0;
 	TROT_INT utf8Byte = 0;
 
 
 	/* CODE */
-	TEST_ERR_IF( lrTokenList == NULL );
+	TEST_ERR_IF( lTokenList == NULL );
 
 	if ( ! PRINT_TOKENS )
 	{
@@ -626,22 +626,22 @@ static int printTokens( trotListRef *lrTokenList )
 	}
 
 	/* get count */
-	TEST_ERR_IF( trotListRefGetCount( lrTokenList, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lTokenList, &count ) != TROT_RC_SUCCESS );
 
 	/* foreach token */
 	index = 1;
 	while ( index <= count )
 	{
 		/* get token */
-		trotListRefFree( &lrToken );
+		trotListFree( &lToken );
 
-		TEST_ERR_IF( trotListRefGetListTwin( lrTokenList, index, &lrToken ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetList( lTokenList, index, &lToken ) != TROT_RC_SUCCESS );
 
 		/* get line */
-		TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_LINE, &tokenLine ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_LINE, &tokenLine ) != TROT_RC_SUCCESS );
 
 		/* get type */
-		TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
 
 		/* new line? */
 		if ( currentLine != tokenLine )
@@ -678,16 +678,16 @@ static int printTokens( trotListRef *lrTokenList )
 		else if ( tokenType == TOKEN_TYPE_STRING || tokenType == TOKEN_TYPE_WORD )
 		{
 			/* get value */
-			trotListRefFree( &lrValue );
+			trotListFree( &lValue );
 
-			TEST_ERR_IF( trotListRefGetListTwin( lrToken, TOKEN_INDEX_VALUE, &lrValue ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetList( lToken, TOKEN_INDEX_VALUE, &lValue ) != TROT_RC_SUCCESS );
 
 			/* convert to utf8 */
-			trotListRefFree( &lrUtf8Bytes );
+			trotListFree( &lUtf8Bytes );
 
-			TEST_ERR_IF( trotListRefInit( &lrUtf8Bytes ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInit( &lUtf8Bytes ) != TROT_RC_SUCCESS );
 
-			TEST_ERR_IF( trotCharactersToUtf8( lrValue, lrUtf8Bytes ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotCharactersToUtf8( lValue, lUtf8Bytes ) != TROT_RC_SUCCESS );
 
 			if ( tokenType == TOKEN_TYPE_STRING )
 			{
@@ -699,12 +699,12 @@ static int printTokens( trotListRef *lrTokenList )
 			}
 
 			/* print */
-			TEST_ERR_IF( trotListRefGetCount( lrUtf8Bytes, &utf8Count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( lUtf8Bytes, &utf8Count ) != TROT_RC_SUCCESS );
 
 			utf8Index = 1;
 			while ( utf8Index <= utf8Count )
 			{
-				TEST_ERR_IF( trotListRefGetInt( lrUtf8Bytes, utf8Index, &utf8Byte ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListGetInt( lUtf8Bytes, utf8Index, &utf8Byte ) != TROT_RC_SUCCESS );
 
 				printf( "%c", utf8Byte );
 
@@ -724,7 +724,7 @@ static int printTokens( trotListRef *lrTokenList )
 		}
 		else /* NUMBER */
 		{
-			TEST_ERR_IF( trotListRefGetInt( lrToken, TOKEN_INDEX_VALUE, &tokenNumber ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_VALUE, &tokenNumber ) != TROT_RC_SUCCESS );
 
 			printf( "N:%d ", tokenNumber );
 		}
@@ -739,9 +739,9 @@ static int printTokens( trotListRef *lrTokenList )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrToken );
-	trotListRefFree( &lrValue );
-	trotListRefFree( &lrUtf8Bytes );
+	trotListFree( &lToken );
+	trotListFree( &lValue );
+	trotListFree( &lUtf8Bytes );
 
 	return rc;
 }
@@ -757,96 +757,96 @@ static int testEncodingMore()
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lr1 = NULL;
-	trotListRef *lr2 = NULL;
-	trotListRef *lrCharacters = NULL;
+	trotList *l1 = NULL;
+	trotList *l2 = NULL;
+	trotList *lCharacters = NULL;
 
 
 	/* CODE */
 	/* *** */
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lr2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr1, lr2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( l1, l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
-
-	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
-
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, TROT_OP_PUSH_INT ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
-
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
 
 	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lr2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, TROT_OP_PUSH_INT ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr1, lr2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, TROT_OP_PUSH_INT ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
 
 	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, TROT_OP_PUSH_LIST ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, TROT_OP_PUSH_INT ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( l1, l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
-
-	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
-
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, TROT_OP_PUSH_LIST ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, 5 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
-
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
 
 	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, -1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, TROT_OP_PUSH_LIST ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
 
 	/* *** */
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
 
-	TEST_ERR_IF( trotListRefInit( &lr1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lr1, TROT_OP_MAX + 1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefSetTag( lr1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, TROT_OP_PUSH_LIST ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, 5 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lr1, &lrCharacters ) != TROT_RC_ERROR_ENCODE );
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
+
+	/* *** */
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
+
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, -1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
+
+	/* *** */
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
+
+	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( l1, TROT_OP_MAX + 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotEncode( l1, &lCharacters ) != TROT_RC_ERROR_ENCODE );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lrCharacters );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &lCharacters );
 
 	return rc;
 }

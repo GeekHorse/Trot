@@ -177,8 +177,8 @@ struct trotListNode_STRUCT
 	NODE_SIZE of type TROT_INT, else n will be NULL. */
 	TROT_INT *n;
 	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
-	NODE_SIZE of type trotListRef*, else l will be NULL. */
-	trotListRef **l;
+	NODE_SIZE of type trotList*, else l will be NULL. */
+	trotList **l;
 
 	/*! prev points to previous node in the linked list, or same node if
 	this is the head of the list. */
@@ -232,12 +232,12 @@ struct trotListActual_STRUCT
 };
 
 /*! trotListRef is a reference to a trotList */
-struct trotListRef_STRUCT
+struct trotList_STRUCT
 {
 	/*! The list that this ref is inside of. */
-	trotListActual *lParent;
+	trotListActual *laParent;
 	/*! The list that this ref points to. */
-	trotListActual *lPointsTo;
+	trotListActual *laPointsTo;
 };
 
 /*! Structure for holding a linked list of references. Used in trotList to keep
@@ -246,10 +246,10 @@ struct trotListRefListNode_STRUCT
 {
 	/*! How many references are in this node */
 	int count;
-	/*! r will be NULL if this is the head or tail of the linked list.
+	/*! l will be NULL if this is the head or tail of the linked list.
 	else this will be an array of size REF_LIST_NODE_SIZE of type
-	trotListRef */
-	trotListRef **r;
+	trotList */
+	trotList **l;
 	/*! points to the next node in the linked list, or to itself if this is
 	the tail. */
 	trotListRefListNode *next;
@@ -276,18 +276,18 @@ struct trotStack_STRUCT
 struct trotStackNode_STRUCT
 {
 	/*! list1 */
-	trotListActual *l1;
+	trotListActual *la1;
 	/*! current node in list1 */
-	trotListNode *l1Node;
+	trotListNode *la1Node;
 	/*! current item in l1Node */
-	TROT_INT l1Count;
+	TROT_INT la1Count;
 
 	/*! list2 */
-	trotListActual *l2;
+	trotListActual *la2;
 	/*! current node in list2 */
-	trotListNode *l2Node;
+	trotListNode *la2Node;
 	/*! current item in l2Node */
-	TROT_INT l2Count;
+	TROT_INT la2Count;
 
 	/*! current index */
 	TROT_INT index;
@@ -310,25 +310,25 @@ TROT_RC newListNode( trotListNode **n_A );
 TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
-TROT_RC trotStackPush( trotStack *stack, trotListActual *l1, trotListActual *l2 );
+TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la2 );
 TROT_RC trotStackPop( trotStack *stack, int *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 /* trotTokenize.c */
-TROT_RC trotTokenize( trotListRef *lrCharacters, trotListRef **lrTokenList_A );
-TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotListRef **lrToken_A );
-TROT_RC _trotWordToNumber( trotListRef *lrWord, int *isNumber, TROT_INT *number );
+TROT_RC trotTokenize( trotList *lCharacters, trotList **lTokenList_A );
+TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotList **lToken_A );
+TROT_RC _trotWordToNumber( trotList *lWord, int *isNumber, TROT_INT *number );
 
 /******************************************************************************/
 /* trotListInt.c */
-TROT_RC trotListIntOperand( trotListRef *lr, TROT_OP op );
-TROT_RC trotListIntOperandValue( trotListRef *lr, TROT_OP op, TROT_INT value );
+TROT_RC trotListIntOperand( trotList *l, TROT_OP op );
+TROT_RC trotListIntOperandValue( trotList *l, TROT_OP op, TROT_INT value );
 
 /******************************************************************************/
 /* trotDebug.c */
 /* TODO: do debug functions return int or TROT_RC? I think int ... then we can get rid of our NOT_BYTE_VALUE enum */
-TROT_RC _trotPrintList( trotListRef *lr );
+TROT_RC _trotPrintList( trotList *l );
 /* TODO: move more debug functions here? */
 
 

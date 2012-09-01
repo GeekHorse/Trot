@@ -56,20 +56,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *l, trotListRef *r );
-static void _refListRemove( trotListActual *l, trotListRef *r );
+static TROT_RC _refListAdd( trotListActual *la, trotList *l );
+static void _refListRemove( trotListActual *la, trotList *l );
 
-static void _isListReachable( trotListActual *l );
-static int _findNextParent( trotListActual *l, int queryVisited, trotListActual **parent );
+static void _isListReachable( trotListActual *la );
+static int _findNextParent( trotListActual *la, int queryVisited, trotListActual **parent );
 
 /******************************************************************************/
 /*!
-	\brief Allocates a new trotListRef reference to a new list.
-	\param lr_A Pointer to a trotListRef pointer that must be NULL. On
-		success, this will point to a new trotListRef reference.
+	\brief Allocates a new trotList reference to a new list.
+	\param l_A Pointer to a trotList pointer that must be NULL. On
+		success, this will point to a new trotList reference.
 	\return TROT_RC
 */
-TROT_RC trotListRefInit( trotListRef **lr_A )
+TROT_RC trotListInit( trotList **l_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -79,13 +79,13 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 
 	trotListNode *newHead = NULL;
 	trotListNode *newTail = NULL;
-	trotListActual *newList = NULL;
-	trotListRef *newListRef = NULL;
+	trotListActual *newLa = NULL;
+	trotList *newL = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr_A == NULL );
-	PRECOND_ERR_IF( (*lr_A) != NULL );
+	PRECOND_ERR_IF( l_A == NULL );
+	PRECOND_ERR_IF( (*l_A) != NULL );
 
 
 	/* CODE */
@@ -94,12 +94,12 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	TROT_MALLOC( newRefTail, trotListRefListNode, 1 );
 
 	newRefHead -> count = 0;
-	newRefHead -> r = NULL;
+	newRefHead -> l = NULL;
 	newRefHead -> next = newRefTail;
 	newRefHead -> prev = newRefHead;
 
 	newRefTail -> count = 0;
-	newRefTail -> r = NULL;
+	newRefTail -> l = NULL;
 	newRefTail -> next = newRefTail;
 	newRefTail -> prev = newRefHead;
 
@@ -122,45 +122,45 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	newTail -> next = newTail;
 
 	/* create actual list structure */
-	TROT_MALLOC( newList, trotListActual, 1 );
+	TROT_MALLOC( newLa, trotListActual, 1 );
 
-	newList -> reachable = 1;
-	newList -> flagVisited = 0;
-	newList -> previous = NULL;
-	newList -> nextToFree = NULL;
+	newLa -> reachable = 1;
+	newLa -> flagVisited = 0;
+	newLa -> previous = NULL;
+	newLa -> nextToFree = NULL;
 
-	newList -> encodingParent = NULL;
-	newList -> encodingChildNumber = 0;
+	newLa -> encodingParent = NULL;
+	newLa -> encodingChildNumber = 0;
 
-	newList -> tag = TROT_TAG_DATA;
+	newLa -> tag = TROT_TAG_DATA;
 
-	newList -> childrenCount = 0;
+	newLa -> childrenCount = 0;
 
-	newList -> refListHead = newRefHead;
-	newList -> refListTail = newRefTail;
+	newLa -> refListHead = newRefHead;
+	newLa -> refListTail = newRefTail;
 	newRefHead = NULL;
 	newRefTail = NULL;
 
-	newList -> head = newHead;
-	newList -> tail = newTail;
+	newLa -> head = newHead;
+	newLa -> tail = newTail;
 	newHead = NULL;
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	TROT_MALLOC( newListRef, trotListRef, 1 );
+	TROT_MALLOC( newL, trotList, 1 );
 
-	newListRef -> lParent = NULL;
+	newL -> laParent = NULL;
 
-	newListRef -> lPointsTo = newList;
-	newList = NULL;
+	newL -> laPointsTo = newLa;
+	newLa = NULL;
 
 	/* add first ref to list's ref list */
-	rc = _refListAdd( newListRef -> lPointsTo, newListRef );
+	rc = _refListAdd( newL -> laPointsTo, newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
-	(*lr_A) = newListRef;
-	newListRef = NULL;
+	(*l_A) = newL;
+	newL = NULL;
 
 	return TROT_RC_SUCCESS; /* TODO: go through other functions, and see if we can return success before cleanup */
 
@@ -172,22 +172,22 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 	trotFree( newRefTail );
 	trotFree( newHead );
 	trotFree( newTail );
-	if ( newList != NULL )
+	if ( newLa != NULL )
 	{
-		trotFree( newList -> refListHead );
-		trotFree( newList -> refListTail );
-		trotFree( newList -> head );
-		trotFree( newList -> tail );
-		trotFree( newList );
+		trotFree( newLa -> refListHead );
+		trotFree( newLa -> refListTail );
+		trotFree( newLa -> head );
+		trotFree( newLa -> tail );
+		trotFree( newLa );
 	}
-	if ( newListRef != NULL )
+	if ( newL != NULL )
 	{
-		trotFree( newListRef -> lPointsTo -> refListHead );
-		trotFree( newListRef -> lPointsTo -> refListTail );
-		trotFree( newListRef -> lPointsTo -> head );
-		trotFree( newListRef -> lPointsTo -> tail );
-		trotFree( newListRef -> lPointsTo );
-		trotFree( newListRef );
+		trotFree( newL -> laPointsTo -> refListHead );
+		trotFree( newL -> laPointsTo -> refListTail );
+		trotFree( newL -> laPointsTo -> head );
+		trotFree( newL -> laPointsTo -> tail );
+		trotFree( newL -> laPointsTo );
+		trotFree( newL );
 	}
 
 	return rc;
@@ -195,39 +195,39 @@ TROT_RC trotListRefInit( trotListRef **lr_A )
 
 /******************************************************************************/
 /*!
-	\brief Twins a trotListRef reference.
-	\param lr Pointer to the trotListRef pointer to be twinned.
-	\param lrTwin_A Pointer to a trotListRef pointer that must be NULL. On
-		success, this will point to a new trotListRef reverence.
+	\brief Twins a trotList reference.
+	\param l Pointer to the trotList pointer to be twinned.
+	\param lTwin_A Pointer to a trotList pointer that must be NULL. On
+		success, this will point to a new trotList reverence.
 	\return TROT_RC
 */
-TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A )
+TROT_RC trotListTwin( trotList *l, trotList **lTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRef *newListRef = NULL;
+	trotList *newL = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrTwin_A == NULL );
-	PRECOND_ERR_IF( (*lrTwin_A) != NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lTwin_A == NULL );
+	PRECOND_ERR_IF( (*lTwin_A) != NULL );
 
 
 	/* CODE */
-	TROT_MALLOC( newListRef, trotListRef, 1 );
+	TROT_MALLOC( newL, trotList, 1 );
 
-	newListRef -> lParent = NULL;
-	newListRef -> lPointsTo = lr -> lPointsTo;
+	newL -> laParent = NULL;
+	newL -> laPointsTo = l -> laPointsTo;
 
-	rc = _refListAdd( newListRef -> lPointsTo, newListRef );
+	rc = _refListAdd( newL -> laPointsTo, newL );
 	ERR_IF_PASSTHROUGH;
 
 
 	/* give back */
-	(*lrTwin_A) = newListRef;
-	newListRef = NULL;
+	(*lTwin_A) = newL;
+	newL = NULL;
 
 	return TROT_RC_SUCCESS;
 
@@ -235,24 +235,24 @@ TROT_RC trotListRefTwin( trotListRef *lr, trotListRef **lrTwin_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotFree( newListRef );
+	trotFree( newL );
 
 	return rc;
 }
 
 /******************************************************************************/
 /*!
-	\brief Frees a trotListRef reference. Actual list will be trotFreed if this
+	\brief Frees a trotList reference. Actual list will be trotFreed if this
 		is the last reference.
-	\param lr_F Pointer to a trotListRef pointer.
-		(*lr_F) can be NULL, in which case nothing will happen.
-		On return, (*lr_F) will be NULL.
+	\param l_F Pointer to a trotList pointer.
+		(*l_F) can be NULL, in which case nothing will happen.
+		On return, (*l_F) will be NULL.
 	\return void
 */
-void trotListRefFree( trotListRef **lr_F )
+void trotListFree( trotList **l_F )
 {
 	/* DATA */
-	trotListActual *list = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
@@ -264,27 +264,27 @@ void trotListRefFree( trotListRef **lr_F )
 
 
 	/* CODE */
-	PARANOID_ERR_IF( lr_F == NULL );
+	PARANOID_ERR_IF( l_F == NULL );
 
-	if ( (*lr_F) == NULL )
+	if ( (*l_F) == NULL )
 	{
 		return;
 	}
 
-	PARANOID_ERR_IF( (*lr_F) -> lParent != NULL );
+	PARANOID_ERR_IF( (*l_F) -> laParent != NULL );
 
-	list = (*lr_F) -> lPointsTo;
+	la = (*l_F) -> laPointsTo;
 
 	/* remove ref from list's ref list */
-	_refListRemove( list, (*lr_F) );
+	_refListRemove( la, (*l_F) );
 
 	/* free ref */
-	trotFree( (*lr_F) );
-	(*lr_F) = NULL;
+	trotFree( (*l_F) );
+	(*l_F) = NULL;
 
 	/* is list reachable? */
-	_isListReachable( list );
-	if ( list -> reachable )
+	_isListReachable( la );
+	if ( la -> reachable )
 	{
 		return;
 	}
@@ -292,7 +292,7 @@ void trotListRefFree( trotListRef **lr_F )
 	/* we need to free it */
 
 	/* go through stack */
-	currentL = list;
+	currentL = la;
 	while ( currentL != NULL )
 	{
 		/* free data */
@@ -307,7 +307,7 @@ void trotListRefFree( trotListRef **lr_F )
 			{
 				for ( j = 0; j < node -> count; j += 1 )
 				{
-					tempList = node -> l[ j ] -> lPointsTo;
+					tempList = node -> l[ j ] -> laPointsTo;
 			
 					_refListRemove( tempList, node -> l[ j ] );
 
@@ -337,7 +337,7 @@ void trotListRefFree( trotListRef **lr_F )
 	}
 
 	/* *** */
-	nextL = list;
+	nextL = la;
 	while ( nextL != NULL )
 	{
 		/* *** */
@@ -360,19 +360,19 @@ void trotListRefFree( trotListRef **lr_F )
 /******************************************************************************/
 /*!
 	\brief Gets the count of items in the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param c On success, will contain the count of this list.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetCount( trotListRef *lr, TROT_INT *c )
+TROT_RC trotListGetCount( trotList *l, TROT_INT *c )
 {
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( c == NULL );
 
 
 	/* CODE */
-	(*c) = lr -> lPointsTo -> childrenCount;
+	(*c) = l -> laPointsTo -> childrenCount;
 
 	return TROT_RC_SUCCESS;
 }
@@ -380,17 +380,17 @@ TROT_RC trotListRefGetCount( trotListRef *lr, TROT_INT *c )
 /******************************************************************************/
 /*!
 	\brief Gets the kind of an item in the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Index of the item.
 	\param kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
+TROT_RC trotListGetKind( trotList *l, TROT_INT index, TROT_KIND *kind )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
@@ -398,25 +398,25 @@ TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( kind == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 1;
+		index = (la -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -427,7 +427,7 @@ TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	(*kind) = node -> kind;
@@ -444,35 +444,35 @@ TROT_RC trotListRefGetKind( trotListRef *lr, TROT_INT index, TROT_KIND *kind )
 /******************************************************************************/
 /*!
 	\brief Appends an int to the end of the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
+TROT_RC trotListAppendInt( trotList *l, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 	trotListNode *node = NULL;
 
 	trotListNode *newNode = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 /* TODO: for all insert/appends, we need to make sure list doesn't contain maximum amount of children */
 
 	/* *** */
-	node = l -> tail -> prev;
+	node = la -> tail -> prev;
 
 	/* special cases to create new node */
-	if (    node == l -> head             /* empty list */
+	if (    node == la -> head             /* empty list */
 	     || node -> kind != NODE_KIND_INT /* last node is not int kind */
 	     || node -> count == NODE_SIZE    /* last node is full */
 	   )
@@ -480,11 +480,11 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
 		rc = newIntNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
-		newNode -> next = l -> tail;
-		newNode -> prev = l -> tail -> prev;
+		newNode -> next = la -> tail;
+		newNode -> prev = la -> tail -> prev;
 
-		l -> tail -> prev -> next = newNode;
-		l -> tail -> prev = newNode;
+		la -> tail -> prev -> next = newNode;
+		la -> tail -> prev = newNode;
 
 		node = newNode;
 		newNode = NULL;
@@ -494,7 +494,7 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
 	node -> n[ node -> count ] = n;
 	node -> count += 1;
 
-	l -> childrenCount += 1;
+	la -> childrenCount += 1;
 
 	return TROT_RC_SUCCESS;
 
@@ -508,36 +508,36 @@ TROT_RC trotListRefAppendInt( trotListRef *lr, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Appends a list twin to the end of the list.
-	\param lr Pointer to a trotListRef pointer.
-	\param lrToAppend The list to twin and append.
+	\param l Pointer to a trotList pointer.
+	\param lToAppend The list to twin and append.
 	\return TROT_RC
 */
-TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
+TROT_RC trotListAppendList( trotList *l, trotList *lToAppend )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 	trotListNode *node = NULL;
 
 	trotListNode *newNode = NULL;
 
-	trotListRef *newLr = NULL;
+	trotList *newL = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrToAppend == NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lToAppend == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* *** */
-	node = l -> tail -> prev;
+	node = la -> tail -> prev;
 
 	/* special cases to create new node */
-	if (    node == l -> head              /* empty list */
+	if (    node == la -> head              /* empty list */
 	     || node -> kind != NODE_KIND_LIST /* last node is not list kind */
 	     || node -> count == NODE_SIZE     /* last node is full */
 	   )
@@ -545,27 +545,27 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 		rc = newListNode( &newNode );
 		ERR_IF_PASSTHROUGH;
 
-		newNode -> next = l -> tail;
-		newNode -> prev = l -> tail -> prev;
+		newNode -> next = la -> tail;
+		newNode -> prev = la -> tail -> prev;
 
-		l -> tail -> prev -> next = newNode;
-		l -> tail -> prev = newNode;
+		la -> tail -> prev -> next = newNode;
+		la -> tail -> prev = newNode;
 
 		node = newNode;
 		newNode = NULL;
 	}
 
 	/* append */
-	rc = trotListRefTwin( lrToAppend, &newLr );
+	rc = trotListTwin( lToAppend, &newL );
 	ERR_IF_PASSTHROUGH;
 
-	node -> l[ node -> count ] = newLr;
-	newLr -> lParent = l;
-	newLr = NULL;
+	node -> l[ node -> count ] = newL;
+	newL -> laParent = la;
+	newL = NULL;
 
 	node -> count += 1;
 
-	l -> childrenCount += 1;
+	la -> childrenCount += 1;
 
 	return TROT_RC_SUCCESS;
 
@@ -573,7 +573,7 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &newLr );
+	trotListFree( &newL );
 
 	return rc;
 }
@@ -581,17 +581,17 @@ TROT_RC trotListRefAppendListTwin( trotListRef *lr, trotListRef *lrToAppend )
 /******************************************************************************/
 /*!
 	\brief Inserts an int into the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Where to insert.
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
+TROT_RC trotListInsertInt( trotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
@@ -604,23 +604,23 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 2;
+		index = (la -> childrenCount) + index + 2;
 	}
 
 	/* This handles two special cases. One, if they want to add to the end of the
 	   list. And two, if they want to add to an empty list. */
-	if ( index == (l -> childrenCount) + 1 )
+	if ( index == (la -> childrenCount) + 1 )
 	{
-		rc = trotListRefAppendInt( lr, n );
+		rc = trotListAppendInt( l, n );
 		ERR_IF_PASSTHROUGH;
 
 		return TROT_RC_SUCCESS;
@@ -628,10 +628,10 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be added into */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		if ( count + (node -> count) >= index )
@@ -642,7 +642,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 		count += node -> count;
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	/* *** */
@@ -679,7 +679,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 		node -> n[ i ] = n;
 		node -> count += 1;
 
-		l -> childrenCount += 1;
+		la -> childrenCount += 1;
 
 		return TROT_RC_SUCCESS;
 	}
@@ -701,7 +701,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 			node -> n[ node -> count ] = n;
 			node -> count += 1;
 
-			l -> childrenCount += 1;
+			la -> childrenCount += 1;
 
 			return TROT_RC_SUCCESS;
 		}
@@ -729,7 +729,7 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 		node -> prev -> next = newNode;
 		node -> prev = newNode;
 
-		l -> childrenCount += 1;
+		la -> childrenCount += 1;
 
 		return TROT_RC_SUCCESS;
 	}
@@ -744,17 +744,17 @@ TROT_RC trotListRefInsertInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Inserts a twin of a list into the list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Where to insert.
-	\param lrToInsert The listRef to insert.
+	\param lToInsert The list to insert.
 	\return TROT_RC
 */
-TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert )
+TROT_RC trotListInsertList( trotList *l, TROT_INT index, trotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
@@ -765,28 +765,28 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 
 	trotListNode *newNode = NULL;
 
-	trotListRef *newL = NULL;
+	trotList *newL = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrToInsert == NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lToInsert == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 2;
+		index = (la -> childrenCount) + index + 2;
 	}
 
 	/* This handles two special cases. One, if they want to add to the end of the
 	   list. And two, if they want to add to an empty list. */
-	if ( index == (l -> childrenCount) + 1 )
+	if ( index == (la -> childrenCount) + 1 )
 	{
-		rc = trotListRefAppendListTwin( lr, lrToInsert );
+		rc = trotListAppendList( l, lToInsert );
 		ERR_IF_PASSTHROUGH;
 
 		return TROT_RC_SUCCESS;
@@ -794,10 +794,10 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be added into */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		if ( count + (node -> count) >= index )
@@ -808,7 +808,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 		count += node -> count;
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	/* *** */
@@ -834,7 +834,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 		   (count + 1) is the beginning index of the node */
 
 		/* *** */
-		rc = trotListRefTwin( lrToInsert, &newL );
+		rc = trotListTwin( lToInsert, &newL );
 		ERR_IF_PASSTHROUGH;
 
 		/* Now let's move any lists over to make room */
@@ -848,12 +848,12 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 
 		/* Insert list into node */
 		node -> l[ i ] = newL;
-		newL -> lParent = l;
+		newL -> laParent = la;
 		newL = NULL;
 
 		node -> count += 1;
 
-		l -> childrenCount += 1;
+		la -> childrenCount += 1;
 
 		return TROT_RC_SUCCESS;
 	}
@@ -872,16 +872,16 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 			node = node -> prev;
 
 			/* Insert list into node */
-			rc = trotListRefTwin( lrToInsert, &newL );
+			rc = trotListTwin( lToInsert, &newL );
 			ERR_IF_PASSTHROUGH;
 
 			node -> l[ node -> count ] = newL;
-			newL -> lParent = l;
+			newL -> laParent = la;
 			newL = NULL;
 
 			node -> count += 1;
 
-			l -> childrenCount += 1;
+			la -> childrenCount += 1;
 
 			return TROT_RC_SUCCESS;
 		}
@@ -900,12 +900,12 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 		ERR_IF_PASSTHROUGH;
 
 		/* *** */
-		rc = trotListRefTwin( lrToInsert, &newL );
+		rc = trotListTwin( lToInsert, &newL );
 		ERR_IF_PASSTHROUGH;
 
 		/* Insert node into list */
 		newNode -> l[ 0 ] = newL;
-		newL -> lParent = l;
+		newL -> laParent = la;
 		newL = NULL;
 
 		newNode -> count = 1;
@@ -916,7 +916,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 		node -> prev -> next = newNode;
 		node -> prev = newNode;
 
-		l -> childrenCount += 1;
+		la -> childrenCount += 1;
 
 		return TROT_RC_SUCCESS;
 	}
@@ -925,7 +925,7 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &newL );
+	trotListFree( &newL );
 
 	if ( newNode != NULL )
 	{
@@ -939,17 +939,17 @@ TROT_RC trotListRefInsertListTwin( trotListRef *lr, TROT_INT index, trotListRef 
 /******************************************************************************/
 /*!
 	\brief Gets copy of int in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Which int to get.
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
+TROT_RC trotListGetInt( trotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
@@ -957,25 +957,25 @@ TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 1;
+		index = (la -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -986,7 +986,7 @@ TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
@@ -1006,12 +1006,12 @@ TROT_RC trotListRefGetInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets list ref of list in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Which list to get.
-	\param lrTwin_A On success, will point to list ref.
+	\param lTwin_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **lrTwin_A )
+TROT_RC trotListGetList( trotList *l, TROT_INT index, trotList **lTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1020,28 +1020,28 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **l
 
 	TROT_INT count = 0;
 
-	trotListRef *newL = NULL;
+	trotList *newL = NULL;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrTwin_A == NULL );
-	PRECOND_ERR_IF( (*lrTwin_A) != NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lTwin_A == NULL );
+	PRECOND_ERR_IF( (*lTwin_A) != NULL );
 
 
 	/* CODE */
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> laPointsTo -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = lr -> lPointsTo -> head -> next;
+	node = l -> laPointsTo -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -1052,16 +1052,16 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **l
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
 
-	rc = trotListRefTwin( node -> l[ (node -> count) - 1 - (count - index) ], &newL );
+	rc = trotListTwin( node -> l[ (node -> count) - 1 - (count - index) ], &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
-	(*lrTwin_A) = newL;
+	(*lTwin_A) = newL;
 	newL = NULL;
 
 	return TROT_RC_SUCCESS;
@@ -1076,12 +1076,12 @@ TROT_RC trotListRefGetListTwin( trotListRef *lr, TROT_INT index, trotListRef **l
 /******************************************************************************/
 /*!
 	\brief Gets and removes int ref of list in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Which int to get and remove.
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
+TROT_RC trotListRemoveInt( trotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1096,7 +1096,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( n == NULL );
 
 
@@ -1105,15 +1105,15 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> laPointsTo -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = lr -> lPointsTo -> head -> next;
+	node = l -> laPointsTo -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -1124,7 +1124,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
@@ -1137,7 +1137,7 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 		i += 1;
 	}
 	node -> count -= 1;
-	lr -> lPointsTo -> childrenCount -= 1;
+	l -> laPointsTo -> childrenCount -= 1;
 
 	if ( node -> count == 0 )
 	{
@@ -1163,12 +1163,12 @@ TROT_RC trotListRefRemoveInt( trotListRef *lr, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets and removes list ref of list in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index Which list to get.
-	\param lrRemoved_A On success, will point to list ref.
+	\param lRemoved_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lrRemoved_A )
+TROT_RC trotListRemoveList( trotList *l, TROT_INT index, trotList **lRemoved_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1177,30 +1177,30 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lr
 
 	TROT_INT count = 0;
 
-	trotListRef *giveBackL = NULL;
+	trotList *giveBackL = NULL;
 
 	int i = 0;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrRemoved_A == NULL );
-	PRECOND_ERR_IF( (*lrRemoved_A) != NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lRemoved_A == NULL );
+	PRECOND_ERR_IF( (*lRemoved_A) != NULL );
 
 
 	/* CODE */
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> laPointsTo -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = lr -> lPointsTo -> head -> next;
+	node = l -> laPointsTo -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -1211,14 +1211,14 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lr
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
 	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackL = node -> l[ i ];
-	giveBackL -> lParent = NULL;
+	giveBackL -> laParent = NULL;
 	while ( i < ( (node -> count) - 1 ) )
 	{
 		node -> l[ i ] = node -> l[ i + 1 ];
@@ -1226,7 +1226,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lr
 	}
 	node -> l[ i ] = NULL;
 	node -> count -= 1;
-	lr -> lPointsTo -> childrenCount -= 1;
+	l -> laPointsTo -> childrenCount -= 1;
 
 	if ( node -> count == 0 )
 	{
@@ -1238,7 +1238,7 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lr
 	}
 
 	/* give back */
-	(*lrRemoved_A) = giveBackL;
+	(*lRemoved_A) = giveBackL;
 
 	return TROT_RC_SUCCESS;
 
@@ -1252,11 +1252,11 @@ TROT_RC trotListRefRemoveList( trotListRef *lr, TROT_INT index, trotListRef **lr
 /******************************************************************************/
 /*!
 	\brief Removes whatever is at index in list.
-	\param lr Pointer to a trotListRef pointer.
+	\param l Pointer to a trotList pointer.
 	\param index What to remove.
 	\return TROT_RC
 */
-TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
+TROT_RC trotListRemove( trotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1265,28 +1265,28 @@ TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 
 	TROT_INT count = 0;
 
-	trotListRef *tempL = NULL;
+	trotList *tempL = NULL;
 
 	int i = 0;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (lr -> lPointsTo -> childrenCount) + index + 1;
+		index = (l -> laPointsTo -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (lr -> lPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
 
 	/* *** */
-	node = lr -> lPointsTo -> head -> next;
+	node = l -> laPointsTo -> head -> next;
 	while ( 1 )
 	{
 		count += node -> count;
@@ -1297,7 +1297,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == lr -> lPointsTo -> tail );
+		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
 	i = (node -> count) - 1 - (count - index);
@@ -1312,8 +1312,8 @@ TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 	else
 	{
 		tempL = node -> l[ i ];
-		tempL -> lParent = NULL;
-		trotListRefFree( &tempL );
+		tempL -> laParent = NULL;
+		trotListFree( &tempL );
 		while ( i < ( (node -> count) - 1 ) )
 		{
 			node -> l[ i ] = node -> l[ i + 1 ];
@@ -1323,7 +1323,7 @@ TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 	}
 	
 	node -> count -= 1;
-	lr -> lPointsTo -> childrenCount -= 1;
+	l -> laPointsTo -> childrenCount -= 1;
 
 	if ( node -> count == 0 )
 	{
@@ -1356,18 +1356,18 @@ TROT_RC trotListRefRemove( trotListRef *lr, TROT_INT index )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
+TROT_RC trotListReplaceWithInt( trotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
-	trotListRef *tempL = NULL;
+	trotList *tempL = NULL;
 
 	int i = 0;
 	int j = 0;
@@ -1376,24 +1376,24 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 1;
+		index = (la -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where int needs to be replaced into */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		if ( count + (node -> count) >= index )
@@ -1404,7 +1404,7 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 		count += node -> count;
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	/* *** */
@@ -1511,8 +1511,8 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 
 		/* we've put in our int, now we need to remove a list */
 		tempL = node -> l[ i ];
-		tempL -> lParent = NULL;
-		trotListRefFree( &tempL );
+		tempL -> laParent = NULL;
+		trotListFree( &tempL );
 		while ( i < ( (node -> count) - 1 ) )
 		{
 			node -> l[ i ] = node -> l[ i + 1 ];
@@ -1544,20 +1544,20 @@ TROT_RC trotListRefReplaceWithInt( trotListRef *lr, TROT_INT index, TROT_INT n )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef *lrToInsert )
+TROT_RC trotListReplaceWithList( trotList *l, TROT_INT index, trotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *l = NULL;
+	trotListActual *la = NULL;
 
 	trotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
-	trotListRef *tempL = NULL;
+	trotList *tempL = NULL;
 
-	trotListRef *newLr = NULL;
+	trotList *newL = NULL;
 
 	int i = 0;
 	int j = 0;
@@ -1566,25 +1566,25 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
-	PRECOND_ERR_IF( lrToInsert == NULL );
+	PRECOND_ERR_IF( l == NULL );
+	PRECOND_ERR_IF( lToInsert == NULL );
 
 
 	/* CODE */
-	l = lr -> lPointsTo;
+	la = l -> laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
-		index = (l -> childrenCount) + index + 1;
+		index = (la -> childrenCount) + index + 1;
 	}
 
 	/* Make sure index is in range */
 	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
 
 	/* Find node where list needs to be replaced into */
-	node = l -> head -> next;
+	node = la -> head -> next;
 	while ( 1 )
 	{
 		if ( count + (node -> count) >= index )
@@ -1595,11 +1595,11 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 		count += node -> count;
 		node = node -> next;
 
-		PARANOID_ERR_IF( node == l -> tail );
+		PARANOID_ERR_IF( node == la -> tail );
 	}
 
 	/* create our new twin */
-	rc = trotListRefTwin( lrToInsert, &newLr );
+	rc = trotListTwin( lToInsert, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -1609,13 +1609,13 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 
 		/* free old */
 		tempL = node -> l[ i ];
-		tempL -> lParent = NULL;
-		trotListRefFree( &tempL );
+		tempL -> laParent = NULL;
+		trotListFree( &tempL );
 
 		/* replace with new */
-		node -> l[ i ] = newLr;
-		newLr -> lParent = l;
-		newLr = NULL;
+		node -> l[ i ] = newL;
+		newL -> laParent = la;
+		newL = NULL;
 	}
 	else /* node -> kind == NODE_KIND_INT */
 	{
@@ -1631,9 +1631,9 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 			   )
 			{
 				/* append into prev node */
-				node -> prev -> l[ node -> prev -> count ] = newLr;
-				newLr -> lParent = l;
-				newLr = NULL;
+				node -> prev -> l[ node -> prev -> count ] = newL;
+				newL -> laParent = la;
+				newL = NULL;
 
 				node -> prev -> count += 1;
 			}
@@ -1643,9 +1643,9 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 				rc = newListNode( &newNode );
 				ERR_IF_PASSTHROUGH;
 
-				newNode -> l[ 0 ] = newLr;
-				newLr -> lParent = l;
-				newLr = NULL;
+				newNode -> l[ 0 ] = newL;
+				newL -> laParent = la;
+				newL = NULL;
 
 				newNode -> count = 1;
 
@@ -1674,9 +1674,9 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 					j -= 1;
 				}
 
-				node -> next -> l[ 0 ] = newLr;
-				newLr -> lParent = l;
-				newLr = NULL;
+				node -> next -> l[ 0 ] = newL;
+				newL -> laParent = la;
+				newL = NULL;
 
 				node -> next -> count += 1;
 			}
@@ -1686,9 +1686,9 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 				rc = newListNode( &newNode );
 				ERR_IF_PASSTHROUGH;
 
-				newNode -> l[ 0 ] = newLr;
-				newLr -> lParent = l;
-				newLr = NULL;
+				newNode -> l[ 0 ] = newL;
+				newL -> laParent = la;
+				newL = NULL;
 
 				newNode -> count = 1;
 
@@ -1710,9 +1710,9 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 			rc = newListNode( &newNode );
 			ERR_IF_PASSTHROUGH;
 
-			newNode -> l[ 0 ] = newLr;
-			newLr -> lParent = l;
-			newLr = NULL;
+			newNode -> l[ 0 ] = newL;
+			newL -> laParent = la;
+			newL = NULL;
 
 			newNode -> count = 1;
 
@@ -1746,7 +1746,7 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &newLr );
+	trotListFree( &newL );
 
 	return rc;
 }
@@ -1757,19 +1757,19 @@ TROT_RC trotListRefReplaceWithList( trotListRef *lr, TROT_INT index, trotListRef
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag )
+TROT_RC trotListGetTag( trotList *l, TROT_TAG *tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 	PRECOND_ERR_IF( tag == NULL );
 
 
 	/* CODE */
-	(*tag) = lr -> lPointsTo -> tag;
+	(*tag) = l -> laPointsTo -> tag;
 
 
 	/* CLEANUP */
@@ -1784,20 +1784,20 @@ TROT_RC trotListRefGetTag( trotListRef *lr, TROT_TAG *tag )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListRefSetTag( trotListRef *lr, TROT_TAG tag )
+TROT_RC trotListSetTag( trotList *l, TROT_TAG tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
 	ERR_IF( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG );
 
-	lr -> lPointsTo -> tag = tag;
+	l -> laPointsTo -> tag = tag;
 
 
 	/* CLEANUP */
@@ -1853,7 +1853,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> n = NULL;
-		TROT_CALLOC( newNode -> l, trotListRef, NODE_SIZE );
+		TROT_CALLOC( newNode -> l, trotList, NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1949,7 +1949,7 @@ TROT_RC newListNode( trotListNode **n_A )
 	newNode -> count = 0;
 
 	newNode -> n = NULL;
-	TROT_CALLOC( newNode -> l, trotListRef, NODE_SIZE );
+	TROT_CALLOC( newNode -> l, trotList, NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -1967,7 +1967,7 @@ TROT_RC newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *l, trotListRef *r )
+static TROT_RC _refListAdd( trotListActual *la, trotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1978,15 +1978,15 @@ static TROT_RC _refListAdd( trotListActual *l, trotListRef *r )
 
 
 	/* CODE */
+	PARANOID_ERR_IF( la == NULL );
 	PARANOID_ERR_IF( l == NULL );
-	PARANOID_ERR_IF( r == NULL );
 
-	refNode = l -> refListHead -> next;
-	while ( refNode != l -> refListTail )
+	refNode = la -> refListHead -> next;
+	while ( refNode != la -> refListTail )
 	{
 		if ( refNode -> count < REF_LIST_NODE_SIZE )
 		{
-			refNode -> r[ refNode -> count ] = r;
+			refNode -> l[ refNode -> count ] = l;
 			refNode -> count += 1;
 
 			return TROT_RC_SUCCESS;
@@ -1999,15 +1999,15 @@ static TROT_RC _refListAdd( trotListActual *l, trotListRef *r )
 	   node, and insert node into list */
 	TROT_MALLOC( newRefNode, trotListRefListNode, 1 );
 
-	TROT_CALLOC( newRefNode -> r, trotListRef, REF_LIST_NODE_SIZE );
+	TROT_CALLOC( newRefNode -> l, trotList, REF_LIST_NODE_SIZE );
 
 	newRefNode -> count = 1;
-	newRefNode -> r[ 0 ] = r;
+	newRefNode -> l[ 0 ] = l;
 
-	newRefNode -> prev = l -> refListTail -> prev;
-	newRefNode -> next = l -> refListTail;
-	l -> refListTail -> prev -> next = newRefNode;
-	l -> refListTail -> prev = newRefNode;
+	newRefNode -> prev = la -> refListTail -> prev;
+	newRefNode -> next = la -> refListTail;
+	la -> refListTail -> prev -> next = newRefNode;
+	la -> refListTail -> prev = newRefNode;
 
 	return TROT_RC_SUCCESS;
 
@@ -2021,7 +2021,7 @@ static TROT_RC _refListAdd( trotListActual *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static void _refListRemove( trotListActual *l, trotListRef *r )
+static void _refListRemove( trotListActual *la, trotList *l )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
@@ -2030,11 +2030,11 @@ static void _refListRemove( trotListActual *l, trotListRef *r )
 
 
 	/* CODE */
+	PARANOID_ERR_IF( la == NULL );
 	PARANOID_ERR_IF( l == NULL );
-	PARANOID_ERR_IF( r == NULL );
 
 	/* foreach refNode */
-	refNode = l -> refListHead -> next;
+	refNode = la -> refListHead -> next;
 	while ( 1 )
 	{
 		/* foreach pointer in this node */
@@ -2042,17 +2042,17 @@ static void _refListRemove( trotListActual *l, trotListRef *r )
 		while ( i < refNode -> count )
 		{
 			/* is this the ref we're looking for? */
-			if ( refNode -> r[ i ] == r )
+			if ( refNode -> l[ i ] == l )
 			{
 				/* found, now remove it */
 				while ( i < ( ( refNode -> count ) - 1 ) )
 				{
-					refNode -> r[ i ] = refNode -> r[ i + 1 ];
+					refNode -> l[ i ] = refNode -> l[ i + 1 ];
 
 					i += 1;
 				}
 
-				refNode -> r[ i ] = NULL;
+				refNode -> l[ i ] = NULL;
 				
 				refNode -> count -= 1;
 
@@ -2062,7 +2062,7 @@ static void _refListRemove( trotListActual *l, trotListRef *r )
 					refNode -> prev -> next = refNode -> next;
 					refNode -> next -> prev = refNode -> prev;
 
-					trotFree( refNode -> r );
+					trotFree( refNode -> l );
 					trotFree( refNode );
 				}
 
@@ -2074,7 +2074,7 @@ static void _refListRemove( trotListActual *l, trotListRef *r )
 
 		refNode = refNode -> next;
 
-		PARANOID_ERR_IF( refNode == l -> refListTail );
+		PARANOID_ERR_IF( refNode == la -> refListTail );
 	}
 
 	PARANOID_ERR_IF( 1 );
@@ -2083,35 +2083,35 @@ static void _refListRemove( trotListActual *l, trotListRef *r )
 }
 
 /******************************************************************************/
-static void _isListReachable( trotListActual *l )
+static void _isListReachable( trotListActual *la )
 {
 	/* DATA */
 	int flagFoundClientRef = 0;
 
-	trotListActual *currentL = NULL;
+	trotListActual *currentLa = NULL;
 
 	trotListActual *parent = NULL;
 
-	trotListActual *tempL = NULL;
+	trotListActual *tempLa = NULL;
 
 
 	/* CODE */
-	PARANOID_ERR_IF( l == NULL );
-	PARANOID_ERR_IF( l -> reachable == 0 );
+	PARANOID_ERR_IF( la == NULL );
+	PARANOID_ERR_IF( la -> reachable == 0 );
 
 	/* go "up" trying to find a client ref */
-	currentL = l;
-	currentL -> flagVisited = 1;
+	currentLa = la;
+	currentLa -> flagVisited = 1;
 
 	while ( 1 )
 	{
-		if ( _findNextParent( currentL, 0, &parent ) != 0 )
+		if ( _findNextParent( currentLa, 0, &parent ) != 0 )
 		{
-			if ( currentL -> previous != NULL )
+			if ( currentLa -> previous != NULL )
 			{
-				tempL = currentL;
-				currentL = currentL -> previous;
-				tempL -> previous = NULL;
+				tempLa = currentLa;
+				currentLa = currentLa -> previous;
+				tempLa -> previous = NULL;
 
 				continue;
 			}
@@ -2126,29 +2126,29 @@ static void _isListReachable( trotListActual *l )
 			break;
 		}
 
-		parent -> previous = currentL;
-		currentL = parent;
-		currentL -> flagVisited = 1;
+		parent -> previous = currentLa;
+		currentLa = parent;
+		currentLa -> flagVisited = 1;
 	}
 
 	if ( ! flagFoundClientRef )
 	{
-		l -> reachable = 0;
+		la -> reachable = 0;
 	}
 
 	/* restart, go "up", resetting all the flagVisited flags to 0 */
-	currentL = l;
-	currentL -> flagVisited = 0;
+	currentLa = la;
+	currentLa -> flagVisited = 0;
 
 	while ( 1 )
 	{
-		if ( _findNextParent( currentL, 1, &parent ) != 0 )
+		if ( _findNextParent( currentLa, 1, &parent ) != 0 )
 		{
-			if ( currentL -> previous != NULL )
+			if ( currentLa -> previous != NULL )
 			{
-				tempL = currentL;
-				currentL = currentL -> previous;
-				tempL -> previous = NULL;
+				tempLa = currentLa;
+				currentLa = currentLa -> previous;
+				tempLa -> previous = NULL;
 
 				continue;
 			}
@@ -2156,16 +2156,16 @@ static void _isListReachable( trotListActual *l )
 			break;
 		}
 
-		parent -> previous = currentL;
-		currentL = parent;
-		currentL -> flagVisited = 0;
+		parent -> previous = currentLa;
+		currentLa = parent;
+		currentLa -> flagVisited = 0;
 	}
 
 	return;
 }
 
 /******************************************************************************/
-static int _findNextParent( trotListActual *l, int queryVisited, trotListActual **parent )
+static int _findNextParent( trotListActual *la, int queryVisited, trotListActual **parent )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
@@ -2176,18 +2176,18 @@ static int _findNextParent( trotListActual *l, int queryVisited, trotListActual 
 
 
 	/* CODE */
-	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( la == NULL );
 	PARANOID_ERR_IF( parent == NULL );
 
 	/* for each reference that points to this list */
-	refNode = l -> refListHead;
-	while ( refNode != l -> refListTail )
+	refNode = la -> refListHead;
+	while ( refNode != la -> refListTail )
 	{
 		i = 0;
 		while ( i < refNode -> count )
 		{
 			/* get list this ref is in */
-			tempParent = refNode -> r[ i ] -> lParent;
+			tempParent = refNode -> l[ i ] -> laParent;
 
 			/* if ref has no parent, it means it's a client
 			   reference, and so the list is reachable, but we only

@@ -45,7 +45,7 @@ int testUnicode()
 	/* DATA */
 	int rc = TROT_RC_SUCCESS;
 
-	trotListRef *lr = NULL;
+	trotList *l = NULL;
 
 
 	/* CODE */
@@ -138,10 +138,10 @@ int testUnicode()
 	TEST_ERR_IF( testBadKind( 0xF0, 0x90, -1, 0 ) != 0 );
 	TEST_ERR_IF( testBadKind( 0xF0, 0x90, 0x80, -1 ) != 0 );
 
-	TEST_ERR_IF( trotListRefInit( &lr ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendListTwin( lr, lr ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotCharactersToUtf8( lr, lr ) != TROT_RC_ERROR_WRONG_KIND );
-	trotListRefFree( &lr );
+	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( l, l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotCharactersToUtf8( l, l ) != TROT_RC_ERROR_WRONG_KIND );
+	trotListFree( &l );
 	
 
 	/* test bad characters */
@@ -167,9 +167,9 @@ static int testCharacterToUtf8ToCharacter( TROT_INT start, TROT_INT end, int num
 
 	TROT_INT characterIn = 0;
 	TROT_INT characterOut = 0;
-	trotListRef *lrCharacterIn = NULL;
-	trotListRef *lrBytes = NULL;
-	trotListRef *lrCharacterOut = NULL;
+	trotList *lCharacterIn = NULL;
+	trotList *lBytes = NULL;
+	trotList *lCharacterOut = NULL;
 
 	TROT_INT numberOfBytesActual = 0;
 	TROT_INT numberOfCharacters = 0;
@@ -179,29 +179,29 @@ static int testCharacterToUtf8ToCharacter( TROT_INT start, TROT_INT end, int num
 	characterIn = start;
 	while ( characterIn <= end )
 	{
-		TEST_ERR_IF( trotListRefInit( &lrCharacterIn ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefInit( &lrBytes ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRefInit( &lrCharacterOut ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( &lCharacterIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( &lBytes ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( &lCharacterOut ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefAppendInt( lrCharacterIn, characterIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lCharacterIn, characterIn ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotCharactersToUtf8( lrCharacterIn, lrBytes ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotCharactersToUtf8( lCharacterIn, lBytes ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefGetCount( lrBytes, &numberOfBytesActual ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetCount( lBytes, &numberOfBytesActual ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( numberOfBytesActual != numberOfBytesShouldBe );
 
-		TEST_ERR_IF( trotUtf8ToCharacters( lrBytes, lrCharacterOut ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotUtf8ToCharacters( lBytes, lCharacterOut ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefGetCount( lrCharacterOut, &numberOfCharacters ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetCount( lCharacterOut, &numberOfCharacters ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( numberOfCharacters != 1 );
 
-		TEST_ERR_IF( trotListRefGetInt( lrCharacterOut, 1, &characterOut ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lCharacterOut, 1, &characterOut ) != TROT_RC_SUCCESS );
 
 		TEST_ERR_IF( characterIn != characterOut );
 
-		trotListRefFree( &lrCharacterIn );
-		trotListRefFree( &lrBytes );
-		trotListRefFree( &lrCharacterOut );
+		trotListFree( &lCharacterIn );
+		trotListFree( &lBytes );
+		trotListFree( &lCharacterOut );
 
 		/* *** */
 		characterIn += 1;
@@ -220,54 +220,54 @@ static int testBadKind( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrIn = NULL;
-	trotListRef *lrOut = NULL;
+	trotList *lIn = NULL;
+	trotList *lOut = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &lrIn ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lrOut ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lIn ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lOut ) != TROT_RC_SUCCESS );
 
 	if ( byte1 != -1 )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lrIn, byte1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lIn, byte1 ) != TROT_RC_SUCCESS );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListRefAppendListTwin( lrIn, lrIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( lIn, lIn ) != TROT_RC_SUCCESS );
 	}
 
 	if ( byte2 != -1 )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lrIn, byte2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lIn, byte2 ) != TROT_RC_SUCCESS );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListRefAppendListTwin( lrIn, lrIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( lIn, lIn ) != TROT_RC_SUCCESS );
 	}
 
 	if ( byte3 != -1 )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lrIn, byte3 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lIn, byte3 ) != TROT_RC_SUCCESS );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListRefAppendListTwin( lrIn, lrIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( lIn, lIn ) != TROT_RC_SUCCESS );
 	}
 
 	if ( byte4 != -1 )
 	{
-		TEST_ERR_IF( trotListRefAppendInt( lrIn, byte4 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lIn, byte4 ) != TROT_RC_SUCCESS );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListRefAppendListTwin( lrIn, lrIn ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( lIn, lIn ) != TROT_RC_SUCCESS );
 	}
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lrIn, lrOut ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotUtf8ToCharacters( lIn, lOut ) != TROT_RC_ERROR_WRONG_KIND );
 
-	trotListRefFree( &lrIn );
-	trotListRefFree( &lrOut );
+	trotListFree( &lIn );
+	trotListFree( &lOut );
 
 
 	/* CLEANUP */
@@ -282,23 +282,23 @@ static int testBadByte( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrIn = NULL;
-	trotListRef *lrOut = NULL;
+	trotList *lIn = NULL;
+	trotList *lOut = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &lrIn ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lrOut ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lIn ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lOut ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lrIn, byte1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lrIn, byte2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lrIn, byte3 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefAppendInt( lrIn, byte4 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lIn, byte1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lIn, byte2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lIn, byte3 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lIn, byte4 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lrIn, lrOut ) != TROT_RC_ERROR_UNICODE );
+	TEST_ERR_IF( trotUtf8ToCharacters( lIn, lOut ) != TROT_RC_ERROR_UNICODE );
 
-	trotListRefFree( &lrIn );
-	trotListRefFree( &lrOut );
+	trotListFree( &lIn );
+	trotListFree( &lOut );
 
 
 	/* CLEANUP */
@@ -313,20 +313,20 @@ static int testBadCharacter( TROT_INT character )
 	/* DATA */
 	int rc = 0;
 
-	trotListRef *lrIn = NULL;
-	trotListRef *lrOut = NULL;
+	trotList *lIn = NULL;
+	trotList *lOut = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &lrIn ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListRefInit( &lrOut ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lIn ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &lOut ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefAppendInt( lrIn, character ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lIn, character ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotCharactersToUtf8( lrIn, lrOut ) != TROT_RC_ERROR_UNICODE );
+	TEST_ERR_IF( trotCharactersToUtf8( lIn, lOut ) != TROT_RC_ERROR_UNICODE );
 
-	trotListRefFree( &lrIn );
-	trotListRefFree( &lrOut );
+	trotListFree( &lIn );
+	trotListFree( &lOut );
 
 
 	/* CLEANUP */

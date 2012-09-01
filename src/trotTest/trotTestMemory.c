@@ -66,35 +66,35 @@ void *badMalloc( size_t size )
 	return malloc( size );
 }
 
-TROT_RC badLoad( trotListRef *lrName, trotListRef **lrBytes )
+TROT_RC badLoad( trotList *lName, trotList **lBytes )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRef *newLrBytes = NULL;
+	trotList *newLrBytes = NULL;
 
 
 	/* CODE */
-	(void)lrName;
+	(void)lName;
 
 	/* create our new byte list */
-	rc = trotListRefInit( &newLrBytes );
+	rc = trotListInit( &newLrBytes );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefAppendInt( newLrBytes, '[' );
+	rc = trotListAppendInt( newLrBytes, '[' );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( newLrBytes, ']' );
+	rc = trotListAppendInt( newLrBytes, ']' );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
-	(*lrBytes) = newLrBytes;
+	(*lBytes) = newLrBytes;
 	newLrBytes = NULL;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &newLrBytes );
+	trotListFree( &newLrBytes );
 
 	return rc;
 }
@@ -237,11 +237,11 @@ static int testMemoryManagement()
 	int i = 0;
 	int j = 0;
 
-	trotListRef **clientRefs = NULL;
+	trotList **clientRefs = NULL;
 
 	int r = 0;
 
-	trotListRef *ref = NULL;
+	trotList *ref = NULL;
 
 	int howManyToAdd = 0;
 	TROT_INT count = 0;
@@ -255,7 +255,7 @@ static int testMemoryManagement()
 
 	/* CODE */
 	/* create our client refs */
-	clientRefs = (trotListRef **) trotCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotListRef * ) );
+	clientRefs = (trotList **) trotCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotList * ) );
 	TEST_ERR_IF( clientRefs == NULL );
 
 	i = 0;
@@ -263,16 +263,16 @@ static int testMemoryManagement()
 	{
 		r = rand() % 2;
 
-		/* twin already existing list */
+		/* twin aleady existing list */
 		if ( r == 0 && i > 0 )
 		{
 			j = rand() % i;
-			TEST_ERR_IF( trotListRefTwin( clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListTwin( clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 		/* create new list */
 		else
 		{
-			TEST_ERR_IF( trotListRefInit( &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInit( &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 
 		i += 1;
@@ -286,13 +286,13 @@ static int testMemoryManagement()
 		/* create new list */
 		if ( r <= 7 )
 		{
-			TEST_ERR_IF( trotListRefInit( &ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInit( &ref ) != TROT_RC_SUCCESS );
 		}
 		/* twin client list */
 		else
 		{
 			r = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
-			TEST_ERR_IF( trotListRefTwin( clientRefs[ r ], &ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListTwin( clientRefs[ r ], &ref ) != TROT_RC_SUCCESS );
 		}
 
 		/* how many are we going to add? */
@@ -305,12 +305,12 @@ static int testMemoryManagement()
 			clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 			/* where to add it to? */
-			TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 			randomIndex = ( rand() % ( count + 1 ) ) + 1;
 
 			/* add */
-			TEST_ERR_IF( trotListRefInsertListTwin( clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_RC_SUCCESS );
 
 			countAdded += 1;
 
@@ -318,7 +318,7 @@ static int testMemoryManagement()
 		}
 
 		/* free our temporary ref */
-		trotListRefFree( &ref );
+		trotListFree( &ref );
 
 		/* *** */
 		i += 1;
@@ -334,7 +334,7 @@ static int testMemoryManagement()
 		clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 		/* which index to remove? */
-		TEST_ERR_IF( trotListRefGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetCount( clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 		if ( count > 0 )
 		{
@@ -344,12 +344,12 @@ static int testMemoryManagement()
 			r = rand() % 2;
 			if ( r == 0 )
 			{
-				TEST_ERR_IF( trotListRefRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_RC_SUCCESS );
-				trotListRefFree( &ref );
+				TEST_ERR_IF( trotListRemoveList( clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_RC_SUCCESS );
+				trotListFree( &ref );
 			}
 			else
 			{
-				TEST_ERR_IF( trotListRefRemove( clientRefs[ clientRefIndex ], randomIndex ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( clientRefs[ clientRefIndex ], randomIndex ) != TROT_RC_SUCCESS );
 			}
 		}
 
@@ -370,7 +370,7 @@ static int testMemoryManagement()
 		{
 			if ( clientRefs[ j ] != NULL )
 			{
-				trotListRefFree( &( clientRefs[ j ] ) );
+				trotListFree( &( clientRefs[ j ] ) );
 				break;
 			}
 
@@ -401,24 +401,24 @@ static int testDeepList()
 
 	int i = 0;
 
-	trotListRef *refHead = NULL;
+	trotList *refHead = NULL;
 
-	trotListRef *ref1 = NULL;
-	trotListRef *ref2 = NULL;
+	trotList *ref1 = NULL;
+	trotList *ref2 = NULL;
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListRefInit( &refHead ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &refHead ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefTwin( refHead, &ref1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListTwin( refHead, &ref1 ) != TROT_RC_SUCCESS );
 
 	while ( i < 1000 ) /* MAGIC */
 	{
-		TEST_ERR_IF( trotListRefInit( &ref2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( &ref2 ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListRefAppendListTwin( ref1, ref2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( ref1, ref2 ) != TROT_RC_SUCCESS );
 
-		trotListRefFree( &ref1 );
+		trotListFree( &ref1 );
 
 		ref1 = ref2;
 		ref2 = NULL;
@@ -431,13 +431,13 @@ static int testDeepList()
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListRefAppendListTwin( ref1, refHead ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( ref1, refHead ) != TROT_RC_SUCCESS );
 
-	trotListRefFree( &ref1 );
+	trotListFree( &ref1 );
 
 	printf( ":" ); fflush( stdout );
 
-	trotListRefFree( &refHead );
+	trotListFree( &refHead );
 
 	return TROT_RC_SUCCESS;
 
@@ -456,9 +456,9 @@ static TROT_RC testFailedMallocs1( int test )
 	int i = 0;
 	int j = 0;
 
-	trotListRef *lr1 = NULL;
-	trotListRef *lr2 = NULL;
-	trotListRef *lr3 = NULL;
+	trotList *l1 = NULL;
+	trotList *l2 = NULL;
+	trotList *l3 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
@@ -467,16 +467,16 @@ static TROT_RC testFailedMallocs1( int test )
 	(void)test;
 
 	/* primary functions */
-	rc = trotListRefInit( &lr1 );
+	rc = trotListInit( &l1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInit( &lr2 );
+	rc = trotListInit( &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < (NODE_SIZE * 2) )
 	{
-		rc = trotListRefAppendInt( lr1,  1 );
+		rc = trotListAppendInt( l1,  1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -485,7 +485,7 @@ static TROT_RC testFailedMallocs1( int test )
 	i = 0;
 	while ( i < (NODE_SIZE * 2) )
 	{
-		rc = trotListRefAppendListTwin( lr1, lr2 );
+		rc = trotListAppendList( l1, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -494,43 +494,34 @@ static TROT_RC testFailedMallocs1( int test )
 	i = 0;
 	while ( i < (NODE_SIZE * 2) )
 	{
-		rc = trotListRefAppendInt( lr1,  1 );
+		rc = trotListAppendInt( l1,  1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 2) + 1, 0 );
+	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 2) + 1, 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 4), 0 );
+	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 4), 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefReplaceWithInt( lr1, (NODE_SIZE * 3) + 2, 0 );
-	ERR_IF_PASSTHROUGH;
-
-
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-
-
-	rc = trotListRefInit( &lr1 );
+	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 3) + 2, 0 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInit( &lr2 );
+
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+
+
+	rc = trotListInit( &l1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < (NODE_SIZE * 2) )
 	{
-		rc = trotListRefAppendListTwin( lr1, lr2 );
-		ERR_IF_PASSTHROUGH;
-
-		i += 1;
-	}
-
-	i = 0;
-	while ( i < (NODE_SIZE * 2) )
-	{
-		rc = trotListRefAppendInt( lr1, 1 );
+		rc = trotListAppendList( l1, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -539,138 +530,147 @@ static TROT_RC testFailedMallocs1( int test )
 	i = 0;
 	while ( i < (NODE_SIZE * 2) )
 	{
-		rc = trotListRefAppendListTwin( lr1, lr2 );
+		rc = trotListAppendInt( l1, 1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 2) + 1, lr2 );
+	i = 0;
+	while ( i < (NODE_SIZE * 2) )
+	{
+		rc = trotListAppendList( l1, l2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListReplaceWithList( l1, (NODE_SIZE * 2) + 1, l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 4), lr2 );
+	rc = trotListReplaceWithList( l1, (NODE_SIZE * 4), l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefReplaceWithList( lr1, (NODE_SIZE * 3) + 2, lr2 );
-	ERR_IF_PASSTHROUGH;
-
-
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-
-
-	rc = trotListRefInit( &lr1 );
+	rc = trotListReplaceWithList( l1, (NODE_SIZE * 3) + 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInit( &lr2 );
+
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+
+
+	rc = trotListInit( &l1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < NODE_SIZE + 1 )
 	{
-		rc = trotListRefInsertInt( lr1, 1, 1 );
+		rc = trotListInsertInt( l1, 1, 1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListRefAppendInt( lr1, 1 );
+	rc = trotListAppendInt( l1, 1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInsertListTwin( lr1, -1, lr2 );
+	rc = trotListInsertList( l1, -1, l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < NODE_SIZE + 1 )
 	{
-		rc = trotListRefInsertListTwin( lr1, -2, lr2 );
+		rc = trotListInsertList( l1, -2, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListRefAppendListTwin( lr1, lr2 );
+	rc = trotListAppendList( l1, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInsertListTwin( lr1, 2, lr2 );
+	rc = trotListInsertList( l1, 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInsertInt( lr1, -2, 1 );
+	rc = trotListInsertInt( l1, -2, 1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefInsertListTwin( lr1, 1, lr2 );
+	rc = trotListInsertList( l1, 1, l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefInsertListTwin( lr1, 2, lr2 );
+	rc = trotListInsertList( l1, 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefGetListTwin( lr1, -1, &lr3 );
+	rc = trotListGetList( l1, -1, &l3 );
 	ERR_IF_PASSTHROUGH;
-	trotListRefFree( &lr3 );
+	trotListFree( &l3 );
 
-	rc = trotListRefAppendInt( lr1, 1 );
+	rc = trotListAppendInt( l1, 1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( lr1, 1 );
+	rc = trotListAppendInt( l1, 1 );
 	ERR_IF_PASSTHROUGH;
 
 	/* secondary functions */
-	rc = trotListRefCompare( lr1, lr2, &compareResult );
+	rc = trotListCompare( l1, l2, &compareResult );
 	ERR_IF_PASSTHROUGH;
 
-	trotListRefFree( &lr2 );
+	trotListFree( &l2 );
 
-	rc = trotListRefCopy( lr1, &lr2 );
+	rc = trotListCopy( l1, &l2 );
 	ERR_IF_PASSTHROUGH;
 
-	trotListRefFree( &lr2 );
+	trotListFree( &l2 );
 
-	rc = trotListRefEnlist( lr1, 2, -2 );
+	rc = trotListEnlist( l1, 2, -2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefDelist( lr1, 2 );
+	rc = trotListDelist( l1, 2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefCopySpan( lr1, 1, -2, &lr2 );
+	rc = trotListCopySpan( l1, 1, -2, &l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListRefDelist( lr1, -10 );
+	rc = trotListDelist( l1, -10 );
 	ERR_IF_PASSTHROUGH;
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-
-	/* *** */
-	rc = trotListRefInit( &lr1 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListRefCopy( lr1, &lr2 );
-	ERR_IF_PASSTHROUGH;
-
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
 
 	/* *** */
-	rc = trotListRefInit( &lr1 );
+	rc = trotListInit( &l1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefInit( &lr3 );
+	rc = trotListCopy( l1, &l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( lr3, 1 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendListTwin( lr1, lr3 );
-	ERR_IF_PASSTHROUGH;
-	trotListRefFree( &lr3 );
 
-	rc = trotListRefInit( &lr2 );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+
+	/* *** */
+	rc = trotListInit( &l1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefInit( &lr3 );
+	rc = trotListInit( &l3 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendInt( lr3, 2 );
+	rc = trotListAppendInt( l3, 1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListRefAppendListTwin( lr2, lr3 );
+	rc = trotListAppendList( l1, l3 );
 	ERR_IF_PASSTHROUGH;
-	trotListRefFree( &lr3 );
+	trotListFree( &l3 );
+
+	rc = trotListInit( &l2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListInit( &l3 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendInt( l3, 2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendList( l2, l3 );
+	ERR_IF_PASSTHROUGH;
+	trotListFree( &l3 );
 	
-	rc = trotListRefCompare( lr1, lr2, &compareResult );
+	rc = trotListCompare( l1, l2, &compareResult );
 	ERR_IF_PASSTHROUGH;
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
 
 
 	/* It just so happens these values are 1 byte, 2 byte,
@@ -679,18 +679,18 @@ static TROT_RC testFailedMallocs1( int test )
 	while ( j < 4 )
 	{
 		/* *** */
-		rc = trotListRefInit( &lr1 );
+		rc = trotListInit( &l1 );
 		ERR_IF_PASSTHROUGH;
-		rc = trotListRefInit( &lr2 );
+		rc = trotListInit( &l2 );
 		ERR_IF_PASSTHROUGH;
-		rc = trotListRefInit( &lr3 );
+		rc = trotListInit( &l3 );
 		ERR_IF_PASSTHROUGH;
 
 		/* *** */
 		i = 0;
 		while ( i <= j )
 		{
-			rc = trotListRefAppendInt( lr1, 0x10 );
+			rc = trotListAppendInt( l1, 0x10 );
 			ERR_IF_PASSTHROUGH;
 
 			i += 1;
@@ -700,26 +700,26 @@ static TROT_RC testFailedMallocs1( int test )
 		i = 0;
 		while ( i < NODE_SIZE + 1 )
 		{
-			rc = trotListRefAppendInt( lr1, 0x10 );
+			rc = trotListAppendInt( l1, 0x10 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lr1, 0x100 );
+			rc = trotListAppendInt( l1, 0x100 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lr1, 0x1000 );
+			rc = trotListAppendInt( l1, 0x1000 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lr1, 0x100000 );
+			rc = trotListAppendInt( l1, 0x100000 );
 			ERR_IF_PASSTHROUGH;
 	
 			i += 1;
 		}
 
-		rc = trotCharactersToUtf8( lr1, lr2 );
+		rc = trotCharactersToUtf8( l1, l2 );
 		ERR_IF_PASSTHROUGH;
-		rc = trotUtf8ToCharacters( lr2, lr3 );
+		rc = trotUtf8ToCharacters( l2, l3 );
 		ERR_IF_PASSTHROUGH;
 
-		trotListRefFree( &lr1 );
-		trotListRefFree( &lr2 );
-		trotListRefFree( &lr3 );
+		trotListFree( &l1 );
+		trotListFree( &l2 );
+		trotListFree( &l3 );
 
 		j += 1;
 	}
@@ -728,9 +728,9 @@ static TROT_RC testFailedMallocs1( int test )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lr1 );
-	trotListRefFree( &lr2 );
-	trotListRefFree( &lr3 );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
+	trotListFree( &l3 );
 
 	return rc;
 }
@@ -746,8 +746,8 @@ static TROT_RC testFailedMallocs2( int test )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrTokens = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lTokens = NULL;
 
 	char *s1 = "[](){} 1 \"a\" xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
@@ -755,21 +755,21 @@ static TROT_RC testFailedMallocs2( int test )
 	/* CODE */
 	(void)test;
 
-	rc = trotListRefInit( &lrCharacters );
+	rc = trotListInit( &lCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	rc = appendCStringToList( lrCharacters, s1 );
+	rc = appendCStringToList( lCharacters, s1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotTokenize( lrCharacters, &lrTokens );
+	rc = trotTokenize( lCharacters, &lTokens );
 	ERR_IF_PASSTHROUGH;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrTokens );
+	trotListFree( &lCharacters );
+	trotListFree( &lTokens );
 
 	return rc;
 }
@@ -809,12 +809,12 @@ static TROT_RC testFailedMallocs3( int test )
 	"[(name x) x]"
 	};
 
-	trotListRef *lrCharacters = NULL;
-	trotListRef *lrDecodedList1 = NULL;
-	trotListRef *lrEncodedList1 = NULL;
-	trotListRef *lrEmptyName = NULL;
-	trotListRef *lrDecodedList2 = NULL;
-	trotListRef *lrEncodedList2 = NULL;
+	trotList *lCharacters = NULL;
+	trotList *lDecodedList1 = NULL;
+	trotList *lEncodedList1 = NULL;
+	trotList *lEmptyName = NULL;
+	trotList *lDecodedList2 = NULL;
+	trotList *lEncodedList2 = NULL;
 
 #if PRINT_ENCODED_LISTS
 	char *s = NULL;
@@ -822,45 +822,45 @@ static TROT_RC testFailedMallocs3( int test )
 
 
 	/* CODE */
-	rc = trotListRefInit( &lrEmptyName );
+	rc = trotListInit( &lEmptyName );
 	ERR_IF_PASSTHROUGH;
 
 	/* create characters */
-	rc = trotListRefInit( &lrCharacters );
+	rc = trotListInit( &lCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	rc = appendCStringToList( lrCharacters, d[ test ] );
+	rc = appendCStringToList( lCharacters, d[ test ] );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
-	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrCharacters, &lrDecodedList1 );
+	rc = trotDecodeCharacters( badLoad, lEmptyName, lCharacters, &lDecodedList1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
+	rc = trotEncode( lDecodedList1, &lEncodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lrEncodedList1, &s );
+	rc = listToCString( lEncodedList1, &s );
 	ERR_IF_PASSTHROUGH;
 
-	printf( "lrEncodedList1: %s\n", s );
+	printf( "lEncodedList1: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
 #endif
 
 
-	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
+	rc = trotDecodeCharacters( badLoad, lEmptyName, lEncodedList1, &lDecodedList2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
+	rc = trotEncode( lDecodedList2, &lEncodedList2 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lrEncodedList2, &s );
+	rc = listToCString( lEncodedList2, &s );
 	ERR_IF_PASSTHROUGH;
 
-	printf( "lrEncodedList2: %s\n", s );
+	printf( "lEncodedList2: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
@@ -870,12 +870,12 @@ static TROT_RC testFailedMallocs3( int test )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrCharacters );
-	trotListRefFree( &lrEmptyName );
-	trotListRefFree( &lrDecodedList1 );
-	trotListRefFree( &lrEncodedList1 );
-	trotListRefFree( &lrDecodedList2 );
-	trotListRefFree( &lrEncodedList2 );
+	trotListFree( &lCharacters );
+	trotListFree( &lEmptyName );
+	trotListFree( &lDecodedList1 );
+	trotListFree( &lEncodedList1 );
+	trotListFree( &lDecodedList2 );
+	trotListFree( &lEncodedList2 );
 
 	return rc;
 }
@@ -891,11 +891,11 @@ static TROT_RC testFailedMallocs4( int test )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRef *lrDecodedList1 = NULL;
-	trotListRef *lrEncodedList1 = NULL;
-	trotListRef *lrEmptyName = NULL;
-	trotListRef *lrDecodedList2 = NULL;
-	trotListRef *lrEncodedList2 = NULL;
+	trotList *lDecodedList1 = NULL;
+	trotList *lEncodedList1 = NULL;
+	trotList *lEmptyName = NULL;
+	trotList *lDecodedList2 = NULL;
+	trotList *lEncodedList2 = NULL;
 
 #if PRINT_ENCODED_LISTS
 	char *s = NULL;
@@ -905,38 +905,38 @@ static TROT_RC testFailedMallocs4( int test )
 	/* CODE */
 	(void)test;
 
-	rc = trotListRefInit( &lrEmptyName );
+	rc = trotListInit( &lEmptyName );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
-	rc = trotDecodeFilename( badLoad, lrEmptyName, &lrDecodedList1 );
+	rc = trotDecodeFilename( badLoad, lEmptyName, &lDecodedList1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotEncode( lrDecodedList1, &lrEncodedList1 );
+	rc = trotEncode( lDecodedList1, &lEncodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lrEncodedList1, &s );
+	rc = listToCString( lEncodedList1, &s );
 	ERR_IF_PASSTHROUGH;
 
-	printf( "lrEncodedList1: %s\n", s );
+	printf( "lEncodedList1: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
 #endif
 
 
-	rc = trotDecodeCharacters( badLoad, lrEmptyName, lrEncodedList1, &lrDecodedList2 );
+	rc = trotDecodeCharacters( badLoad, lEmptyName, lEncodedList1, &lDecodedList2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotEncode( lrDecodedList2, &lrEncodedList2 );
+	rc = trotEncode( lDecodedList2, &lEncodedList2 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lrEncodedList2, &s );
+	rc = listToCString( lEncodedList2, &s );
 	ERR_IF_PASSTHROUGH;
 
-	printf( "lrEncodedList2: %s\n", s );
+	printf( "lEncodedList2: %s\n", s );
 
 	trotFree( s );
 	s = NULL;
@@ -946,11 +946,11 @@ static TROT_RC testFailedMallocs4( int test )
 	/* CLEANUP */
 	cleanup:
 
-	trotListRefFree( &lrEmptyName );
-	trotListRefFree( &lrDecodedList1 );
-	trotListRefFree( &lrEncodedList1 );
-	trotListRefFree( &lrDecodedList2 );
-	trotListRefFree( &lrEncodedList2 );
+	trotListFree( &lEmptyName );
+	trotListFree( &lDecodedList1 );
+	trotListFree( &lEncodedList1 );
+	trotListFree( &lDecodedList2 );
+	trotListFree( &lEncodedList2 );
 
 	return rc;
 }

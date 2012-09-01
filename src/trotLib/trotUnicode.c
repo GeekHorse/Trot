@@ -47,12 +47,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Decodes a list of utf8 bytes to characters.
-	\param lrBytes List of bytes.
-	\param lrCharacters_A List to append decoded characters.
+	\param lBytes List of bytes.
+	\param lCharacters_A List to append decoded characters.
 	\return TROT_RC
 
 */
-TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
+TROT_RC trotUtf8ToCharacters( trotList *lBytes, trotList *lCharacters )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -68,13 +68,13 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lrBytes == NULL );
-	PRECOND_ERR_IF( lrCharacters == NULL );
+	PRECOND_ERR_IF( lBytes == NULL );
+	PRECOND_ERR_IF( lCharacters == NULL );
 
 
 	/* CODE */
 	/* get numberOfBytes */
-	rc = trotListRefGetCount( lrBytes, &numberOfBytes );
+	rc = trotListGetCount( lBytes, &numberOfBytes );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* go through bytes */
@@ -82,7 +82,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 	while ( index <= numberOfBytes )
 	{
 		/* get first byte */
-		rc = trotListRefGetInt( lrBytes, index, &byte1 );
+		rc = trotListGetInt( lBytes, index, &byte1 );
 		ERR_IF_PASSTHROUGH;
 
 		/* one byte sequence */
@@ -90,7 +90,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 		{
 			/* append character */
 			character = byte1;
-			rc = trotListRefAppendInt( lrCharacters, character );
+			rc = trotListAppendInt( lCharacters, character );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
@@ -103,7 +103,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 		{
 			/* get second byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte2 );
+			rc = trotListGetInt( lBytes, index, &byte2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate second byte */
@@ -114,7 +114,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* append character */
 			character = ((byte1 & 0x1F) << 6) | (byte2 & 0x3F);
-			rc = trotListRefAppendInt( lrCharacters, character );
+			rc = trotListAppendInt( lCharacters, character );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
@@ -127,7 +127,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 		{
 			/* get second byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte2 );
+			rc = trotListGetInt( lBytes, index, &byte2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate second byte */
@@ -162,7 +162,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* get third byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte3 );
+			rc = trotListGetInt( lBytes, index, &byte3 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate third byte */
@@ -173,7 +173,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* append character */
 			character = ((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F);
-			rc = trotListRefAppendInt( lrCharacters, character );
+			rc = trotListAppendInt( lCharacters, character );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
@@ -186,7 +186,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 		{
 			/* get second byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte2 );
+			rc = trotListGetInt( lBytes, index, &byte2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate second byte */
@@ -214,7 +214,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* get third byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte3 );
+			rc = trotListGetInt( lBytes, index, &byte3 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate third byte */
@@ -225,7 +225,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* get fourth byte */
 			index += 1;
-			rc = trotListRefGetInt( lrBytes, index, &byte4 );
+			rc = trotListGetInt( lBytes, index, &byte4 );
 			ERR_IF_PASSTHROUGH;
 
 			/* validate fourth byte */
@@ -236,7 +236,7 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 
 			/* append character */
 			character = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F);
-			rc = trotListRefAppendInt( lrCharacters, character );
+			rc = trotListAppendInt( lCharacters, character );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
@@ -258,11 +258,11 @@ TROT_RC trotUtf8ToCharacters( trotListRef *lrBytes, trotListRef *lrCharacters )
 /******************************************************************************/
 /*!
 	\brief Encodes a list of characters to utf8 bytes.
-	\param lrBytes List of characters.
-	\param lrCharacters_A List to append encoded utf8 bytes.
+	\param lBytes List of characters.
+	\param lCharacters_A List to append encoded utf8 bytes.
 	\return TROT_RC
 */
-TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
+TROT_RC trotCharactersToUtf8( trotList *lCharacters, trotList *lBytes )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -278,13 +278,13 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lrCharacters == NULL );
-	PRECOND_ERR_IF( lrBytes == NULL );
+	PRECOND_ERR_IF( lCharacters == NULL );
+	PRECOND_ERR_IF( lBytes == NULL );
 
 
 	/* CODE */
 	/* get numberOfCharacters */
-	rc = trotListRefGetCount( lrCharacters, &numberOfCharacters );
+	rc = trotListGetCount( lCharacters, &numberOfCharacters );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* go through characters */
@@ -292,7 +292,7 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 	while ( index <= numberOfCharacters )
 	{
 		/* get character */
-		rc = trotListRefGetInt( lrCharacters, index, &character );
+		rc = trotListGetInt( lCharacters, index, &character );
 		ERR_IF_PASSTHROUGH;
 
 		/* 1 byte: 0x00 - 0x7F */
@@ -302,7 +302,7 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 			byte1 = character;
 
 			/* append bytes */
-			rc = trotListRefAppendInt( lrBytes, byte1 );
+			rc = trotListAppendInt( lBytes, byte1 );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* 2 byte: 0x80 - 0x7FF */
@@ -313,9 +313,9 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 			byte2 = ( ( character      ) & 0x3F ) | 0x80;
 
 			/* append bytes */
-			rc = trotListRefAppendInt( lrBytes, byte1 );
+			rc = trotListAppendInt( lBytes, byte1 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte2 );
+			rc = trotListAppendInt( lBytes, byte2 );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* 3 byte: 0x800 - 0xD7FF, 0xE000 - 0xFFFF */
@@ -330,11 +330,11 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 			byte3 = ( ( character       ) & 0x3F ) | 0x80;
 
 			/* append bytes */
-			rc = trotListRefAppendInt( lrBytes, byte1 );
+			rc = trotListAppendInt( lBytes, byte1 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte2 );
+			rc = trotListAppendInt( lBytes, byte2 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte3 );
+			rc = trotListAppendInt( lBytes, byte3 );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* 4 byte: 0x10000 - 0x10FFFF */
@@ -347,13 +347,13 @@ TROT_RC trotCharactersToUtf8( trotListRef *lrCharacters, trotListRef *lrBytes )
 			byte4 = ( ( character       ) & 0x3F ) | 0x80;
 
 			/* append bytes */
-			rc = trotListRefAppendInt( lrBytes, byte1 );
+			rc = trotListAppendInt( lBytes, byte1 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte2 );
+			rc = trotListAppendInt( lBytes, byte2 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte3 );
+			rc = trotListAppendInt( lBytes, byte3 );
 			ERR_IF_PASSTHROUGH;
-			rc = trotListRefAppendInt( lrBytes, byte4 );
+			rc = trotListAppendInt( lBytes, byte4 );
 			ERR_IF_PASSTHROUGH;
 		}
 		else

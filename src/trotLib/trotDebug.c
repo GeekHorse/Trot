@@ -47,7 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param 
 	\return TROT_RC
 */
-TROT_RC _trotPrintList( trotListRef *lr )
+TROT_RC _trotPrintList( trotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -59,17 +59,17 @@ TROT_RC _trotPrintList( trotListRef *lr )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lr == NULL );
+	PRECOND_ERR_IF( l == NULL );
 
 
 	/* CODE */
-	rc = trotListRefGetCount( lr, &count );
+	rc = trotListGetCount( l, &count );
 	ERR_IF_PASSTHROUGH;
 
 	i = 1;
 	while ( i <= count )
 	{
-		rc = trotListRefGetInt( lr, i, &c );
+		rc = trotListGetInt( l, i, &c );
 		ERR_IF_PASSTHROUGH;
 
 		ERR_IF( c < 0, TROT_RC_ERROR_NOT_BYTE_VALUE );
