@@ -24,6 +24,7 @@ usage:
 all: trotLib trotTest
 
 debug2: ARGS = debug2
+debug2: CFLAGS += -DBE_PARANOID
 debug2: all
 
 debug: ARGS = debug

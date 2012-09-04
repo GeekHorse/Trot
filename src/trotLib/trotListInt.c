@@ -71,8 +71,6 @@ TROT_RC trotListIntOperand( trotList *l, TROT_OP op )
 	/* handle single value ops */
 	if ( op == TROT_OP_NEG )
 	{
-			/* TODO: should we check if the int is the most-negative int?
-			         because if so, it will still be negative. Should that be an error? */
 			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
 			return TROT_RC_SUCCESS;
 	}

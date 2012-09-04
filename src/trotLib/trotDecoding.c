@@ -1079,7 +1079,7 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	TROT_INT parenthesisTokenValueIndex = 0;
 
 	trotList *lChildToken = NULL;
-	TROT_INT childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
+	TROT_INT childTokenType = 0;
 	
 
 	/* CODE */
@@ -1285,7 +1285,7 @@ static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParent
 	TROT_INT parenthesisTokenValueIndex = 0;
 
 	trotList *lChildToken = NULL;
-	TROT_INT childTokenType = 0; /* TODO: this, and all other token types, should be an enum? */
+	TROT_INT childTokenType = 0;
 	trotList *lChildTokenValue = NULL;
 
 
@@ -2322,7 +2322,6 @@ static TROT_RC getEnumValue( trotList *lToken, trotList *lName, TROT_INT *found,
 	return rc;
 }
 
-/* TODO: move this into some "tools.c" or "misc.c" file? */
 /******************************************************************************/
 /*!
 	\brief Compares list to a c string.
@@ -2669,7 +2668,7 @@ static TROT_RC createFinalList( trotList *lTokenTree )
 
 				break;
 
-			case TOKEN_TYPE_STRING: /* TODO: should string exist in code? maybe only exist in data or text lists? */
+			case TOKEN_TYPE_STRING:
 				/* get string */
 				trotListFree( &lChildTokenValue );
 
@@ -2935,7 +2934,7 @@ static int trotPrintTokenTree( trotList *lTokenTree, int indent )
 	int j = 0;
 	int count = 0;
 
-	TROT_INT tokenType = 0; /* TODO: do we have an enum for this? */
+	TROT_INT tokenType = 0;
 
 	trotList *lChildren = NULL;
 	trotList *lChildToken = NULL;

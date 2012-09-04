@@ -48,11 +48,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
-/* TODO: change this to 0 after we're done all our tests */
-/* TODO: make this a compile time define? only for debug2? */
-#define BE_PARANOID 0
-
-/******************************************************************************/
 #if ( PRINT_ERR == 1 )
 #define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
 #define ERR_IF_PASSTHROUGH if ( rc != 0 ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
@@ -61,13 +56,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ERR_IF_PASSTHROUGH if ( rc != 0 ) { goto cleanup; }
 #endif
 
+/******************************************************************************/
 #if ( TEST_PRECOND == 1 )
+
+#if ( PRINT_ERR == 1 )
 #define PRECOND_ERR_IF( cond ) if ( (cond) ) { printf( "PRECOND_ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); return TROT_RC_ERROR_PRECOND; }
 #else
-#define PRECOND_ERR_IF( cond )
+#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_RC_ERROR_PRECOND; }
 #endif
 
-#if ( BE_PARANOID == 1 )
+#else
+
+#define PRECOND_ERR_IF( cond )
+
+#endif
+
+/******************************************************************************/
+#ifdef BE_PARANOID
 #define PARANOID_ERR_IF( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
 #else
 #define PARANOID_ERR_IF( cond )
@@ -324,14 +329,6 @@ TROT_RC _trotWordToNumber( trotList *lWord, int *isNumber, TROT_INT *number );
 /* trotListInt.c */
 TROT_RC trotListIntOperand( trotList *l, TROT_OP op );
 TROT_RC trotListIntOperandValue( trotList *l, TROT_OP op, TROT_INT value );
-
-/******************************************************************************/
-/* trotDebug.c */
-/* TODO: do debug functions return int or TROT_RC? I think int ... then we can get rid of our NOT_BYTE_VALUE enum */
-TROT_RC _trotPrintList( trotList *l );
-/* TODO: move more debug functions here? */
-
-
 
 /******************************************************************************/
 #endif

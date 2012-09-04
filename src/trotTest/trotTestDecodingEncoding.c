@@ -38,10 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h> /* strlen */
 
 /******************************************************************************/
-#define PRINT_TOKENS 0
+extern const char *opNames[];
 
 /******************************************************************************/
-extern const char *opNames[];
+#define PRINT_GOOD_TEST_ENCODINGS 0
 
 /******************************************************************************/
 static int doesFileExist( trotList *lName, TROT_INT *exist );
@@ -56,12 +56,9 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName );
 static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lName );
 static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lName );
 
-/* TODO: name this better */
-static int testTokenizeMore1();
+static int testTokenizeMore();
 
 static int testEncodingMore();
-
-static int printTokens( trotList *lTokenList );
 
 /******************************************************************************/
 int testDecodingEncoding()
@@ -80,7 +77,7 @@ int testDecodingEncoding()
 	TEST_ERR_IF( processFiles( "./trotTest/testData/TokenFiles/bad/", testTokenizingBad ) != 0 );
 	TEST_ERR_IF( processFiles( "./trotTest/testData/EndOfLineFiles/", testEndOfLines ) != 0 );
 
-	TEST_ERR_IF( testTokenizeMore1() != 0 );
+	TEST_ERR_IF( testTokenizeMore() != 0 );
 
 	printf( "Testing decoding and encoding...\n" ); fflush( stdout );
 
@@ -88,9 +85,6 @@ int testDecodingEncoding()
 	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad ) != 0 );
 
 	TEST_ERR_IF( testEncodingMore() != 0 );
-
-
-/* TODO: more */
 
 
 	/* CLEANUP */
@@ -197,7 +191,6 @@ static int processFiles( char *directory, ProcessFunction func )
 			TEST_ERR_IF( trotListAppendInt( lName, ( fileNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
 
 			/* does file exist? */
-/* TODO: find better name for 'doesFileExist' and 'appendCStringToList' etc */
 			TEST_ERR_IF( doesFileExist( lName, &exist ) != 0 );
 
 			if ( exist == 0 )
@@ -281,8 +274,6 @@ static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName )
 	trotListFree( &lTokenList );
 
 	TEST_ERR_IF( trotTokenize( lCharacters, &lTokenList ) != TROT_RC_SUCCESS );
-
-	TEST_ERR_IF( printTokens( lTokenList ) != 0 );
 
 	/* make sure each token is the appropriate type */
 	TEST_ERR_IF( trotListGetCount( lTokenList, &count ) != TROT_RC_SUCCESS );
@@ -442,7 +433,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 	trotList *lEncodedList2 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
-#if 1
+#if PRINT_GOOD_TEST_ENCODINGS
 	char *s = NULL;
 #endif	
 
@@ -456,7 +447,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 	TEST_ERR_IF( trotDecodeFilename( load, lName, &lDecodedList1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotEncode( lDecodedList1, &lEncodedList1 ) != TROT_RC_SUCCESS );
-#if 1
+#if PRINT_GOOD_TEST_ENCODINGS
 	TEST_ERR_IF( listToCString( lEncodedList1, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lEncodedList1: %s\n", s );
@@ -470,7 +461,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 	TEST_ERR_IF( trotDecodeCharacters( load, lEmptyName, lEncodedList1, &lDecodedList2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotEncode( lDecodedList2, &lEncodedList2 ) != TROT_RC_SUCCESS );
-#if 1
+#if PRINT_GOOD_TEST_ENCODINGS
 	TEST_ERR_IF( listToCString( lEncodedList2, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lEncodedList2: %s\n", s );
@@ -530,7 +521,7 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lNa
 	\param 
 	\return TROT_RC
 */
-static int testTokenizeMore1()
+static int testTokenizeMore()
 {
 	/* DATA */
 	int rc = 0;
@@ -583,165 +574,6 @@ static int testTokenizeMore1()
 
 	trotListFree( &lCharacters );
 	trotListFree( &lTemp );
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief Prints out a tokenList for debugging.
-	\param lTokenList Token list.
-	\return int
-*/
-/* TODO: we have another type function in trotDecodingEncoding.c. Merge into 1? */
-static int printTokens( trotList *lTokenList )
-{
-	/* DATA */
-	int rc = 0;
-
-	TROT_INT count = 0;
-	TROT_INT index = 0;
-
-	TROT_INT currentLine = 1;
-
-	trotList *lToken = NULL;
-
-	TROT_INT tokenLine = 0;
-	TROT_INT tokenType = 0;
-	trotList *lValue = NULL;
-	TROT_INT tokenNumber = 0;
-
-	trotList *lUtf8Bytes = NULL;
-	TROT_INT utf8Count = 0;
-	TROT_INT utf8Index = 0;
-	TROT_INT utf8Byte = 0;
-
-
-	/* CODE */
-	TEST_ERR_IF( lTokenList == NULL );
-
-	if ( ! PRINT_TOKENS )
-	{
-		goto cleanup;
-	}
-
-	/* get count */
-	TEST_ERR_IF( trotListGetCount( lTokenList, &count ) != TROT_RC_SUCCESS );
-
-	/* foreach token */
-	index = 1;
-	while ( index <= count )
-	{
-		/* get token */
-		trotListFree( &lToken );
-
-		TEST_ERR_IF( trotListGetList( lTokenList, index, &lToken ) != TROT_RC_SUCCESS );
-
-		/* get line */
-		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_LINE, &tokenLine ) != TROT_RC_SUCCESS );
-
-		/* get type */
-		TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_TYPE, &tokenType ) != TROT_RC_SUCCESS );
-
-		/* new line? */
-		if ( currentLine != tokenLine )
-		{
-			printf( "\n" );
-			currentLine = tokenLine;
-		}
-
-		/* print */
-		if ( tokenType == TOKEN_TYPE_L_BRACKET )
-		{
-			printf( "[ " );
-		}
-		else if ( tokenType == TOKEN_TYPE_R_BRACKET )
-		{
-			printf( "] " );
-		}
-		else if ( tokenType == TOKEN_TYPE_L_PARENTHESIS )
-		{
-			printf( "( " );
-		}
-		else if ( tokenType == TOKEN_TYPE_R_PARENTHESIS )
-		{
-			printf( ") " );
-		}
-		else if ( tokenType == TOKEN_TYPE_L_BRACE )
-		{
-			printf( "{ " );
-		}
-		else if ( tokenType == TOKEN_TYPE_R_BRACE )
-		{
-			printf( "} " );
-		}
-		else if ( tokenType == TOKEN_TYPE_STRING || tokenType == TOKEN_TYPE_WORD )
-		{
-			/* get value */
-			trotListFree( &lValue );
-
-			TEST_ERR_IF( trotListGetList( lToken, TOKEN_INDEX_VALUE, &lValue ) != TROT_RC_SUCCESS );
-
-			/* convert to utf8 */
-			trotListFree( &lUtf8Bytes );
-
-			TEST_ERR_IF( trotListInit( &lUtf8Bytes ) != TROT_RC_SUCCESS );
-
-			TEST_ERR_IF( trotCharactersToUtf8( lValue, lUtf8Bytes ) != TROT_RC_SUCCESS );
-
-			if ( tokenType == TOKEN_TYPE_STRING )
-			{
-				printf( "\"" );
-			}
-			else
-			{
-				printf( "W:" );
-			}
-
-			/* print */
-			TEST_ERR_IF( trotListGetCount( lUtf8Bytes, &utf8Count ) != TROT_RC_SUCCESS );
-
-			utf8Index = 1;
-			while ( utf8Index <= utf8Count )
-			{
-				TEST_ERR_IF( trotListGetInt( lUtf8Bytes, utf8Index, &utf8Byte ) != TROT_RC_SUCCESS );
-
-				printf( "%c", utf8Byte );
-
-				/* next */
-				utf8Index += 1;
-			}
-			
-
-			if ( tokenType == TOKEN_TYPE_STRING )
-			{
-				printf( "\" " );
-			}
-			else
-			{
-				printf( " " );
-			}
-		}
-		else /* NUMBER */
-		{
-			TEST_ERR_IF( trotListGetInt( lToken, TOKEN_INDEX_VALUE, &tokenNumber ) != TROT_RC_SUCCESS );
-
-			printf( "N:%d ", tokenNumber );
-		}
-
-		/* next */
-		index += 1;
-	}
-
-	printf( "\n\n" );
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &lToken );
-	trotListFree( &lValue );
-	trotListFree( &lUtf8Bytes );
 
 	return rc;
 }

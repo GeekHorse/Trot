@@ -449,10 +449,9 @@ int checkList( trotList *l )
 
 
 	/* CODE */
-	if ( BE_PARANOID == 0 )
-	{
-		return 0;
-	}
+	#ifndef BE_PARANOID
+	return 0;
+	#endif
 
 	TEST_ERR_IF( l == NULL );
 
