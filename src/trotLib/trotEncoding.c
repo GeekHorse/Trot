@@ -64,10 +64,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 	trotList *newLrCharacters = NULL;
 	TROT_INT lastCharacter = 0;
 
-	trotList *laParentStack = NULL;
+	trotList *lParentStack = NULL;
 	TROT_INT parentStackCount = 0;
 
-	trotList *laParentIndicesStack = NULL;
+	trotList *lParentIndicesStack = NULL;
 
 	TROT_TAG currentTag = TROT_TAG_DATA;
 	trotList *lCurrentList = NULL;
@@ -99,10 +99,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 	ERR_IF_PASSTHROUGH;
 
 	/* create parent stack, so we can "go up" */
-	rc = trotListInit( &laParentStack );
+	rc = trotListInit( &lParentStack );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInit( &laParentIndicesStack );
+	rc = trotListInit( &lParentIndicesStack );
 	ERR_IF_PASSTHROUGH;
 
 	/* setup */
@@ -137,7 +137,7 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 			ERR_IF_PASSTHROUGH;
 
 			/* do we have a parent? */
-			rc = trotListGetCount( laParentStack, &parentStackCount );
+			rc = trotListGetCount( lParentStack, &parentStackCount );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( parentStackCount == 0 )
@@ -148,10 +148,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 
 			/* go up to parent */
 			trotListFree( &lCurrentList );
-			rc = trotListRemoveList( laParentStack, -1, &lCurrentList );
+			rc = trotListRemoveList( lParentStack, -1, &lCurrentList );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			rc = trotListRemoveInt( laParentIndicesStack, -1, &index );
+			rc = trotListRemoveInt( lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			PARANOID_ERR_IF( lCurrentList -> laPointsTo == NULL );
@@ -251,10 +251,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 						ERR_IF_PASSTHROUGH;
 
 						/* push to parent stacks, setup vars */
-						rc = trotListAppendList( laParentStack, lCurrentList );
+						rc = trotListAppendList( lParentStack, lCurrentList );
 						ERR_IF_PASSTHROUGH;
 
-						rc = trotListAppendInt( laParentIndicesStack, index );
+						rc = trotListAppendInt( lParentIndicesStack, index );
 						ERR_IF_PASSTHROUGH;
 
 						trotListFree( &lCurrentList );
@@ -321,10 +321,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 						ERR_IF_PASSTHROUGH;
 
 						/* push to parent stacks, setup vars */
-						rc = trotListAppendList( laParentStack, lCurrentList );
+						rc = trotListAppendList( lParentStack, lCurrentList );
 						ERR_IF_PASSTHROUGH;
 
-						rc = trotListAppendInt( laParentIndicesStack, index );
+						rc = trotListAppendInt( lParentIndicesStack, index );
 						ERR_IF_PASSTHROUGH;
 
 						trotListFree( &lCurrentList );
@@ -351,12 +351,12 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 
 	/* go through tree again, resetting encodingChildNumber and encodingParent */
 	/* create parent stack, so we can "go up" */
-	trotListFree( &laParentStack );
-	rc = trotListInit( &laParentStack );
+	trotListFree( &lParentStack );
+	rc = trotListInit( &lParentStack );
 	ERR_IF_PASSTHROUGH;
 
-	trotListFree( &laParentIndicesStack );
-	rc = trotListInit( &laParentIndicesStack );
+	trotListFree( &lParentIndicesStack );
+	rc = trotListInit( &lParentIndicesStack );
 	ERR_IF_PASSTHROUGH;
 
 	/* setup */
@@ -381,7 +381,7 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 		if ( index == childrenCount )
 		{
 			/* do we have a parent? */
-			rc = trotListGetCount( laParentStack, &parentStackCount );
+			rc = trotListGetCount( lParentStack, &parentStackCount );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( parentStackCount == 0 )
@@ -392,10 +392,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 
 			/* go up to parent */
 			trotListFree( &lCurrentList );
-			rc = trotListRemoveList( laParentStack, -1, &lCurrentList );
+			rc = trotListRemoveList( lParentStack, -1, &lCurrentList );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			rc = trotListRemoveInt( laParentIndicesStack, -1, &index );
+			rc = trotListRemoveInt( lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			PARANOID_ERR_IF( lCurrentList -> laPointsTo == NULL );
@@ -434,10 +434,10 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 					lChildList -> laPointsTo -> encodingParent = NULL;
 
 					/* push to parent stacks, setup vars */
-					rc = trotListAppendList( laParentStack, lCurrentList );
+					rc = trotListAppendList( lParentStack, lCurrentList );
 					ERR_IF_PASSTHROUGH;
 
-					rc = trotListAppendInt( laParentIndicesStack, index );
+					rc = trotListAppendInt( lParentIndicesStack, index );
 					ERR_IF_PASSTHROUGH;
 
 					trotListFree( &lCurrentList );
@@ -466,8 +466,8 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 	cleanup:
 
 	trotListFree( &newLrCharacters );
-	trotListFree( &laParentStack );
-	trotListFree( &laParentIndicesStack );
+	trotListFree( &lParentStack );
+	trotListFree( &lParentIndicesStack );
 	trotListFree( &lCurrentList );
 	trotListFree( &lChildList );
 
