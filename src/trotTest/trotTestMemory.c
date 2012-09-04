@@ -160,13 +160,13 @@ int testMemory()
 
 			do
 			{
+				spinnerI += 1;
+				printf( "\r%d: %d of %d %c", i, j, failedFuncs[ i ].numberOfTests - 1, spinner[ spinnerI % 4 ]  ); fflush( stdout );
+
 				currentMallocCount = 0;
 				failOnMallocCount += 1;
 
 				rc = failedFuncs[ i ].func( j );
-
-				spinnerI += 1;
-				printf( "\r%d %c", i, spinner[ spinnerI % 4 ]  ); fflush( stdout );
 			}
 			while ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
@@ -175,7 +175,7 @@ int testMemory()
 			j += 1;
 		}
 
-		printf( "\r%d  \n", i ); fflush( stdout );
+		printf( "\r%d            \n", i ); fflush( stdout );
 
 		i += 1;
 	}

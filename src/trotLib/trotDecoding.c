@@ -47,6 +47,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParenthesisTokenValue );
+
 static TROT_RC handleAllWords( trotList *lTokenTree );
 static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, trotList *lTokenWord );
 static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp );
@@ -840,6 +841,23 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 	trotList *lName = NULL;
 	TROT_INT nameCount = 0;
 
+	static struct {
+		char *tagName;
+		TROT_TAG fromTag;
+		TROT_TAG toTag;
+	}
+	tagData[ 3 ] =
+	{
+		{ "text",     TROT_TAG_DATA, TROT_TAG_TEXT     },
+		{ "raw",      TROT_TAG_CODE, TROT_TAG_RAW_CODE },
+
+		{ NULL,       TROT_TAG_DATA, TROT_TAG_DATA     } /* sentinel */
+	};
+
+	TROT_TAG tag;
+
+	int i = 0;
+
 
 	/* CODE */
 	PARANOID_ERR_IF( lFileList == NULL );
@@ -972,69 +990,61 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
-		/* set tag */
 		/* get finalList of parent token */
 		rc = trotListGetList( lParentToken, TOKEN_INDEX_FINALLIST, &lParentTokenFinalList );
 		ERR_IF_PASSTHROUGH;
 
-		/* TODO: make sure list wasn't tagged twice */
+		/* make sure it wasn't tagged twice */
+		rc = trotListGetTag( lParentTokenFinalList, &tag );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
+		ERR_IF( tag != TROT_TAG_CODE, TROT_RC_ERROR_DECODE );
+
+		/* set tag */
 		rc = trotListSetTag( lParentTokenFinalList, TROT_TAG_FUNCTION );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		/* handle */
+		/* handle vars */
 		rc = handleMetaDataFunction( lParentToken, lChildren );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
 	}
 
-
-	/* text? */
-	rc = compareListToCString( lChildValue, "text", &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
+	/* simple tags... */
+	i = 0;
+	while ( tagData[ i ].tagName != NULL )
 	{
-		/* there should be only 1 child */
-		ERR_IF( childrenCount != 1, TROT_RC_ERROR_DECODE );
-
-		/* TODO: make sure it wasn't tagged twice */
-
-		/* get finalList of parent token */
-		rc = trotListGetList( lParentToken, TOKEN_INDEX_FINALLIST, &lParentTokenFinalList );
+		/* compare */
+		rc = compareListToCString( lChildValue, tagData[ i ].tagName, &compareResult );
 		ERR_IF_PASSTHROUGH;
 
-		rc = trotListSetTag( lParentTokenFinalList, TROT_TAG_TEXT );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+		if ( compareResult == TROT_LIST_COMPARE_EQUAL )
+		{
+			/* must be only token in parenthesis */
+			ERR_IF( childrenCount != 1, TROT_RC_ERROR_DECODE );
 
-		goto cleanup;
+			/* get finalList of parent token */
+			trotListFree( &lParentTokenFinalList );
+			rc = trotListGetList( lParentToken, TOKEN_INDEX_FINALLIST, &lParentTokenFinalList );
+			ERR_IF_PASSTHROUGH;
+
+			/* make sure it wasn't tagged twice */
+			rc = trotListGetTag( lParentTokenFinalList, &tag );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+			ERR_IF( tag != tagData[ i ].fromTag, TROT_RC_ERROR_DECODE );
+
+			/* set tag */
+			rc = trotListSetTag( lParentTokenFinalList, tagData[ i ].toTag );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+			goto cleanup;
+		}
+
+		/* increment */
+		i += 1;
 	}
-
-	/* raw? */
-	rc = compareListToCString( lChildValue, "raw", &compareResult );
-	ERR_IF_PASSTHROUGH;
-
-	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
-	{
-		/* there should be only 1 child */
-		ERR_IF( childrenCount != 1, TROT_RC_ERROR_DECODE );
-
-		/* TODO: make sure it wasn't tagged twice */
-
-		/* get finalList of parent token */
-		rc = trotListGetList( lParentToken, TOKEN_INDEX_FINALLIST, &lParentTokenFinalList );
-		ERR_IF_PASSTHROUGH;
-
-		rc = trotListSetTag( lParentTokenFinalList, TROT_TAG_RAW_CODE );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		goto cleanup;
-	}
-
-	/* TODO: all tags */
-	/* TODO: handle "{" that should be tagged code? */
-	/* TODO: "raw" should only be tagged in braces, not brackets */
 
 	/* error if we don't recognize first word in parenthesis */
 	ERR_IF( 1, TROT_RC_ERROR_DECODE );
@@ -1269,8 +1279,6 @@ static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParent
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	TROT_INT tokenType = 0;
-
 	trotList *lVarList = NULL;
 
 	TROT_INT parenthesisTokenValueCount = 0;
@@ -1284,12 +1292,6 @@ static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParent
 	/* CODE */
 	PARANOID_ERR_IF( lParentToken == NULL );
 	PARANOID_ERR_IF( lParenthesisTokenValue == NULL );
-
-	/* type must be L_BRACE */
-	rc = trotListGetInt( lParentToken, TOKEN_INDEX_TYPE, &tokenType );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-	ERR_IF( tokenType != TOKEN_TYPE_L_BRACE, TROT_RC_ERROR_DECODE );
 
 	/* get var list of parent */
 	rc = trotListGetList( lParentToken, TOKEN_INDEX_VAR, &lVarList );
