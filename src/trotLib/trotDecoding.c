@@ -52,7 +52,7 @@ static TROT_RC handleAllWords( trotList *lTokenTree );
 static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, trotList *lTokenWord );
 static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp );
 
-static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent, int *foundVar, TROT_INT *varIndex );
+static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent_A, int *foundVar, TROT_INT *varIndex );
 static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lNameList, trotList **lTokenFound, TROT_INT *enumFound );
 
 static TROT_RC addEnum( trotList *lEnumList, trotList *lEnum );
@@ -824,7 +824,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lChildren = NULL; /* TODO: rename this lParenthesisTokenValue */
+	trotList *lChildren = NULL;
 	TROT_INT childrenCount = 0;
 	trotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0;
@@ -1668,6 +1668,8 @@ static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, tr
 		goto cleanup;
 	}
 
+	/* implicit "else we found name" */
+
 	/* was there only 1 word? */
 	if ( wordPartListCount == 1 )
 	{
@@ -1808,14 +1810,14 @@ static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp )
 	\param 
 	\return TROT_RC
 */
-static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent, int *foundVar, TROT_INT *varIndex )
+static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent_A, int *foundVar, TROT_INT *varIndex )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	TROT_INT parentTokenStackIndex = 0;
 
-	/* TODO: we're using lParent in this function, should we be using a local variable instead? */
+	trotList *lParent = NULL;
 	trotList *lParentName = NULL;
 	trotList *lParentFinalList = NULL;
 	trotList *lParentVarList = NULL;
@@ -1850,13 +1852,13 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 	while ( parentTokenStackIndex > 0 )
 	{
 		/* get parent */
-		trotListFree( lParent );
-		rc = trotListGetList( lParentTokenStack, parentTokenStackIndex, lParent );
+		trotListFree( &lParent );
+		rc = trotListGetList( lParentTokenStack, parentTokenStackIndex, &lParent );
 		ERR_IF_PASSTHROUGH;
 
 		/* check for name */
 		trotListFree( &lParentName );
-		rc = trotListGetList( (*lParent), TOKEN_INDEX_NAME, &lParentName );
+		rc = trotListGetList( lParent, TOKEN_INDEX_NAME, &lParentName );
 		ERR_IF_PASSTHROUGH;
 
 		rc = trotListCompare( lName, lParentName, &compareResult );
@@ -1864,6 +1866,10 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 		
 		if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 		{
+			/* give back */
+			rc = trotListTwin( lParent, lParent_A );
+			ERR_IF_PASSTHROUGH;
+
 			(*foundName) = 1;
 
 			goto cleanup;
@@ -1873,7 +1879,7 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 		if ( flagFunction == 0 )
 		{
 			trotListFree( &lParentFinalList );
-			rc = trotListGetList( (*lParent), TOKEN_INDEX_FINALLIST, &lParentFinalList );
+			rc = trotListGetList( lParent, TOKEN_INDEX_FINALLIST, &lParentFinalList );
 			ERR_IF_PASSTHROUGH;
 
 			/* is it a function? */
@@ -1883,7 +1889,7 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 
 				/* get var list */
 				trotListFree( &lParentVarList );
-				rc = trotListGetList( (*lParent), TOKEN_INDEX_VAR, &lParentVarList );
+				rc = trotListGetList( lParent, TOKEN_INDEX_VAR, &lParentVarList );
 				ERR_IF_PASSTHROUGH;
 
 				/* get count */
@@ -1924,6 +1930,7 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 	/* CLEANUP */
 	cleanup:
 
+	trotListFree( &lParent );
 	trotListFree( &lParentName );
 	trotListFree( &lParentFinalList );
 	trotListFree( &lParentVarList );
@@ -2488,8 +2495,8 @@ static TROT_RC createFinalList( trotList *lTokenTree )
 
 	trotList *lChildToken = NULL;
 	trotList *lChildTokenValue = NULL;
-	TROT_INT childTokenValueChildrenCount = 0; /* TODO: rename this, remove the "children" */
-	TROT_INT childTokenValueChildrenIndex = 0; /* TODO: same here */
+	TROT_INT childTokenValueCount = 0;
+	TROT_INT childTokenValueIndex = 0;
 	trotList *lChildTokenFinalList = NULL;
 	TROT_INT childTokenType = 0;
 	TROT_INT childTokenValueInt = 0;
@@ -2675,20 +2682,20 @@ static TROT_RC createFinalList( trotList *lTokenTree )
 				rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildTokenValue );
 				ERR_IF_PASSTHROUGH;
 
-				rc = trotListGetCount( lChildTokenValue, &childTokenValueChildrenCount );
+				rc = trotListGetCount( lChildTokenValue, &childTokenValueCount );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 				/* append each number */
-				childTokenValueChildrenIndex = 1;
-				while ( childTokenValueChildrenIndex <= childTokenValueChildrenCount )
+				childTokenValueIndex = 1;
+				while ( childTokenValueIndex <= childTokenValueCount )
 				{
-					rc = trotListGetInt( lChildTokenValue, childTokenValueChildrenIndex, &childTokenValueInt );
+					rc = trotListGetInt( lChildTokenValue, childTokenValueIndex, &childTokenValueInt );
 					PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 					rc = trotListAppendInt( lTokenFinalList, childTokenValueInt );
 					ERR_IF_PASSTHROUGH;
 
-					childTokenValueChildrenIndex += 1;
+					childTokenValueIndex += 1;
 				}
 
 				break;
