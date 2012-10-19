@@ -648,6 +648,12 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 
 	trotList *lParentTokenIndicesStack = NULL;
 
+	trotList *lParentTokenStateStack = NULL;
+	/* signals if we can handle metadata or not.
+	   we can't if we've seen another token type in the list.
+	   so we set this to 0 once we've seen a non-L_PARENTHESIS token */
+	TROT_INT stateCanHandleMetaData = 1;
+
 	trotList *lToken = NULL;
 	TROT_INT tokenType = 0;
 	trotList *lTokenChildren = NULL;
@@ -668,6 +674,9 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotListInit( &lParentTokenIndicesStack );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( &lParentTokenStateStack );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -727,6 +736,10 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 			rc = trotListRemoveInt( lParentTokenIndicesStack, -1, &tokenChildrenIndex );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
+			/* get state */
+			rc = trotListRemoveInt( lParentTokenStateStack, -1, &stateCanHandleMetaData );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
 			continue;
 		}
 
@@ -751,6 +764,9 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 			rc = trotListAppendInt( lParentTokenIndicesStack, tokenChildrenIndex );
 			ERR_IF_PASSTHROUGH;
 
+			rc = trotListAppendInt( lParentTokenStateStack, 0 );
+			ERR_IF_PASSTHROUGH;
+
 			/* go down */
 			
 			/* free token, children, final list */
@@ -768,10 +784,17 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 			/* set index */
 			tokenChildrenIndex = 0;
 
+			/* set state */
+			stateCanHandleMetaData = 1;
+
 			continue;
 		}
 		else if ( childTokenType == TOKEN_TYPE_L_PARENTHESIS )
 		{
+			/* can we handle metaData?
+			   (have we seen any non-L_PARENTHESIS tokens?) */
+			ERR_IF( stateCanHandleMetaData != 1, TROT_RC_ERROR_DECODE );
+
 			/* handle */
 			rc = handleMetaData2( lFileList, lToken, lChildToken );
 			ERR_IF_PASSTHROUGH;
@@ -781,6 +804,10 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			tokenChildrenIndex -= 1;
+		}
+		else
+		{
+			stateCanHandleMetaData = 0;
 		}
 	}
 
@@ -1126,8 +1153,8 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	\param 
 	\return TROT_RC
 */
-/* TODO: need to put in error checking so that metadata is only added to empty lists (so they come first), and 
-         other error checks like you cannot add anything to a "include" list */
+/* TODO: make sure you cannot add anything to a "include" list */
+/* TODO: make sure only one of a metadata type is seen ... only one tag, one name, one enum, etc */
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue )
 {
 	/* DATA */
