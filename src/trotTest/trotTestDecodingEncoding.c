@@ -494,6 +494,7 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lNa
 {
 	/* DATA */
 	int rc = 0;
+	TROT_RC trot_rc = TROT_RC_SUCCESS;
 
 	trotList *lDecodedList = NULL;
 
@@ -504,7 +505,12 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lNa
 
 	TEST_ERR_IF( lName == NULL );
 
-	TEST_ERR_IF( trotDecodeFilename( load, lName, &lDecodedList ) != TROT_RC_ERROR_DECODE );
+	trot_rc = trotDecodeFilename( load, lName, &lDecodedList );
+	if ( trot_rc != TROT_RC_ERROR_DECODE )
+	{
+		printf( "trot_rc should be TROT_RC_ERROR_DECODE but was %d\n", trot_rc );
+		TEST_ERR_IF( 1 );
+	}
 
 
 	/* CLEANUP */

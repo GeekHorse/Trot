@@ -992,9 +992,6 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
-/* TODO: does it matter if we include in a bracket or brace? does it have to match the beginning of the file we include? */
-/* TODO: also, should we check that here, or inside handleMetaDataInclude? */
-
 		/* handle include */
 		rc = handleMetaDataInclude( lFileList, lParentToken, lChildren );
 		ERR_IF_PASSTHROUGH;
@@ -1153,7 +1150,6 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	\param 
 	\return TROT_RC
 */
-/* TODO: make sure you cannot add anything to a "include" list */
 /* TODO: make sure only one of a metadata type is seen ... only one tag, one name, one enum, etc */
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue )
 {
@@ -1166,6 +1162,10 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	TROT_INT stringTokenType = 0;
 	trotList *lStringTokenValue = NULL;
 	TROT_INT stringTokenCount = 0;
+
+	TROT_INT parentTokenType = 0;
+	trotList *lParentTokenValue = NULL;
+	TROT_INT parentTokenCount = 0;
 
 	TROT_INT fileListCount = 0;
 	TROT_INT fileListIndex = 0;
@@ -1212,6 +1212,25 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	ERR_IF( stringTokenCount == 0, TROT_RC_ERROR_DECODE );
 
 	/* now we have the name of the file to include in stringTokenValue */
+
+	/* verify parentToken is a bracket and not a brace.
+	   the file included may have braces as it's top-most list, but
+	   we force includes to be brackets */
+	rc = trotListGetInt( lParentToken, TOKEN_INDEX_TYPE, &parentTokenType );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	ERR_IF( parentTokenType != TOKEN_TYPE_L_BRACKET, TROT_RC_ERROR_DECODE );
+
+	/* verify parentToken contains no more tokens.
+	   (include) must be the last token in a list */
+	rc = trotListGetList( lParentToken, TOKEN_INDEX_VALUE, &lParentTokenValue );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListGetCount( lParentTokenValue, &parentTokenCount );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* 1 for the (include) token */
+	ERR_IF( parentTokenCount != 1, TROT_RC_ERROR_DECODE );
 
 	/* foreach file */
 	rc = trotListGetCount( lFileList, &fileListCount );
@@ -1269,8 +1288,6 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* change value */
-	/* NOTE: the file may or may not have a final list yet, so we just add lFile for now.
-	         when we create our final lists, we'll get the file's final list then */
 	rc = trotListReplaceWithList( lParentToken, TOKEN_INDEX_VALUE, lFileTokenTreeFinalList );
 	ERR_IF_PASSTHROUGH;
 	
@@ -1280,6 +1297,7 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 
 	trotListFree( &lStringToken );
 	trotListFree( &lStringTokenValue );
+	trotListFree( &lParentTokenValue );
 	trotListFree( &lFile );
 	trotListFree( &lFileName );
 	trotListFree( &lFileTokenTree );
@@ -1856,8 +1874,8 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 	PARANOID_ERR_IF( lParentTokenStack == NULL );
 	PARANOID_ERR_IF( lName == NULL );
 	PARANOID_ERR_IF( foundName == NULL );
-	PARANOID_ERR_IF( lParent == NULL );
-	PARANOID_ERR_IF( (*lParent) != NULL );
+	PARANOID_ERR_IF( lParent_A == NULL );
+	PARANOID_ERR_IF( (*lParent_A) != NULL );
 	PARANOID_ERR_IF( foundVar == NULL );
 	PARANOID_ERR_IF( varIndex == NULL );
 
