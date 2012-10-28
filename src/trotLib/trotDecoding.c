@@ -57,6 +57,7 @@ static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree 
 
 static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList );
 static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisToken );
+static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParenthesisTokenValue );
@@ -805,7 +806,9 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 		else if ( childTokenType == TOKEN_TYPE_L_PARENTHESIS )
 		{
 			/* can we handle metaData?
-			   (have we seen any non-L_PARENTHESIS tokens?) */
+			   (have we seen any non-L_PARENTHESIS tokens?)
+			   this makes sure all metadata parenthesis are at the beginning
+			   of lists */
 			ERR_IF( stateCanHandleMetaData != 1, TROT_RC_ERROR_DECODE );
 
 			/* handle */
@@ -851,7 +854,6 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 	Adds (include) to file list (or twins if it's aleady there).
 	Tags (function), (text), (raw) 
 */
-/* TODO: break out each handling below into it's own function */
 static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisToken )
 {
 	/* DATA */
@@ -863,16 +865,11 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 	TROT_INT childTokenType = 0;
 
 	trotList *lChildValue = NULL;
-	TROT_INT childValueCount = 0;
-	TROT_INT childValueIndex = 0;
-	TROT_INT childValueCharacter = 0;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
 	trotList *lParentTokenFinalList = NULL;
 
-	trotList *lName = NULL;
-	TROT_INT nameCount = 0;
 
 	static struct {
 		char *tagName;
@@ -926,58 +923,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
-		/* there should be only 2 children
-		   one for 'name' and one for the actual name */
-		ERR_IF( childrenCount != 2, TROT_RC_ERROR_DECODE );
-
-		trotListFree( &lChildValue );
-		trotListFree( &lChildToken );
-
-		/* get second token in parenthesis */
-		rc = trotListGetList( lChildren, 2, &lChildToken );
-		ERR_IF_PASSTHROUGH;
-
-		/* get tokenType */
-		rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		ERR_IF( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
-
-		/* get value */
-		rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildValue );
-		ERR_IF_PASSTHROUGH;
-
-		/* name cannot contain a period */
-		rc = trotListGetCount( lChildValue, &childValueCount );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		/* note: no need to test that name is actually non-empty because our
-		         tokenizer wouldn't tokenize an empty word */
-
-		childValueIndex = 1;
-		while ( childValueIndex <= childValueCount )
-		{
-			rc = trotListGetInt( lChildValue, childValueIndex, &childValueCharacter );
-			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-			ERR_IF( childValueCharacter == '.', TROT_RC_ERROR_DECODE );
-
-			/* increment */
-			childValueIndex += 1;
-		}
-
-		/* remove name */
-		rc = trotListRemoveList( lParentToken, TOKEN_INDEX_NAME, &lName );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		/* current name must have been empty */
-		rc = trotListGetCount( lName, &nameCount );
-		PARANOID_ERR_IF( rc = TROT_RC_SUCCESS );
-
-		ERR_IF( nameCount != 0, TROT_RC_ERROR_DECODE );
-
-		/* put new name */
-		rc = trotListInsertList( lParentToken, TOKEN_INDEX_NAME, lChildValue );
+		rc = handleMetaDataName( lParentToken, lChildren );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
@@ -989,10 +935,6 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
-		/* there should be more than 1
-		   one for 'enum' and one more for each [name value] */
-		ERR_IF( childrenCount == 1, TROT_RC_ERROR_DECODE );
-
 		rc = handleMetaDataEnum( lParentToken, lChildren );
 		ERR_IF_PASSTHROUGH;
 
@@ -1087,6 +1029,98 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 	trotListFree( &lChildToken );
 	trotListFree( &lChildValue );
 	trotListFree( &lParentTokenFinalList );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesisTokenValue )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TROT_INT parenthesisTokenValueCount = 0;
+	TROT_INT childValueCount = 0;
+	TROT_INT childValueIndex = 0;
+	TROT_INT childValueCharacter = 0;
+
+	trotList *lChildToken = NULL;
+	TROT_INT childTokenType = 0;
+	trotList *lChildValue = NULL;
+
+	trotList *lName = NULL;
+	TROT_INT nameCount = 0;
+
+
+	/* CODE */
+	PARANOID_ERR_IF( lParentToken == NULL );
+	PARANOID_ERR_IF( lParenthesisTokenValue == NULL );
+
+	/* get count */
+	rc = trotListGetCount( lParenthesisTokenValue, &parenthesisTokenValueCount );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* there should be 2 */
+	ERR_IF( parenthesisTokenValueCount != 2, TROT_RC_ERROR_DECODE );
+
+	/* get second token in parenthesis */
+	rc = trotListGetList( lParenthesisTokenValue, 2, &lChildToken );
+	ERR_IF_PASSTHROUGH;
+
+	/* get tokenType */
+	rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	ERR_IF( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
+
+	/* get value */
+	rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildValue );
+	ERR_IF_PASSTHROUGH;
+
+	/* name cannot contain a period */
+	rc = trotListGetCount( lChildValue, &childValueCount );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* note: no need to test that name is actually non-empty because our
+		 tokenizer wouldn't tokenize an empty word */
+
+	childValueIndex = 1;
+	while ( childValueIndex <= childValueCount )
+	{
+		rc = trotListGetInt( lChildValue, childValueIndex, &childValueCharacter );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		ERR_IF( childValueCharacter == '.', TROT_RC_ERROR_DECODE );
+
+		/* increment */
+		childValueIndex += 1;
+	}
+
+	/* remove name */
+	rc = trotListRemoveList( lParentToken, TOKEN_INDEX_NAME, &lName );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* current name must have been empty */
+	rc = trotListGetCount( lName, &nameCount );
+	PARANOID_ERR_IF( rc = TROT_RC_SUCCESS );
+
+	ERR_IF( nameCount != 0, TROT_RC_ERROR_DECODE );
+
+	/* put new name */
+	rc = trotListInsertList( lParentToken, TOKEN_INDEX_NAME, lChildValue );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( &lChildToken );
+	trotListFree( &lChildValue );
 	trotListFree( &lName );
 
 	return rc;
@@ -1123,6 +1157,8 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	/* get count */
 	rc = trotListGetCount( lParenthesisTokenValue, &parenthesisTokenValueCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	ERR_IF( parenthesisTokenValueCount < 2, TROT_RC_ERROR_DECODE );
 
 	/* foreach new enum */
 	parenthesisTokenValueIndex = 2; /* 1 was "enum" */
@@ -1163,7 +1199,6 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	\param 
 	\return TROT_RC
 */
-/* TODO: make sure only one of a metadata type is seen ... only one tag, one name, one enum, etc */
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue )
 {
 	/* DATA */
