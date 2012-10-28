@@ -81,9 +81,9 @@ TROT_RC badLoad( trotList *lName, trotList **lBytes )
 	rc = trotListInit( &newLrBytes );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListAppendInt( newLrBytes, '[' );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendInt( newLrBytes, ']' );
+	/* We include a named child so we can test failed mallocs
+	   when going "through" an include */
+	rc = appendCStringToList( newLrBytes, "[[(name child)]]" );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
@@ -118,7 +118,7 @@ FailedFunc failedFuncs[] =
 {
 	{ testFailedMallocs1, 1 },
 	{ testFailedMallocs2, 1 },
-	{ testFailedMallocs3, 18 },
+	{ testFailedMallocs3, 21 },
 	{ testFailedMallocs4, 1 },
 	{ NULL, 0 }
 };
@@ -806,7 +806,10 @@ static TROT_RC testFailedMallocs3( int test )
 	"[ [(include \"x\")] [(include \"x\")] ]",
 	"{(function x y) x}",
 	"[(name x)(enum (cats 99) (dogs 98) ) x.cats]",
-	"[(name x) x]"
+	"[(name x) x]",
+	"[(name A) [(name B)(include \"x\")] A.B.child]",
+	"{ [(include \"x\")] }",
+	"{(function) [(include \"x\")] }",
 	};
 
 	trotList *lCharacters = NULL;

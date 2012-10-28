@@ -1,0 +1,4 @@
+[(name ten)
+	[(name myInclude)(include "./trotTest/testData/DecodeFiles/good/07/10B")]
+	[(name A)(enum (myEnum1 1)) 1 2 3]
+]

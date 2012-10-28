@@ -1,0 +1,4 @@
+[(name top)
+	[(name myInclude)(include "./trotTest/testData/DecodeFiles/good/07/08B")]
+	top.myInclude.myList
+]

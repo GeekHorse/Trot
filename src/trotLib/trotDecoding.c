@@ -33,12 +33,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Decodes textual format to trot list.
 */
 
+/*
+	TODO: document this somewhere
+
+	filelist
+		file
+			1 = filename
+			2 = top token
+
+	INCLUDE token type
+		value = file's top token
+		file list = file's top token's final list
+*/
+
 /******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFileFinalList_A );
+static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFile_A );
 
 static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree );
 
@@ -353,7 +366,7 @@ TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotList *lFilename, trotList
 	\param 
 	\return TROT_RC
 */
-static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFileFinalList_A )
+static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFile_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -365,7 +378,7 @@ static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trot
 	/* CODE */
 	PARANOID_ERR_IF( lFileList == NULL );
 	PARANOID_ERR_IF( lFileName == NULL );
-	PARANOID_ERR_IF( lFileFinalList_A != NULL && (*lFileFinalList_A) != NULL );
+	PARANOID_ERR_IF( lFile_A != NULL && (*lFile_A) != NULL );
 
 	/* create file */
 	rc = trotListInit( &lFile );
@@ -388,9 +401,9 @@ static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trot
 	ERR_IF_PASSTHROUGH;
 
 	/* get final list, and give back */
-	if ( lFileFinalList_A != NULL )
+	if ( lFile_A != NULL )
 	{
-		rc = trotListGetList( lFileTokenTree, TOKEN_INDEX_FINALLIST, lFileFinalList_A );
+		rc = trotListTwin( lFile, lFile_A );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -1171,8 +1184,8 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	TROT_INT fileListIndex = 0;
 	trotList *lFile = NULL;
 	trotList *lFileName = NULL;
-	trotList *lFileTokenTree = NULL;
-	trotList *lFileTokenTreeFinalList = NULL;
+	trotList *lFileToken = NULL;
+	trotList *lFileTokenFinalList = NULL;
 
 	int fileNameFound = 0;
 
@@ -1257,14 +1270,6 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 		{
 			fileNameFound = 1;
 
-			/* get file's token tree */
-			rc = trotListGetList( lFile, -1, &lFileTokenTree );
-			ERR_IF_PASSTHROUGH;
-
-			/* get file's token tree's final list */
-			rc = trotListGetList( lFileTokenTree, TOKEN_INDEX_FINALLIST, &lFileTokenTreeFinalList );
-			ERR_IF_PASSTHROUGH;
-
 			break;
 		}
 
@@ -1275,20 +1280,33 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	/* if the filename isn't aleady in our file list, we need to create it */
 	if ( fileNameFound == 0 )
 	{
-		rc = addFileToFileList( lFileList, lStringTokenValue, &lFileTokenTreeFinalList );
+		trotListFree( &lFile );
+		rc = addFileToFileList( lFileList, lStringTokenValue, &lFile );
 		ERR_IF_PASSTHROUGH;
 	}
 
-	/* now lFileTokenTreeFinalList points to the list we need to twin for parent token */
+	/* get file's token */
+	rc = trotListGetList( lFile, -1, &lFileToken );
+	ERR_IF_PASSTHROUGH;
 
-	/* change our parent token to be a TOKEN_TYPE_INCLUDE and put the lFile as it's value */
+	/* get file's token's final list */
+	rc = trotListGetList( lFileToken, TOKEN_INDEX_FINALLIST, &lFileTokenFinalList );
+	ERR_IF_PASSTHROUGH;
+
+	/* change our parent token to be a TOKEN_TYPE_INCLUDE
+	   put the lFile as it's value
+	   put file's final list in token's final list */
 
 	/* set type */
 	rc = trotListReplaceWithInt( lParentToken, TOKEN_INDEX_TYPE, TOKEN_TYPE_INCLUDE );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* change value */
-	rc = trotListReplaceWithList( lParentToken, TOKEN_INDEX_VALUE, lFileTokenTreeFinalList );
+	rc = trotListReplaceWithList( lParentToken, TOKEN_INDEX_VALUE, lFile );
+	ERR_IF_PASSTHROUGH;
+
+	/* change final list */
+	rc = trotListReplaceWithList( lParentToken, TOKEN_INDEX_FINALLIST, lFileTokenFinalList );
 	ERR_IF_PASSTHROUGH;
 	
 
@@ -1300,8 +1318,8 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	trotListFree( &lParentTokenValue );
 	trotListFree( &lFile );
 	trotListFree( &lFileName );
-	trotListFree( &lFileTokenTree );
-	trotListFree( &lFileTokenTreeFinalList );
+	trotListFree( &lFileToken );
+	trotListFree( &lFileTokenFinalList );
 
 	return rc;
 }
@@ -2005,8 +2023,11 @@ static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lN
 	TROT_INT nameNumber = 0;
 
 	trotList *lChildToken = NULL;
+	TROT_INT childTokenType = 0; 
 	TROT_INT childTokenCount = 0;
 	trotList *lChildTokenName = NULL;
+
+	trotList *lFile = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
@@ -2118,9 +2139,29 @@ static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lN
 		ERR_IF( foundChild == 0, TROT_RC_ERROR_DECODE );
 
 		/* go down */
-		trotListFree( &lParentToken );
-		lParentToken = lChildToken;
-		lChildToken = NULL;
+
+		/* get child token type */
+		rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		/* if childToken is INCLUDE, get the token of the file that the include points to */
+		if ( childTokenType == TOKEN_TYPE_INCLUDE )
+		{
+			rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lFile );
+			ERR_IF_PASSTHROUGH;
+
+			trotListFree( &lParentToken );
+			trotListFree( &lChildToken );
+			rc = trotListGetList( lFile, -1, &lParentToken );
+			ERR_IF_PASSTHROUGH;
+		}
+		/* else, go down normal */
+		else
+		{
+			trotListFree( &lParentToken );
+			lParentToken = lChildToken;
+			lChildToken = NULL;
+		}
 
 		/* increment */
 		nameListIndex += 1;
@@ -2142,6 +2183,7 @@ static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lN
 	trotListFree( &lName );
 	trotListFree( &lChildToken );
 	trotListFree( &lChildTokenName );
+	trotListFree( &lFile );
 
 	return rc;
 }
@@ -2567,6 +2609,12 @@ static TROT_RC createFinalList( trotList *lTokenTree )
 	rc = trotListGetInt( lToken, TOKEN_INDEX_TYPE, &parentTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
+	/* special case: INCLUDE, already good to go */
+	if ( parentTokenType == TOKEN_TYPE_INCLUDE )
+	{
+		goto cleanup;
+	}
+
 	/* set index */
 	tokenChildrenIndex = 0;
 
@@ -2761,15 +2809,24 @@ static TROT_RC createFinalList( trotList *lTokenTree )
 				break;
 
 			case TOKEN_TYPE_INCLUDE:
-				/* get child value */
-				trotListFree( &lChildTokenValue );
-				rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildTokenValue );
+				/* NOTE: include tokens VALUE is a file, and it's FINALLIST
+				         is the FINALLIST of the file's token  */
+				/* get token tree's final list */
+				trotListFree( &lChildTokenFinalList );
+				rc = trotListGetList( lChildToken, TOKEN_INDEX_FINALLIST, &lChildTokenFinalList );
 				ERR_IF_PASSTHROUGH;
 
-				/* NOTE: the child token value is actually a file's token tree's final list */
+				/* if in brace, add push first */
+				if (    lTokenFinalList -> laPointsTo -> tag == TROT_TAG_CODE
+				     || lTokenFinalList -> laPointsTo -> tag == TROT_TAG_FUNCTION
+				   )
+				{
+					rc = trotListAppendInt( lTokenFinalList, TROT_OP_PUSH_LIST );
+					ERR_IF_PASSTHROUGH;
+				}
 
 				/* append */
-				rc = trotListAppendList( lTokenFinalList, lChildTokenValue );
+				rc = trotListAppendList( lTokenFinalList, lChildTokenFinalList );
 				ERR_IF_PASSTHROUGH;
 
 				break;
