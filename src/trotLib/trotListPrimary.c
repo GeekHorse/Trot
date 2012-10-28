@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Remove
 */
 
-/* TODO: make sure inserts and appends don't add more children than our maximum positive TROT_INT. then test that it works, and that minimum negative TROT_INT still errors correctly */
+/* TODO: make sure inserts and appends don't add more children than our maximum positive TROT_INT. then test that it works, and that minimum negative TROT_INT still errors correctly. Also delist. */
 
 /******************************************************************************/
 #include "trot.h"
@@ -162,7 +162,7 @@ TROT_RC trotListInit( trotList **l_A )
 	(*l_A) = newL;
 	newL = NULL;
 
-	return TROT_RC_SUCCESS; /* TODO: go through other functions, and see if we can return success before cleanup */
+	return TROT_RC_SUCCESS; /* FUTURE OPTIMIZATION: go through other functions, and see if we can return success before cleanup */
 
 
 	/* CLEANUP */
@@ -465,8 +465,6 @@ TROT_RC trotListAppendInt( trotList *l, TROT_INT n )
 
 	/* CODE */
 	la = l -> laPointsTo;
-
-/* TODO: for all insert/appends, we need to make sure list doesn't contain maximum amount of children */
 
 	/* *** */
 	node = la -> tail -> prev;
