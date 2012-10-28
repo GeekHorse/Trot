@@ -833,9 +833,9 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 
 	trotListFree( &lParentTokenStack );
 	trotListFree( &lParentTokenIndicesStack );
+	trotListFree( &lParentTokenStateStack );
 	trotListFree( &lToken );
 	trotListFree( &lTokenChildren );
-
 	trotListFree( &lChildToken );
 
 	return rc;
