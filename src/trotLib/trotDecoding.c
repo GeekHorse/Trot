@@ -56,8 +56,8 @@ static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trot
 static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree );
 
 static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList );
-static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisToken );
-static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesisTokenValue );
+static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisToken );
+static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue );
 static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParenthesisTokenValue );
@@ -78,7 +78,6 @@ static TROT_RC splitList( trotList *l, TROT_INT separator, trotList **lPartList 
 
 static TROT_RC createFinalList( trotList *lTokenTree );
 
-/* TODO: make sure enum name doesn't have same value as child list, and vice versa */
 /* TODO: make sure names cannot be same as op names */
 
 /* TODO: in here, and elsewhere, if we ever have an "index count" or another TROT_INT we increment, we need to think about overflow */
@@ -812,7 +811,7 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 			ERR_IF( stateCanHandleMetaData != 1, TROT_RC_ERROR_DECODE );
 
 			/* handle */
-			rc = handleMetaData2( lFileList, lToken, lChildToken );
+			rc = handleMetaData2( lFileList, lParentTokenStack, lToken, lChildToken );
 			ERR_IF_PASSTHROUGH;
 
 			/* remove this token */
@@ -845,6 +844,9 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 /*!
 	\brief Correctly handles a L_PARENTHESIS token.
 	\param lFileList The top-level file list
+	\param lParentTokenStack Parent token stack. Needed for (name)
+	       so we can make sure it's not the same name as the
+	       grand-parent's enum.
 	\param lParentToken The parent token of the parenthesis token
 	\param lParenthesisToken The parenthesis token
 	\return TROT_RC
@@ -854,7 +856,7 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 	Adds (include) to file list (or twins if it's aleady there).
 	Tags (function), (text), (raw) 
 */
-static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisToken )
+static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisToken )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -891,6 +893,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	/* CODE */
 	PARANOID_ERR_IF( lFileList == NULL );
+	PARANOID_ERR_IF( lParentTokenStack == NULL );
 	PARANOID_ERR_IF( lParentToken == NULL );
 	PARANOID_ERR_IF( lParenthesisToken == NULL );
 
@@ -923,7 +926,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 
 	if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 	{
-		rc = handleMetaDataName( lParentToken, lChildren );
+		rc = handleMetaDataName( lParentTokenStack, lParentToken, lChildren );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
@@ -1039,7 +1042,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentToken, tro
 	\param 
 	\return TROT_RC
 */
-static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesisTokenValue )
+static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisTokenValue )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1053,11 +1056,17 @@ static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesi
 	TROT_INT childTokenType = 0;
 	trotList *lChildValue = NULL;
 
+	TROT_INT parentTokenStackCount = 0;
+	trotList *lGrandParentToken = NULL;
+	TROT_INT enumFound = 0;
+	TROT_INT enumValue = 0;
+
 	trotList *lName = NULL;
 	TROT_INT nameCount = 0;
 
 
 	/* CODE */
+	PARANOID_ERR_IF( lParentTokenStack == NULL );
 	PARANOID_ERR_IF( lParentToken == NULL );
 	PARANOID_ERR_IF( lParenthesisTokenValue == NULL );
 
@@ -1101,6 +1110,27 @@ static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesi
 		childValueIndex += 1;
 	}
 
+	/* name cannot be the name of our grand-parent's enum */
+
+	/* do we have a grand-parent? */
+	rc = trotListGetCount( lParentTokenStack, &parentTokenStackCount );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	if ( parentTokenStackCount > 0 )
+	{
+		/* get grand-parent */
+		rc = trotListGetList( lParentTokenStack, -1, &lGrandParentToken );
+		ERR_IF_PASSTHROUGH;
+
+		/* is this name an enum in our grandparent? */
+		rc = getEnumValue( lGrandParentToken, lChildValue, &enumFound, &enumValue );
+		ERR_IF_PASSTHROUGH;
+
+		ERR_IF( enumFound == 1, TROT_RC_ERROR_DECODE );
+	}
+
+	/* TODO: make sure name isn't the same as a sibling name */
+
 	/* remove name */
 	rc = trotListRemoveList( lParentToken, TOKEN_INDEX_NAME, &lName );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
@@ -1121,6 +1151,7 @@ static TROT_RC handleMetaDataName( trotList *lParentToken, trotList *lParenthesi
 
 	trotListFree( &lChildToken );
 	trotListFree( &lChildValue );
+	trotListFree( &lGrandParentToken );
 	trotListFree( &lName );
 
 	return rc;
