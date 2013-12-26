@@ -33,6 +33,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Decodes textual format to trot list.
 */
 
+/* TODO: document this entire process somewhere
+   TODO: try to consolidate the code that goes through trees
+*/
+
 /*
 	TODO: document this somewhere
 
@@ -99,14 +103,14 @@ const char *opNames[] = {
 	"or",
 	"not",
 	"neg",
-	"pushInt",
+	"pushInt", /* TODO: these 2 are confusing. maybe rename so we know these are used to push something onto our functional stack while we're running */
 	"pushList",
 	"call",
 	"change",
 	"return",
 	"yield",
 	"loadVar",
-	"saveVar",
+	"saveVar", /* TODO: need to figure out our coroutine functions. we have yield, but what's the "resume" or whatever? */
 	NULL /* sentinel */
 };
 
@@ -210,7 +214,7 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotList *lGivenFilenameOfC
 				rc = trotTokenize( lFileCharacters, &lTokenList );
 				ERR_IF_PASSTHROUGH;
 
-				/* free lFileCharacters so it'll be NULL for next file */
+				/* free lFileCharacters so it'll be NULL for next file */ /* TODO: mvoe this to above the use, isntead of here */
 				trotListFree( &lFileCharacters );
 
 				/* change token list into a token tree */
@@ -266,12 +270,12 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotList *lGivenFilenameOfC
 			/* increment fileIndex */
 			fileIndex += 1;
 
-		} while ( fileIndex <= fileCount );
+		} while ( fileIndex <= fileCount ); /* TODO: chagne do-while to while */
 
 		/* next pass */
 		pass += 1;
 
-	} while ( pass <= 4 );
+	} while ( pass <= 4 ); /* TODO: change do-while to while */
 
 	/* get first file */
 	trotListFree( &lFile );

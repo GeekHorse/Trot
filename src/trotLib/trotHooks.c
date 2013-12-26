@@ -53,12 +53,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! This is the function that the library uses for 'calloc'. Used for unit
     testing failed callocs and in case the user of the library has their own
     memory management routines. */
-void *(*trotCalloc)( size_t nmemb, size_t size ) = calloc;
+void *(*trotHookCalloc)( size_t nmemb, size_t size ) = calloc;
 /*! This is the function that the library uses for 'malloc'. Used for unit
     testing failed mallocs and in case the user of the library has their own
     memory management routines. */
-void *(*trotMalloc)( size_t size ) = malloc;
+void *(*trotHookMalloc)( size_t size ) = malloc;
 /*! This is the function that the library uses for 'free'. Used in case the
     user of the library has their own memory management routines. */
-void (*trotFree)( void *ptr ) = free;
+void (*trotHookFree)( void *ptr ) = free;
 

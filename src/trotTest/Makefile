@@ -1,4 +1,4 @@
-.PHONY: all debug debug2 clean
+.PHONY: all fast small debug debug2 profile clean
 
 CFLAGS += -I../trotLib
 LDFLAGS += ../trotLib/libTrot.a
@@ -7,18 +7,22 @@ SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
 
-all: CFLAGS += -O3
 all: trotTest
+
+fast: CFLAGS += -O3
+fast: all
+
+small: fast
 
 debug2: debug
 
-debug: CFLAGS += -DTEST_PRECOND=1 -g
+debug: CFLAGS += -g
 debug: LDFLAGS += -fprofile-arcs
 debug: trotTest
 
 profile: CFLAGS += -pg
 profile: LDFLAGS += -pg
-profile: all
+profile: fast
 
 clean:
 	rm -f trotTest

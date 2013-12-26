@@ -1,20 +1,25 @@
-.PHONY: all debug2 debug coverage clean
+.PHONY: all fast small debug2 debug profile coverage clean
 
 SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
 
-all: CFLAGS += -O3
 all: libTrot.a
+
+fast: CFLAGS += -O3
+fast: all
+
+small: CFLAGS += -Os
+small: all
 
 debug2: CFLAGS += -DPRINT_ERR=1
 debug2: debug
 
-debug: CFLAGS += -DTROT_DEBUG=1 -DTEST_PRECOND=1 -fprofile-arcs -ftest-coverage -g
-debug: libTrot.a
+debug: CFLAGS += -DTROT_DEBUG=1 -fprofile-arcs -ftest-coverage -g
+debug: all
 
 profile: CFLAGS += -pg
-profile: all
+profile: fast
 
 coverage:
 	gcov -o . *.c

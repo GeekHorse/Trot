@@ -1,20 +1,27 @@
-.PHONY: usage all debug debug2 test vtest coverage clean trotLib trotTest
+.PHONY: usage all fast small debug debug2 profile test vtest coverage clean trotLib trotTest
 
 ARGS =
 
 CFLAGS += -Wall -Werror -Wextra
 
-# Uncomment one of the following to test that our code compiles against a standard
-#CFLAGS += -std=c89 -pedantic
-#CFLAGS += -std=c99 -pedantic
-#CFLAGS += -std=c1x -pedantic
+# targets to test against c89, c99, and c11 standards
+c89: CFLAGS += -std=c89 -pedantic
+c89: all
+
+c99: CFLAGS += -std=c99 -pedantic
+c99: all
+
+c11: CFLAGS += -std=c11 -pedantic
+c11: all
 
 export CFLAGS
 
 usage:
 	@echo "targets:"
-	@echo "  all      - build normal"
+	@echo "  fast     - build fast version"
+	@echo "  small    - build small version"
 	@echo "  debug    - build for debug"
+	@echo "  debug2   - build for debug that includes PARANOID checks and prints out errors to stdout"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
@@ -22,6 +29,12 @@ usage:
 	@echo "  clean    - cleans up files"
 
 all: trotLib trotTest
+
+fast: ARGS = fast
+fast: all
+
+small: ARGS = small
+small: all
 
 debug2: ARGS = debug2
 debug2: CFLAGS += -DBE_PARANOID
@@ -33,10 +46,10 @@ debug: all
 profile: ARGS = profile
 profile: all
 
-test: all
+test: fast
 	trotTest/trotTest -t all
 
-vtest: all
+vtest: fast
 	valgrind --leak-check=full trotTest/trotTest -t all
 
 coverage:

@@ -97,9 +97,9 @@ TROT_RC trotStackInit( trotStack **stack )
 	/* CLEANUP */
 	cleanup:
 
-	trotFree( newHead );
-	trotFree( newTail );
-	trotFree( newStack );
+	trotHookFree( newHead );
+	trotHookFree( newTail );
+	trotHookFree( newStack );
 
 	return rc;
 }
@@ -129,12 +129,12 @@ void trotStackFree( trotStack **stack )
 	{
 		node = node -> next;
 
-		trotFree( node -> prev );
+		trotHookFree( node -> prev );
 	}
 
-	trotFree( (*stack) -> tail );
+	trotHookFree( (*stack) -> tail );
 
-	trotFree( (*stack) );
+	trotHookFree( (*stack) );
 	(*stack) = NULL;
 
 	return;
@@ -226,7 +226,7 @@ TROT_RC trotStackPop( trotStack *stack, int *empty )
 	node -> prev -> next = node -> next;
 	node -> next -> prev = node -> prev;
 
-	trotFree( node );
+	trotHookFree( node );
 
 	if ( stack -> tail -> prev == stack -> head )
 	{

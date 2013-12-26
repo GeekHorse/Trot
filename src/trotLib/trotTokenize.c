@@ -424,7 +424,7 @@ TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, tro
 
 /******************************************************************************/
 /*!
-	\brief 
+	\brief TODO: why does this function name start with underscore?
 	\param 
 	\return TROT_RC
 */

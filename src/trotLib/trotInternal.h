@@ -50,13 +50,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #if ( PRINT_ERR == 1 )
 #define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != TROT_RC_SUCCESS ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
 #else
 #define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != 0 ) { goto cleanup; }
+#define ERR_IF_PASSTHROUGH if ( rc != TROT_RC_SUCCESS ) { goto cleanup; }
 #endif
 
 /******************************************************************************/
+#ifndef TEST_PRECOND
+#define TEST_PRECOND 1
+#endif
+
 #if ( TEST_PRECOND == 1 )
 
 #if ( PRINT_ERR == 1 )
@@ -84,13 +88,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) trotMalloc( sizeof( POINTER_TYPE ) * SIZE ); \
+	POINTER = ( POINTER_TYPE * ) trotHookMalloc( sizeof( POINTER_TYPE ) * (SIZE) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE ** ) trotCalloc( SIZE, sizeof( POINTER_TYPE * ) ); \
+	POINTER = ( POINTER_TYPE * ) trotHookCalloc( SIZE, sizeof( POINTER_TYPE ) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
+
+/******************************************************************************/
+#define TROT_REALLOC( POINTER2, POINTER1, POINTER_TYPE, SIZE ) \
+	POINTER2 = ( POINTER_TYPE * ) trotHookRealloc( POINTER1, sizeof( POINTER_TYPE ) * (SIZE) ); \
+	ERR_IF( POINTER2 == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 /* For trotDecodingEncoding and related tests */

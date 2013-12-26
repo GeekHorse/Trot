@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 typedef enum
 {
-	TROT_RC_SUCCESS =  0,
+	TROT_RC_SUCCESS =  0, /* TODO: paranoid is -1, rest are positive, and we need an rc-to-string function */
 	TROT_RC_ERROR_PRECOND = -1,
 	TROT_RC_ERROR_PARANOID = -2,
 	TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED = -3,
@@ -101,9 +101,9 @@ typedef struct trotList_STRUCT trotList;
 
 /******************************************************************************/
 /* trotHooks.c */
-extern void *(*trotCalloc)( size_t nmemb, size_t size );
-extern void *(*trotMalloc)( size_t size );
-extern void (*trotFree)( void *ptr );
+extern void *(*trotHookCalloc)( size_t nmemb, size_t size );
+extern void *(*trotHookMalloc)( size_t size );
+extern void (*trotHookFree)( void *ptr );
 
 /******************************************************************************/
 typedef TROT_RC (*TrotLoadFunc)( trotList *lName, trotList **lBytes );

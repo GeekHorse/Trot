@@ -146,8 +146,8 @@ int testMemory()
 	/* testing bad mallocs */
 	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
 
-	trotCalloc = badCalloc;
-	trotMalloc = badMalloc;
+	trotHookCalloc = badCalloc;
+	trotHookMalloc = badMalloc;
 
 	i = 0;
 	while ( failedFuncs[ i ].func != NULL )
@@ -181,16 +181,16 @@ int testMemory()
 	}
 
 	/* *** */
-	trotCalloc = calloc;
-	trotMalloc = malloc;
+	trotHookCalloc = calloc;
+	trotHookMalloc = malloc;
 
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
 	printf( "  Testing calloc...\n" ); fflush( stdout );
-	iArray = (int **) trotCalloc( 10, sizeof( int * ) );
+	iArray = (int **) trotHookCalloc( 10, sizeof( int * ) );
 	TEST_ERR_IF( iArray == NULL );
 	TEST_ERR_IF( iArray[ 5 ] != NULL );
-	trotFree( iArray );
+	trotHookFree( iArray );
 
 	/* **************************************** */
 	/* test memory management */
@@ -255,7 +255,7 @@ static int testMemoryManagement()
 
 	/* CODE */
 	/* create our client refs */
-	clientRefs = (trotList **) trotCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotList * ) );
+	clientRefs = (trotList **) trotHookCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotList * ) );
 	TEST_ERR_IF( clientRefs == NULL );
 
 	i = 0;
@@ -384,7 +384,7 @@ static int testMemoryManagement()
 	}
 
 	/* free our clientRef array */
-	trotFree( clientRefs );
+	trotHookFree( clientRefs );
 
 
 	/* CLEANUP */
@@ -848,7 +848,7 @@ static TROT_RC testFailedMallocs3( int test )
 
 	printf( "lEncodedList1: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 
@@ -865,7 +865,7 @@ static TROT_RC testFailedMallocs3( int test )
 
 	printf( "lEncodedList2: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 
@@ -924,7 +924,7 @@ static TROT_RC testFailedMallocs4( int test )
 
 	printf( "lEncodedList1: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 
@@ -941,7 +941,7 @@ static TROT_RC testFailedMallocs4( int test )
 
 	printf( "lEncodedList2: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 

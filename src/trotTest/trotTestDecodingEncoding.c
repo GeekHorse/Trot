@@ -129,7 +129,7 @@ static int doesFileExist( trotList *lName, TROT_INT *exist )
 
 	if ( name != NULL )
 	{
-		trotFree( name );
+		trotHookFree( name );
 	}
 
 	return rc;
@@ -452,7 +452,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 
 	printf( "lEncodedList1: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 
@@ -466,7 +466,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 
 	printf( "lEncodedList2: %s\n", s );
 
-	trotFree( s );
+	trotHookFree( s );
 	s = NULL;
 #endif
 

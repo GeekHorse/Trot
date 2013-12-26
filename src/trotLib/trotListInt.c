@@ -100,8 +100,8 @@ TROT_RC trotListIntOperand( trotList *l, TROT_OP op )
 		node -> prev -> next = node -> next;
 		node -> next -> prev = node -> prev;
 
-		trotFree( node -> n );
-		trotFree( node );
+		trotHookFree( node -> n );
+		trotHookFree( node );
 	}
 
 	/* now we can call trotListIntOperandValue */

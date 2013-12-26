@@ -192,7 +192,7 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 				rc = trotListGetInt( newLrCharacters, -1, &lastCharacter );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				if ( lastCharacter != '\t' )
+				if ( lastCharacter != '\t' ) /* TODO: consider an option to encode without newlines or tabs */
 				{
 					rc = trotListAppendInt( newLrCharacters, ' ' );
 					ERR_IF_PASSTHROUGH;
@@ -628,7 +628,7 @@ static TROT_RC appendRightB( trotList *l, trotList *lCharacters, unsigned int *i
 
 /******************************************************************************/
 /*!
-	\brief Appends a newline and indentCount tabs.
+	\brief Appends a newline and indentCount tabs. TODO maybe we dont ever need this? just output for computers, not people 
 	\param lCharacters List we're appending to. 
 	\param indentCount Current indent count.
 	\return TROT_RC
