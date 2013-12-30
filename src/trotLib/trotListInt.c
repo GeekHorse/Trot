@@ -46,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param op Which operand to do.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperand( trotList *l, TROT_OP op )
+TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -124,7 +124,7 @@ TROT_RC trotListIntOperand( trotList *l, TROT_OP op )
 	\param value Value to use with the last value in the list.
 	\return TROT_RC
 */
-TROT_RC trotListIntOperandValue( trotList *l, TROT_OP op, TROT_INT value )
+TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

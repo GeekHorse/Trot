@@ -39,7 +39,7 @@ int testBadIntegerOps()
 	/* DATA */
 	int rc = 0;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 
 	/* CODE */

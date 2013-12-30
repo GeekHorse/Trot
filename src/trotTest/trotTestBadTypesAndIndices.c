@@ -39,8 +39,8 @@ int testBadTypesAndIndices()
 	/* DATA */
 	int rc = 0;
 
-	trotList *l = NULL;
-	trotList *l2 = NULL;
+	TrotList *l = NULL;
+	TrotList *l2 = NULL;
 	TROT_KIND kind = 0;
 	TROT_INT n = 0;
 

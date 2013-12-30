@@ -44,17 +44,17 @@ extern const char *opNames[];
 #define PRINT_GOOD_TEST_ENCODINGS 0
 
 /******************************************************************************/
-static int doesFileExist( trotList *lName, TROT_INT *exist );
+static int doesFileExist( TrotList *lName, TROT_INT *exist );
 
-typedef int (*ProcessFunction)( int dirNumber, int fileNumber, trotList *lName );
+typedef int (*ProcessFunction)( int dirNumber, int fileNumber, TrotList *lName );
 static int processFiles( char *directory, ProcessFunction func );
 
-static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName );
-static int testTokenizingBad( int dirNumber, int fileNumber, trotList *lName );
-static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName );
+static int testTokenizingGood( int dirNumber, int fileNumber, TrotList *lName );
+static int testTokenizingBad( int dirNumber, int fileNumber, TrotList *lName );
+static int testEndOfLines( int dirNumber, int fileNumber, TrotList *lName );
 
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lName );
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lName );
+static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lName );
+static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lName );
 
 static int testTokenizeMore();
 
@@ -94,7 +94,7 @@ int testDecodingEncoding()
 }
 
 /******************************************************************************/
-static int doesFileExist( trotList *lName, TROT_INT *exist )
+static int doesFileExist( TrotList *lName, TROT_INT *exist )
 {
 	/* DATA */
 	int rc = 0;
@@ -152,7 +152,7 @@ static int processFiles( char *directory, ProcessFunction func )
 
 	TROT_INT exist = 0;
 
-	trotList *lName = NULL;
+	TrotList *lName = NULL;
 
 	int flagTestedAtLeastOne = 0;
 
@@ -161,7 +161,7 @@ static int processFiles( char *directory, ProcessFunction func )
 	TEST_ERR_IF( directory == NULL );
 	TEST_ERR_IF( func == NULL );
 
-	/* create trotList filename */
+	/* create TrotList filename */
 	TEST_ERR_IF( trotListInit( &lName ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( appendCStringToList( lName, directory ) != TROT_RC_SUCCESS );
@@ -240,19 +240,19 @@ static int processFiles( char *directory, ProcessFunction func )
 }
 
 /******************************************************************************/
-static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName )
+static int testTokenizingGood( int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *lBytes = NULL;
-	trotList *lCharacters = NULL;
-	trotList *lTokenList = NULL;
+	TrotList *lBytes = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lTokenList = NULL;
 
 	TROT_INT count = 0;
 	TROT_INT index = 0;
 	TROT_INT tokenType = 0;
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 
 
 	/* CODE */
@@ -305,14 +305,14 @@ static int testTokenizingGood( int dirNumber, int fileNumber, trotList *lName )
 }
 
 /******************************************************************************/
-static int testTokenizingBad( int dirNumber, int fileNumber, trotList *lName )
+static int testTokenizingBad( int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *lBytes = NULL;
-	trotList *lCharacters = NULL;
-	trotList *lTokenList = NULL;
+	TrotList *lBytes = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lTokenList = NULL;
 
 
 	/* CODE */
@@ -345,19 +345,19 @@ static int testTokenizingBad( int dirNumber, int fileNumber, trotList *lName )
 
 
 /******************************************************************************/
-static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName )
+static int testEndOfLines( int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *lBytes = NULL;
-	trotList *lCharacters = NULL;
-	trotList *lTokenList = NULL;
+	TrotList *lBytes = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lTokenList = NULL;
 
 	TROT_INT count = 0;
 	TROT_INT index = 0;
 	TROT_INT tokenType = 0;
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 
 	TROT_INT line = 0;
 	TROT_INT numberValue = 0;
@@ -421,16 +421,16 @@ static int testEndOfLines( int dirNumber, int fileNumber, trotList *lName )
 }
 
 /******************************************************************************/
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lName )
+static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *lDecodedList1 = NULL;
-	trotList *lEncodedList1 = NULL;
-	trotList *lEmptyName = NULL;
-	trotList *lDecodedList2 = NULL;
-	trotList *lEncodedList2 = NULL;
+	TrotList *lDecodedList1 = NULL;
+	TrotList *lEncodedList1 = NULL;
+	TrotList *lEmptyName = NULL;
+	TrotList *lDecodedList2 = NULL;
+	TrotList *lEncodedList2 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 #if PRINT_GOOD_TEST_ENCODINGS
@@ -490,13 +490,13 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, trotList *lN
 }
 
 /******************************************************************************/
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, trotList *lName )
+static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
 	TROT_RC trot_rc = TROT_RC_SUCCESS;
 
-	trotList *lDecodedList = NULL;
+	TrotList *lDecodedList = NULL;
 
 
 	/* CODE */
@@ -532,9 +532,9 @@ static int testTokenizeMore()
 	/* DATA */
 	int rc = 0;
 
-	trotList *lCharacters = NULL;
-	trotList *lTokens = NULL;
-	trotList *lTemp = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lTokens = NULL;
+	TrotList *lTemp = NULL;
 
 	char *s = "[ \"xyz\" word w[ w] w( w) w{ w} word #( abc #) # comment";
 	int sLen = 0;
@@ -595,9 +595,9 @@ static int testEncodingMore()
 	/* DATA */
 	int rc = 0;
 
-	trotList *l1 = NULL;
-	trotList *l2 = NULL;
-	trotList *lCharacters = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
+	TrotList *lCharacters = NULL;
 
 
 	/* CODE */

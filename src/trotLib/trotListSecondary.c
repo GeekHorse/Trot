@@ -50,12 +50,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
 	\brief Compares two lists.
 	\param l Pointer to a trotList.
-	\param lCompareTo Pointer to a trotList that you want to compare the
+	\param lCompareTo Pointer to a TrotList that you want to compare the
 		first one to.
 	\param compareResult On success, the result of the comparison.
 	\return TROT_RC
 */
-TROT_RC trotListCompare( trotList *l, trotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
+TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -214,12 +214,12 @@ TROT_RC trotListCompare( trotList *l, trotList *lCompareTo, TROT_LIST_COMPARE_RE
 /******************************************************************************/
 /*!
 	\brief Copies a list.
-	\param l Pointer to a trotList to copy.
-	\param lCopy_A Pointer to a trotList pointer that must be NULL.
+	\param l Pointer to a TrotList to copy.
+	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
 		On success, this will be a copy of the list.
 	\return TROT_RC
 */
-TROT_RC trotListCopy( trotList *l, trotList **lCopy_A )
+TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -268,7 +268,7 @@ TROT_RC trotListCopy( trotList *l, trotList **lCopy_A )
 	\param indexEnd end index of items you want to enlist.
 	\return TROT_RC
 */
-TROT_RC trotListEnlist( trotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -282,7 +282,7 @@ TROT_RC trotListEnlist( trotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 	trotListNode *startNode = NULL;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 	trotListActual *newLa = NULL;
 
 	trotListNode *newNode = NULL;
@@ -460,7 +460,7 @@ TROT_RC trotListEnlist( trotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	\param index index of list you want to delist.
 	\return TROT_RC
 */
-TROT_RC trotListDelist( trotList *l, TROT_INT index )
+TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -472,8 +472,8 @@ TROT_RC trotListDelist( trotList *l, TROT_INT index )
 	trotListNode *node = NULL;
 	trotListNode *insertBeforeThisNode = NULL;
 
-	trotList *delistL = NULL;
-	trotList *copiedL = NULL;
+	TrotList *delistL = NULL;
+	TrotList *copiedL = NULL;
 
 	int i = 0;
 
@@ -622,14 +622,14 @@ TROT_RC trotListDelist( trotList *l, TROT_INT index )
 /******************************************************************************/
 /*!
 	\brief Makes a copy of a span in a list.
-	\param l Pointer to a trotList that you want to copy a span in.
+	\param l Pointer to a TrotList that you want to copy a span in.
 	\param indexStart index of start of span.
 	\param indexEnd index of end of span.
-	\param lCopy_A Pointer to a trotList pointer that must be NULL.
+	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
 		On success, this will be a copy of the span.
 	\return TROT_RC
 */
-TROT_RC trotListCopySpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd, trotList **lCopy_A )
+TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -638,7 +638,7 @@ TROT_RC trotListCopySpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd, t
 
 	TROT_INT tempI = 0;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 	trotListNode *node = NULL;
 	trotListNode *tail = NULL;
@@ -753,17 +753,17 @@ TROT_RC trotListCopySpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd, t
 /******************************************************************************/
 /*!
 	\brief Removes a span in a list.
-	\param l Pointer to a trotList that you want to remove a span in.
+	\param l Pointer to a TrotList that you want to remove a span in.
 	\param indexStart index of start of span.
 	\param indexEnd index of end of span.
 	\return TROT_RC
 */
-TROT_RC trotListRemoveSpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lRemoved = NULL;
+	TrotList *lRemoved = NULL;
 
 
 	/* PRECOND */

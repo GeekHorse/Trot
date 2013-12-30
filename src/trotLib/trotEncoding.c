@@ -44,11 +44,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern const char *opNames[];
 
 /******************************************************************************/
-static TROT_RC appendLeftBAndTag( trotList *l, int topList, trotList *lCharacters, unsigned int *indentCount );
-static TROT_RC appendRightB( trotList *l, trotList *lCharacters, unsigned int *indentCount );
-static TROT_RC appendNewlineIndents( trotList *lCharacters, unsigned int indentCount );
-static TROT_RC appendNumber( trotList *lCharacters, int *characterCount, TROT_INT n );
-static TROT_RC appendAbsTwinLocation( trotList *lCharacters, int *characterCount, trotList *l );
+static TROT_RC appendLeftBAndTag( TrotList *l, int topList, TrotList *lCharacters, unsigned int *indentCount );
+static TROT_RC appendRightB( TrotList *l, TrotList *lCharacters, unsigned int *indentCount );
+static TROT_RC appendNewlineIndents( TrotList *lCharacters, unsigned int indentCount );
+static TROT_RC appendNumber( TrotList *lCharacters, int *characterCount, TROT_INT n );
+static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, int *characterCount, TrotList *l );
 
 /******************************************************************************/
 /*!
@@ -56,21 +56,21 @@ static TROT_RC appendAbsTwinLocation( trotList *lCharacters, int *characterCount
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
+TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newLrCharacters = NULL;
+	TrotList *newLrCharacters = NULL;
 	TROT_INT lastCharacter = 0;
 
-	trotList *lParentStack = NULL;
+	TrotList *lParentStack = NULL;
 	TROT_INT parentStackCount = 0;
 
-	trotList *lParentIndicesStack = NULL;
+	TrotList *lParentIndicesStack = NULL;
 
 	TROT_TAG currentTag = TROT_TAG_DATA;
-	trotList *lCurrentList = NULL;
+	TrotList *lCurrentList = NULL;
 	TROT_INT childrenCount = 0;
 	TROT_INT index = 0;
 
@@ -82,7 +82,7 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 
 	TROT_INT n = 0;
 
-	trotList *lChildList = NULL;
+	TrotList *lChildList = NULL;
 
 	const char *s = NULL;
 
@@ -482,7 +482,7 @@ TROT_RC trotEncode( trotList *l, trotList **lCharacters_A )
 	\param indentCount Current indent count.
 	\return TROT_RC
 */
-static TROT_RC appendLeftBAndTag( trotList *l, int topList, trotList *lCharacters, unsigned int *indentCount )
+static TROT_RC appendLeftBAndTag( TrotList *l, int topList, TrotList *lCharacters, unsigned int *indentCount )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -579,7 +579,7 @@ static TROT_RC appendLeftBAndTag( trotList *l, int topList, trotList *lCharacter
 	\param indentCount Current indent count.
 	\return TROT_RC
 */
-static TROT_RC appendRightB( trotList *l, trotList *lCharacters, unsigned int *indentCount )
+static TROT_RC appendRightB( TrotList *l, TrotList *lCharacters, unsigned int *indentCount )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -633,7 +633,7 @@ static TROT_RC appendRightB( trotList *l, trotList *lCharacters, unsigned int *i
 	\param indentCount Current indent count.
 	\return TROT_RC
 */
-static TROT_RC appendNewlineIndents( trotList *lCharacters, unsigned int indentCount )
+static TROT_RC appendNewlineIndents( TrotList *lCharacters, unsigned int indentCount )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -672,7 +672,7 @@ static TROT_RC appendNewlineIndents( trotList *lCharacters, unsigned int indentC
 	\param characterCount Current character count that we'll update.
 	\return TROT_RC
 */
-static TROT_RC appendNumber( trotList *lCharacters, int *characterCount, TROT_INT n )
+static TROT_RC appendNumber( TrotList *lCharacters, int *characterCount, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -762,7 +762,7 @@ static TROT_RC appendNumber( trotList *lCharacters, int *characterCount, TROT_IN
 	\param 
 	\return TROT_RC
 */
-static TROT_RC appendAbsTwinLocation( trotList *lCharacters, int *characterCount, trotList *l )
+static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, int *characterCount, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -771,7 +771,7 @@ static TROT_RC appendAbsTwinLocation( trotList *lCharacters, int *characterCount
 
 	char *s = "top";
 
-	trotList *lAddress = NULL;
+	TrotList *lAddress = NULL;
 	TROT_INT address = 0;
 
 	TROT_INT index = 0;

@@ -38,8 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC trotUpgradeWordToNumber( trotList *lToken );
-static TROT_RC trotSkipComments( trotList *lCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column );
+static TROT_RC trotUpgradeWordToNumber( TrotList *lToken );
+static TROT_RC trotSkipComments( TrotList *lCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column );
 static int trotIsWhitespace( TROT_INT character );
 static int trotIsNewline( TROT_INT character );
 
@@ -50,16 +50,16 @@ static int trotIsNewline( TROT_INT character );
 	\param lTokens_A On success, list of tokens
 	\return TROT_RC
 */
-TROT_RC trotTokenize( trotList *lCharacters, trotList **lTokenList_A )
+TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newLTokenList = NULL;
+	TrotList *newLTokenList = NULL;
 
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 
-	trotList *lValue = NULL;
+	TrotList *lValue = NULL;
 
 	TROT_INT count = 0;
 	TROT_INT i = 0;
@@ -303,14 +303,14 @@ TROT_RC trotTokenize( trotList *lCharacters, trotList **lTokenList_A )
 	\param lToken_A On success, new token.
 	\return TROT_RC
 */
-TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotList **lToken_A )
+TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, TrotList **lToken_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newToken = NULL;
+	TrotList *newToken = NULL;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 
 	/* PRECOND */
@@ -428,7 +428,7 @@ TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, tro
 	\param 
 	\return TROT_RC
 */
-TROT_RC _trotWordToNumber( trotList *lWord, int *isNumber, TROT_INT *number )
+TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -625,12 +625,12 @@ TROT_RC _trotWordToNumber( trotList *lWord, int *isNumber, TROT_INT *number )
 	\param lToken Token
 	\return TROT_RC
 */
-static TROT_RC trotUpgradeWordToNumber( trotList *lToken )
+static TROT_RC trotUpgradeWordToNumber( TrotList *lToken )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lValue = NULL;
+	TrotList *lValue = NULL;
 	int isNumber = 0;
 	TROT_INT number = 0;
 
@@ -672,7 +672,7 @@ static TROT_RC trotUpgradeWordToNumber( trotList *lToken )
 	\param 
 	\return TROT_RC
 */
-static TROT_RC trotSkipComments( trotList *lCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column )
+static TROT_RC trotSkipComments( TrotList *lCharacters, TROT_INT count, TROT_INT *i, TROT_INT *line, TROT_INT *column )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

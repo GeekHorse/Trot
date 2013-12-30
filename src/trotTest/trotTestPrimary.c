@@ -47,7 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( trotList **, int ) =
+static int (*createFunctions[])( TrotList **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -60,14 +60,14 @@ static int (*createFunctions[])( trotList **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testPrepend( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAppend( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddToMiddle( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddAtOddIndices( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
 
-static int testReplace( trotList *l, int intsOrLists, int positiveOrNegativeIndices );
+static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndices );
 
-static int (*testFunctions[])( trotList *, int, int, int ) = 
+static int (*testFunctions[])( TrotList *, int, int, int ) = 
 	{
 		testPrepend,
 		testAppend,
@@ -86,7 +86,7 @@ int testPrimaryFunctionality()
 	int i = 0;
 	int j = 0;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 	TROT_TAG tag = TROT_TAG_DATA;
 
 
@@ -201,7 +201,7 @@ int testPrimaryFunctionality()
 }
 
 /******************************************************************************/
-static int testPrepend( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -220,7 +220,7 @@ static int testPrepend( trotList *l, int intsOrLists, int removeSpecificOrGeneri
 	TROT_INT testOriginal = 0;
 
 	TROT_INT removedN = 0;
-	trotList *removedL = NULL;
+	TrotList *removedL = NULL;
 
 
 	/* CODE */
@@ -378,7 +378,7 @@ static int testPrepend( trotList *l, int intsOrLists, int removeSpecificOrGeneri
 }
 
 /******************************************************************************/
-static int testAppend( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -397,7 +397,7 @@ static int testAppend( trotList *l, int intsOrLists, int removeSpecificOrGeneric
 	TROT_INT testOriginal = 0;
 
 	TROT_INT removedN = 0;
-	trotList *removedL = NULL;
+	TrotList *removedL = NULL;
 
 
 	/* CODE */
@@ -555,7 +555,7 @@ static int testAppend( trotList *l, int intsOrLists, int removeSpecificOrGeneric
 }
 
 /******************************************************************************/
-static int testAddToMiddle( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -574,7 +574,7 @@ static int testAddToMiddle( trotList *l, int intsOrLists, int removeSpecificOrGe
 	TROT_INT testOriginal = 0;
 
 	TROT_INT removedN = 0;
-	trotList *removedL = NULL;
+	TrotList *removedL = NULL;
 
 	TROT_INT startedAddingAtIndex = 0;
 
@@ -758,7 +758,7 @@ static int testAddToMiddle( trotList *l, int intsOrLists, int removeSpecificOrGe
 }
 
 /******************************************************************************/
-static int testAddAtOddIndices( trotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -777,7 +777,7 @@ static int testAddAtOddIndices( trotList *l, int intsOrLists, int removeSpecific
 	TROT_INT testOriginal = 0;
 
 	TROT_INT removedN = 0;
-	trotList *removedL = NULL;
+	TrotList *removedL = NULL;
 
 
 	/* CODE */
@@ -964,7 +964,7 @@ static int testAddAtOddIndices( trotList *l, int intsOrLists, int removeSpecific
 }
 
 /******************************************************************************/
-static int testReplace( trotList *l, int intsOrLists, int positiveOrNegativeIndices )
+static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -977,7 +977,7 @@ static int testReplace( trotList *l, int intsOrLists, int positiveOrNegativeIndi
 
 	TROT_KIND kind;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 	TROT_INT index = 0;
 

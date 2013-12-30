@@ -45,7 +45,7 @@ int testUnicode()
 	/* DATA */
 	int rc = TROT_RC_SUCCESS;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 
 	/* CODE */
@@ -167,9 +167,9 @@ static int testCharacterToUtf8ToCharacter( TROT_INT start, TROT_INT end, int num
 
 	TROT_INT characterIn = 0;
 	TROT_INT characterOut = 0;
-	trotList *lCharacterIn = NULL;
-	trotList *lBytes = NULL;
-	trotList *lCharacterOut = NULL;
+	TrotList *lCharacterIn = NULL;
+	TrotList *lBytes = NULL;
+	TrotList *lCharacterOut = NULL;
 
 	TROT_INT numberOfBytesActual = 0;
 	TROT_INT numberOfCharacters = 0;
@@ -220,8 +220,8 @@ static int testBadKind( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT
 	/* DATA */
 	int rc = 0;
 
-	trotList *lIn = NULL;
-	trotList *lOut = NULL;
+	TrotList *lIn = NULL;
+	TrotList *lOut = NULL;
 
 
 	/* CODE */
@@ -282,8 +282,8 @@ static int testBadByte( TROT_INT byte1, TROT_INT byte2, TROT_INT byte3, TROT_INT
 	/* DATA */
 	int rc = 0;
 
-	trotList *lIn = NULL;
-	trotList *lOut = NULL;
+	TrotList *lIn = NULL;
+	TrotList *lOut = NULL;
 
 
 	/* CODE */
@@ -313,8 +313,8 @@ static int testBadCharacter( TROT_INT character )
 	/* DATA */
 	int rc = 0;
 
-	trotList *lIn = NULL;
-	trotList *lOut = NULL;
+	TrotList *lIn = NULL;
+	TrotList *lOut = NULL;
 
 
 	/* CODE */

@@ -66,12 +66,12 @@ void *badMalloc( size_t size )
 	return malloc( size );
 }
 
-TROT_RC badLoad( trotList *lName, trotList **lBytes )
+TROT_RC badLoad( TrotList *lName, TrotList **lBytes )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newLrBytes = NULL;
+	TrotList *newLrBytes = NULL;
 
 
 	/* CODE */
@@ -237,11 +237,11 @@ static int testMemoryManagement()
 	int i = 0;
 	int j = 0;
 
-	trotList **clientRefs = NULL;
+	TrotList **clientRefs = NULL;
 
 	int r = 0;
 
-	trotList *ref = NULL;
+	TrotList *ref = NULL;
 
 	int howManyToAdd = 0;
 	TROT_INT count = 0;
@@ -255,7 +255,7 @@ static int testMemoryManagement()
 
 	/* CODE */
 	/* create our client refs */
-	clientRefs = (trotList **) trotHookCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( trotList * ) );
+	clientRefs = (TrotList **) trotHookCalloc( MEMORY_MANAGEMENT_REFS_COUNT, sizeof( TrotList * ) );
 	TEST_ERR_IF( clientRefs == NULL );
 
 	i = 0;
@@ -401,10 +401,10 @@ static int testDeepList()
 
 	int i = 0;
 
-	trotList *refHead = NULL;
+	TrotList *refHead = NULL;
 
-	trotList *ref1 = NULL;
-	trotList *ref2 = NULL;
+	TrotList *ref1 = NULL;
+	TrotList *ref2 = NULL;
 
 
 	/* CODE */
@@ -456,9 +456,9 @@ static TROT_RC testFailedMallocs1( int test )
 	int i = 0;
 	int j = 0;
 
-	trotList *l1 = NULL;
-	trotList *l2 = NULL;
-	trotList *l3 = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
+	TrotList *l3 = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
@@ -746,8 +746,8 @@ static TROT_RC testFailedMallocs2( int test )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lCharacters = NULL;
-	trotList *lTokens = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lTokens = NULL;
 
 	char *s1 = "[](){} 1 \"a\" xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
@@ -812,12 +812,12 @@ static TROT_RC testFailedMallocs3( int test )
 	"{(function) [(include \"x\")] }",
 	};
 
-	trotList *lCharacters = NULL;
-	trotList *lDecodedList1 = NULL;
-	trotList *lEncodedList1 = NULL;
-	trotList *lEmptyName = NULL;
-	trotList *lDecodedList2 = NULL;
-	trotList *lEncodedList2 = NULL;
+	TrotList *lCharacters = NULL;
+	TrotList *lDecodedList1 = NULL;
+	TrotList *lEncodedList1 = NULL;
+	TrotList *lEmptyName = NULL;
+	TrotList *lDecodedList2 = NULL;
+	TrotList *lEncodedList2 = NULL;
 
 #if PRINT_ENCODED_LISTS
 	char *s = NULL;
@@ -894,11 +894,11 @@ static TROT_RC testFailedMallocs4( int test )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lDecodedList1 = NULL;
-	trotList *lEncodedList1 = NULL;
-	trotList *lEmptyName = NULL;
-	trotList *lDecodedList2 = NULL;
-	trotList *lEncodedList2 = NULL;
+	TrotList *lDecodedList1 = NULL;
+	TrotList *lEncodedList1 = NULL;
+	TrotList *lEmptyName = NULL;
+	TrotList *lDecodedList2 = NULL;
+	TrotList *lEncodedList2 = NULL;
 
 #if PRINT_ENCODED_LISTS
 	char *s = NULL;

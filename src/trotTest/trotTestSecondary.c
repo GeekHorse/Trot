@@ -38,11 +38,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* helper functions */
-static int compare( trotList *l1, trotList *l2, int shouldBeEqual );
+static int compare( TrotList *l1, TrotList *l2, int shouldBeEqual );
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( trotList **, int ) =
+static int (*createFunctions[])( TrotList **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -58,11 +58,11 @@ static int (*createFunctions[])( trotList **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testCopyCompare( int (*createFunction)( trotList **, int ), int size );
-static int testEnlistDelist( int (*createFunction)( trotList **, int ), int size );
-static int testSpans( int (*createFunction)( trotList **, int ), int size );
+static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size );
+static int testEnlistDelist( int (*createFunction)( TrotList **, int ), int size );
+static int testSpans( int (*createFunction)( TrotList **, int ), int size );
 
-static int (*testFunctions[])( int (*)( trotList **, int ), int ) = 
+static int (*testFunctions[])( int (*)( TrotList **, int ), int ) = 
 	{
 		testCopyCompare,
 		testEnlistDelist,
@@ -128,7 +128,7 @@ int testSecondaryFunctionality()
 }
 
 /******************************************************************************/
-static int compare( trotList *l1, trotList *l2, int shouldBeEqual )
+static int compare( TrotList *l1, TrotList *l2, int shouldBeEqual )
 {
 	/* DATA */
 	int rc = 0;
@@ -174,18 +174,18 @@ static int compare( trotList *l1, trotList *l2, int shouldBeEqual )
 }
 
 /******************************************************************************/
-static int testCopyCompare( int (*createFunction)( trotList **, int ), int size )
+static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *l1 = NULL;
-	trotList *l1Copy = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l1Copy = NULL;
 
 	TROT_TAG tag1 = TROT_TAG_DATA;
 	TROT_TAG tag2 = TROT_TAG_DATA;
 
-	trotList *l2 = NULL;
+	TrotList *l2 = NULL;
 
 	TROT_INT index = 0;
 
@@ -357,15 +357,15 @@ static int testCopyCompare( int (*createFunction)( trotList **, int ), int size 
 }
 
 /******************************************************************************/
-static int testEnlistDelist( int (*createFunction)( trotList **, int ), int size )
+static int testEnlistDelist( int (*createFunction)( TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *l1 = NULL;
-	trotList *l2 = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
 
-	trotList *lEmpty = NULL;
+	TrotList *lEmpty = NULL;
 
 	TROT_INT index1 = 0;
 	TROT_INT index2 = 0;
@@ -451,15 +451,15 @@ static int testEnlistDelist( int (*createFunction)( trotList **, int ), int size
 }
 
 /******************************************************************************/
-static int testSpans( int (*createFunction)( trotList **, int ), int size )
+static int testSpans( int (*createFunction)( TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *l1 = NULL;
-	trotList *l2 = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
 
-	trotList *lSpan = NULL;
+	TrotList *lSpan = NULL;
 
 	TROT_INT index1 = 0;
 	TROT_INT index2 = 0;

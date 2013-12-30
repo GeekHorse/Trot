@@ -179,7 +179,7 @@ typedef struct trotListNode_STRUCT trotListNode;
 typedef struct trotListActual_STRUCT trotListActual;
 typedef struct trotListRefListNode_STRUCT trotListRefListNode;
 
-/*! Data in a trotList is stored in a linked list of trotListNodes. */
+/*! Data in a TrotList is stored in a linked list of trotListNodes. */
 struct trotListNode_STRUCT
 {
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
@@ -192,7 +192,7 @@ struct trotListNode_STRUCT
 	TROT_INT *n;
 	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
 	NODE_SIZE of type trotList*, else l will be NULL. */
-	trotList **l;
+	TrotList **l;
 
 	/*! prev points to previous node in the linked list, or same node if
 	this is the head of the list. */
@@ -245,8 +245,8 @@ struct trotListActual_STRUCT
 	trotListNode *tail;
 };
 
-/*! trotListRef is a reference to a trotList */
-struct trotList_STRUCT
+/*! trotListRef is a reference to a TrotList */
+struct TrotList_STRUCT
 {
 	/*! The list that this ref is inside of. */
 	trotListActual *laParent;
@@ -254,7 +254,7 @@ struct trotList_STRUCT
 	trotListActual *laPointsTo;
 };
 
-/*! Structure for holding a linked list of references. Used in trotList to keep
+/*! Structure for holding a linked list of references. Used in TrotList to keep
 track of which references points to the trotList. */
 struct trotListRefListNode_STRUCT
 {
@@ -262,8 +262,8 @@ struct trotListRefListNode_STRUCT
 	int count;
 	/*! l will be NULL if this is the head or tail of the linked list.
 	else this will be an array of size REF_LIST_NODE_SIZE of type
-	trotList */
-	trotList **l;
+	TrotList */
+	TrotList **l;
 	/*! points to the next node in the linked list, or to itself if this is
 	the tail. */
 	trotListRefListNode *next;
@@ -330,14 +330,14 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 /* trotTokenize.c */
-TROT_RC trotTokenize( trotList *lCharacters, trotList **lTokenList_A );
-TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, trotList **lToken_A );
-TROT_RC _trotWordToNumber( trotList *lWord, int *isNumber, TROT_INT *number );
+TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A );
+TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, TrotList **lToken_A );
+TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number );
 
 /******************************************************************************/
 /* trotListInt.c */
-TROT_RC trotListIntOperand( trotList *l, TROT_OP op );
-TROT_RC trotListIntOperandValue( trotList *l, TROT_OP op, TROT_INT value );
+TROT_RC trotListIntOperand( TrotList *l, TROT_OP op );
+TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
 
 /******************************************************************************/
 #endif

@@ -56,20 +56,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *la, trotList *l );
-static void _refListRemove( trotListActual *la, trotList *l );
+static TROT_RC _refListAdd( trotListActual *la, TrotList *l );
+static void _refListRemove( trotListActual *la, TrotList *l );
 
 static void _isListReachable( trotListActual *la );
 static int _findNextParent( trotListActual *la, int queryVisited, trotListActual **parent );
 
 /******************************************************************************/
 /*!
-	\brief Allocates a new trotList reference to a new list.
-	\param l_A Pointer to a trotList pointer that must be NULL. On
-		success, this will point to a new trotList reference.
+	\brief Allocates a new TrotList reference to a new list.
+	\param l_A Pointer to a TrotList pointer that must be NULL. On
+		success, this will point to a new TrotList reference.
 	\return TROT_RC
 */
-TROT_RC trotListInit( trotList **l_A )
+TROT_RC trotListInit( TrotList **l_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -80,7 +80,7 @@ TROT_RC trotListInit( trotList **l_A )
 	trotListNode *newHead = NULL;
 	trotListNode *newTail = NULL;
 	trotListActual *newLa = NULL;
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 
 	/* PRECOND */
@@ -147,7 +147,7 @@ TROT_RC trotListInit( trotList **l_A )
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	TROT_MALLOC( newL, trotList, 1 );
+	TROT_MALLOC( newL, TrotList, 1 );
 
 	newL -> laParent = NULL;
 
@@ -195,18 +195,18 @@ TROT_RC trotListInit( trotList **l_A )
 
 /******************************************************************************/
 /*!
-	\brief Twins a trotList reference.
-	\param l Pointer to the trotList pointer to be twinned.
-	\param lTwin_A Pointer to a trotList pointer that must be NULL. On
-		success, this will point to a new trotList reverence.
+	\brief Twins a TrotList reference.
+	\param l Pointer to the TrotList pointer to be twinned.
+	\param lTwin_A Pointer to a TrotList pointer that must be NULL. On
+		success, this will point to a new TrotList reverence.
 	\return TROT_RC
 */
-TROT_RC trotListTwin( trotList *l, trotList **lTwin_A )
+TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 
 	/* PRECOND */
@@ -216,7 +216,7 @@ TROT_RC trotListTwin( trotList *l, trotList **lTwin_A )
 
 
 	/* CODE */
-	TROT_MALLOC( newL, trotList, 1 );
+	TROT_MALLOC( newL, TrotList, 1 );
 
 	newL -> laParent = NULL;
 	newL -> laPointsTo = l -> laPointsTo;
@@ -242,14 +242,14 @@ TROT_RC trotListTwin( trotList *l, trotList **lTwin_A )
 
 /******************************************************************************/
 /*!
-	\brief Frees a trotList reference. Actual list will be trotHookFreed if this
+	\brief Frees a TrotList reference. Actual list will be trotHookFreed if this
 		is the last reference.
-	\param l_F Pointer to a trotList pointer.
+	\param l_F Pointer to a TrotList pointer.
 		(*l_F) can be NULL, in which case nothing will happen.
 		On return, (*l_F) will be NULL.
 	\return void
 */
-void trotListFree( trotList **l_F )
+void trotListFree( TrotList **l_F )
 {
 	/* DATA */
 	trotListActual *la = NULL;
@@ -360,11 +360,11 @@ void trotListFree( trotList **l_F )
 /******************************************************************************/
 /*!
 	\brief Gets the count of items in the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param c On success, will contain the count of this list.
 	\return TROT_RC
 */
-TROT_RC trotListGetCount( trotList *l, TROT_INT *c )
+TROT_RC trotListGetCount( TrotList *l, TROT_INT *c )
 {
 	/* PRECOND */
 	PRECOND_ERR_IF( l == NULL );
@@ -380,12 +380,12 @@ TROT_RC trotListGetCount( trotList *l, TROT_INT *c )
 /******************************************************************************/
 /*!
 	\brief Gets the kind of an item in the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Index of the item.
 	\param kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListGetKind( trotList *l, TROT_INT index, TROT_KIND *kind )
+TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -444,11 +444,11 @@ TROT_RC trotListGetKind( trotList *l, TROT_INT index, TROT_KIND *kind )
 /******************************************************************************/
 /*!
 	\brief Appends an int to the end of the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListAppendInt( trotList *l, TROT_INT n )
+TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -506,11 +506,11 @@ TROT_RC trotListAppendInt( trotList *l, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Appends a list twin to the end of the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param lToAppend The list to twin and append.
 	\return TROT_RC
 */
-TROT_RC trotListAppendList( trotList *l, trotList *lToAppend )
+TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -520,7 +520,7 @@ TROT_RC trotListAppendList( trotList *l, trotList *lToAppend )
 
 	trotListNode *newNode = NULL;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 
 	/* PRECOND */
@@ -579,12 +579,12 @@ TROT_RC trotListAppendList( trotList *l, trotList *lToAppend )
 /******************************************************************************/
 /*!
 	\brief Inserts an int into the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Where to insert.
 	\param n The int value to insert.
 	\return TROT_RC
 */
-TROT_RC trotListInsertInt( trotList *l, TROT_INT index, TROT_INT n )
+TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -742,12 +742,12 @@ TROT_RC trotListInsertInt( trotList *l, TROT_INT index, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Inserts a twin of a list into the list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Where to insert.
 	\param lToInsert The list to insert.
 	\return TROT_RC
 */
-TROT_RC trotListInsertList( trotList *l, TROT_INT index, trotList *lToInsert )
+TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -763,7 +763,7 @@ TROT_RC trotListInsertList( trotList *l, TROT_INT index, trotList *lToInsert )
 
 	trotListNode *newNode = NULL;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 
 	/* PRECOND */
@@ -937,12 +937,12 @@ TROT_RC trotListInsertList( trotList *l, TROT_INT index, trotList *lToInsert )
 /******************************************************************************/
 /*!
 	\brief Gets copy of int in list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Which int to get.
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListGetInt( trotList *l, TROT_INT index, TROT_INT *n )
+TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1004,12 +1004,12 @@ TROT_RC trotListGetInt( trotList *l, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets list ref of list in list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Which list to get.
 	\param lTwin_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListGetList( trotList *l, TROT_INT index, trotList **lTwin_A )
+TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1018,7 +1018,7 @@ TROT_RC trotListGetList( trotList *l, TROT_INT index, trotList **lTwin_A )
 
 	TROT_INT count = 0;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 
 	/* PRECOND */
@@ -1074,12 +1074,12 @@ TROT_RC trotListGetList( trotList *l, TROT_INT index, trotList **lTwin_A )
 /******************************************************************************/
 /*!
 	\brief Gets and removes int ref of list in list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Which int to get and remove.
 	\param n On success, will point to int.
 	\return TROT_RC
 */
-TROT_RC trotListRemoveInt( trotList *l, TROT_INT index, TROT_INT *n )
+TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1161,12 +1161,12 @@ TROT_RC trotListRemoveInt( trotList *l, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets and removes list ref of list in list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index Which list to get.
 	\param lRemoved_A On success, will point to list ref.
 	\return TROT_RC
 */
-TROT_RC trotListRemoveList( trotList *l, TROT_INT index, trotList **lRemoved_A )
+TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1175,7 +1175,7 @@ TROT_RC trotListRemoveList( trotList *l, TROT_INT index, trotList **lRemoved_A )
 
 	TROT_INT count = 0;
 
-	trotList *giveBackL = NULL;
+	TrotList *giveBackL = NULL;
 
 	int i = 0;
 
@@ -1250,11 +1250,11 @@ TROT_RC trotListRemoveList( trotList *l, TROT_INT index, trotList **lRemoved_A )
 /******************************************************************************/
 /*!
 	\brief Removes whatever is at index in list.
-	\param l Pointer to a trotList pointer.
+	\param l Pointer to a TrotList pointer.
 	\param index What to remove.
 	\return TROT_RC
 */
-TROT_RC trotListRemove( trotList *l, TROT_INT index )
+TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1263,7 +1263,7 @@ TROT_RC trotListRemove( trotList *l, TROT_INT index )
 
 	TROT_INT count = 0;
 
-	trotList *tempL = NULL;
+	TrotList *tempL = NULL;
 
 	int i = 0;
 
@@ -1354,7 +1354,7 @@ TROT_RC trotListRemove( trotList *l, TROT_INT index )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListReplaceWithInt( trotList *l, TROT_INT index, TROT_INT n )
+TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1365,7 +1365,7 @@ TROT_RC trotListReplaceWithInt( trotList *l, TROT_INT index, TROT_INT n )
 
 	TROT_INT count = 0;
 
-	trotList *tempL = NULL;
+	TrotList *tempL = NULL;
 
 	int i = 0;
 	int j = 0;
@@ -1542,7 +1542,7 @@ TROT_RC trotListReplaceWithInt( trotList *l, TROT_INT index, TROT_INT n )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListReplaceWithList( trotList *l, TROT_INT index, trotList *lToInsert )
+TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1553,9 +1553,9 @@ TROT_RC trotListReplaceWithList( trotList *l, TROT_INT index, trotList *lToInser
 
 	TROT_INT count = 0;
 
-	trotList *tempL = NULL;
+	TrotList *tempL = NULL;
 
-	trotList *newL = NULL;
+	TrotList *newL = NULL;
 
 	int i = 0;
 	int j = 0;
@@ -1755,7 +1755,7 @@ TROT_RC trotListReplaceWithList( trotList *l, TROT_INT index, trotList *lToInser
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListGetTag( trotList *l, TROT_TAG *tag )
+TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1782,7 +1782,7 @@ TROT_RC trotListGetTag( trotList *l, TROT_TAG *tag )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListSetTag( trotList *l, TROT_TAG tag )
+TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1851,7 +1851,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
 		newNode -> count = (n -> count) - keepInLeft;
 
 		newNode -> n = NULL;
-		TROT_CALLOC( newNode -> l, trotList *, NODE_SIZE );
+		TROT_CALLOC( newNode -> l, TrotList *, NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n -> count) )
@@ -1947,7 +1947,7 @@ TROT_RC newListNode( trotListNode **n_A )
 	newNode -> count = 0;
 
 	newNode -> n = NULL;
-	TROT_CALLOC( newNode -> l, trotList *, NODE_SIZE );
+	TROT_CALLOC( newNode -> l, TrotList *, NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -1965,7 +1965,7 @@ TROT_RC newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *la, trotList *l )
+static TROT_RC _refListAdd( trotListActual *la, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1997,7 +1997,7 @@ static TROT_RC _refListAdd( trotListActual *la, trotList *l )
 	   node, and insert node into list */
 	TROT_MALLOC( newRefNode, trotListRefListNode, 1 );
 
-	TROT_CALLOC( newRefNode -> l, trotList *, REF_LIST_NODE_SIZE );
+	TROT_CALLOC( newRefNode -> l, TrotList *, REF_LIST_NODE_SIZE );
 
 	newRefNode -> count = 1;
 	newRefNode -> l[ 0 ] = l;
@@ -2019,7 +2019,7 @@ static TROT_RC _refListAdd( trotListActual *la, trotList *l )
 }
 
 /******************************************************************************/
-static void _refListRemove( trotListActual *la, trotList *l )
+static void _refListRemove( trotListActual *la, TrotList *l )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;

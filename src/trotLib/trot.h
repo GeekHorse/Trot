@@ -97,7 +97,7 @@ typedef enum
 } TROT_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
-typedef struct trotList_STRUCT trotList; /* TODO: rename this TrotList */
+typedef struct TrotList_STRUCT TrotList;
 
 /******************************************************************************/
 /* trotHooks.c */
@@ -106,59 +106,59 @@ extern void *(*trotHookMalloc)( size_t size );
 extern void (*trotHookFree)( void *ptr );
 
 /******************************************************************************/
-typedef TROT_RC (*TrotLoadFunc)( trotList *lName, trotList **lBytes );
+typedef TROT_RC (*TrotLoadFunc)( TrotList *lName, TrotList **lBytes );
 
 /******************************************************************************/
 /* trotListPrimary.c */
-TROT_RC trotListInit( trotList **l_A );
-TROT_RC trotListTwin( trotList *l, trotList **lTwin_A );
-void trotListFree( trotList **l_F );
+TROT_RC trotListInit( TrotList **l_A );
+TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A );
+void trotListFree( TrotList **l_F );
 
-TROT_RC trotListGetCount( trotList *l, TROT_INT *c );
+TROT_RC trotListGetCount( TrotList *l, TROT_INT *c );
 
-TROT_RC trotListGetKind( trotList *l, TROT_INT index, TROT_KIND *kind );
+TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind );
 
-TROT_RC trotListAppendInt( trotList *l, TROT_INT n );
-TROT_RC trotListAppendList( trotList *l, trotList *lToAppend );
+TROT_RC trotListAppendInt( TrotList *l, TROT_INT n );
+TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend );
 
-TROT_RC trotListInsertInt( trotList *l, TROT_INT index, TROT_INT n );
-TROT_RC trotListInsertList( trotList *l, TROT_INT index, trotList *lToInsert );
+TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n );
+TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert );
 
-TROT_RC trotListGetInt( trotList *l, TROT_INT index, TROT_INT *n );
-TROT_RC trotListGetList( trotList *l, TROT_INT index, trotList **lTwin_A );
+TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n );
+TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A );
 
-TROT_RC trotListRemoveInt( trotList *l, TROT_INT index, TROT_INT *n );
-TROT_RC trotListRemoveList( trotList *l, TROT_INT index, trotList **lRemoved_A );
-TROT_RC trotListRemove( trotList *l, TROT_INT index );
+TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n );
+TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A );
+TROT_RC trotListRemove( TrotList *l, TROT_INT index );
 
-TROT_RC trotListReplaceWithInt( trotList *l, TROT_INT index, TROT_INT n );
-TROT_RC trotListReplaceWithList( trotList *l, TROT_INT index, trotList *lToInsert );
+TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n );
+TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert );
 
-TROT_RC trotListGetTag( trotList *l, TROT_TAG *tag );
-TROT_RC trotListSetTag( trotList *l, TROT_TAG tag );
+TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag );
+TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag );
 
 /******************************************************************************/
 /* trotListSecondary.c */
-TROT_RC trotListCompare( trotList *l, trotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
+TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
-TROT_RC trotListCopy( trotList *l, trotList **lCopy_A );
+TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A );
 
-TROT_RC trotListEnlist( trotList *l, TROT_INT indexStart, TROT_INT indexEnd );
-TROT_RC trotListDelist( trotList *l, TROT_INT index );
+TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
+TROT_RC trotListDelist( TrotList *l, TROT_INT index );
 
-TROT_RC trotListCopySpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd, trotList **lCopy_A );
-TROT_RC trotListRemoveSpan( trotList *l, TROT_INT indexStart, TROT_INT indexEnd );
+TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A );
+TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
 
 /******************************************************************************/
 /* trotUnicode.c */
-TROT_RC trotUtf8ToCharacters( trotList *lBytes, trotList *lCharacters );
-TROT_RC trotCharactersToUtf8( trotList *lCharacters, trotList *lBytes );
+TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters );
+TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes );
 
 /******************************************************************************/
 /* trotDecodingEncoding.c */
-TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotList *lGivenFilenameOfCharacters, trotList *lCharacters, trotList **lDecodedList_A );
-TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotList *lFilename, trotList **lDecodedList_A );
-TROT_RC trotEncode( trotList *l, trotList **lCharacters_A );
+TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, TrotList *lGivenFilenameOfCharacters, TrotList *lCharacters, TrotList **lDecodedList_A );
+TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, TrotList *lFilename, TrotList **lDecodedList_A );
+TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A );
 
 /******************************************************************************/
 #endif

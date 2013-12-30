@@ -43,7 +43,7 @@ int testIntOperands()
 	/* DATA */
 	int rc = 0;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 
 	/* CODE */
@@ -163,7 +163,7 @@ static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT 
 	/* DATA */
 	int rc = 0;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 	TROT_INT resultActual = 0;
 
@@ -304,7 +304,7 @@ static int testSingleOp( TROT_INT value1, TROT_OP op, TROT_INT resultWanted )
 	/* DATA */
 	int rc = 0;
 
-	trotList *l = NULL;
+	TrotList *l = NULL;
 
 	TROT_INT resultActual = 0;
 

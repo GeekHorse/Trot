@@ -34,12 +34,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int addListWithValue( trotList *l, TROT_INT index, TROT_INT value )
+int addListWithValue( TrotList *l, TROT_INT index, TROT_INT value )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 
 	/* CODE */
@@ -57,12 +57,12 @@ int addListWithValue( trotList *l, TROT_INT index, TROT_INT value )
 }
 
 /******************************************************************************/
-int createAllInts( trotList **l, int count )
+int createAllInts( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -101,12 +101,12 @@ int createAllInts( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createAllLists( trotList **l, int count )
+int createAllLists( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -145,12 +145,12 @@ int createAllLists( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createIntListAlternating( trotList **l, int count )
+int createIntListAlternating( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -196,12 +196,12 @@ int createIntListAlternating( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createListIntAlternating( trotList **l, int count )
+int createListIntAlternating( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -247,12 +247,12 @@ int createListIntAlternating( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createHalfIntHalfList( trotList **l, int count )
+int createHalfIntHalfList( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -298,12 +298,12 @@ int createHalfIntHalfList( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createHalfListHalfInt( trotList **l, int count )
+int createHalfListHalfInt( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -349,12 +349,12 @@ int createHalfListHalfInt( trotList **l, int count )
 }
 
 /******************************************************************************/
-int createSelfRefs( trotList **l, int count )
+int createSelfRefs( TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
 
-	trotList *newList = NULL;
+	TrotList *newList = NULL;
 
 	TROT_INT i = 1;
 
@@ -386,7 +386,7 @@ int createSelfRefs( trotList **l, int count )
 }
 
 /******************************************************************************/
-int check( trotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
+int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 {
 	/* DATA */
 	int rc = 0;
@@ -395,7 +395,7 @@ int check( trotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 
 	TROT_INT valueInList = 0;
 
-	trotList *subList = NULL;
+	TrotList *subList = NULL;
 
 
 	/* CODE */
@@ -427,7 +427,7 @@ int check( trotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 }
 
 /******************************************************************************/
-int checkList( trotList *l )
+int checkList( TrotList *l )
 {
 	/* DATA */
 	int rc = 0;
@@ -626,7 +626,7 @@ static void printIndent( int indent )
 }
 	
 
-void printList( trotList *l, int indent )
+void printList( TrotList *l, int indent )
 {
 	/* DATA */
 	trotListActual *la = l -> laPointsTo;
@@ -694,7 +694,7 @@ void printList( trotList *l, int indent )
 /******************************************************************************/
 #define LOAD_BUFFER_SIZE 1024
 #define BYTE_TYPE unsigned char
-int load( trotList *lName, trotList **lBytes )
+int load( TrotList *lName, TrotList **lBytes )
 {
 	/* DATA */
 	int rc = 0;
@@ -706,7 +706,7 @@ int load( trotList *lName, trotList **lBytes )
 
 	FILE *fp = NULL;
 
-	trotList *newLrBytes = NULL;
+	TrotList *newLrBytes = NULL;
 
 	BYTE_TYPE buffer[ LOAD_BUFFER_SIZE ];
 
@@ -720,7 +720,7 @@ int load( trotList *lName, trotList **lBytes )
 	/* create our new byte list */
 	TEST_ERR_IF( trotListInit( &newLrBytes ) != TROT_RC_SUCCESS );
 
-	/* convert our trotList name to a cString */
+	/* convert our TrotList name to a cString */
 	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
 
 	printf( "Loading: %s\n", name );
@@ -778,7 +778,7 @@ int load( trotList *lName, trotList **lBytes )
 #undef BYTE_TYPE
 
 /******************************************************************************/
-TROT_RC listToCString( trotList *l, char **cString_A )
+TROT_RC listToCString( TrotList *l, char **cString_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -834,7 +834,7 @@ TROT_RC listToCString( trotList *l, char **cString_A )
 }
 
 /******************************************************************************/
-TROT_RC appendCStringToList( trotList *l, char *cString )
+TROT_RC appendCStringToList( TrotList *l, char *cString )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

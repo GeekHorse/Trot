@@ -52,7 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\return TROT_RC
 
 */
-TROT_RC trotUtf8ToCharacters( trotList *lBytes, trotList *lCharacters )
+TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -262,7 +262,7 @@ TROT_RC trotUtf8ToCharacters( trotList *lBytes, trotList *lCharacters )
 	\param lCharacters_A List to append encoded utf8 bytes.
 	\return TROT_RC
 */
-TROT_RC trotCharactersToUtf8( trotList *lCharacters, trotList *lBytes )
+TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;

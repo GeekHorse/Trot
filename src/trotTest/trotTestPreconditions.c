@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "trotTestCommon.h"
 
-static int testLoadFunc( trotList *lName, trotList **lBytes )
+static int testLoadFunc( TrotList *lName, TrotList **lBytes )
 {
 	(void)lName;
 	(void)lBytes;
@@ -46,8 +46,8 @@ int testPreconditions()
 	/* DATA */
 	int rc = 0;
 
-	trotList *l1 = NULL;
-	trotList *l2 = NULL;
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
 	int i = 0;
 	TROT_KIND kind = 0;
 	TROT_INT n = 0;

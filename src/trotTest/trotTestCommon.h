@@ -68,25 +68,25 @@ int testDecodingEncoding();
 
 /******************************************************************************/
 /* create functions */
-int createAllInts( trotList **l, int count );
-int createAllLists( trotList **l, int count );
-int createIntListAlternating( trotList **l, int count );
-int createListIntAlternating( trotList **l, int count );
-int createHalfIntHalfList( trotList **l, int count );
-int createHalfListHalfInt( trotList **l, int count );
+int createAllInts( TrotList **l, int count );
+int createAllLists( TrotList **l, int count );
+int createIntListAlternating( TrotList **l, int count );
+int createListIntAlternating( TrotList **l, int count );
+int createHalfIntHalfList( TrotList **l, int count );
+int createHalfListHalfInt( TrotList **l, int count );
 
-int createSelfRefs( trotList **l, int count );
+int createSelfRefs( TrotList **l, int count );
 
 /******************************************************************************/
 /* misc functions */
-int addListWithValue( trotList *l, TROT_INT index, TROT_INT value );
-int check( trotList *l, TROT_INT index, TROT_INT valueToCheckAgainst );
-int checkList( trotList *l );
-void printList( trotList *l, int indent );
-int load( trotList *lName, trotList **lBytes );
+int addListWithValue( TrotList *l, TROT_INT index, TROT_INT value );
+int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst );
+int checkList( TrotList *l );
+void printList( TrotList *l, int indent );
+int load( TrotList *lName, TrotList **lBytes );
 
-TROT_RC listToCString( trotList *l, char **cString_A );
-TROT_RC appendCStringToList( trotList *l, char *cString );
+TROT_RC listToCString( TrotList *l, char **cString_A );
+TROT_RC appendCStringToList( TrotList *l, char *cString );
 
 /******************************************************************************/
 #endif

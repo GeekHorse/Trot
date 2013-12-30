@@ -55,32 +55,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFile_A );
+static TROT_RC addFileToFileList( TrotList *lFileList, TrotList *lFileName, TrotList **lFile_A );
 
-static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree );
+static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree );
 
-static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList );
-static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisToken );
-static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisTokenValue );
-static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesisTokenValue );
-static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue );
-static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParenthesisTokenValue );
+static TROT_RC handleMetaData( TrotList *lTokenTree, TrotList *lFileList );
+static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack, TrotList *lParentToken, TrotList *lParenthesisToken );
+static TROT_RC handleMetaDataName( TrotList *lParentTokenStack, TrotList *lParentToken, TrotList *lParenthesisTokenValue );
+static TROT_RC handleMetaDataEnum( TrotList *lParentToken, TrotList *lParenthesisTokenValue );
+static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToken, TrotList *lParenthesisTokenValue );
+static TROT_RC handleMetaDataFunction( TrotList *lParentToken, TrotList *lParenthesisTokenValue );
 
-static TROT_RC handleAllWords( trotList *lTokenTree );
-static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, trotList *lTokenWord );
-static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp );
+static TROT_RC handleAllWords( TrotList *lTokenTree );
+static TROT_RC handleWord( TrotList *lParentTokenStack, TROT_INT parentIndex, TrotList *lTokenWord );
+static TROT_RC handleWordOp( TrotList *lTokenWord, int *wasOp );
 
-static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent_A, int *foundVar, TROT_INT *varIndex );
-static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lNameList, trotList **lTokenFound, TROT_INT *enumFound );
+static TROT_RC findParentName( TrotList *lParentTokenStack, TrotList *lName, int *foundName, TrotList **lParent_A, int *foundVar, TROT_INT *varIndex );
+static TROT_RC findChildByNameList( TrotList *lParentTokenPassedIn, TrotList *lNameList, TrotList **lTokenFound, TROT_INT *enumFound );
 
-static TROT_RC addEnum( trotList *lEnumList, trotList *lEnum );
-static TROT_RC getEnumValue( trotList *lToken, trotList *lName, TROT_INT *found, TROT_INT *value );
+static TROT_RC addEnum( TrotList *lEnumList, TrotList *lEnum );
+static TROT_RC getEnumValue( TrotList *lToken, TrotList *lName, TROT_INT *found, TROT_INT *value );
 
-static TROT_RC compareListToCString( trotList *lValue, const char *cstring, TROT_LIST_COMPARE_RESULT *result );
+static TROT_RC compareListToCString( TrotList *lValue, const char *cstring, TROT_LIST_COMPARE_RESULT *result );
 
-static TROT_RC splitList( trotList *l, TROT_INT separator, trotList **lPartList );
+static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList );
 
-static TROT_RC createFinalList( trotList *lTokenTree );
+static TROT_RC createFinalList( TrotList *lTokenTree );
 
 /* TODO: make sure names cannot be same as op names */
 
@@ -123,26 +123,26 @@ const char *opNames[] = {
 	\param stack On success, the decoded list.
 	\return TROT_RC
 */
-TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotList *lGivenFilenameOfCharacters, trotList *lCharacters, trotList **lDecodedList_A )
+TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, TrotList *lGivenFilenameOfCharacters, TrotList *lCharacters, TrotList **lDecodedList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	int pass = 0;
 
-	trotList *lFileList = NULL;
+	TrotList *lFileList = NULL;
 	TROT_INT fileCount = 0;
 	TROT_INT fileIndex = 0;
 
-	trotList *lFile = NULL;
-	trotList *lFileName = NULL;
+	TrotList *lFile = NULL;
+	TrotList *lFileName = NULL;
 
-	trotList *lFileCharacters = NULL;
+	TrotList *lFileCharacters = NULL;
 
-	trotList *lBytes = NULL;
+	TrotList *lBytes = NULL;
 
-	trotList *lTokenList = NULL;
-	trotList *lTokenTree = NULL;
+	TrotList *lTokenList = NULL;
+	TrotList *lTokenTree = NULL;
 
 
 	/* PRECOND */
@@ -318,15 +318,15 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, trotList *lGivenFilenameOfC
 	\param lDecodedList_A On success, the decoded list.
 	\return TROT_RC
 */
-TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotList *lFilename, trotList **lDecodedList_A )
+TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, TrotList *lFilename, TrotList **lDecodedList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *newDecodedList = NULL;
+	TrotList *newDecodedList = NULL;
 
-	trotList *lBytes = NULL;
-	trotList *lCharacters = NULL;
+	TrotList *lBytes = NULL;
+	TrotList *lCharacters = NULL;
 
 
 	/* PRECOND */
@@ -370,13 +370,13 @@ TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, trotList *lFilename, trotList
 	\param 
 	\return TROT_RC
 */
-static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trotList **lFile_A )
+static TROT_RC addFileToFileList( TrotList *lFileList, TrotList *lFileName, TrotList **lFile_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lFile = NULL;
-	trotList *lFileTokenTree = NULL;
+	TrotList *lFile = NULL;
+	TrotList *lFileTokenTree = NULL;
 
 
 	/* CODE */
@@ -437,25 +437,25 @@ static TROT_RC addFileToFileList( trotList *lFileList, trotList *lFileName, trot
 	we need for twinning.
 	That's why lTokenTree is passed in aleady-existing and isn't created.
 */
-static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree )
+static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParentStack = NULL;
+	TrotList *lParentStack = NULL;
 	TROT_INT parentStackCount = 0;
 
-	trotList *lParent = NULL;
-	trotList *lChildren = NULL;
+	TrotList *lParent = NULL;
+	TrotList *lChildren = NULL;
 
 	TROT_INT parentTokenType = 0;
 
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 
-	trotList *lFinalList = NULL;
+	TrotList *lFinalList = NULL;
 
 	/* We only need this for when we have a BRACE as top token */
-	trotList *lVars = NULL; 
+	TrotList *lVars = NULL; 
 
 	TROT_INT tokenCount = 0;
 	TROT_INT tokenIndex = 0;
@@ -655,29 +655,29 @@ static TROT_RC tokenListToTokenTree( trotList *lTokenList, trotList *lTokenTree 
 
 	Goes through lTokenTree, passing L_PARENTHESIS tokens to handleMetaData2, and then removing them from the tree.
 */
-static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
+static TROT_RC handleMetaData( TrotList *lTokenTree, TrotList *lFileList )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParentTokenStack = NULL;
+	TrotList *lParentTokenStack = NULL;
 	TROT_INT parentTokenStackCount = 0;
 
-	trotList *lParentTokenIndicesStack = NULL;
+	TrotList *lParentTokenIndicesStack = NULL;
 
-	trotList *lParentTokenStateStack = NULL;
+	TrotList *lParentTokenStateStack = NULL;
 	/* signals if we can handle metadata or not.
 	   we can't if we've seen another token type in the list.
 	   so we set this to 0 once we've seen a non-L_PARENTHESIS token */
 	TROT_INT stateCanHandleMetaData = 1;
 
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 	TROT_INT tokenType = 0;
-	trotList *lTokenChildren = NULL;
+	TrotList *lTokenChildren = NULL;
 	TROT_INT tokenChildrenCount = 0;
 	TROT_INT tokenChildrenIndex = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 
 	TROT_INT childTokenType = 0;
 
@@ -860,21 +860,21 @@ static TROT_RC handleMetaData( trotList *lTokenTree, trotList *lFileList )
 	Adds (include) to file list (or twins if it's aleady there).
 	Tags (function), (text), (raw) 
 */
-static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisToken )
+static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack, TrotList *lParentToken, TrotList *lParenthesisToken )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lChildren = NULL;
+	TrotList *lChildren = NULL;
 	TROT_INT childrenCount = 0;
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0;
 
-	trotList *lChildValue = NULL;
+	TrotList *lChildValue = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 
-	trotList *lParentTokenFinalList = NULL;
+	TrotList *lParentTokenFinalList = NULL;
 
 
 	static struct {
@@ -1046,7 +1046,7 @@ static TROT_RC handleMetaData2( trotList *lFileList, trotList *lParentTokenStack
 	\param 
 	\return TROT_RC
 */
-static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParentToken, trotList *lParenthesisTokenValue )
+static TROT_RC handleMetaDataName( TrotList *lParentTokenStack, TrotList *lParentToken, TrotList *lParenthesisTokenValue )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1056,16 +1056,16 @@ static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParen
 	TROT_INT childValueIndex = 0;
 	TROT_INT childValueCharacter = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0;
-	trotList *lChildValue = NULL;
+	TrotList *lChildValue = NULL;
 
 	TROT_INT parentTokenStackCount = 0;
-	trotList *lGrandParentToken = NULL;
+	TrotList *lGrandParentToken = NULL;
 	TROT_INT enumFound = 0;
 	TROT_INT enumValue = 0;
 
-	trotList *lName = NULL;
+	TrotList *lName = NULL;
 	TROT_INT nameCount = 0;
 
 
@@ -1167,17 +1167,17 @@ static TROT_RC handleMetaDataName( trotList *lParentTokenStack, trotList *lParen
 	\param 
 	\return TROT_RC
 */
-static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesisTokenValue )
+static TROT_RC handleMetaDataEnum( TrotList *lParentToken, TrotList *lParenthesisTokenValue )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lEnumList = NULL;
+	TrotList *lEnumList = NULL;
 
 	TROT_INT parenthesisTokenValueCount = 0;
 	TROT_INT parenthesisTokenValueIndex = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0;
 	
 
@@ -1234,28 +1234,28 @@ static TROT_RC handleMetaDataEnum( trotList *lParentToken, trotList *lParenthesi
 	\param 
 	\return TROT_RC
 */
-static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToken, trotList *lParenthesisTokenValue )
+static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToken, TrotList *lParenthesisTokenValue )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	TROT_INT parenthesisTokenValueCount = 0;
 
-	trotList *lStringToken = NULL;
+	TrotList *lStringToken = NULL;
 	TROT_INT stringTokenType = 0;
-	trotList *lStringTokenValue = NULL;
+	TrotList *lStringTokenValue = NULL;
 	TROT_INT stringTokenCount = 0;
 
 	TROT_INT parentTokenType = 0;
-	trotList *lParentTokenValue = NULL;
+	TrotList *lParentTokenValue = NULL;
 	TROT_INT parentTokenCount = 0;
 
 	TROT_INT fileListCount = 0;
 	TROT_INT fileListIndex = 0;
-	trotList *lFile = NULL;
-	trotList *lFileName = NULL;
-	trotList *lFileToken = NULL;
-	trotList *lFileTokenFinalList = NULL;
+	TrotList *lFile = NULL;
+	TrotList *lFileName = NULL;
+	TrotList *lFileToken = NULL;
+	TrotList *lFileTokenFinalList = NULL;
 
 	int fileNameFound = 0;
 
@@ -1400,19 +1400,19 @@ static TROT_RC handleMetaDataInclude( trotList *lFileList, trotList *lParentToke
 	\param 
 	\return TROT_RC
 */
-static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParenthesisTokenValue )
+static TROT_RC handleMetaDataFunction( TrotList *lParentToken, TrotList *lParenthesisTokenValue )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lVarList = NULL;
+	TrotList *lVarList = NULL;
 
 	TROT_INT parenthesisTokenValueCount = 0;
 	TROT_INT parenthesisTokenValueIndex = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0;
-	trotList *lChildTokenValue = NULL;
+	TrotList *lChildTokenValue = NULL;
 
 
 	/* CODE */
@@ -1477,23 +1477,23 @@ static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParent
 
 	Goes through entire token tree, and passes each word token to handleWord()
 */
-static TROT_RC handleAllWords( trotList *lTokenTree )
+static TROT_RC handleAllWords( TrotList *lTokenTree )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParentTokenStack = NULL;
+	TrotList *lParentTokenStack = NULL;
 	TROT_INT parentTokenStackCount = 0;
 
-	trotList *lParentTokenIndicesStack = NULL;
+	TrotList *lParentTokenIndicesStack = NULL;
 
-	trotList *lToken = NULL;
+	TrotList *lToken = NULL;
 	TROT_INT tokenType = 0;
-	trotList *lTokenChildren = NULL;
+	TrotList *lTokenChildren = NULL;
 	TROT_INT tokenChildrenCount = 0;
 	TROT_INT tokenChildrenIndex = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 
 	TROT_INT childTokenType = 0;
 
@@ -1656,19 +1656,19 @@ static TROT_RC handleAllWords( trotList *lTokenTree )
 	the token into a "save var op" or "load var op", and then append a "raw number"
 	token (index of var) after the word (now op) token.
 */
-static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, trotList *lTokenWord )
+static TROT_RC handleWord( TrotList *lParentTokenStack, TROT_INT parentIndex, TrotList *lTokenWord )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParent = NULL;
-	trotList *lParentValue = NULL;
-	trotList *lParentFinalList = NULL;
+	TrotList *lParent = NULL;
+	TrotList *lParentValue = NULL;
+	TrotList *lParentFinalList = NULL;
 
-	trotList *lWord = NULL;
-	trotList *lWordPartList = NULL;
+	TrotList *lWord = NULL;
+	TrotList *lWordPartList = NULL;
 	TROT_INT wordPartListCount = 0;
-	trotList *lWordPart = NULL;
+	TrotList *lWordPart = NULL;
 	TROT_INT wordPartCount = 0;
 
 	TROT_INT firstCharacter = 0;
@@ -1680,11 +1680,11 @@ static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, tr
 
 	TROT_INT varIndex = 0;
 
-	trotList *lTokenFound = NULL;
-	trotList *lTokenFoundFinalList = NULL;
+	TrotList *lTokenFound = NULL;
+	TrotList *lTokenFoundFinalList = NULL;
 	TROT_INT enumFound = 0;
 
-	trotList *newLrToken = NULL;
+	TrotList *newLrToken = NULL;
 
 
 	/* CODE */
@@ -1874,12 +1874,12 @@ static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, tr
 	\param wasOp Is set to 0 or 1 to flag to the caller whether word was or was not an op.
 	\return TROT_RC
 */
-static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp )
+static TROT_RC handleWordOp( TrotList *lTokenWord, int *wasOp )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lTokenWordValue = NULL;
+	TrotList *lTokenWordValue = NULL;
 
 	int i = 0;
 
@@ -1938,18 +1938,18 @@ static TROT_RC handleWordOp( trotList *lTokenWord, int *wasOp )
 	\param 
 	\return TROT_RC
 */
-static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int *foundName, trotList **lParent_A, int *foundVar, TROT_INT *varIndex )
+static TROT_RC findParentName( TrotList *lParentTokenStack, TrotList *lName, int *foundName, TrotList **lParent_A, int *foundVar, TROT_INT *varIndex )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	TROT_INT parentTokenStackIndex = 0;
 
-	trotList *lParent = NULL;
-	trotList *lParentName = NULL;
-	trotList *lParentFinalList = NULL;
-	trotList *lParentVarList = NULL;
-	trotList *lVar = NULL;
+	TrotList *lParent = NULL;
+	TrotList *lParentName = NULL;
+	TrotList *lParentFinalList = NULL;
+	TrotList *lParentVarList = NULL;
+	TrotList *lVar = NULL;
 	TROT_INT parentVarListIndex = 0;
 	TROT_INT parentVarListCount = 0; /* TODO: change this (and all others) to only need parentVarCount and go down to 0.
 	                                      this would reduce our need for the index variable and comparing against count.
@@ -2074,13 +2074,13 @@ static TROT_RC findParentName( trotList *lParentTokenStack, trotList *lName, int
 	\return TROT_RC
 */
 	
-static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lNameList, trotList **lTokenFound, TROT_INT *enumFound )
+static TROT_RC findChildByNameList( TrotList *lParentTokenPassedIn, TrotList *lNameList, TrotList **lTokenFound, TROT_INT *enumFound )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParentToken = NULL;
-	trotList *lParentTokenValue = NULL;
+	TrotList *lParentToken = NULL;
+	TrotList *lParentTokenValue = NULL;
 	TROT_INT parentTokenValueCount = 0;
 	TROT_INT parentTokenValueIndex = 0;
 
@@ -2090,16 +2090,16 @@ static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lN
 
 	TROT_INT nameListCount = 0;
 	TROT_INT nameListIndex = 0;
-	trotList *lName = NULL;
+	TrotList *lName = NULL;
 	int isNumber = 0;
 	TROT_INT nameNumber = 0;
 
-	trotList *lChildToken = NULL;
+	TrotList *lChildToken = NULL;
 	TROT_INT childTokenType = 0; 
 	TROT_INT childTokenCount = 0;
-	trotList *lChildTokenName = NULL;
+	TrotList *lChildTokenName = NULL;
 
-	trotList *lFile = NULL;
+	TrotList *lFile = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
@@ -2267,26 +2267,26 @@ static TROT_RC findChildByNameList( trotList *lParentTokenPassedIn, trotList *lN
 	\param lEnum Enum. Should be a L_BRACKET token with 2 children. 1 word and 1 number
 	\return TROT_RC
 */
-static TROT_RC addEnum( trotList *lEnumList, trotList *lEnum )
+static TROT_RC addEnum( TrotList *lEnumList, TrotList *lEnum )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lEnumChildren = NULL;
+	TrotList *lEnumChildren = NULL;
 	TROT_INT enumChildrenCount = 0;
-	trotList *lEnumChild = NULL;
+	TrotList *lEnumChild = NULL;
 	TROT_INT enumChildTokenType = 0;
-	trotList *lEnumName = NULL;
+	TrotList *lEnumName = NULL;
 	TROT_INT enumValue = 0;
 
 	TROT_INT enumListCount = 0;
 	TROT_INT enumListIndex = 0;
-	trotList *lEnumListEnum = NULL;
-	trotList *lEnumListEnumName = NULL;
+	TrotList *lEnumListEnum = NULL;
+	TrotList *lEnumListEnumName = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
-	trotList *lNewEnum = NULL;
+	TrotList *lNewEnum = NULL;
 
 
 	/* CODE */
@@ -2408,16 +2408,16 @@ static TROT_RC addEnum( trotList *lEnumList, trotList *lEnum )
 	\param value On function success and if found was 1, this will be the value of enum.
 	\return TROT_RC
 */
-static TROT_RC getEnumValue( trotList *lToken, trotList *lName, TROT_INT *found, TROT_INT *value )
+static TROT_RC getEnumValue( TrotList *lToken, TrotList *lName, TROT_INT *found, TROT_INT *value )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lEnumList = NULL;
+	TrotList *lEnumList = NULL;
 	TROT_INT enumListCount = 0;
 	TROT_INT enumListIndex = 0;
-	trotList *lEnum = NULL;
-	trotList *lEnumName = NULL;
+	TrotList *lEnum = NULL;
+	TrotList *lEnumName = NULL;
 
 	TROT_LIST_COMPARE_RESULT result;
 
@@ -2489,12 +2489,12 @@ static TROT_RC getEnumValue( trotList *lToken, trotList *lName, TROT_INT *found,
 	\param result On success, the result of the comparison.
 	\return TROT_RC
 */
-static TROT_RC compareListToCString( trotList *lValue, const char *cstring, TROT_LIST_COMPARE_RESULT *result )
+static TROT_RC compareListToCString( TrotList *lValue, const char *cstring, TROT_LIST_COMPARE_RESULT *result )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lCString = NULL;
+	TrotList *lCString = NULL;
 
 
 	/* CODE */
@@ -2545,7 +2545,7 @@ static TROT_RC compareListToCString( trotList *lValue, const char *cstring, TROT
 		l = ["abc.def.ghi"]
 		lParts will be [["abc]["def"]["ghi"]]
 */
-static TROT_RC splitList( trotList *l, TROT_INT separator, trotList **lPartList )
+static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2554,8 +2554,8 @@ static TROT_RC splitList( trotList *l, TROT_INT separator, trotList **lPartList 
 	TROT_INT index = 0;
 	TROT_INT character = 0;
 
-	trotList *newLrPartList = NULL;
-	trotList *lPart = NULL;
+	TrotList *newLrPartList = NULL;
+	TrotList *lPart = NULL;
 
 
 	/* CODE */
@@ -2627,29 +2627,29 @@ static TROT_RC splitList( trotList *l, TROT_INT separator, trotList **lPartList 
 	\param lTokenTree Token Tree.
 	\return TROT_RC
 */
-static TROT_RC createFinalList( trotList *lTokenTree )
+static TROT_RC createFinalList( TrotList *lTokenTree )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotList *lParentTokenStack = NULL;
+	TrotList *lParentTokenStack = NULL;
 	TROT_INT parentTokenStackCount = 0;
 
-	trotList *lParentTokenIndicesStack = NULL;
+	TrotList *lParentTokenIndicesStack = NULL;
 
 	TROT_INT parentTokenType = 0;
 
-	trotList *lToken = NULL;
-	trotList *lTokenChildren = NULL;
-	trotList *lTokenFinalList = NULL;
+	TrotList *lToken = NULL;
+	TrotList *lTokenChildren = NULL;
+	TrotList *lTokenFinalList = NULL;
 	TROT_INT tokenChildrenCount = 0;
 	TROT_INT tokenChildrenIndex = 0;
 
-	trotList *lChildToken = NULL;
-	trotList *lChildTokenValue = NULL;
+	TrotList *lChildToken = NULL;
+	TrotList *lChildTokenValue = NULL;
 	TROT_INT childTokenValueCount = 0;
 	TROT_INT childTokenValueIndex = 0;
-	trotList *lChildTokenFinalList = NULL;
+	TrotList *lChildTokenFinalList = NULL;
 	TROT_INT childTokenType = 0;
 	TROT_INT childTokenValueInt = 0;
 
