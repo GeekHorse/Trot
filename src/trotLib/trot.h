@@ -97,7 +97,7 @@ typedef enum
 } TROT_LIST_COMPARE_RESULT;
 
 /******************************************************************************/
-typedef struct trotList_STRUCT trotList;
+typedef struct trotList_STRUCT trotList; /* TODO: rename this TrotList */
 
 /******************************************************************************/
 /* trotHooks.c */

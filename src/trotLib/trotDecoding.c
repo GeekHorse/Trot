@@ -1448,6 +1448,7 @@ static TROT_RC handleMetaDataFunction( trotList *lParentToken, trotList *lParent
 		ERR_IF_PASSTHROUGH;
 
 		/* TODO: var name cannot contain periods or colons, other chars? */
+		/* TODO: other names cannot contain periods, etc too ... elsewhere in the code we should check */
 
 		/* add to var list */
 		rc = trotListAppendList( lVarList, lChildTokenValue );
@@ -1729,6 +1730,7 @@ static TROT_RC handleWord( trotList *lParentTokenStack, TROT_INT parentIndex, tr
 	/* is it an op? */
 	if ( wordPartListCount == 1 )
 	{
+		/* TODO: this shouldnt happen if it started with ":" */
 		rc = handleWordOp( lTokenWord, &wasOp );
 		ERR_IF_PASSTHROUGH;
 
