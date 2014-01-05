@@ -31,15 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
 	\file
 	Contains hook function pointers for:
-	- Calloc, Malloc, Free
-	- Load
+	- Malloc, Calloc, Free
 
 	Used if we're embedded in an app that uses it's own
 	memory functions. We can easily "plug into" their memory management
 	system.
-
-	Used so client can provide a "load" function when we're compiling that
-	we'll use for (include) lists.
 
 	Used in our unit tests for testing malloc/calloc failures.
 
@@ -47,17 +43,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include <stdlib.h> /* for malloc, calloc, free */
-#include "trot.h"
 
 /******************************************************************************/
-/*! This is the function that the library uses for 'calloc'. Used for unit
-    testing failed callocs and in case the user of the library has their own
-    memory management routines. */
-void *(*trotHookCalloc)( size_t nmemb, size_t size ) = calloc;
 /*! This is the function that the library uses for 'malloc'. Used for unit
     testing failed mallocs and in case the user of the library has their own
     memory management routines. */
 void *(*trotHookMalloc)( size_t size ) = malloc;
+/*! This is the function that the library uses for 'calloc'. Used for unit
+    testing failed callocs and in case the user of the library has their own
+    memory management routines. */
+void *(*trotHookCalloc)( size_t nmemb, size_t size ) = calloc;
 /*! This is the function that the library uses for 'free'. Used in case the
     user of the library has their own memory management routines. */
 void (*trotHookFree)( void *ptr ) = free;

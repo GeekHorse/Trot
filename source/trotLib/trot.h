@@ -35,6 +35,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h> /* for size_t, in memory hook functions */
 
 /******************************************************************************/
+#define TROT_NAME "Trot"
+
+#define TROT_COPYRIGHT "Copyright (C) 2010-2014 Jeremiah Martell"
+
+#define TROT_VERSION_STRING "0.2.00-wip"
+#define TROT_VERSION 2000
+#define TROT_VERSION_MAJOR       ( TROT_VERSION / 10000 )
+#define TROT_VERSION_MINOR       ( ( TROT_VERSION / 1000 ) % 10 )
+#define TROT_VERSION_INCREMENTAL ( ( TROT_VERSION / 10 ) % 100 )
+#define TROT_VERSION_FINAL       ( TROT_VERSION % 10 )
+
+/******************************************************************************/
 typedef enum
 {
 	TROT_RC_SUCCESS =  0, /* TODO: paranoid is -1, rest are positive, and we need an rc-to-string function */

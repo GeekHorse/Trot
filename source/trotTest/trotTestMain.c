@@ -57,12 +57,86 @@ int main( int argc, char **argv )
 	int flagTestUnicode = 0;
 	int flagTestDecodingEncoding = 0;
 
+	int flagTestAnySet = 0;
+
 	int timeStart = 0;
 	int timeEnd = 0;
 
 
 	/* CODE */
-	if ( argc <= 1 )
+	printf( "Testing:\n" );
+	printf( "     %s %s\n", TROT_NAME, TROT_VERSION_STRING );
+	printf( "     %s\n", TROT_COPYRIGHT );
+	printf( "\n" );
+
+	/* **************************************** */
+	rc = _getArgValue( argc, argv, "-s", &argValue );
+	if ( rc == 0 )
+	{
+		seed = atol( argValue );
+	}
+	else
+	{
+		seed = time( NULL );
+	}
+
+	/* **************************************** */
+	rc = _getArgValue( argc, argv, "-t", &argValue );
+	if ( rc == 0 )
+	{
+		if ( strcmp( argValue, "all" ) == 0 )
+		{
+			flagTestAll = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "pre" ) == 0 )
+		{
+			flagTestPreconditions = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "mem" ) == 0 )
+		{
+			flagTestMemory = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "bad" ) == 0 )
+		{
+			flagTestBadTypesIndicesIntegerOps = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "f1" ) == 0 )
+		{
+			flagTestPrimaryFunctionality = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "f2" ) == 0 )
+		{
+			flagTestSecondaryFunctionality = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "int" ) == 0 )
+		{
+			flagTestIntOperands = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "uni" ) == 0 )
+		{
+			flagTestUnicode = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "cod" ) == 0 )
+		{
+			flagTestDecodingEncoding = 1;
+			flagTestAnySet = 1;
+		}
+		else
+		{
+			printf( "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
+			TEST_ERR_IF( 1 );
+		}
+	}
+
+	if ( flagTestAnySet == 0 )
 	{
 		printf( "Usage: trotTest [options]\n" );
 		printf( "  -s <NUMBER>    Seed for random number generator\n" );
@@ -83,65 +157,8 @@ int main( int argc, char **argv )
 	}
 
 	/* **************************************** */
-	rc = _getArgValue( argc, argv, "-s", &argValue );
-	if ( rc == 0 )
-	{
-		seed = atol( argValue );
-	}
-	else
-	{
-		seed = time( NULL );
-	}
-
 	printf( "Using seed: %d\n", seed ); fflush( stdout );
 	srand( seed );
-
-	/* **************************************** */
-	rc = _getArgValue( argc, argv, "-t", &argValue );
-	if ( rc == 0 )
-	{
-		if ( strcmp( argValue, "all" ) == 0 )
-		{
-			flagTestAll = 1;
-		}
-		else if ( strcmp( argValue, "pre" ) == 0 )
-		{
-			flagTestPreconditions = 1;
-		}
-		else if ( strcmp( argValue, "mem" ) == 0 )
-		{
-			flagTestMemory = 1;
-		}
-		else if ( strcmp( argValue, "bad" ) == 0 )
-		{
-			flagTestBadTypesIndicesIntegerOps = 1;
-		}
-		else if ( strcmp( argValue, "f1" ) == 0 )
-		{
-			flagTestPrimaryFunctionality = 1;
-		}
-		else if ( strcmp( argValue, "f2" ) == 0 )
-		{
-			flagTestSecondaryFunctionality = 1;
-		}
-		else if ( strcmp( argValue, "int" ) == 0 )
-		{
-			flagTestIntOperands = 1;
-		}
-		else if ( strcmp( argValue, "uni" ) == 0 )
-		{
-			flagTestUnicode = 1;
-		}
-		else if ( strcmp( argValue, "cod" ) == 0 )
-		{
-			flagTestDecodingEncoding = 1;
-		}
-		else
-		{
-			printf( "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
-			TEST_ERR_IF( 1 );
-		}
-	}
 
 	/* **************************************** */
 	timeStart = time( NULL );
