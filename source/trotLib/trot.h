@@ -47,24 +47,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_VERSION_FINAL       ( TROT_VERSION % 10 )
 
 /******************************************************************************/
-typedef enum
-{
-	TROT_RC_SUCCESS =  0, /* TODO: paranoid is -1, rest are positive, and we need an rc-to-string function */
-	TROT_RC_ERROR_PRECOND = -1,
-	TROT_RC_ERROR_PARANOID = -2,
-	TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED = -3,
-	TROT_RC_ERROR_STANDARD_LIBRARY_ERROR = -4,
-	TROT_RC_ERROR_BAD_INDEX = -5,
-	TROT_RC_ERROR_WRONG_KIND = -6,
-	TROT_RC_ERROR_INVALID_OP = -7,
-	TROT_RC_ERROR_BAD_TAG = -8,
-	TROT_RC_ERROR_DIVIDE_BY_ZERO = -9,
-	TROT_RC_ERROR_UNICODE = -10,
-	TROT_RC_ERROR_DECODE = -11,
-	TROT_RC_ERROR_ENCODE = -12,
-	TROT_RC_ERROR_LOAD = -13,
-	TROT_RC_ERROR_NOT_BYTE_VALUE = -14
-} TROT_RC;
+/* This defines s32 as a signed 32-bit integer */
+#define s32 int
+
+/******************************************************************************/
+#define TROT_RC s32
+
+/* standard rc values */
+#define TROT_RC_SUCCESS 0
+
+#define TROT_RC_ERROR_PRECOND                  1
+#define TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED 2
+#define TROT_RC_ERROR_STANDARD_LIBRARY_ERROR   3
+
+/* This must be kept in sync with the above defines */
+#define TROT_RC_STANDARD_ERRORS_MAX            3
+
+/* Trot specific rc values */
+#define TROT_RC_ERROR_BAD_INDEX      2001
+#define TROT_RC_ERROR_WRONG_KIND     2002
+#define TROT_RC_ERROR_INVALID_OP     2003
+#define TROT_RC_ERROR_BAD_TAG        2004
+#define TROT_RC_ERROR_DIVIDE_BY_ZERO 2005
+#define TROT_RC_ERROR_UNICODE        2006
+#define TROT_RC_ERROR_DECODE         2007
+#define TROT_RC_ERROR_ENCODE         2008
+#define TROT_RC_ERROR_LOAD           2009
+#define TROT_RC_ERROR_NOT_BYTE_VALUE 2010
+
+/* These must be kept in sync with the above defines */
+#define TROT_RC_TROT_ERRORS_MIN     2001
+#define TROT_RC_TROT_ERRORS_MAX     2010
 
 /******************************************************************************/
 typedef enum
@@ -148,6 +161,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 
 TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag );
 TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag );
+
+const char *trotRCToString( TROT_RC rc );
 
 /******************************************************************************/
 /* trotListSecondary.c */

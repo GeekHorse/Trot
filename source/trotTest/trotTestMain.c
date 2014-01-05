@@ -49,6 +49,7 @@ int main( int argc, char **argv )
 
 	int flagTestAll = 0;
 	int flagTestPreconditions = 0;
+	int flagTestMisc = 0;
 	int flagTestMemory = 0;
 	int flagTestBadTypesIndicesIntegerOps = 0;
 	int flagTestPrimaryFunctionality = 0;
@@ -92,6 +93,11 @@ int main( int argc, char **argv )
 		else if ( strcmp( argValue, "pre" ) == 0 )
 		{
 			flagTestPreconditions = 1;
+			flagTestAnySet = 1;
+		}
+		else if ( strcmp( argValue, "misc" ) == 0 )
+		{
+			flagTestMisc = 1;
 			flagTestAnySet = 1;
 		}
 		else if ( strcmp( argValue, "mem" ) == 0 )
@@ -170,6 +176,11 @@ int main( int argc, char **argv )
 	if ( flagTestAll || flagTestPreconditions )
 	{
 		TEST_ERR_IF( testPreconditions() != 0 );
+	}
+
+	if ( flagTestAll || flagTestMisc )
+	{
+		TEST_ERR_IF( testMisc() != 0 );
 	}
 
 	if ( flagTestAll || flagTestMemory )

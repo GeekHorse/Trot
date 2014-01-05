@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* major test functions */
 int testPreconditions();
+int testMisc();
 int testMemory();
 int testBadTypesAndIndices();
 int testPrimaryFunctionality();

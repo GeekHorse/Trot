@@ -2215,3 +2215,45 @@ static int _findNextParent( trotListActual *la, int queryVisited, trotListActual
 	return -1;
 }
 
+/******************************************************************************/
+/*!
+	\brief Provides a const char string representation for a TROT_RC
+	\param[in] rc A TROT_RC value.
+	\return A const char representation of the passed in TROT_RC.
+*/
+const char *trotRCToString( TROT_RC rc )
+{
+	static const char *_rcStrings[] =
+	{
+		"Success",
+
+		"Precondition Error",
+		"Memory Allocation Error",
+		"Standard Library Error",
+
+		"Bad Index Error",
+		"Wrong Kind Error",
+		"Invalid Op Error",
+		"Bad Tag Error",
+		"Divide By Zero Error",
+		"Unicode Error",
+		"Decode Error",
+		"Encode Error",
+		"Load Error",
+		"Not Byte Value Error",
+	};
+
+	static const char *_rcUnknown = "Unknown Error";
+
+	if ( rc >= 0 && rc <= TROT_RC_STANDARD_ERRORS_MAX )
+	{
+		return _rcStrings[ rc ];
+	}
+	else if ( rc >= TROT_RC_TROT_ERRORS_MIN && rc <= TROT_RC_TROT_ERRORS_MAX )
+	{
+		return _rcStrings[ TROT_RC_STANDARD_ERRORS_MAX + rc - TROT_RC_TROT_ERRORS_MIN ];
+	}
+
+	return _rcUnknown;
+}
+
