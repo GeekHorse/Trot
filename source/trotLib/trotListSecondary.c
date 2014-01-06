@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010,2011,2012, Jeremiah Martell
+Copyright (c) 2010-2014 Jeremiah Martell
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
