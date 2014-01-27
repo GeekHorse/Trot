@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Implements the integer math of "Hoof", our single data
 	structure for Trot.
 */
+#define TROT_FILE_NUMBER 6
 
 /******************************************************************************/
 #include "trot.h"
@@ -57,7 +58,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -66,7 +67,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	node = la -> tail -> prev;
 
 	/* check that last value in list is an int */
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	/* handle single value ops */
 	if ( op == TROT_OP_NEG )
@@ -87,7 +88,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	   untouched on error. So let's catch the error here. */
 	if ( node -> count <= 1 ) 
 	{
-		ERR_IF( node -> prev -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
+		ERR_IF_1( node->prev->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->prev->kind );
 	}
 
 	/* remove last int */
@@ -134,7 +135,7 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -142,7 +143,7 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 
 	node = la -> tail -> prev;
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	switch ( op )
 	{
@@ -181,7 +182,7 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] || value;
 			break;
 		default:
-			ERR_IF( 1, TROT_RC_ERROR_INVALID_OP );
+			ERR_IF_1( 1, TROT_RC_ERROR_INVALID_OP, op );
 	}
 
 	return TROT_RC_SUCCESS;

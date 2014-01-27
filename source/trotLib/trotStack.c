@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Keeps track of a stack of two lists we're comparing.
 	Used for comparing, and so we don't get into an infinite loop.
 */
+#define TROT_FILE_NUMBER 3
 
 /******************************************************************************/
 #include "trot.h"

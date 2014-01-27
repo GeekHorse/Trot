@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Decodes textual format to trot list.
 */
+#define TROT_FILE_NUMBER 8
 
 /* TODO: document this entire process somewhere
    TODO: try to consolidate the code that goes through trees
@@ -146,11 +147,11 @@ TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, TrotList *lGivenFilenameOfC
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( loadFunc == NULL );
-	PRECOND_ERR_IF( lGivenFilenameOfCharacters == NULL );
-	PRECOND_ERR_IF( lCharacters == NULL );
-	PRECOND_ERR_IF( lDecodedList_A == NULL );
-	PRECOND_ERR_IF( (*lDecodedList_A) != NULL );
+	ERR_IF( loadFunc == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lGivenFilenameOfCharacters == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lDecodedList_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lDecodedList_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -330,10 +331,10 @@ TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, TrotList *lFilename, TrotList
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( loadFunc == NULL );
-	PRECOND_ERR_IF( lFilename == NULL );
-	PRECOND_ERR_IF( lDecodedList_A == NULL );
-	PRECOND_ERR_IF( (*lDecodedList_A) != NULL );
+	ERR_IF( loadFunc == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lFilename == NULL , TROT_RC_ERROR_PRECOND);
+	ERR_IF( lDecodedList_A == NULL , TROT_RC_ERROR_PRECOND);
+	ERR_IF( (*lDecodedList_A) != NULL , TROT_RC_ERROR_PRECOND);
 
 
 	/* CODE */
@@ -486,7 +487,7 @@ static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree 
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* you must have at least 2 tokens to be valid: "[]" */
-	ERR_IF( tokenCount < 2, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( tokenCount < 2, TROT_RC_ERROR_DECODE, tokenCount );
 
 	/* get first token and make sure it's a [ or { */
 	rc = trotListGetList( lTokenList, 1, &lToken );
@@ -496,7 +497,7 @@ static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree 
 	rc = trotListGetInt( lToken, TOKEN_INDEX_TYPE, &tokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( tokenType != TOKEN_TYPE_L_BRACKET && tokenType != TOKEN_TYPE_L_BRACE, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( tokenType != TOKEN_TYPE_L_BRACKET && tokenType != TOKEN_TYPE_L_BRACE, TROT_RC_ERROR_DECODE, tokenType );
 
 	/* since the first token we add to all files is TOKEN_TYPE_L_BRACKET, we need to make sure it actually
 	   matches the first token in the file */
@@ -584,15 +585,18 @@ static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree 
 				rc = trotListGetCount( lParentStack, &parentStackCount );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF( parentStackCount == 0, TROT_RC_ERROR_DECODE );
+				ERR_IF_1( parentStackCount == 0, TROT_RC_ERROR_DECODE, parentStackCount );
 
 				/* make sure parent matches */
 				rc = trotListGetInt( lParent, TOKEN_INDEX_TYPE, &parentTokenType );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF( tokenType == TOKEN_TYPE_R_BRACKET && parentTokenType != TOKEN_TYPE_L_BRACKET, TROT_RC_ERROR_DECODE );
-				ERR_IF( tokenType == TOKEN_TYPE_R_PARENTHESIS && parentTokenType != TOKEN_TYPE_L_PARENTHESIS, TROT_RC_ERROR_DECODE );
-				ERR_IF( tokenType == TOKEN_TYPE_R_BRACE && parentTokenType != TOKEN_TYPE_L_BRACE, TROT_RC_ERROR_DECODE );
+				ERR_IF_2( tokenType == TOKEN_TYPE_R_BRACKET && parentTokenType != TOKEN_TYPE_L_BRACKET, TROT_RC_ERROR_DECODE,
+					tokenType, parentTokenType );
+				ERR_IF_2( tokenType == TOKEN_TYPE_R_PARENTHESIS && parentTokenType != TOKEN_TYPE_L_PARENTHESIS, TROT_RC_ERROR_DECODE,
+					tokenType, parentTokenType );
+				ERR_IF_2( tokenType == TOKEN_TYPE_R_BRACE && parentTokenType != TOKEN_TYPE_L_BRACE, TROT_RC_ERROR_DECODE,
+					tokenType, parentTokenType );
 
 				/* get grandparent */
 				trotListFree( &lParent );
@@ -630,7 +634,7 @@ static TROT_RC tokenListToTokenTree( TrotList *lTokenList, TrotList *lTokenTree 
 	rc = trotListGetCount( lParentStack, &parentStackCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( parentStackCount != 0, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parentStackCount != 0, TROT_RC_ERROR_DECODE, parentStackCount );
 
 
 	/* CLEANUP */
@@ -909,7 +913,7 @@ static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack
 	rc = trotListGetCount( lChildren, &childrenCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( childrenCount == 0, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( childrenCount == 0, TROT_RC_ERROR_DECODE, childrenCount );
 
 	rc = trotListGetList( lChildren, 1, &lChildToken );
 	ERR_IF_PASSTHROUGH;
@@ -918,7 +922,7 @@ static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack
 	rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE, childTokenType );
 
 	/* get value */
 	rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildValue );
@@ -977,7 +981,7 @@ static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack
 		rc = trotListGetTag( lParentTokenFinalList, &tag );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		ERR_IF( tag != TROT_TAG_CODE, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( tag != TROT_TAG_CODE, TROT_RC_ERROR_DECODE, tag );
 
 		/* set tag */
 		rc = trotListSetTag( lParentTokenFinalList, TROT_TAG_FUNCTION );
@@ -1001,7 +1005,7 @@ static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack
 		if ( compareResult == TROT_LIST_COMPARE_EQUAL )
 		{
 			/* must be only token in parenthesis */
-			ERR_IF( childrenCount != 1, TROT_RC_ERROR_DECODE );
+			ERR_IF_1( childrenCount != 1, TROT_RC_ERROR_DECODE, childrenCount );
 
 			/* get finalList of parent token */
 			trotListFree( &lParentTokenFinalList );
@@ -1012,7 +1016,7 @@ static TROT_RC handleMetaData2( TrotList *lFileList, TrotList *lParentTokenStack
 			rc = trotListGetTag( lParentTokenFinalList, &tag );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			ERR_IF( tag != tagData[ i ].fromTag, TROT_RC_ERROR_DECODE );
+			ERR_IF_2( tag != tagData[ i ].fromTag, TROT_RC_ERROR_DECODE, tag, tagData[ i ].fromTag );
 
 			/* set tag */
 			rc = trotListSetTag( lParentTokenFinalList, tagData[ i ].toTag );
@@ -1079,7 +1083,7 @@ static TROT_RC handleMetaDataName( TrotList *lParentTokenStack, TrotList *lParen
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* there should be 2 */
-	ERR_IF( parenthesisTokenValueCount != 2, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parenthesisTokenValueCount != 2, TROT_RC_ERROR_DECODE, parenthesisTokenValueCount );
 
 	/* get second token in parenthesis */
 	rc = trotListGetList( lParenthesisTokenValue, 2, &lChildToken );
@@ -1089,7 +1093,7 @@ static TROT_RC handleMetaDataName( TrotList *lParentTokenStack, TrotList *lParen
 	rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE, childTokenType );
 
 	/* get value */
 	rc = trotListGetList( lChildToken, TOKEN_INDEX_VALUE, &lChildValue );
@@ -1143,7 +1147,7 @@ static TROT_RC handleMetaDataName( TrotList *lParentTokenStack, TrotList *lParen
 	rc = trotListGetCount( lName, &nameCount );
 	PARANOID_ERR_IF( rc = TROT_RC_SUCCESS );
 
-	ERR_IF( nameCount != 0, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( nameCount != 0, TROT_RC_ERROR_DECODE, nameCount );
 
 	/* put new name */
 	rc = trotListInsertList( lParentToken, TOKEN_INDEX_NAME, lChildValue );
@@ -1193,7 +1197,7 @@ static TROT_RC handleMetaDataEnum( TrotList *lParentToken, TrotList *lParenthesi
 	rc = trotListGetCount( lParenthesisTokenValue, &parenthesisTokenValueCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( parenthesisTokenValueCount < 2, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parenthesisTokenValueCount < 2, TROT_RC_ERROR_DECODE, parenthesisTokenValueCount );
 
 	/* foreach new enum */
 	parenthesisTokenValueIndex = 2; /* 1 was "enum" */
@@ -1208,7 +1212,7 @@ static TROT_RC handleMetaDataEnum( TrotList *lParentToken, TrotList *lParenthesi
 		rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		ERR_IF( childTokenType != TOKEN_TYPE_L_PARENTHESIS, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( childTokenType != TOKEN_TYPE_L_PARENTHESIS, TROT_RC_ERROR_DECODE, childTokenType );
 
 		/* add enum */
 		rc = addEnum( lEnumList, lChildToken );
@@ -1272,7 +1276,7 @@ static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToke
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* there should be 2 */
-	ERR_IF( parenthesisTokenValueCount != 2, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parenthesisTokenValueCount != 2, TROT_RC_ERROR_DECODE, parenthesisTokenValueCount );
 
 	/* get 2nd child */
 	rc = trotListGetList( lParenthesisTokenValue, 2, &lStringToken );
@@ -1282,7 +1286,7 @@ static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToke
 	rc = trotListGetInt( lStringToken, TOKEN_INDEX_TYPE, &stringTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( stringTokenType != TOKEN_TYPE_STRING, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( stringTokenType != TOKEN_TYPE_STRING, TROT_RC_ERROR_DECODE, stringTokenType );
 
 	/* get value */
 	rc = trotListGetList( lStringToken, TOKEN_INDEX_VALUE, &lStringTokenValue );
@@ -1292,7 +1296,7 @@ static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToke
 	rc = trotListGetCount( lStringTokenValue, &stringTokenCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( stringTokenCount == 0, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( stringTokenCount == 0, TROT_RC_ERROR_DECODE, stringTokenCount );
 
 	/* now we have the name of the file to include in stringTokenValue */
 
@@ -1302,7 +1306,7 @@ static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToke
 	rc = trotListGetInt( lParentToken, TOKEN_INDEX_TYPE, &parentTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( parentTokenType != TOKEN_TYPE_L_BRACKET, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parentTokenType != TOKEN_TYPE_L_BRACKET, TROT_RC_ERROR_DECODE, parentTokenType );
 
 	/* verify parentToken contains no more tokens.
 	   (include) must be the last token in a list */
@@ -1313,7 +1317,7 @@ static TROT_RC handleMetaDataInclude( TrotList *lFileList, TrotList *lParentToke
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* 1 for the (include) token */
-	ERR_IF( parentTokenCount != 1, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( parentTokenCount != 1, TROT_RC_ERROR_DECODE, parentTokenCount );
 
 	/* foreach file */
 	rc = trotListGetCount( lFileList, &fileListCount );
@@ -1440,7 +1444,7 @@ static TROT_RC handleMetaDataFunction( TrotList *lParentToken, TrotList *lParent
 		rc = trotListGetInt( lChildToken, TOKEN_INDEX_TYPE, &childTokenType );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		ERR_IF( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( childTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE, childTokenType );
 
 		/* get child value */
 		trotListFree( &lChildTokenValue );
@@ -1714,7 +1718,7 @@ static TROT_RC handleWord( TrotList *lParentTokenStack, TROT_INT parentIndex, Tr
 
 	if ( firstCharacter == ':' )
 	{
-		ERR_IF( wordPartListCount != 1, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( wordPartListCount != 1, TROT_RC_ERROR_DECODE, wordPartListCount );
 	}
 
 	/* remove first word part */
@@ -1750,7 +1754,7 @@ static TROT_RC handleWord( TrotList *lParentTokenStack, TROT_INT parentIndex, Tr
 	/* if we found a var */
 	if ( foundVar == 1 )
 	{
-		ERR_IF( wordPartListCount != 1, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( wordPartListCount != 1, TROT_RC_ERROR_DECODE, wordPartListCount );
 
 		/* change word to op */
 
@@ -2305,7 +2309,7 @@ static TROT_RC addEnum( TrotList *lEnumList, TrotList *lEnum )
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* must be 2 */
-	ERR_IF( enumChildrenCount != 2, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( enumChildrenCount != 2, TROT_RC_ERROR_DECODE, enumChildrenCount );
 
 	/* get 1st child */
 	rc = trotListGetList( lEnumChildren, 1, &lEnumChild );
@@ -2315,7 +2319,7 @@ static TROT_RC addEnum( TrotList *lEnumList, TrotList *lEnum )
 	rc = trotListGetInt( lEnumChild, TOKEN_INDEX_TYPE, &enumChildTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( enumChildTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( enumChildTokenType != TOKEN_TYPE_WORD, TROT_RC_ERROR_DECODE, enumChildTokenType );
 
 	/* get it's value, which is our enum name */
 	rc = trotListGetList( lEnumChild, TOKEN_INDEX_VALUE, &lEnumName );
@@ -2330,7 +2334,7 @@ static TROT_RC addEnum( TrotList *lEnumList, TrotList *lEnum )
 	rc = trotListGetInt( lEnumChild, TOKEN_INDEX_TYPE, &enumChildTokenType );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( enumChildTokenType != TOKEN_TYPE_NUMBER, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( enumChildTokenType != TOKEN_TYPE_NUMBER, TROT_RC_ERROR_DECODE, enumChildTokenType );
 
 	/* get it's value, which is our enum value */
 	rc = trotListGetInt( lEnumChild, TOKEN_INDEX_VALUE, &enumValue );

@@ -32,10 +32,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Contains hook function pointers for:
 	- Malloc, Calloc, Free
+	- Logging
 
 	Used if we're embedded in an app that uses it's own
 	memory functions. We can easily "plug into" their memory management
 	system.
+	We can also "plug into" their logging system.
 
 	Used in our unit tests for testing malloc/calloc failures.
 
@@ -43,6 +45,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include <stdlib.h> /* for malloc, calloc, free */
+#include <errno.h>  /* errno */
+#include <stdio.h>  /* fprintf, fflush */
+#include <string.h> /* strerror */
+
+#include "trot.h"
 
 /******************************************************************************/
 /*! This is the function that the library uses for 'malloc'. Used for unit
@@ -57,3 +64,31 @@ void *(*trotHookCalloc)( size_t nmemb, size_t size ) = calloc;
     user of the library has their own memory management routines. */
 void (*trotHookFree)( void *ptr ) = free;
 
+/*! The default log function. Sends log messages to stderr. */
+void trotHookLogDefault( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c )
+{
+	if ( errno == 0 )
+	{
+		fprintf( stderr, "%d %d %5d - %2d %s - - %d %d %d\n",
+			library, file, line,
+			rc, ( rc == 0 ? "" : trotRCToString( rc ) ),
+			a, b, c
+		);
+	}
+	else
+	{
+		fprintf( stderr, "%d %d %5d - %2d %s - %d %s - %d %d %d\n",
+			library, file, line,
+			rc, ( rc == 0 ? "" : trotRCToString( rc ) ),
+			errno, strerror( errno ),
+			a, b, c
+		);
+	}
+	fflush( stderr );
+}
+
+/*! This function pointer is used by Trot to log errors. Not really useful for
+    end-users of the library, but useful for developers. The default function
+    prints to stderr, but you can change this to plug Trot into your own
+    logging system. */
+void (*trotHookLog)(     s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c ) = trotHookLogDefault;

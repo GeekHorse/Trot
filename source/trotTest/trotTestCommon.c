@@ -28,6 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
+#define TROT_FILE_NUMBER 501
+
+/******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
 
@@ -693,7 +696,7 @@ void printList( TrotList *l, int indent )
 
 /******************************************************************************/
 #define LOAD_BUFFER_SIZE 1024
-#define BYTE_TYPE unsigned char
+#define BYTE_TYPE unsigned char /* TODO: define, use, and test a u8 type */
 int load( TrotList *lName, TrotList **lBytes )
 {
 	/* DATA */

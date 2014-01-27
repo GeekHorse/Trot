@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Tokenizer.
 */
+#define TROT_FILE_NUMBER 4
 
 /******************************************************************************/
 #include "trot.h"
@@ -72,9 +73,9 @@ TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lCharacters == NULL );
-	PRECOND_ERR_IF( lTokenList_A == NULL );
-	PRECOND_ERR_IF( (*lTokenList_A) != NULL );
+	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lTokenList_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lTokenList_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -165,7 +166,7 @@ TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A )
 			i += 1;
 
 			/* there must be at least one character after the quote */
-			ERR_IF( i > count, TROT_RC_ERROR_DECODE );
+			ERR_IF_1( i > count, TROT_RC_ERROR_DECODE, i );
 
 			while ( i <= count )
 			{
@@ -314,8 +315,8 @@ TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, Tro
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lToken_A == NULL );
-	PRECOND_ERR_IF( (*lToken_A) != NULL );
+	ERR_IF( lToken_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lToken_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -443,9 +444,9 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lWord == NULL );
-	PRECOND_ERR_IF( isNumber == NULL );
-	PRECOND_ERR_IF( number == NULL );
+	ERR_IF( lWord == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( isNumber == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( number == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -485,9 +486,9 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 	rc = trotListGetInt( lWord, index, &character );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-	ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE );
+	ERR_IF_1( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE, character );
 
-	ERR_IF( character == '0' && count != 1, TROT_RC_ERROR_DECODE );
+	ERR_IF_1( character == '0' && count != 1, TROT_RC_ERROR_DECODE, count );
 
 	index += 1;
 
@@ -496,7 +497,7 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 		rc = trotListGetInt( lWord, index, &character );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-		ERR_IF( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE );
+		ERR_IF_1( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE, character );
 
 		index += 1;
 	}
@@ -509,7 +510,7 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 
 	if ( character == '-' )
 	{
-		ERR_IF( count > TROT_INT_MIN_STRING_LENGTH, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( count > TROT_INT_MIN_STRING_LENGTH, TROT_RC_ERROR_DECODE, count );
 
 		if ( count == TROT_INT_MIN_STRING_LENGTH )
 		{
@@ -535,7 +536,7 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 	}
 	else
 	{
-		ERR_IF( count > TROT_INT_MAX_STRING_LENGTH, TROT_RC_ERROR_DECODE );
+		ERR_IF_1( count > TROT_INT_MAX_STRING_LENGTH, TROT_RC_ERROR_DECODE, count );
 
 		if ( count == TROT_INT_MAX_STRING_LENGTH )
 		{
@@ -546,7 +547,7 @@ TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number )
 				rc = trotListGetInt( lWord, index, &character );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF ( character > TROT_INT_MAX_STRING[ i ], TROT_RC_ERROR_DECODE );
+				ERR_IF_1( character > TROT_INT_MAX_STRING[ i ], TROT_RC_ERROR_DECODE, character );
 
 				if ( character < TROT_INT_MAX_STRING[ i ] )
 				{
@@ -721,7 +722,7 @@ static TROT_RC trotSkipComments( TrotList *lCharacters, TROT_INT count, TROT_INT
 			/* are we past the end? */
 			/* this is an error because we shouldn't get to the end
 			   before we get to the last #) */
-			ERR_IF( (*i) > count, TROT_RC_ERROR_DECODE );
+			ERR_IF_2( (*i) > count, TROT_RC_ERROR_DECODE, (*i), count );
 
 			/* get character */
 			previousCharacter = character;

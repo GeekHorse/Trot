@@ -18,7 +18,7 @@ debug2: debug
 
 debug: CFLAGS += -g
 debug: LDFLAGS += -fprofile-arcs
-debug: trotTest
+debug: all
 
 profile: CFLAGS += -pg
 profile: LDFLAGS += -pg

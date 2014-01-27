@@ -48,36 +48,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
-#if ( PRINT_ERR == 1 )
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != TROT_RC_SUCCESS ) { printf( "ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); goto cleanup; }
-#else
-#define ERR_IF( cond, error_to_return ) if ( (cond) ) { rc = error_to_return; goto cleanup; }
-#define ERR_IF_PASSTHROUGH if ( rc != TROT_RC_SUCCESS ) { goto cleanup; }
-#endif
+#define ERR_IF( cond, error_to_return ) \
+	if ( (cond) ) \
+	{ \
+		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, 0, 0, 0 ); \
+		rc = error_to_return; \
+		goto cleanup; \
+	}
+#define ERR_IF_1( cond, error_to_return, a ) \
+	if ( (cond) ) \
+	{ \
+		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, 0, 0 ); \
+		rc = error_to_return; \
+		goto cleanup; \
+	}
+#define ERR_IF_2( cond, error_to_return, a, b ) \
+	if ( (cond) ) \
+	{ \
+		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, 0 ); \
+		rc = error_to_return; \
+		goto cleanup; \
+	}
+#define ERR_IF_3( cond, error_to_return, a, b, c ) \
+	if ( (cond) ) \
+	{ \
+		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, c ); \
+		rc = error_to_return; \
+		goto cleanup; \
+	}
 
-/******************************************************************************/
-#ifndef TEST_PRECOND
-#define TEST_PRECOND 1
-#endif
-
-#if ( TEST_PRECOND == 1 )
-
-#if ( PRINT_ERR == 1 )
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { printf( "PRECOND_ERR: %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); return TROT_RC_ERROR_PRECOND; }
-#else
-#define PRECOND_ERR_IF( cond ) if ( (cond) ) { return TROT_RC_ERROR_PRECOND; }
-#endif
-
-#else
-
-#define PRECOND_ERR_IF( cond )
-
-#endif
+#define ERR_IF_PASSTHROUGH \
+	ERR_IF( rc != TROT_RC_SUCCESS, rc );
 
 /******************************************************************************/
 #ifdef BE_PARANOID
-#define PARANOID_ERR_IF( cond ) if ( (cond) ) { printf( "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stdout ); exit(-1); }
+#define PARANOID_ERR_IF( cond ) if ( (cond) ) { fprintf( stderr, "PARANOID ERROR! %s %d\n", __FILE__, __LINE__ ); fflush( stderr ); exit(-1); }
 #else
 #define PARANOID_ERR_IF( cond )
 #endif
@@ -95,11 +100,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE * ) trotHookCalloc( SIZE, sizeof( POINTER_TYPE ) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
-
-/******************************************************************************/
-#define TROT_REALLOC( POINTER2, POINTER1, POINTER_TYPE, SIZE ) \
-	POINTER2 = ( POINTER_TYPE * ) trotHookRealloc( POINTER1, sizeof( POINTER_TYPE ) * (SIZE) ); \
-	ERR_IF( POINTER2 == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 /* For trotDecodingEncoding and related tests */

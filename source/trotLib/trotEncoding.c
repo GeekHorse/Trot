@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Encodes trot lists to a textual format.
 */
+#define TROT_FILE_NUMBER 7
 
 /******************************************************************************/
 #define ENCODING_MAX_CHARACTER_COUNT 80
@@ -88,9 +89,9 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lCharacters_A == NULL );
-	PRECOND_ERR_IF( (*lCharacters_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCharacters_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lCharacters_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -181,12 +182,12 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 				rc = trotListGetKind( lCurrentList, index, &kind );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF( kind != TROT_KIND_INT, TROT_RC_ERROR_ENCODE );
+				ERR_IF_1( kind != TROT_KIND_INT, TROT_RC_ERROR_ENCODE, kind );
 
 				rc = trotListGetInt( lCurrentList, index, &n );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				ERR_IF( n < TROT_OP_MIN || n > TROT_OP_MAX, TROT_RC_ERROR_ENCODE );
+				ERR_IF_1( n < TROT_OP_MIN || n > TROT_OP_MAX, TROT_RC_ERROR_ENCODE, n );
 
 				/* do we need to append a space? */
 				rc = trotListGetInt( newLrCharacters, -1, &lastCharacter );
@@ -220,7 +221,7 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 					rc = trotListGetKind( lCurrentList, index, &kind );
 					ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_ENCODE );
 
-					ERR_IF( kind != TROT_KIND_INT, TROT_RC_ERROR_ENCODE );
+					ERR_IF_1( kind != TROT_KIND_INT, TROT_RC_ERROR_ENCODE, kind );
 
 					rc = trotListGetInt( lCurrentList, index, &n );
 					PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
@@ -235,7 +236,7 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 					rc = trotListGetKind( lCurrentList, index, &kind );
 					ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_ENCODE );
 
-					ERR_IF( kind != TROT_KIND_LIST, TROT_RC_ERROR_ENCODE );
+					ERR_IF_1( kind != TROT_KIND_LIST, TROT_RC_ERROR_ENCODE, kind );
 
 					trotListFree( &lChildList );
 					rc = trotListGetList( lCurrentList, index, &lChildList );

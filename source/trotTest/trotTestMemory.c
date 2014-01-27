@@ -28,6 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
+#define TROT_FILE_NUMBER 500
+
+/******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
 

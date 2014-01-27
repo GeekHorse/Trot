@@ -12,10 +12,9 @@ fast: all
 small: CFLAGS += -Os
 small: all
 
-debug2: CFLAGS += -DPRINT_ERR=1
 debug2: debug
 
-debug: CFLAGS += -DTROT_DEBUG=1 -fprofile-arcs -ftest-coverage -g
+debug: CFLAGS += -fprofile-arcs -ftest-coverage -g
 debug: all
 
 profile: CFLAGS += -pg

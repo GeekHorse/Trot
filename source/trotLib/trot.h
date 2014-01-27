@@ -43,16 +43,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_VERSION 2000
 #define TROT_VERSION_MAJOR       ( TROT_VERSION / 10000 )
 #define TROT_VERSION_MINOR       ( ( TROT_VERSION / 1000 ) % 10 )
-#define TROT_VERSION_INCREMENTAL ( ( TROT_VERSION / 10 ) % 100 )
+#define TROT_VERSION_SUBMINOR    ( ( TROT_VERSION / 10 ) % 100 )
 #define TROT_VERSION_FINAL       ( TROT_VERSION % 10 )
 
 /******************************************************************************/
 /* This defines s32 as a signed 32-bit integer */
 #define s32 int
+/* This defines u8 as an unsigned 8-bit integer */
+#define u8  unsigned char
 
 /******************************************************************************/
 #define TROT_RC s32
 
+/******************************************************************************/
+#define TROT_LIBRARY_NUMBER 2000
+
+/******************************************************************************/
 /* standard rc values */
 #define TROT_RC_SUCCESS 0
 
@@ -126,9 +132,17 @@ typedef struct TrotList_STRUCT TrotList;
 
 /******************************************************************************/
 /* trotHooks.c */
+/* These function pointers will be used by Trot. You can use them to plug
+   Trot into your own memory management system. */
 extern void *(*trotHookCalloc)( size_t nmemb, size_t size );
 extern void *(*trotHookMalloc)( size_t size );
 extern void (*trotHookFree)( void *ptr );
+
+/* This function pointer is used by Trot to log errors. Not really useful for
+   end-users of the library, but useful for developers. The default function
+   prints to stderr, but you can change this to plug Trot into your own
+   logging system. */
+extern void (*trotHookLog)( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c );
 
 /******************************************************************************/
 typedef TROT_RC (*TrotLoadFunc)( TrotList *lName, TrotList **lBytes );

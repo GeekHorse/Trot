@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Remove List Twin
 	- Remove
 */
+#define TROT_FILE_NUMBER 1
 
 /* TODO: make sure inserts and appends don't add more children than our maximum positive TROT_INT. then test that it works, and that minimum negative TROT_INT still errors correctly. Also delist. */
 
@@ -84,8 +85,8 @@ TROT_RC trotListInit( TrotList **l_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l_A == NULL );
-	PRECOND_ERR_IF( (*l_A) != NULL );
+	ERR_IF( l_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*l_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -210,9 +211,9 @@ TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lTwin_A == NULL );
-	PRECOND_ERR_IF( (*lTwin_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lTwin_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lTwin_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -366,15 +367,22 @@ void trotListFree( TrotList **l_F )
 */
 TROT_RC trotListGetCount( TrotList *l, TROT_INT *c )
 {
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( c == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( c == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
 	(*c) = l -> laPointsTo -> childrenCount;
 
-	return TROT_RC_SUCCESS;
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
 }
 
 /******************************************************************************/
@@ -398,8 +406,8 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( kind == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( kind == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -412,8 +420,8 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = la -> head -> next;
@@ -460,7 +468,7 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -524,8 +532,8 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lToAppend == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lToAppend == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -602,7 +610,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -625,8 +633,8 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* Find node where int needs to be added into */
 	node = la -> head -> next;
@@ -767,8 +775,8 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lToInsert == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lToInsert == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -791,8 +799,8 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* Find node where list needs to be added into */
 	node = la -> head -> next;
@@ -955,8 +963,8 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( n == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( n == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -969,8 +977,8 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = la -> head -> next;
@@ -987,7 +995,7 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 		PARANOID_ERR_IF( node == la -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	/* give back */
 	(*n) = node -> n[ (node -> count) - 1 - (count - index) ];
@@ -1022,9 +1030,9 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lTwin_A == NULL );
-	PRECOND_ERR_IF( (*lTwin_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lTwin_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lTwin_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1035,8 +1043,8 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = l -> laPointsTo -> head -> next;
@@ -1053,7 +1061,7 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node->kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	rc = trotListTwin( node -> l[ (node -> count) - 1 - (count - index) ], &newL );
 	ERR_IF_PASSTHROUGH;
@@ -1094,8 +1102,8 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( n == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( n == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1107,8 +1115,8 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = l -> laPointsTo -> head -> next;
@@ -1125,7 +1133,7 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node -> kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackN = node -> n[ i ];
@@ -1181,9 +1189,9 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lRemoved_A == NULL );
-	PRECOND_ERR_IF( (*lRemoved_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lRemoved_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lRemoved_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1194,8 +1202,8 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = l -> laPointsTo -> head -> next;
@@ -1212,7 +1220,7 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 		PARANOID_ERR_IF( node == l -> laPointsTo -> tail );
 	}
 
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	i = (node -> count) - 1 - (count - index);
 	giveBackL = node -> l[ i ];
@@ -1269,7 +1277,7 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1280,8 +1288,8 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (l -> laPointsTo -> childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* *** */
 	node = l -> laPointsTo -> head -> next;
@@ -1374,7 +1382,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1387,8 +1395,8 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* Find node where int needs to be replaced into */
 	node = la -> head -> next;
@@ -1564,8 +1572,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lToInsert == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lToInsert == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1578,8 +1586,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* Find node where list needs to be replaced into */
 	node = la -> head -> next;
@@ -1762,8 +1770,8 @@ TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( tag == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( tag == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -1771,7 +1779,7 @@ TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag )
 
 
 	/* CLEANUP */
-	/* cleanup: */
+	cleanup:
 
 	return rc;
 }
@@ -1789,11 +1797,11 @@ TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
-	ERR_IF( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG );
+	ERR_IF_1( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG, tag );
 
 	l -> laPointsTo -> tag = tag;
 
@@ -2251,7 +2259,7 @@ const char *trotRCToString( TROT_RC rc )
 	}
 	else if ( rc >= TROT_RC_TROT_ERRORS_MIN && rc <= TROT_RC_TROT_ERRORS_MAX )
 	{
-		return _rcStrings[ TROT_RC_STANDARD_ERRORS_MAX + rc - TROT_RC_TROT_ERRORS_MIN ];
+		return _rcStrings[ TROT_RC_STANDARD_ERRORS_MAX + rc - TROT_RC_TROT_ERRORS_MIN + 1 ];
 	}
 
 	return _rcUnknown;

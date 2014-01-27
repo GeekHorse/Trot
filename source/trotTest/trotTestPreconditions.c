@@ -57,14 +57,8 @@ int testPreconditions()
 
 	/* CODE */
 	/* **************************************** */
-	/* lets test error cases to get 100% test coverage */
 	/* test preconditions */
 	printf( "Testing preconditions...\n" ); fflush( stdout );
-
-	#if ( ! TEST_PRECOND )
-	printf( "  TEST_PRECOND not defined! Not doing any tests...\n" ); fflush( stdout );
-	return 0;
-	#endif
 
 	TEST_ERR_IF( trotListInit( NULL ) == TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListInit( &l1 ) != TROT_RC_SUCCESS );

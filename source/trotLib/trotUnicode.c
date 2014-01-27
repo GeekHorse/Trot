@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Table 3-6. UTF-8 Bit Distribution
 	Table 3-7. Well-Formed UTF-8 Byte Sequences
 */
+#define TROT_FILE_NUMBER 5
 
 /******************************************************************************/
 #include "trot.h"
@@ -68,8 +69,8 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lBytes == NULL );
-	PRECOND_ERR_IF( lCharacters == NULL );
+	ERR_IF( lBytes == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -109,7 +110,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			/* validate second byte */
 			if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+				ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 			}
 
 			/* append character */
@@ -135,28 +136,28 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			{
 				if ( ! ( byte2 >= 0xA0 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 			else if ( byte1 <= 0xEC )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 			else if ( byte1 == 0xED )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0x9F ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 			else 
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 
@@ -168,7 +169,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			/* validate third byte */
 			if ( ! ( byte3 >= 0x80 && byte3 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+				ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte3 );
 			}
 
 			/* append character */
@@ -194,21 +195,21 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			{
 				if ( ! ( byte2 >= 0x90 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 			else if ( byte1 <= 0xF3 )
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0xBF ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 			else 
 			{
 				if ( ! ( byte2 >= 0x80 && byte2 <= 0x8F ) )
 				{
-					ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+					ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte2 );
 				}
 			}
 
@@ -220,7 +221,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			/* validate third byte */
 			if ( ! ( byte3 >= 0x80 && byte3 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+				ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte3 );
 			}
 
 			/* get fourth byte */
@@ -231,7 +232,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 			/* validate fourth byte */
 			if ( ! ( byte4 >= 0x80 && byte4 <= 0xBF ) )
 			{
-				ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+				ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte4 );
 			}
 
 			/* append character */
@@ -245,7 +246,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 		}
 
 		/* invalid first byte */
-		ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+		ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, byte1 );
 	}
 
 
@@ -278,8 +279,8 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( lCharacters == NULL );
-	PRECOND_ERR_IF( lBytes == NULL );
+	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lBytes == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -358,7 +359,7 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 		}
 		else
 		{
-			ERR_IF( 1, TROT_RC_ERROR_UNICODE );
+			ERR_IF_1( 1, TROT_RC_ERROR_UNICODE, character );
 		}
 
 		/* *** */

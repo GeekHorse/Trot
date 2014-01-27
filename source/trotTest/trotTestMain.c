@@ -32,7 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "trotTestCommon.h"
 
-#include <string.h> /* strcmp */
+#include <stdio.h> /* printf(), fprintf(), fflush() */ 
+#include <string.h> /* strcmp() */
+#include <time.h> /* time(), for seeding random number generator */
 
 /******************************************************************************/
 static int _getArgValue( int argc, char **argv, char *key, char **value );
@@ -137,27 +139,27 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			printf( "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
+			fprintf( stderr, "UNKNOWN TEST TO RUN: \"%s\"\n", argValue );
 			TEST_ERR_IF( 1 );
 		}
 	}
 
 	if ( flagTestAnySet == 0 )
 	{
-		printf( "Usage: trotTest [options]\n" );
-		printf( "  -s <NUMBER>    Seed for random number generator\n" );
-		printf( "  -t <TEST>      Test to run\n" );
-		printf( "                 Possible tests:\n" );
-		printf( "                   all = all tests\n" );
-		printf( "                   pre = preconditions\n" );
-		printf( "                   mem = memory\n" );
-		printf( "                   bad = bad types, indices, and integer ops\n" );
-		printf( "                   f1  = primary functionality\n" );
-		printf( "                   f2  = secondary functionality\n" );
-		printf( "                   int = integer operands\n" );
-		printf( "                   uni = unicode\n" );
-		printf( "                   cod = decoding, encoding\n" );
-		printf( "\n" );
+		fprintf( stderr, "Usage: trotTest [options]\n" );
+		fprintf( stderr, "  -s <NUMBER>    Seed for random number generator\n" );
+		fprintf( stderr, "  -t <TEST>      Test to run\n" );
+		fprintf( stderr, "                 Possible tests:\n" );
+		fprintf( stderr, "                   all = all tests\n" );
+		fprintf( stderr, "                   pre = preconditions\n" );
+		fprintf( stderr, "                   mem = memory\n" );
+		fprintf( stderr, "                   bad = bad types, indices, and integer ops\n" );
+		fprintf( stderr, "                   f1  = primary functionality\n" );
+		fprintf( stderr, "                   f2  = secondary functionality\n" );
+		fprintf( stderr, "                   int = integer operands\n" );
+		fprintf( stderr, "                   uni = unicode\n" );
+		fprintf( stderr, "                   cod = decoding, encoding\n" );
+		fprintf( stderr, "\n" );
 
 		return -1;
 	}
@@ -171,6 +173,8 @@ int main( int argc, char **argv )
 
 	/* **************************************** */
 	TEST_ERR_IF( sizeof( TROT_INT ) != TROT_INT_SIZE );
+	TEST_ERR_IF( sizeof( s32 ) != 4 );
+	TEST_ERR_IF( sizeof( u8 ) != 1 );
 
 	/* **************************************** */
 	if ( flagTestAll || flagTestPreconditions )
@@ -229,7 +233,7 @@ int main( int argc, char **argv )
 
 	/* **************************************** */
 	/* success! */
-	printf( "\x1b[32;1mSUCCESS!\n\n\x1b[0m" );
+	printf( "SUCCESS!\n\n" );
 
 	return 0;
 
@@ -237,7 +241,7 @@ int main( int argc, char **argv )
 	/* CLEANUP */
 	cleanup:
 
-	printf( "\x1b[31;1mFAILED AT %d\n\x1b[0m", rc );
+	printf( "FAILED AT %d\n\n", rc );
 
 	return rc;
 }
@@ -257,7 +261,7 @@ static int _getArgValue( int argc, char **argv, char *key, char **value )
 			i += 1;
 			if ( i >= argc )
 			{
-				printf( "ERROR: Command line argument \"%s\" had no value.\n", key );
+				fprintf( stderr, "ERROR: Command line argument \"%s\" had no value.\n", key );
 				return -1;
 			}
 

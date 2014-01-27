@@ -41,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Copy Span
 	- Remove Span
 */
+#define TROT_FILE_NUMBER 2
 
 /******************************************************************************/
 #include "trot.h"
@@ -80,9 +81,9 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lCompareTo == NULL );
-	PRECOND_ERR_IF( compareResult == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCompareTo == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( compareResult == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -226,9 +227,9 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lCopy_A == NULL );
-	PRECOND_ERR_IF( (*lCopy_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -291,7 +292,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -308,11 +309,11 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	}
 
 	/* Make sure indices are in range */
-	ERR_IF( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( indexStart > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX, indexStart );
+	ERR_IF_1( indexStart > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, indexStart );
 
-	ERR_IF( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( indexEnd > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX, indexEnd );
+	ERR_IF_1( indexEnd > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, indexEnd );
 
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
@@ -479,7 +480,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -492,8 +493,8 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	}
 
 	/* Make sure index is in range */
-	ERR_IF( index <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
+	ERR_IF_1( index > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, index );
 
 	/* find index */
 	node = la -> head -> next;
@@ -511,7 +512,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	}
 
 	/* check kind */
-	ERR_IF( node -> kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND );
+	ERR_IF_1( node->kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	/* split this node if necessary */
 	if ( count + 1 != index )
@@ -649,9 +650,9 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
-	PRECOND_ERR_IF( lCopy_A == NULL );
-	PRECOND_ERR_IF( (*lCopy_A) != NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
@@ -668,11 +669,11 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	}
 
 	/* Make sure indices are in range */
-	ERR_IF( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( indexStart > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( indexStart <= 0, TROT_RC_ERROR_BAD_INDEX, indexStart );
+	ERR_IF_1( indexStart > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, indexStart );
 
-	ERR_IF( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX );
-	ERR_IF( indexEnd > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX );
+	ERR_IF_1( indexEnd <= 0, TROT_RC_ERROR_BAD_INDEX, indexEnd );
+	ERR_IF_1( indexEnd > (la -> childrenCount), TROT_RC_ERROR_BAD_INDEX, indexEnd );
 
 	/* swap indices if end is before start */
 	if ( indexEnd < indexStart )
@@ -767,7 +768,7 @@ TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd 
 
 
 	/* PRECOND */
-	PRECOND_ERR_IF( l == NULL );
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */

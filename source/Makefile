@@ -21,7 +21,7 @@ usage:
 	@echo "  fast     - build fast version"
 	@echo "  small    - build small version"
 	@echo "  debug    - build for debug"
-	@echo "  debug2   - build for debug that includes PARANOID checks and prints out errors to stdout"
+	@echo "  debug2   - build for debug that includes PARANOID checks"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
@@ -46,10 +46,10 @@ debug: all
 profile: ARGS = profile
 profile: all
 
-test: fast
+test: all
 	trotTest/trotTest -t all
 
-vtest: fast
+vtest: all
 	valgrind --leak-check=full trotTest/trotTest -t all
 
 coverage:
