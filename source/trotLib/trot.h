@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_STANDARD_ERRORS_MAX            3
 
 /* Trot specific rc values */
+/* TODO: when we remove decoding, tokenize, make sure all these are still used */
 #define TROT_RC_ERROR_BAD_INDEX      2001
 #define TROT_RC_ERROR_WRONG_KIND     2002
 #define TROT_RC_ERROR_INVALID_OP     2003
@@ -100,7 +101,8 @@ typedef enum
 
 	TROT_TAG_CODE = 3,
 	TROT_TAG_FUNCTION = 4,
-	TROT_TAG_RAW_CODE = 5
+	TROT_TAG_RAW_CODE = 5 /* TODO: this can go away */
+	/* TODO: need an "ERROR" tag */
 } TROT_TAG;
 #define TROT_TAG_MIN 1
 #define TROT_TAG_MAX 5
@@ -182,6 +184,7 @@ const char *trotRCToString( TROT_RC rc );
 /* trotListSecondary.c */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
+/* TODO: rename this so people know it's only 1 level copying? */
 TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A );
 
 TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );

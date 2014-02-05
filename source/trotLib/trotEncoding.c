@@ -281,6 +281,9 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 				rc = trotListAppendInt( newLrCharacters, '\"' );
 				ERR_IF_PASSTHROUGH;
 
+				/* TODO: also, it's not definite that this wont contain lists, so we'll have to handle that */
+
+				/* TODO: this needs to be smarter. some characters, like double quotes, cant just be added */
 				rc = trotCharactersToUtf8( lCurrentList, newLrCharacters );
 				ERR_IF_PASSTHROUGH;
 
@@ -294,6 +297,7 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 
 			/* if we're inside DATA */
 			default:
+				PARANOID_ERR_IF( currentTag != TROT_TAG_DATA );
 
 				rc = trotListGetKind( lCurrentList, index, &kind );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
@@ -308,6 +312,8 @@ TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A )
 				}
 				else /* kind == TROT_KIND_LIST */
 				{
+					PARANOID_ERR_IF( kind != TROT_KIND_LIST );
+
 					trotListFree( &lChildList );
 					rc = trotListGetList( lCurrentList, index, &lChildList );
 					ERR_IF_PASSTHROUGH;
@@ -512,7 +518,7 @@ static TROT_RC appendLeftBAndTag( TrotList *l, int topList, TrotList *lCharacter
 			s2 = "(text)";
 			break;
 
-		case TROT_TAG_CODE:
+		case TROT_TAG_CODE: 
 		case TROT_TAG_FUNCTION:
 		case TROT_TAG_RAW_CODE:
 			s1 = "{";
@@ -770,7 +776,7 @@ static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, int *characterCount
 
 	TROT_INT lastCharacter = 0;
 
-	char *s = "top";
+	char *s = "top"; /* TODO: rename this to '@' or some other symbol? */
 
 	TrotList *lAddress = NULL;
 	TROT_INT address = 0;

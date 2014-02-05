@@ -55,6 +55,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		first one to.
 	\param compareResult On success, the result of the comparison.
 	\return TROT_RC
+
+	TODO: it doesnt compare references, just structure and values, which is ok,
+	just need to document it. if you want a "real" compare, you must encode
+	both lists, then compare the outputs.
+	maybe we just need a "string compare" that will only compare 1 level deep
+	and then a true compare that uses encoding. ... same with copy?
 */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
