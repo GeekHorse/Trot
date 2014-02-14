@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Only used during Compare.
 	Keeps track of a stack of two lists we're comparing.
 	Used for comparing, and so we don't get into an infinite loop.
+	TODO: this whole file needs to go away when we change how we compare lists
 */
 #define TROT_FILE_NUMBER 3
 
@@ -65,28 +66,28 @@ TROT_RC trotStackInit( trotStack **stack )
 	TROT_MALLOC( newTail, trotStackNode, 1 );
 	TROT_MALLOC( newStack, trotStack, 1 );
 
-	newHead -> la1 = NULL;
-	newHead -> la1Node = NULL;
-	newHead -> la1Count = 0;
-	newHead -> la2 = NULL;
-	newHead -> la2Node = NULL;
-	newHead -> la2Count = 0;
-	newHead -> index = 0;
-	newHead -> prev = newHead;
-	newHead -> next = newTail;
+	newHead->la1 = NULL;
+	newHead->la1Node = NULL;
+	newHead->la1Count = 0;
+	newHead->la2 = NULL;
+	newHead->la2Node = NULL;
+	newHead->la2Count = 0;
+	newHead->index = 0;
+	newHead->prev = newHead;
+	newHead->next = newTail;
 
-	newTail -> la1 = NULL;
-	newTail -> la1Node = NULL;
-	newTail -> la1Count = 0;
-	newTail -> la2 = NULL;
-	newTail -> la2Node = NULL;
-	newTail -> la2Count = 0;
-	newTail -> index = 0;
-	newTail -> prev = newHead;
-	newTail -> next = newTail;
+	newTail->la1 = NULL;
+	newTail->la1Node = NULL;
+	newTail->la1Count = 0;
+	newTail->la2 = NULL;
+	newTail->la2Node = NULL;
+	newTail->la2Count = 0;
+	newTail->index = 0;
+	newTail->prev = newHead;
+	newTail->next = newTail;
 
-	newStack -> head = newHead;
-	newStack -> tail = newTail;
+	newStack->head = newHead;
+	newStack->tail = newTail;
 
 	/* give back */
 	(*stack) = newStack;
@@ -125,15 +126,15 @@ void trotStackFree( trotStack **stack )
 		return;
 	}
 
-	node = (*stack) -> head;
-	while ( node != (*stack) -> tail )
+	node = (*stack)->head;
+	while ( node != (*stack)->tail )
 	{
-		node = node -> next;
+		node = node->next;
 
-		trotHookFree( node -> prev );
+		trotHookFree( node->prev );
 	}
 
-	trotHookFree( (*stack) -> tail );
+	trotHookFree( (*stack)->tail );
 
 	trotHookFree( (*stack) );
 	(*stack) = NULL;
@@ -163,35 +164,35 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la
 	PARANOID_ERR_IF( stack == NULL );
 
 	/* are these two lists already in the stack? */
-	node = stack -> head -> next;
-	while ( node != stack -> tail )
+	node = stack->head->next;
+	while ( node != stack->tail )
 	{
-		if (    ( node -> la1 == la1 && node -> la2 == la2 )
-		     || ( node -> la1 == la2 && node -> la2 == la1 )
+		if (    ( node->la1 == la1 && node->la2 == la2 )
+		     || ( node->la1 == la2 && node->la2 == la1 )
 		   )
 		{
 			/* yes, so nothing to do */
 			return TROT_RC_SUCCESS;
 		}
 
-		node = node -> next;
+		node = node->next;
 	}
 
 	/* not already in stack, so lets add */
 	TROT_MALLOC( newNode, trotStackNode, 1 );
 
-	newNode -> la1 = la1;
-	newNode -> la1Node = la1 -> head;
-	newNode -> la1Count = 0;
-	newNode -> la2 = la2;
-	newNode -> la2Node = la2 -> head;
-	newNode -> la2Count = 0;
-	newNode -> index = 0;
-	newNode -> next = stack -> tail;
-	newNode -> prev = stack -> tail -> prev;
+	newNode->la1 = la1;
+	newNode->la1Node = la1->head;
+	newNode->la1Count = 0;
+	newNode->la2 = la2;
+	newNode->la2Node = la2->head;
+	newNode->la2Count = 0;
+	newNode->index = 0;
+	newNode->next = stack->tail;
+	newNode->prev = stack->tail->prev;
 
-	stack -> tail -> prev -> next = newNode;
-	stack -> tail -> prev = newNode;
+	stack->tail->prev->next = newNode;
+	stack->tail->prev = newNode;
 
 	return TROT_RC_SUCCESS;
 
@@ -220,16 +221,16 @@ TROT_RC trotStackPop( trotStack *stack, int *empty )
 	PARANOID_ERR_IF( stack == NULL );
 	PARANOID_ERR_IF( empty == NULL );
 
-	PARANOID_ERR_IF( stack -> tail -> prev == stack -> head );
+	PARANOID_ERR_IF( stack->tail->prev == stack->head );
 
-	node = stack -> tail -> prev;
+	node = stack->tail->prev;
 
-	node -> prev -> next = node -> next;
-	node -> next -> prev = node -> prev;
+	node->prev->next = node->next;
+	node->next->prev = node->prev;
 
 	trotHookFree( node );
 
-	if ( stack -> tail -> prev == stack -> head )
+	if ( stack->tail->prev == stack->head )
 	{
 		(*empty) = 1;
 	}
@@ -255,24 +256,24 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack )
 	/* CODE */
 	PARANOID_ERR_IF( stack == NULL );
 
-	PARANOID_ERR_IF( stack -> tail -> prev == stack -> head );
+	PARANOID_ERR_IF( stack->tail->prev == stack->head );
 
-	stackNode = stack -> tail -> prev;
+	stackNode = stack->tail->prev;
 
-	stackNode -> index += 1;
+	stackNode->index += 1;
 
-	stackNode -> la1Count += 1;
-	if ( stackNode -> la1Count >= stackNode -> la1Node -> count )
+	stackNode->la1Count += 1;
+	if ( stackNode->la1Count >= stackNode->la1Node->count )
 	{
-		stackNode -> la1Node = stackNode -> la1Node -> next;
-		stackNode -> la1Count = 0;
+		stackNode->la1Node = stackNode->la1Node->next;
+		stackNode->la1Count = 0;
 	}
 
-	stackNode -> la2Count += 1;
-	if ( stackNode -> la2Count >= stackNode -> la2Node -> count )
+	stackNode->la2Count += 1;
+	if ( stackNode->la2Count >= stackNode->la2Node->count )
 	{
-		stackNode -> la2Node = stackNode -> la2Node -> next;
-		stackNode -> la2Count = 0;
+		stackNode->la2Node = stackNode->la2Node->next;
+		stackNode->la2Count = 0;
 	}
 
 	return TROT_RC_SUCCESS;

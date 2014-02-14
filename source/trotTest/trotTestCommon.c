@@ -458,70 +458,70 @@ int checkList( TrotList *l )
 
 	TEST_ERR_IF( l == NULL );
 
-	la = l -> laPointsTo;
+	la = l->laPointsTo;
 	TEST_ERR_IF( la == NULL );
-	TEST_ERR_IF( la -> childrenCount < 0 );
+	TEST_ERR_IF( la->childrenCount < 0 );
 
-	TEST_ERR_IF( la -> head == NULL );
-	TEST_ERR_IF( la -> head -> kind != NODE_KIND_HEAD_OR_TAIL );
-	TEST_ERR_IF( la -> head -> n != NULL );
-	TEST_ERR_IF( la -> head -> l != NULL );
-	TEST_ERR_IF( la -> head -> next == NULL );
-	TEST_ERR_IF( la -> head -> prev == NULL );
-	TEST_ERR_IF( la -> head -> prev != la -> head );
+	TEST_ERR_IF( la->head == NULL );
+	TEST_ERR_IF( la->head->kind != NODE_KIND_HEAD_OR_TAIL );
+	TEST_ERR_IF( la->head->n != NULL );
+	TEST_ERR_IF( la->head->l != NULL );
+	TEST_ERR_IF( la->head->next == NULL );
+	TEST_ERR_IF( la->head->prev == NULL );
+	TEST_ERR_IF( la->head->prev != la->head );
 
-	TEST_ERR_IF( la -> tail == NULL );
-	TEST_ERR_IF( la -> tail -> kind != NODE_KIND_HEAD_OR_TAIL );
-	TEST_ERR_IF( la -> tail -> n != NULL );
-	TEST_ERR_IF( la -> tail -> l != NULL );
-	TEST_ERR_IF( la -> tail -> next == NULL );
-	TEST_ERR_IF( la -> tail -> prev == NULL );
-	TEST_ERR_IF( la -> tail -> next != la -> tail );
+	TEST_ERR_IF( la->tail == NULL );
+	TEST_ERR_IF( la->tail->kind != NODE_KIND_HEAD_OR_TAIL );
+	TEST_ERR_IF( la->tail->n != NULL );
+	TEST_ERR_IF( la->tail->l != NULL );
+	TEST_ERR_IF( la->tail->next == NULL );
+	TEST_ERR_IF( la->tail->prev == NULL );
+	TEST_ERR_IF( la->tail->next != la->tail );
 
 	/* *** */
-	node = la -> head -> next;
+	node = la->head->next;
 	TEST_ERR_IF( node == NULL );
 
-	while ( node != la -> tail )
+	while ( node != la->tail )
 	{
-		TEST_ERR_IF( node -> next == NULL );
-		TEST_ERR_IF( node -> next == node );
-		TEST_ERR_IF( node -> prev == NULL );
-		TEST_ERR_IF( node -> prev == node );
-		TEST_ERR_IF( node -> next -> prev != node );
-		TEST_ERR_IF( node -> prev -> next != node );
+		TEST_ERR_IF( node->next == NULL );
+		TEST_ERR_IF( node->next == node );
+		TEST_ERR_IF( node->prev == NULL );
+		TEST_ERR_IF( node->prev == node );
+		TEST_ERR_IF( node->next->prev != node );
+		TEST_ERR_IF( node->prev->next != node );
 
-		TEST_ERR_IF( node -> count <= 0 );
-		realCount += node -> count;
+		TEST_ERR_IF( node->count <= 0 );
+		realCount += node->count;
 
-		TEST_ERR_IF(    node -> kind != NODE_KIND_INT
-		             && node -> kind != NODE_KIND_LIST
+		TEST_ERR_IF(    node->kind != NODE_KIND_INT
+		             && node->kind != NODE_KIND_LIST
 		           );
 
-		if ( node -> kind == NODE_KIND_INT )
+		if ( node->kind == NODE_KIND_INT )
 		{
-			TEST_ERR_IF( node -> n == NULL );
-			TEST_ERR_IF( node -> l != NULL );
+			TEST_ERR_IF( node->n == NULL );
+			TEST_ERR_IF( node->l != NULL );
 		}
 		else
 		{
-			TEST_ERR_IF( node -> n != NULL );
-			TEST_ERR_IF( node -> l == NULL );
+			TEST_ERR_IF( node->n != NULL );
+			TEST_ERR_IF( node->l == NULL );
 
 			i = 0;
-			while( i < node -> count )
+			while( i < node->count )
 			{
-				TEST_ERR_IF( node -> l[ i ] == NULL );
+				TEST_ERR_IF( node->l[ i ] == NULL );
 
 				foundRef = 0;
-				subLa = node -> l[ i ] -> laPointsTo;
-				subRefNode = subLa -> refListHead -> next;
-				while ( subRefNode != subLa -> refListTail && foundRef == 0 )
+				subLa = node->l[ i ]->laPointsTo;
+				subRefNode = subLa->refListHead->next;
+				while ( subRefNode != subLa->refListTail && foundRef == 0 )
 				{
 					j = 0;
-					while ( j < subRefNode -> count )
+					while ( j < subRefNode->count )
 					{
-						if ( subRefNode -> l[ j ] -> laParent == la )
+						if ( subRefNode->l[ j ]->laParent == la )
 						{
 							foundRef = 1;
 							break;
@@ -530,7 +530,7 @@ int checkList( TrotList *l )
 						j += 1;
 					}
 
-					subRefNode = subRefNode -> next;
+					subRefNode = subRefNode->next;
 				}
 
 				TEST_ERR_IF( foundRef == 0 );
@@ -539,60 +539,60 @@ int checkList( TrotList *l )
 			}
 			while ( i < NODE_SIZE )
 			{
-				TEST_ERR_IF( node -> l[ i ] != NULL );
+				TEST_ERR_IF( node->l[ i ] != NULL );
 
 				i += 1;
 			}
 		}
 
 
-		node = node -> next;
+		node = node->next;
 	}
 
-	if ( realCount != la -> childrenCount )
+	if ( realCount != la->childrenCount )
 	{
 		printf( "realCount = (%d)\n", realCount );
-		printf( "la -> childrenCount = (%d)\n", la -> childrenCount );
+		printf( "la->childrenCount = (%d)\n", la->childrenCount );
 		fflush( stdout );
 
 		TEST_ERR_IF( 1 );
 	}
 
 	/* *** */
-	TEST_ERR_IF( la -> refListHead == NULL );
-	TEST_ERR_IF( la -> refListHead -> next == NULL );
-	TEST_ERR_IF( la -> refListHead -> prev == NULL );
-	TEST_ERR_IF( la -> refListHead -> prev != la -> refListHead );
-	TEST_ERR_IF( la -> refListHead -> count != 0 );
+	TEST_ERR_IF( la->refListHead == NULL );
+	TEST_ERR_IF( la->refListHead->next == NULL );
+	TEST_ERR_IF( la->refListHead->prev == NULL );
+	TEST_ERR_IF( la->refListHead->prev != la->refListHead );
+	TEST_ERR_IF( la->refListHead->count != 0 );
 
-	TEST_ERR_IF( la -> refListTail == NULL );
-	TEST_ERR_IF( la -> refListTail -> next == NULL );
-	TEST_ERR_IF( la -> refListTail -> prev == NULL );
-	TEST_ERR_IF( la -> refListTail -> next != la -> refListTail );
-	TEST_ERR_IF( la -> refListTail -> count != 0 );
+	TEST_ERR_IF( la->refListTail == NULL );
+	TEST_ERR_IF( la->refListTail->next == NULL );
+	TEST_ERR_IF( la->refListTail->prev == NULL );
+	TEST_ERR_IF( la->refListTail->next != la->refListTail );
+	TEST_ERR_IF( la->refListTail->count != 0 );
 
-	refNode = la -> refListHead -> next;
-	while ( refNode != la -> refListTail )
+	refNode = la->refListHead->next;
+	while ( refNode != la->refListTail )
 	{
-		TEST_ERR_IF( refNode -> next == NULL );
-		TEST_ERR_IF( refNode -> next == refNode );
-		TEST_ERR_IF( refNode -> prev == NULL );
-		TEST_ERR_IF( refNode -> prev == refNode );
-		TEST_ERR_IF( refNode -> next -> prev != refNode );
-		TEST_ERR_IF( refNode -> prev -> next != refNode );
+		TEST_ERR_IF( refNode->next == NULL );
+		TEST_ERR_IF( refNode->next == refNode );
+		TEST_ERR_IF( refNode->prev == NULL );
+		TEST_ERR_IF( refNode->prev == refNode );
+		TEST_ERR_IF( refNode->next->prev != refNode );
+		TEST_ERR_IF( refNode->prev->next != refNode );
 
-		TEST_ERR_IF( refNode -> count <= 0 );
+		TEST_ERR_IF( refNode->count <= 0 );
 
-		TEST_ERR_IF( refNode -> l == NULL );
+		TEST_ERR_IF( refNode->l == NULL );
 
 		i = 0;
-		while ( i < refNode -> count )
+		while ( i < refNode->count )
 		{
-			TEST_ERR_IF( refNode -> l[ i ] == NULL );
-			TEST_ERR_IF( refNode -> l[ i ] -> laPointsTo == NULL );
-			TEST_ERR_IF( refNode -> l[ i ] -> laPointsTo != la );
+			TEST_ERR_IF( refNode->l[ i ] == NULL );
+			TEST_ERR_IF( refNode->l[ i ]->laPointsTo == NULL );
+			TEST_ERR_IF( refNode->l[ i ]->laPointsTo != la );
 
-			if ( refNode -> l[ i ] == l )
+			if ( refNode->l[ i ] == l )
 			{
 				foundLr = 1;
 			}
@@ -601,12 +601,12 @@ int checkList( TrotList *l )
 		}
 		while ( i < REF_LIST_NODE_SIZE )
 		{
-			TEST_ERR_IF( refNode -> l[ i ] != NULL );
+			TEST_ERR_IF( refNode->l[ i ] != NULL );
 
 			i += 1;
 		}
 
-		refNode = refNode -> next;
+		refNode = refNode->next;
 	}
 
 	TEST_ERR_IF( foundLr == 0 );
@@ -632,10 +632,10 @@ static void printIndent( int indent )
 void printList( TrotList *l, int indent )
 {
 	/* DATA */
-	trotListActual *la = l -> laPointsTo;
-	trotListNode *node = la -> head -> next;
+	trotListActual *la = l->laPointsTo;
+	trotListNode *node = la->head->next;
 	int i = 0;
-	/* trotListRefListNode *refNode = la -> refListHead -> next; */
+	/* trotListRefListNode *refNode = la->refListHead->next; */
 
 
 	/* CODE */
@@ -644,46 +644,46 @@ void printList( TrotList *l, int indent )
 /*
 	printIndent( indent );
 	printf( "R " );
-	while ( refNode != la -> refListTail )
+	while ( refNode != la->refListTail )
 	{
 		i = 0;
-		while ( i < refNode -> count )
+		while ( i < refNode->count )
 		{
-			printf( "(%p<%p) ", (void *)refNode -> r[ i ] -> laParent, (void *)refNode -> r[ i ] );
+			printf( "(%p<%p) ", (void *)refNode->r[ i ]->laParent, (void *)refNode->r[ i ] );
 
 			i += 1;
 		}
 
-		refNode = refNode -> next;
+		refNode = refNode->next;
 	}
 	printf( "\n" );
 */
 
-	while ( node != la -> tail )
+	while ( node != la->tail )
 	{
-		if ( node -> kind == NODE_KIND_INT )
+		if ( node->kind == NODE_KIND_INT )
 		{
 			printIndent( indent );
 			printf( "I " );
-			for ( i = 0; i < (node -> count); i += 1 )
+			for ( i = 0; i < (node->count); i += 1 )
 			{
-				printf( "%d ", node -> n[ i ] );
+				printf( "%d ", node->n[ i ] );
 			}
 			printf( "\n" );
 		}
-		else /* node -> kind == NODE_KIND_LIST */
+		else /* node->kind == NODE_KIND_LIST */
 		{
 			printIndent( indent );
 			printf( "L\n" );
-			for ( i = 0; i < (node -> count); i += 1 )
+			for ( i = 0; i < (node->count); i += 1 )
 			{
 				printIndent( indent );
-				/* printf( "(%p>%p)\n", (void *)node -> l[ i ], (void *)node -> l[ i ] -> laPointsTo ); */
-				printList( node -> l[ i ], indent + 1 );
+				/* printf( "(%p>%p)\n", (void *)node->l[ i ], (void *)node->l[ i ]->laPointsTo ); */
+				printList( node->l[ i ], indent + 1 );
 			}
 		}
 
-		node = node -> next;
+		node = node->next;
 	}
 
 	if ( indent == 0 )

@@ -62,9 +62,9 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 
 
 	/* CODE */
-	la = l -> laPointsTo;
+	la = l->laPointsTo;
 
-	node = la -> tail -> prev;
+	node = la->tail->prev;
 
 	/* check that last value in list is an int */
 	ERR_IF_1( node->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
@@ -72,13 +72,13 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	/* handle single value ops */
 	if ( op == TROT_OP_NEG )
 	{
-			node -> n[ (node -> count) - 1 ] = (-(node -> n[ (node -> count) - 1 ] ) );
+			node->n[ (node->count) - 1 ] = (-(node->n[ (node->count) - 1 ] ) );
 			return TROT_RC_SUCCESS;
 	}
 
 	if ( op == TROT_OP_LOGICAL_NOT )
 	{
-			node -> n[ (node -> count) - 1 ] = ! ( node -> n[ (node -> count) - 1 ] );
+			node->n[ (node->count) - 1 ] = ! ( node->n[ (node->count) - 1 ] );
 			return TROT_RC_SUCCESS;
 	}
 
@@ -86,22 +86,22 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	/* We technically don't have to do this here, but since we're
 	   going to remove an int, I would rather leave the list
 	   untouched on error. So let's catch the error here. */
-	if ( node -> count <= 1 ) 
+	if ( node->count <= 1 ) 
 	{
 		ERR_IF_1( node->prev->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->prev->kind );
 	}
 
 	/* remove last int */
-	value = node -> n[ (node -> count) - 1 ];
-	node -> count -= 1;
-	la -> childrenCount -= 1;
+	value = node->n[ (node->count) - 1 ];
+	node->count -= 1;
+	la->childrenCount -= 1;
 
-	if ( node -> count == 0 )
+	if ( node->count == 0 )
 	{
-		node -> prev -> next = node -> next;
-		node -> next -> prev = node -> prev;
+		node->prev->next = node->next;
+		node->next->prev = node->prev;
 
-		trotHookFree( node -> n );
+		trotHookFree( node->n );
 		trotHookFree( node );
 	}
 
@@ -139,47 +139,47 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 
 
 	/* CODE */
-	la = l -> laPointsTo;
+	la = l->laPointsTo;
 
-	node = la -> tail -> prev;
+	node = la->tail->prev;
 
 	ERR_IF_1( node->kind != NODE_KIND_INT, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
 	switch ( op )
 	{
 		case TROT_OP_ADD:
-			node -> n[ (node -> count) - 1 ] += value;
+			node->n[ (node->count) - 1 ] += value;
 			break;
 		case TROT_OP_SUB:
-			node -> n[ (node -> count) - 1 ] -= value;
+			node->n[ (node->count) - 1 ] -= value;
 			break;
 		case TROT_OP_MUL:
-			node -> n[ (node -> count) - 1 ] *= value;
+			node->n[ (node->count) - 1 ] *= value;
 			break;
 		case TROT_OP_DIV:
 			ERR_IF( value == 0, TROT_RC_ERROR_DIVIDE_BY_ZERO );
-			node -> n[ (node -> count) - 1 ] /= value;
+			node->n[ (node->count) - 1 ] /= value;
 			break;
 		case TROT_OP_MOD:
 			ERR_IF( value == 0, TROT_RC_ERROR_DIVIDE_BY_ZERO );
-			node -> n[ (node -> count) - 1 ] %= value;
+			node->n[ (node->count) - 1 ] %= value;
 			break;
 
 		case TROT_OP_LESS_THAN:
-			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] < value;
+			node->n[ (node->count) - 1 ] = node->n[ (node->count) - 1 ] < value;
 			break;
 		case TROT_OP_GREATER_THAN:
-			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] > value;
+			node->n[ (node->count) - 1 ] = node->n[ (node->count) - 1 ] > value;
 			break;
 		case TROT_OP_EQUALS:
-			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] == value;
+			node->n[ (node->count) - 1 ] = node->n[ (node->count) - 1 ] == value;
 			break;
 
 		case TROT_OP_LOGICAL_AND:
-			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] && value;
+			node->n[ (node->count) - 1 ] = node->n[ (node->count) - 1 ] && value;
 			break;
 		case TROT_OP_LOGICAL_OR:
-			node -> n[ (node -> count) - 1 ] = node -> n[ (node -> count) - 1 ] || value;
+			node->n[ (node->count) - 1 ] = node->n[ (node->count) - 1 ] || value;
 			break;
 		default:
 			ERR_IF_1( 1, TROT_RC_ERROR_INVALID_OP, op );
