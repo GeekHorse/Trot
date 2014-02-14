@@ -87,7 +87,7 @@ int testPrimaryFunctionality()
 	int j = 0;
 
 	TrotList *l = NULL;
-	TROT_TAG tag = TROT_TAG_DATA;
+	TROT_INT tag = 0;
 
 
 	/* CODE */
@@ -95,9 +95,18 @@ int testPrimaryFunctionality()
 
 	/* test tags */
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListSetTag( l, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+
 	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag != TROT_TAG_CODE );
+	TEST_ERR_IF( tag != 0 );
+	TEST_ERR_IF( trotListSetTag( l, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag != 1 );
+
+	TEST_ERR_IF( trotListGetUserTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag != 0 );
+	TEST_ERR_IF( trotListSetUserTag( l, 60 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetUserTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag != 60 );
 	trotListFree( &l );
 
 	/* *** */

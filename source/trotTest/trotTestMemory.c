@@ -69,47 +69,12 @@ void *badMalloc( size_t size )
 	return malloc( size );
 }
 
-TROT_RC badLoad( TrotList *lName, TrotList **lBytes )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-	TrotList *newLrBytes = NULL;
-
-
-	/* CODE */
-	(void)lName;
-
-	/* create our new byte list */
-	rc = trotListInit( &newLrBytes );
-	ERR_IF_PASSTHROUGH;
-
-	/* We include a named child so we can test failed mallocs
-	   when going "through" an include */
-	rc = appendCStringToList( newLrBytes, "[[(name child)]]" );
-	ERR_IF_PASSTHROUGH;
-
-	/* give back */
-	(*lBytes) = newLrBytes;
-	newLrBytes = NULL;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &newLrBytes );
-
-	return rc;
-}
-
 /******************************************************************************/
 static int testMemoryManagement();
 static int testDeepList();
 
 static TROT_RC testFailedMallocs1( int test );
 static TROT_RC testFailedMallocs2( int test );
-static TROT_RC testFailedMallocs3( int test );
-static TROT_RC testFailedMallocs4( int test );
 
 typedef struct
 {
@@ -120,9 +85,7 @@ typedef struct
 FailedFunc failedFuncs[] =
 {
 	{ testFailedMallocs1, 1 },
-	{ testFailedMallocs2, 1 },
-	{ testFailedMallocs3, 21 },
-	{ testFailedMallocs4, 1 },
+	{ testFailedMallocs2, 2 },
 	{ NULL, 0 }
 };
 
@@ -451,6 +414,12 @@ static int testDeepList()
 	return rc;
 }
 
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
 static TROT_RC testFailedMallocs1( int test )
 {
 	/* DATA */
@@ -749,70 +718,13 @@ static TROT_RC testFailedMallocs2( int test )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	TrotList *lCharacters = NULL;
-	TrotList *lTokens = NULL;
-
-	char *s1 = "[](){} 1 \"a\" xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-
-
-	/* CODE */
-	(void)test;
-
-	rc = trotListInit( &lCharacters );
-	ERR_IF_PASSTHROUGH;
-
-	rc = appendCStringToList( lCharacters, s1 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotTokenize( lCharacters, &lTokens );
-	ERR_IF_PASSTHROUGH;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &lCharacters );
-	trotListFree( &lTokens );
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief 
-	\param 
-	\return TROT_RC
-*/
-static TROT_RC testFailedMallocs3( int test )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
 	char *d[] = {
 	/* for encoding */
-	"[]",
-	"[100 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 ]",
-	"[(name A) [(name B)] [A.B] ]",
-	"{1000 1000 1000 1000 1000 1000 1000 1000}",
-	"{[]}",
-	"[(name A) [(name B)] { A.B } ]",
-	"[(text)\"HelloHelloHelloHello\"]",
-	"[ 1000 [(text)\"T\"] ]",
-	"[ 100000 [(text)\"T\"] ]",
-	"[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]",
-	"[12 3]",
-	"[1 0]",
-	"[(name top)[(name A)][(name B) 1 top.A]]",
-	"[(name top)[(name A)][(name B) 1 1234567890 top.A]]",
+	"[ ] ",
+	"[ 100 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 ] ",
 
 	/* for decoding */
-	"[ [(include \"x\")] [(include \"x\")] ]",
-	"{(function x y) x}",
-	"[(name x)(enum (cats 99) (dogs 98) ) x.cats]",
-	"[(name x) x]",
-	"[(name A) [(name B)(include \"x\")] A.B.child]",
-	"{ [(include \"x\")] }",
-	"{(function) [(include \"x\")] }",
+	/* TODO */
 	};
 
 	TrotList *lCharacters = NULL;
@@ -839,7 +751,7 @@ static TROT_RC testFailedMallocs3( int test )
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
-	rc = trotDecodeCharacters( badLoad, lEmptyName, lCharacters, &lDecodedList1 );
+	rc = trotDecode( lCharacters, &lDecodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotEncode( lDecodedList1, &lEncodedList1 );
@@ -856,7 +768,7 @@ static TROT_RC testFailedMallocs3( int test )
 #endif
 
 
-	rc = trotDecodeCharacters( badLoad, lEmptyName, lEncodedList1, &lDecodedList2 );
+	rc = trotDecode( lEncodedList1, &lDecodedList2 );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotEncode( lDecodedList2, &lEncodedList2 );
@@ -886,78 +798,4 @@ static TROT_RC testFailedMallocs3( int test )
 	return rc;
 }
 
-/******************************************************************************/
-/*!
-	\brief 
-	\param 
-	\return TROT_RC
-*/
-static TROT_RC testFailedMallocs4( int test )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-	TrotList *lDecodedList1 = NULL;
-	TrotList *lEncodedList1 = NULL;
-	TrotList *lEmptyName = NULL;
-	TrotList *lDecodedList2 = NULL;
-	TrotList *lEncodedList2 = NULL;
-
-#if PRINT_ENCODED_LISTS
-	char *s = NULL;
-#endif	
-
-
-	/* CODE */
-	(void)test;
-
-	rc = trotListInit( &lEmptyName );
-	ERR_IF_PASSTHROUGH;
-
-	/* *** */
-	rc = trotDecodeFilename( badLoad, lEmptyName, &lDecodedList1 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotEncode( lDecodedList1, &lEncodedList1 );
-	ERR_IF_PASSTHROUGH;
-
-#if PRINT_ENCODED_LISTS
-	rc = listToCString( lEncodedList1, &s );
-	ERR_IF_PASSTHROUGH;
-
-	printf( "lEncodedList1: %s\n", s );
-
-	trotHookFree( s );
-	s = NULL;
-#endif
-
-
-	rc = trotDecodeCharacters( badLoad, lEmptyName, lEncodedList1, &lDecodedList2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotEncode( lDecodedList2, &lEncodedList2 );
-	ERR_IF_PASSTHROUGH;
-
-#if PRINT_ENCODED_LISTS
-	rc = listToCString( lEncodedList2, &s );
-	ERR_IF_PASSTHROUGH;
-
-	printf( "lEncodedList2: %s\n", s );
-
-	trotHookFree( s );
-	s = NULL;
-#endif
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &lEmptyName );
-	trotListFree( &lDecodedList1 );
-	trotListFree( &lEncodedList1 );
-	trotListFree( &lDecodedList2 );
-	trotListFree( &lEncodedList2 );
-
-	return rc;
-}
 

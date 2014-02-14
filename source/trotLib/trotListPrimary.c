@@ -134,6 +134,7 @@ TROT_RC trotListInit( TrotList **l_A )
 	newLa -> encodingChildNumber = 0;
 
 	newLa -> tag = TROT_TAG_DATA;
+	newLa -> userTag = 0;
 
 	newLa -> childrenCount = 0;
 
@@ -1763,7 +1764,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag )
+TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1790,7 +1791,7 @@ TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag )
 	\param 
 	\return TROT_RC
 */
-TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag )
+TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1804,6 +1805,59 @@ TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag )
 	ERR_IF_1( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG, tag );
 
 	l -> laPointsTo -> tag = tag;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListGetUserTag( TrotList *l, TROT_INT *tag )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+
+	/* PRECOND */
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( tag == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	(*tag) = l -> laPointsTo -> userTag;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief 
+	\param 
+	\return TROT_RC
+*/
+TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+
+	/* PRECOND */
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	l -> laPointsTo -> userTag = tag;
 
 
 	/* CLEANUP */

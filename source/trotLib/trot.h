@@ -94,18 +94,12 @@ typedef enum
 } TROT_KIND;
 
 /******************************************************************************/
-typedef enum
-{
-	TROT_TAG_DATA =  1,
-	TROT_TAG_TEXT = 2,
+#define TROT_TAG_DATA 0
+#define TROT_TAG_CODE 1
+/* TODO: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
-	TROT_TAG_CODE = 3,
-	TROT_TAG_FUNCTION = 4,
-	TROT_TAG_RAW_CODE = 5 /* TODO: this can go away */
-	/* TODO: need an "ERROR" tag */
-} TROT_TAG;
-#define TROT_TAG_MIN 1
-#define TROT_TAG_MAX 5
+#define TROT_TAG_MIN 0 /* TODO */
+#define TROT_TAG_MAX 1 /* TODO */
 
 /******************************************************************************/
 #define TROT_INT_SIZE 4
@@ -175,8 +169,11 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index );
 TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n );
 TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert );
 
-TROT_RC trotListGetTag( TrotList *l, TROT_TAG *tag );
-TROT_RC trotListSetTag( TrotList *l, TROT_TAG tag );
+TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag );
+TROT_RC trotListSetTag( TrotList *l, TROT_INT tag );
+
+TROT_RC trotListGetUserTag( TrotList *l, TROT_INT *tag );
+TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag );
 
 const char *trotRCToString( TROT_RC rc );
 
@@ -199,10 +196,12 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters );
 TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes );
 
 /******************************************************************************/
-/* trotDecodingEncoding.c */
-TROT_RC trotDecodeCharacters( TrotLoadFunc loadFunc, TrotList *lGivenFilenameOfCharacters, TrotList *lCharacters, TrotList **lDecodedList_A );
-TROT_RC trotDecodeFilename( TrotLoadFunc loadFunc, TrotList *lFilename, TrotList **lDecodedList_A );
-TROT_RC trotEncode( TrotList *l, TrotList **lCharacters_A );
+/* trotDecoding.c */
+TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A );
+
+/******************************************************************************/
+/* trotDecoding.c */
+TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A );
 
 /******************************************************************************/
 #endif

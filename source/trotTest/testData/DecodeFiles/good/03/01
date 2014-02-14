@@ -1,15 +1,3 @@
 [
-# comment this should be removed
-	1
-	#( comment this should be removed
-	this too
-	and this #)
-	[
-#comment this should be removed
-		10
-#(comment this should be removed#)
-	]
-# # # # comment this should be removed
-	2
-#(#(#( comment this should be removed #)#)#)
+	@
 ]

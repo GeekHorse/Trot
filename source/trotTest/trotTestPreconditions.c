@@ -33,13 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "trotTestCommon.h"
 
-static int testLoadFunc( TrotList *lName, TrotList **lBytes )
-{
-	(void)lName;
-	(void)lBytes;
-	return 0;
-}
-
 /******************************************************************************/
 int testPreconditions()
 {
@@ -48,10 +41,9 @@ int testPreconditions()
 
 	TrotList *l1 = NULL;
 	TrotList *l2 = NULL;
-	int i = 0;
 	TROT_KIND kind = 0;
 	TROT_INT n = 0;
-	TROT_TAG tag = TROT_TAG_DATA;
+	TROT_INT tag = TROT_TAG_DATA;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
 
@@ -109,6 +101,10 @@ int testPreconditions()
 	TEST_ERR_IF( trotListGetTag( l1, NULL ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListSetTag( NULL, TROT_TAG_DATA ) != TROT_RC_ERROR_PRECOND );
 
+	TEST_ERR_IF( trotListGetUserTag( NULL, &tag ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListGetUserTag( l1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListSetUserTag( NULL, TROT_TAG_DATA ) != TROT_RC_ERROR_PRECOND );
+
 	TEST_ERR_IF( trotListCompare( NULL, l1, &compareResult ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListCompare( l1, NULL, &compareResult ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListCompare( l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );
@@ -137,31 +133,13 @@ int testPreconditions()
 	TEST_ERR_IF( trotCharactersToUtf8( NULL, l1 ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotCharactersToUtf8( l1, NULL ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotTokenize( NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotTokenize( l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotTokenize( l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotCreateToken( 1, 1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotCreateToken( 1, 1, 1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( _trotWordToNumber( NULL, &i, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( _trotWordToNumber( l1, NULL, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( _trotWordToNumber( l1, &i, NULL ) != TROT_RC_ERROR_PRECOND );
-
 	TEST_ERR_IF( trotEncode( NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( l1, NULL ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( l1, &l1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotDecodeCharacters( NULL, l1, l1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, NULL, l1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, l1, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeCharacters( testLoadFunc, l1, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotDecodeFilename( NULL, l1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecodeFilename( testLoadFunc, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecode( NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecode( l1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotDecode( l1, &l1 ) != TROT_RC_ERROR_PRECOND );
 
 	trotListFree( &l1 );
 

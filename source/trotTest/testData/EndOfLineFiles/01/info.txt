@@ -1,2 +1,0 @@
-Files with different end of line types.
-We test by having every number instance tell which line it's supposed to be on.

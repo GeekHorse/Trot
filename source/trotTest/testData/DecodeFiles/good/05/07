@@ -1,7 +1,0 @@
-[(name top)(enum (cat 99))
-	[(name middle)
-		[(name cat)
-			top.cat
-		]
-	]
-]

@@ -182,8 +182,8 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 	TrotList *l1 = NULL;
 	TrotList *l1Copy = NULL;
 
-	TROT_TAG tag1 = TROT_TAG_DATA;
-	TROT_TAG tag2 = TROT_TAG_DATA;
+	TROT_INT tag1 = TROT_TAG_DATA;
+	TROT_INT tag2 = TROT_TAG_DATA;
 
 	TrotList *l2 = NULL;
 
@@ -230,12 +230,21 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 
 	/* empty list, new tag */
 	TEST_ERR_IF( (*createFunction)( &l1, 0 ) != 0 );
+	tag1 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	tag1 = TROT_TAG_DATA;
+	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
 
 	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
+	tag2 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	tag2 = TROT_TAG_DATA;
+	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
 
 	trotListFree( &l1 );
@@ -243,12 +252,20 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 
 	/* list with data, new tag */
 	TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
+	tag1 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
 
 	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
+	tag2 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	tag2 = TROT_TAG_DATA;
+	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
 
 	trotListFree( &l1 );
@@ -256,12 +273,21 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 
 	/* list with data, new tag, copy a span */
 	TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
+	tag1 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	tag1 = TROT_TAG_DATA;
+	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
 
 	TEST_ERR_IF( trotListCopySpan( l1, (rand() % size) + 1, (rand() % size) + 1, &l1Copy ) != TROT_RC_SUCCESS );
+	tag2 = TROT_TAG_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	tag2 = TROT_TAG_DATA;
+	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
 
 	trotListFree( &l1 );

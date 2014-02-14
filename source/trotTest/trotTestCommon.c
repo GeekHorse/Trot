@@ -781,6 +781,32 @@ int load( TrotList *lName, TrotList **lBytes )
 #undef BYTE_TYPE
 
 /******************************************************************************/
+TROT_RC printListLikeCString( TrotList *l )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	char *s = NULL;
+
+
+	/* CODE */
+	PARANOID_ERR_IF( l == NULL );
+
+	rc = listToCString( l, &s );
+	ERR_IF_PASSTHROUGH;
+
+	printf( "%s\n", s );
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotHookFree( s );
+	
+	return rc;
+}
+
+/******************************************************************************/
 TROT_RC listToCString( TrotList *l, char **cString_A )
 {
 	/* DATA */

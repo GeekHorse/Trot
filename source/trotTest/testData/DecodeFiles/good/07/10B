@@ -1,4 +1,0 @@
-[(name tenB)
-	[(name myTen)(include "./trotTest/testData/DecodeFiles/good/07/10")]
-	tenB.myTen.A.myEnum1
-]

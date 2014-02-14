@@ -102,46 +102,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
-/* For trotDecodingEncoding and related tests */
-typedef enum
-{
-	/* NOTE: These first 9 tokens are ones that our tokenizer produces */
-	TOKEN_TYPE_L_BRACKET = 1,
-	TOKEN_TYPE_R_BRACKET = 2,
-	TOKEN_TYPE_L_BRACE = 3,
-	TOKEN_TYPE_R_BRACE = 4,
-	TOKEN_TYPE_L_PARENTHESIS = 5,
-	TOKEN_TYPE_R_PARENTHESIS = 6,
-	TOKEN_TYPE_STRING = 7,
-	TOKEN_TYPE_WORD = 8,
-	TOKEN_TYPE_NUMBER = 9, /* NOTE: this is not created, but changed from TOKEN_WORD in tokenizer */
-
-	/* NOTE: These next 3 tokens are ones that our decoder changes tokens into */
-	TOKEN_TYPE_TWIN = 10, /* from TOKEN_WORD */
-	TOKEN_TYPE_INCLUDE = 11, /* from TOKEN_L_BRACKET and TOKEN_L_BRACE */
-	TOKEN_TYPE_OP = 12, /* from TOKEN_WORD */
-
-	/* NOTE: this next token is one that our decoder produces */
-	TOKEN_TYPE_NUMBER_RAW = 13
-} TOKEN_TYPE;
-#define TOKEN_TYPE_MIN 1
-#define TOKEN_TYPE_MAX 13
-
-typedef enum
-{
-	TOKEN_INDEX_LINE = 1,
-	TOKEN_INDEX_COLUMN = 2,
-	TOKEN_INDEX_TYPE = 3,
-	TOKEN_INDEX_VALUE = 4,
-	TOKEN_INDEX_FINALLIST = 5,
-	TOKEN_INDEX_NAME = 6,
-	TOKEN_INDEX_ENUMS = 7,
-	TOKEN_INDEX_VAR = 8
-} TOKEN_INFO;
-#define TOKEN_INDEX_MAX 8
-
-
-/******************************************************************************/
+/* TODO: these may change, or how we execute them may change */
 typedef enum
 {
 	TROT_OP_ADD = 1,
@@ -184,7 +145,7 @@ struct trotListNode_STRUCT
 {
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
 	NODE_KIND_LIST. */
-	int kind;
+	int kind; /* TODO: int? */
 	/*! count is how many TROT_INTs or trotListRefs are in this node. */
 	int count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
@@ -225,8 +186,10 @@ struct trotListActual_STRUCT
 	    twins when encoding */
 	TROT_INT encodingChildNumber;
 
-	/*! Tag. Which "type" or "kind" of list this is. */
-	TROT_TAG tag;
+	/*! Tag. Which "type" of list this is. */
+	TROT_INT tag;
+	/*! userTag. Allows user to tag this list as a user-defined type */
+	TROT_INT userTag;
 	/*! How many children are in the list */
 	int childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that
@@ -320,7 +283,7 @@ TROT_RC newIntNode( trotListNode **n_A );
 TROT_RC newListNode( trotListNode **n_A );
 
 /******************************************************************************/
-/* trotStack.c */
+/* trotStack.c */ /* TODO: when are these used? */
 TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
@@ -330,6 +293,7 @@ TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/
 /* trotTokenize.c */
+/* TODO: remove some of these */
 TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A );
 TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, TrotList **lToken_A );
 TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number );

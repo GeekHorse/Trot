@@ -61,6 +61,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	both lists, then compare the outputs.
 	maybe we just need a "string compare" that will only compare 1 level deep
 	and then a true compare that uses encoding. ... same with copy?
+
+	if we use encode, for true compare, we can also get rid of our trotStack
 */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
@@ -246,7 +248,8 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 		ERR_IF_PASSTHROUGH;
 
 		/* make sure copied list has same tag */
-		(*lCopy_A) -> laPointsTo -> tag = l -> laPointsTo -> tag;
+		(*lCopy_A) -> laPointsTo -> tag     = l -> laPointsTo -> tag;
+		(*lCopy_A) -> laPointsTo -> userTag = l -> laPointsTo -> userTag;
 	}
 	/* else, use CopySpan */
 	else
@@ -739,7 +742,8 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	}
 
 	/* make sure copied span has same tag */
-	newL -> laPointsTo -> tag = l -> laPointsTo -> tag;
+	newL -> laPointsTo -> tag     = l -> laPointsTo -> tag;
+	newL -> laPointsTo -> userTag = l -> laPointsTo -> userTag;
 
 
 	/* give back */
