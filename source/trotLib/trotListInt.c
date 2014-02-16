@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Implements the integer math of "Hoof", our single data
 	structure for Trot.
 */
-#define TROT_FILE_NUMBER 6
+#define TROT_FILE_NUMBER 3
 
 /******************************************************************************/
 #include "trot.h"

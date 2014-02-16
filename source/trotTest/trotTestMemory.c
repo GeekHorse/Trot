@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #define MEMORY_MANAGEMENT_REFS_COUNT 10
 
-#define PRINT_ENCODED_LISTS 0
+#define PRINT_ENCODED_LISTS 1
 
 /******************************************************************************/
 /* which malloc to fail on */
@@ -85,7 +85,7 @@ typedef struct
 FailedFunc failedFuncs[] =
 {
 	{ testFailedMallocs1, 1 },
-	{ testFailedMallocs2, 2 },
+	{ testFailedMallocs2, 6 },
 	{ NULL, 0 }
 };
 
@@ -720,17 +720,19 @@ static TROT_RC testFailedMallocs2( int test )
 
 	char *d[] = {
 	/* for encoding */
-	"[ ] ",
-	"[ 100 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 10000 ] ",
+	"[ [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] [ 11 ] ]",
+	"[ [ ] @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 11 @.1 ]",
+	"[ 0 11 0 11 0 11 0 11 0 11 0 11 0 11 0 11 0 11 0 11 0 11 0 ]",
+	"[ [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] ]",
+	"[ [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] ]",
 
 	/* for decoding */
-	/* TODO */
+	"[ [ ] @.1 1 ]"
 	};
 
 	TrotList *lCharacters = NULL;
 	TrotList *lDecodedList1 = NULL;
 	TrotList *lEncodedList1 = NULL;
-	TrotList *lEmptyName = NULL;
 	TrotList *lDecodedList2 = NULL;
 	TrotList *lEncodedList2 = NULL;
 
@@ -740,9 +742,6 @@ static TROT_RC testFailedMallocs2( int test )
 
 
 	/* CODE */
-	rc = trotListInit( &lEmptyName );
-	ERR_IF_PASSTHROUGH;
-
 	/* create characters */
 	rc = trotListInit( &lCharacters );
 	ERR_IF_PASSTHROUGH;
@@ -753,6 +752,7 @@ static TROT_RC testFailedMallocs2( int test )
 	/* *** */
 	rc = trotDecode( lCharacters, &lDecodedList1 );
 	ERR_IF_PASSTHROUGH;
+
 
 	rc = trotEncode( lDecodedList1, &lEncodedList1 );
 	ERR_IF_PASSTHROUGH;
@@ -766,7 +766,6 @@ static TROT_RC testFailedMallocs2( int test )
 	trotHookFree( s );
 	s = NULL;
 #endif
-
 
 	rc = trotDecode( lEncodedList1, &lDecodedList2 );
 	ERR_IF_PASSTHROUGH;
@@ -789,7 +788,6 @@ static TROT_RC testFailedMallocs2( int test )
 	cleanup:
 
 	trotListFree( &lCharacters );
-	trotListFree( &lEmptyName );
 	trotListFree( &lDecodedList1 );
 	trotListFree( &lEncodedList1 );
 	trotListFree( &lDecodedList2 );

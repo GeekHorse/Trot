@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Decodes textual format to trot list.
 */
-#define TROT_FILE_NUMBER 8
+#define TROT_FILE_NUMBER 5
 
 /******************************************************************************/
 #include "trot.h"
@@ -42,10 +42,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number );
 static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList );
 static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference );
-static s32 isWhitespace( TROT_INT character );
-
-/* TODO */
-extern TROT_RC printListLikeCString( TrotList *l );
 
 /******************************************************************************/
 /*!
@@ -87,7 +83,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	/* CODE */
 	/* get count of characters */
 	rc = trotListGetCount( lCharacters, &charactersCount );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* create "top" list */
 	rc = trotListInit( &lTop );
@@ -101,16 +97,30 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	rc = trotListInit( &lStack );
 	ERR_IF_PASSTHROUGH;
 
+	/* skip whitespace */
+	while ( index <= charactersCount )
+	{
+		rc = trotListGetInt( lCharacters, index, &ch );
+		ERR_IF_PASSTHROUGH;
+
+		if ( ! trotUnicodeIsWhitespace( ch ) )
+		{
+			break;
+		}
+
+		index += 1;
+	}
+
 	/* get first word */
 	rc = trotListInit( &lWord );
 	ERR_IF_PASSTHROUGH;
 
-	while ( 1 )
+	while ( index <= charactersCount )
 	{
 		rc = trotListGetInt( lCharacters, index, &ch );
-		ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+		ERR_IF_PASSTHROUGH;
 
-		if ( isWhitespace( ch ) )
+		if ( trotUnicodeIsWhitespace( ch ) )
 		{
 			break;
 		}
@@ -122,7 +132,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	}
 
 	rc = trotListGetCount( lWord, &wordCount );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* first word must be '[' */
 
@@ -131,18 +141,18 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 
 	/* get character */
 	rc = trotListGetInt( lWord, 1, &ch );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* must be [ */
 	ERR_IF_1( ch != '[', TROT_RC_ERROR_DECODE, ch );
 
 	/* skip whitespace */
-	while ( 1 )
+	while ( index <= charactersCount )
 	{
 		rc = trotListGetInt( lCharacters, index, &ch );
-		ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+		ERR_IF_PASSTHROUGH;
 
-		if ( ! isWhitespace( ch ) )
+		if ( ! trotUnicodeIsWhitespace( ch ) )
 		{
 			break;
 		}
@@ -151,7 +161,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	}
 
 	/* decode rest of characters */
-	while ( index <= charactersCount )
+	while ( 1 )
 	{
 		/* get next word */
 		trotListFree( &lWord );
@@ -161,9 +171,9 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 		while ( index <= charactersCount )
 		{
 			rc = trotListGetInt( lCharacters, index, &ch );
-			ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+			ERR_IF_PASSTHROUGH;
 
-			if ( isWhitespace( ch ) )
+			if ( trotUnicodeIsWhitespace( ch ) )
 			{
 				break;
 			}
@@ -175,17 +185,15 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 		}
 
 		rc = trotListGetCount( lWord, &wordCount );
-		ERR_IF_PASSTHROUGH;
-
-printListLikeCString( lWord );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* go ahead and skip whitespace */
 		while ( index <= charactersCount )
 		{
 			rc = trotListGetInt( lCharacters, index, &ch );
-			ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+			ERR_IF_PASSTHROUGH;
 
-			if ( ! isWhitespace( ch ) )
+			if ( ! trotUnicodeIsWhitespace( ch ) )
 			{
 				break;
 			}
@@ -235,21 +243,21 @@ printListLikeCString( lWord );
 
 			/* stack must not be empty */
 			rc = trotListGetCount( lStack, &stackCount );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			ERR_IF_1( stackCount == 0, TROT_RC_ERROR_DECODE, stackCount );
 
 			/* pop off stack */
 			trotListFree( &lCurrent );
 			rc = trotListRemoveList( lStack, -1, &lCurrent );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if tilde */
 		else if ( ch == '~' )
 		{
 			/* remove the tilde */
 			rc = trotListRemove( lWord, 1 );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* the rest of the word must be a number */
 			rc = wordToNumber( lWord, &number );
@@ -257,14 +265,14 @@ printListLikeCString( lWord );
 
 			/* set tag */
 			rc = trotListSetTag( lCurrent, number );
-			ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+			ERR_IF_PASSTHROUGH;
 		}
 		/* if backtick */
 		else if ( ch == '`' )
 		{
 			/* remove the tilde */
 			rc = trotListRemove( lWord, 1 );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* the rest of the word must be a number */
 			rc = wordToNumber( lWord, &number );
@@ -272,7 +280,7 @@ printListLikeCString( lWord );
 
 			/* set tag */
 			rc = trotListSetUserTag( lCurrent, number );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if @ */
 		else if ( ch == '@' )
@@ -285,7 +293,7 @@ printListLikeCString( lWord );
 			/* get reference */
 			trotListFree( &lChild );
 			rc = getReferenceList( lTop, lPartList, &lChild );
-			ERR_IF( rc != TROT_RC_SUCCESS, TROT_RC_ERROR_DECODE );
+			ERR_IF_PASSTHROUGH;
 
 			/* add to current */
 			rc = trotListAppendList( lCurrent, lChild );
@@ -306,7 +314,7 @@ printListLikeCString( lWord );
 
 	/* stack must be empty */
 	rc = trotListGetCount( lStack, &stackCount );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	ERR_IF_1( stackCount != 0, TROT_RC_ERROR_DECODE, stackCount );
 
@@ -430,6 +438,10 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 	\brief
 	\param 
 	\return TROT_RC
+
+	NOTE: assumes word will only contain ints and not lists!
+	ok since this is static, but if that ever changes, may need to change some
+	paranoid checks into passthroughs.
 */
 static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 {
@@ -446,8 +458,8 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 
 	/* PRECOND */
-	ERR_IF( lWord == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( number == NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( lWord == NULL );
+	PARANOID_ERR_IF( number == NULL );
 
 
 	/* CODE */
@@ -457,7 +469,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 	/* get first character */
 	rc = trotListGetInt( lWord, 1, &character );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+	ERR_IF_PASSTHROUGH;
 
 	/* make sure it's a good format */
 	index = 1;
@@ -467,7 +479,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 	}
 
 	rc = trotListGetInt( lWord, index, &character );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+	ERR_IF_PASSTHROUGH;
 
 	ERR_IF_1( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE, character );
 
@@ -626,16 +638,16 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 
 
 	/* PRECOND */
-	ERR_IF( lTop == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( lPartList == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( lReference == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( (*lReference) != NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( lTop == NULL );
+	PARANOID_ERR_IF( lPartList == NULL );
+	PARANOID_ERR_IF( lReference == NULL );
+	PARANOID_ERR_IF( (*lReference) != NULL );
 
 
 	/* CODE */
 	/* get partListCount */
 	rc = trotListGetCount( lPartList, &partListCount );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* get first part */
 	rc = trotListGetList( lPartList, 1, &lPart );
@@ -645,7 +657,7 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	   we already know it starts with '@', so just make sure there's nothing
 	   else in the part */
 	rc = trotListGetCount( lPart, &partCount );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	ERR_IF_1( partCount != 1, TROT_RC_ERROR_DECODE, partCount );
 
@@ -694,47 +706,5 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	trotListFree( &lChild );
 
 	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief 
-	\param 
-	\return TROT_RC
-*/
-static s32 isWhitespace( TROT_INT character )
-{
-	if (    character == '\t'   /* horizontal tab */
-	     || character == '\n'   /* newline */
-	     || character == 0x0B   /* vertical tab */
-	     || character == 0x0C   /* form feed */ 
-	     || character == '\r'   /* carriage return */
-	     || character == ' '    /* space */
-	     || character == 0x85   /* next line */
-	     || character == 0xA0   /* no break space */
-	     || character == 0x1680 /* ogham space mark */
-	     || character == 0x180E /* mongolian vowel separator */
-	     || character == 0x2000 /* en quad */
-	     || character == 0x2001 /* em quad */
-	     || character == 0x2002 /* en space */
-	     || character == 0x2003 /* em space */
-	     || character == 0x2004 /* three-per-em space */
-	     || character == 0x2005 /* four-per-em space */
-	     || character == 0x2006 /* six-per-em space */
-	     || character == 0x2007 /* figure space */
-	     || character == 0x2008 /* punctuation space */
-	     || character == 0x2009 /* thin space */
-	     || character == 0x200A /* hair space */
-	     || character == 0x2028 /* line separator */
-	     || character == 0x2029 /* paragraph separator */
-	     || character == 0x202F /* narrow no-break space */
-	     || character == 0x205F /* medium mathematical space */
-	     || character == 0x3000 /* ideographic space */
-	   )
-	{
-		return 1;
-	}
-
-	return 0;
 }
 

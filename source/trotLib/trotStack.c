@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Used for comparing, and so we don't get into an infinite loop.
 	TODO: this whole file needs to go away when we change how we compare lists
 */
-#define TROT_FILE_NUMBER 3
+#define TROT_FILE_NUMBER 10
 
 /******************************************************************************/
 #include "trot.h"

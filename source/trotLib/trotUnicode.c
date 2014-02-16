@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Table 3-6. UTF-8 Bit Distribution
 	Table 3-7. Well-Formed UTF-8 Byte Sequences
 */
-#define TROT_FILE_NUMBER 5
+#define TROT_FILE_NUMBER 4
 
 /******************************************************************************/
 #include "trot.h"
@@ -371,5 +371,47 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 	cleanup:
 
 	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief TODO
+	\param 
+	\return s32
+*/
+s32 trotUnicodeIsWhitespace( TROT_INT character )
+{
+	if (    character == '\t'   /* horizontal tab */
+	     || character == '\n'   /* newline */
+	     || character == 0x0B   /* vertical tab */
+	     || character == 0x0C   /* form feed */ 
+	     || character == '\r'   /* carriage return */
+	     || character == ' '    /* space */
+	     || character == 0x85   /* next line */
+	     || character == 0xA0   /* no break space */
+	     || character == 0x1680 /* ogham space mark */
+	     || character == 0x180E /* mongolian vowel separator */
+	     || character == 0x2000 /* en quad */
+	     || character == 0x2001 /* em quad */
+	     || character == 0x2002 /* en space */
+	     || character == 0x2003 /* em space */
+	     || character == 0x2004 /* three-per-em space */
+	     || character == 0x2005 /* four-per-em space */
+	     || character == 0x2006 /* six-per-em space */
+	     || character == 0x2007 /* figure space */
+	     || character == 0x2008 /* punctuation space */
+	     || character == 0x2009 /* thin space */
+	     || character == 0x200A /* hair space */
+	     || character == 0x2028 /* line separator */
+	     || character == 0x2029 /* paragraph separator */
+	     || character == 0x202F /* narrow no-break space */
+	     || character == 0x205F /* medium mathematical space */
+	     || character == 0x3000 /* ideographic space */
+	   )
+	{
+		return 1;
+	}
+
+	return 0;
 }
 

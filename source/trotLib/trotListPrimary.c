@@ -2300,7 +2300,6 @@ const char *trotRCToString( TROT_RC rc )
 		"Divide By Zero Error",
 		"Unicode Error",
 		"Decode Error",
-		"Encode Error",
 		"Load Error",
 		"Not Byte Value Error",
 	};

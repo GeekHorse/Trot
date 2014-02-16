@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Encodes trot lists to a textual format.
 */
-#define TROT_FILE_NUMBER 7
+#define TROT_FILE_NUMBER 6
 
 /******************************************************************************/
 #include "trot.h"

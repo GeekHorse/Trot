@@ -151,7 +151,38 @@ int testUnicode()
 	TEST_ERR_IF( testBadCharacter( 0xDFFF ) != 0 );
 	TEST_ERR_IF( testBadCharacter( 0x110000 ) != 0 );
 
+	/* test isWhitespace */
+	printf( "  Testing trotUnicodeIsWhitespace...\n" ); fflush( stdout );
 
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 1 ) != 0 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 'J' ) != 0 );
+
+	TEST_ERR_IF( trotUnicodeIsWhitespace( '\t' ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( '\n' ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x0B ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x0C ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( '\r' ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( ' ' ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x85 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0xA0 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x1680 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x180E ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2000 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2001 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2002 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2003 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2004 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2005 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2006 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2007 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2008 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2009 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x200A ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2028 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x2029 ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x202F ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x205F ) != 1 );
+	TEST_ERR_IF( trotUnicodeIsWhitespace( 0x3000 ) != 1 );
 
 	/* CLEANUP */
 	cleanup:

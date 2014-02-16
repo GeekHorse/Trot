@@ -48,6 +48,7 @@ static int processFiles( char *directory, ProcessFunction func );
 
 static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lName );
 static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lName );
+static int testDecodingAddLists();
 
 /******************************************************************************/
 int testDecodingEncoding()
@@ -61,6 +62,7 @@ int testDecodingEncoding()
 
 	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/good/", testDecodingEncodingGood ) != 0 );
 	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad ) != 0 );
+	TEST_ERR_IF( testDecodingAddLists() != 0 );
 
 
 	/* CLEANUP */
@@ -232,6 +234,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	TrotList *lEncodedList1 = NULL;
 	TrotList *lDecodedList2 = NULL;
 	TrotList *lEncodedList2 = NULL;
+	TrotList *lEncodedList3 = NULL;
 
 	// TrotList *lExpectedEncoding = NULL; TODO
 
@@ -276,6 +279,21 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
+	/* we encode twice to make sure we've correctly reset the internal encoding
+	   numbers in the lists */
+	TEST_ERR_IF( trotEncode( lDecodedList2, &lEncodedList3 ) != TROT_RC_SUCCESS );
+#if PRINT_GOOD_TEST_ENCODINGS
+	TEST_ERR_IF( listToCString( lEncodedList3, &s ) != TROT_RC_SUCCESS );
+
+	printf( "lEncodedList3: %s\n", s );
+
+	trotHookFree( s );
+	s = NULL;
+#endif
+
+	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList3, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+
 	/* TODO: have an option to write out the encoding */
 	/* TODO: have an option to load the encoding and compare it against a known good encoding */
 
@@ -313,11 +331,7 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lNa
 	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
 
 	trot_rc = trotDecode( lBytes, &lDecodedList );
-	if ( trot_rc != TROT_RC_ERROR_DECODE )
-	{
-		printf( "trot_rc should be TROT_RC_ERROR_DECODE but was %d\n", trot_rc );
-		TEST_ERR_IF( 1 );
-	}
+	TEST_ERR_IF( trot_rc == TROT_RC_SUCCESS );
 
 
 	/* CLEANUP */
@@ -325,6 +339,63 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lNa
 
 	trotListFree( &lBytes );
 	trotListFree( &lDecodedList );
+
+	return rc;
+}
+
+/******************************************************************************/
+static int testDecodingAddLists()
+{
+	/* DATA */
+	int rc = 0;
+	TROT_RC trot_rc = TROT_RC_SUCCESS;
+
+	TROT_INT i = 0;
+	TROT_INT count = 0;
+	char *characters = "[ [ ] @.1 1 ]";
+	TrotList *lCharacters = NULL;
+	TrotList *lDecoded = NULL;
+
+
+	/* CODE */
+	i = 1;
+	while ( 1 )
+	{
+		/* create lCharacters */
+		trotListFree( &lCharacters );
+		trot_rc = trotListInit( &lCharacters );
+		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
+
+		trot_rc = appendCStringToList( lCharacters, characters );
+		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
+
+		/* get count */
+		trotListGetCount( lCharacters, &count );
+
+		if ( i > count + 1 )
+		{
+			break;
+		}
+
+		/* add a list at i, we reuse lCharacters because it already exists */
+		trot_rc = trotListInsertList( lCharacters, i, lCharacters );
+		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
+
+		/* decode, which should fail */
+		trotListFree( &lDecoded );
+		trot_rc = trotDecode( lCharacters, &lDecoded );
+		TEST_ERR_IF( trot_rc == TROT_RC_SUCCESS );
+
+		/* increment */
+		i += 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( &lCharacters );
+	trotListFree( &lDecoded );
 
 	return rc;
 }

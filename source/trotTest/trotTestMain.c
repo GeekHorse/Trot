@@ -182,12 +182,6 @@ int main( int argc, char **argv )
 		TEST_ERR_IF( testPreconditions() != 0 );
 	}
 
-	/* TODO: remove this, since i copied and pasted it up here */
-	if ( flagTestAll || flagTestDecodingEncoding )
-	{
-		TEST_ERR_IF( testDecodingEncoding() != 0 );
-	}
-
 	if ( flagTestAll || flagTestMisc )
 	{
 		TEST_ERR_IF( testMisc() != 0 );

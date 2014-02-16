@@ -78,13 +78,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_ERROR_DIVIDE_BY_ZERO 2005
 #define TROT_RC_ERROR_UNICODE        2006
 #define TROT_RC_ERROR_DECODE         2007
-#define TROT_RC_ERROR_ENCODE         2008
-#define TROT_RC_ERROR_LOAD           2009
-#define TROT_RC_ERROR_NOT_BYTE_VALUE 2010
+#define TROT_RC_ERROR_LOAD           2008
+#define TROT_RC_ERROR_NOT_BYTE_VALUE 2009
 
 /* These must be kept in sync with the above defines */
 #define TROT_RC_TROT_ERRORS_MIN     2001
-#define TROT_RC_TROT_ERRORS_MAX     2010
+#define TROT_RC_TROT_ERRORS_MAX     2009
 
 /******************************************************************************/
 typedef enum
@@ -194,6 +193,7 @@ TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd 
 /* trotUnicode.c */
 TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters );
 TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes );
+s32 trotUnicodeIsWhitespace( TROT_INT character );
 
 /******************************************************************************/
 /* trotDecoding.c */

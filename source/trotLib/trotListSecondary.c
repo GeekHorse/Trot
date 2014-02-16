@@ -227,6 +227,9 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
 		On success, this will be a copy of the list.
 	\return TROT_RC
+
+	This only copies the 1st level, it does not recurse. If you want a "deep"
+	copy, then encode then decode a list.
 */
 TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 {
