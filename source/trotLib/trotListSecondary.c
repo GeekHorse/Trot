@@ -62,7 +62,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	maybe we just need a "string compare" that will only compare 1 level deep
 	and then a true compare that uses encoding. ... same with copy?
 
-	if we use encode, for true compare, we can also get rid of our trotStack
+	TODO: need to remove this, and just implement it in Trot itself
+	that way, it will be easier, plus, people can modify it to suit their
+	needs. What if they want tags to match, but not usertags, etc.
+
+	TODO: a true compare can be done by using encode, and comparing the
+	resulting character lists.
 */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
@@ -641,6 +646,11 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
 		On success, this will be a copy of the span.
 	\return TROT_RC
+
+	TODO: This could potentially be removed and reimplemented when the Trot
+	virtual machine is finished. Which would make it slower, but would make
+	the trot library smaller. Do we want to eliminate everything from the
+	library that can be implemented in Trot?
 */
 TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
 {

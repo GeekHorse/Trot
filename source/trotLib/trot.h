@@ -148,6 +148,8 @@ TROT_RC trotListInit( TrotList **l_A );
 TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A );
 void trotListFree( TrotList **l_F );
 
+TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame );
+
 TROT_RC trotListGetCount( TrotList *l, TROT_INT *c );
 
 TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind );

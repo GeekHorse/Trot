@@ -89,9 +89,29 @@ int testPrimaryFunctionality()
 	TrotList *l = NULL;
 	TROT_INT tag = 0;
 
+	TrotList *l1 = NULL;
+	TrotList *l2 = NULL;
+	TROT_INT isSame = 0;
+
 
 	/* CODE */
 	printf( "Testing primary functionality..." ); fflush( stdout );
+
+	/* test refCompare */
+	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListTwin( l, &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( &l2 ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotListRefCompare( l, l, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( isSame != 1 );
+	TEST_ERR_IF( trotListRefCompare( l, l1, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( isSame != 1 );
+	TEST_ERR_IF( trotListRefCompare( l1, l2, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( isSame != 0 );
+
+	trotListFree( &l );
+	trotListFree( &l1 );
+	trotListFree( &l2 );
 
 	/* test tags */
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );

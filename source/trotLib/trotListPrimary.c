@@ -361,6 +361,42 @@ void trotListFree( TrotList **l_F )
 
 /******************************************************************************/
 /*!
+	\brief Compares list references to see if they point to the same list.
+	\param l1 First reference.
+	\param l2 Second reference.
+	\param isSame 0 if refs point to different lists, 1 if they point to the
+		same lists.
+	\return TROT_RC
+*/
+TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+
+	/* PRECOND */
+	ERR_IF( l1 == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( l2 == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( isSame == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	(*isSame) = 0;
+
+	if ( l1->laPointsTo == l2->laPointsTo )
+	{
+		(*isSame) = 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
 	\brief Gets the count of items in the list.
 	\param l Pointer to a TrotList pointer.
 	\param c On success, will contain the count of this list.
