@@ -398,12 +398,12 @@ int checkList( TrotList *l )
 	/* DATA */
 	int rc = 0;
 
-	trotListActual *la = NULL;
-	trotListActual *subLa = NULL;
-	trotListNode *node = NULL;
+	TrotListActual *la = NULL;
+	TrotListActual *subLa = NULL;
+	TrotListNode *node = NULL;
 
-	trotListRefListNode *refNode = NULL;
-	trotListRefListNode *subRefNode = NULL;
+	TrotListRefListNode *refNode = NULL;
+	TrotListRefListNode *subRefNode = NULL;
 
 	int i = 0;
 	int j = 0;
@@ -595,10 +595,10 @@ static void printIndent( int indent )
 void printList( TrotList *l, int indent )
 {
 	/* DATA */
-	trotListActual *la = l->laPointsTo;
-	trotListNode *node = la->head->next;
+	TrotListActual *la = l->laPointsTo;
+	TrotListNode *node = la->head->next;
 	int i = 0;
-	/* trotListRefListNode *refNode = la->refListHead->next; */
+	/* TrotListRefListNode *refNode = la->refListHead->next; */
 
 
 	/* CODE */

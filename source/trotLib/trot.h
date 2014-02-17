@@ -48,7 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* This defines s32 as a signed 32-bit integer */
-#define s32 int
+#define s32 signed int
 /* This defines u8 as an unsigned 8-bit integer */
 #define u8  unsigned char
 

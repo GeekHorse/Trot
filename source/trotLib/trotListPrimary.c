@@ -55,11 +55,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *la, TrotList *l );
-static void _refListRemove( trotListActual *la, TrotList *l );
+static TROT_RC _refListAdd( TrotListActual *la, TrotList *l );
+static void _refListRemove( TrotListActual *la, TrotList *l );
 
-static void _isListReachable( trotListActual *la );
-static TROT_INT _findNextParent( trotListActual *la, TROT_INT queryVisited, trotListActual **parent );
+static void _isListReachable( TrotListActual *la );
+static TROT_INT _findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotListActual **parent );
 
 /******************************************************************************/
 /*!
@@ -73,12 +73,12 @@ TROT_RC trotListInit( TrotList **l_A )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRefListNode *newRefHead = NULL;
-	trotListRefListNode *newRefTail = NULL;
+	TrotListRefListNode *newRefHead = NULL;
+	TrotListRefListNode *newRefTail = NULL;
 
-	trotListNode *newHead = NULL;
-	trotListNode *newTail = NULL;
-	trotListActual *newLa = NULL;
+	TrotListNode *newHead = NULL;
+	TrotListNode *newTail = NULL;
+	TrotListActual *newLa = NULL;
 	TrotList *newL = NULL;
 
 
@@ -89,8 +89,8 @@ TROT_RC trotListInit( TrotList **l_A )
 
 	/* CODE */
 	/* create list of refs that point to this list */
-	TROT_MALLOC( newRefHead, trotListRefListNode, 1 );
-	TROT_MALLOC( newRefTail, trotListRefListNode, 1 );
+	TROT_MALLOC( newRefHead, TrotListRefListNode, 1 );
+	TROT_MALLOC( newRefTail, TrotListRefListNode, 1 );
 
 	newRefHead->count = 0;
 	newRefHead->l = NULL;
@@ -103,8 +103,8 @@ TROT_RC trotListInit( TrotList **l_A )
 	newRefTail->prev = newRefHead;
 
 	/* create the data list */
-	TROT_MALLOC( newHead, trotListNode, 1 );
-	TROT_MALLOC( newTail, trotListNode, 1 );
+	TROT_MALLOC( newHead, TrotListNode, 1 );
+	TROT_MALLOC( newTail, TrotListNode, 1 );
 
 	newHead->kind = NODE_KIND_HEAD_OR_TAIL;
 	newHead->count = 0;
@@ -121,7 +121,7 @@ TROT_RC trotListInit( TrotList **l_A )
 	newTail->next = newTail;
 
 	/* create actual list structure */
-	TROT_MALLOC( newLa, trotListActual, 1 );
+	TROT_MALLOC( newLa, TrotListActual, 1 );
 
 	newLa->reachable = 1;
 	newLa->flagVisited = 0;
@@ -252,15 +252,15 @@ TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A )
 void trotListFree( TrotList **l_F )
 {
 	/* DATA */
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT j = 0;
-	trotListActual *tempList = NULL;
+	TrotListActual *tempList = NULL;
 
-	trotListActual *nextL = NULL;
-	trotListActual *currentL = NULL;
+	TrotListActual *nextL = NULL;
+	TrotListActual *currentL = NULL;
 
 
 	/* CODE */
@@ -433,9 +433,9 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -496,10 +496,10 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
-	trotListNode *node = NULL;
+	TrotListActual *la = NULL;
+	TrotListNode *node = NULL;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -561,10 +561,10 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
-	trotListNode *node = NULL;
+	TrotListActual *la = NULL;
+	TrotListNode *node = NULL;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 	TrotList *newL = NULL;
 
@@ -638,16 +638,16 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -804,16 +804,16 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 	TrotList *newL = NULL;
 
@@ -1002,9 +1002,9 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1069,7 +1069,7 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1139,7 +1139,7 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1226,7 +1226,7 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1314,7 +1314,7 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1414,9 +1414,9 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1425,7 +1425,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -1602,9 +1602,9 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
@@ -1615,7 +1615,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -1920,12 +1920,12 @@ TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag )
 	\param keepInLeft How many items to keep in n.
 	\return TROT_RC
 */
-TROT_RC trotListNodeSplit( trotListNode *n, TROT_INT keepInLeft )
+TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 	TROT_INT i = 0;
 
@@ -1933,7 +1933,7 @@ TROT_RC trotListNodeSplit( trotListNode *n, TROT_INT keepInLeft )
 	/* CODE */
 	PARANOID_ERR_IF( n == NULL );
 
-	TROT_MALLOC( newNode, trotListNode, 1 );
+	TROT_MALLOC( newNode, TrotListNode, 1 );
 
 	if ( n->kind == NODE_KIND_INT )
 	{
@@ -1992,23 +1992,23 @@ TROT_RC trotListNodeSplit( trotListNode *n, TROT_INT keepInLeft )
 
 /******************************************************************************/
 /*!
-	\brief Creates a new trotListNode for Int.
+	\brief Creates a new TrotListNode for Int.
 	\param n_A On success, the new malloc'd node.
 	\return TROT_RC
 */
-TROT_RC newIntNode( trotListNode **n_A )
+TROT_RC newIntNode( TrotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* CODE */
 	PARANOID_ERR_IF( n_A == NULL );
 	PARANOID_ERR_IF( (*n_A) != NULL );
 
-	TROT_MALLOC( newNode, trotListNode, 1 );
+	TROT_MALLOC( newNode, TrotListNode, 1 );
 
 	newNode->kind = NODE_KIND_INT;
 	newNode->count = 0;
@@ -2033,23 +2033,23 @@ TROT_RC newIntNode( trotListNode **n_A )
 
 /******************************************************************************/
 /*!
-	\brief Creates a new trotListNode for List.
+	\brief Creates a new TrotListNode for List.
 	\param n_A On success, the new malloc'd node.
 	\return TROT_RC
 */
-TROT_RC newListNode( trotListNode **n_A )
+TROT_RC newListNode( TrotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 
 	/* CODE */
 	PARANOID_ERR_IF( n_A == NULL );
 	PARANOID_ERR_IF( (*n_A) != NULL );
 
-	TROT_MALLOC( newNode, trotListNode, 1 );
+	TROT_MALLOC( newNode, TrotListNode, 1 );
 
 	newNode->kind = NODE_KIND_LIST;
 	newNode->count = 0;
@@ -2073,14 +2073,14 @@ TROT_RC newListNode( trotListNode **n_A )
 }
 
 /******************************************************************************/
-static TROT_RC _refListAdd( trotListActual *la, TrotList *l )
+static TROT_RC _refListAdd( TrotListActual *la, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListRefListNode *refNode = NULL;
+	TrotListRefListNode *refNode = NULL;
 
-	trotListRefListNode *newRefNode = NULL;
+	TrotListRefListNode *newRefNode = NULL;
 
 
 	/* CODE */
@@ -2103,7 +2103,7 @@ static TROT_RC _refListAdd( trotListActual *la, TrotList *l )
 
 	/* there was no room in list, so create new node, insert ref into new
 	   node, and insert node into list */
-	TROT_MALLOC( newRefNode, trotListRefListNode, 1 );
+	TROT_MALLOC( newRefNode, TrotListRefListNode, 1 );
 
 	TROT_CALLOC( newRefNode->l, TrotList *, REF_LIST_NODE_SIZE );
 
@@ -2127,10 +2127,10 @@ static TROT_RC _refListAdd( trotListActual *la, TrotList *l )
 }
 
 /******************************************************************************/
-static void _refListRemove( trotListActual *la, TrotList *l )
+static void _refListRemove( TrotListActual *la, TrotList *l )
 {
 	/* DATA */
-	trotListRefListNode *refNode = NULL;
+	TrotListRefListNode *refNode = NULL;
 
 	TROT_INT i = 0;
 
@@ -2189,16 +2189,16 @@ static void _refListRemove( trotListActual *la, TrotList *l )
 }
 
 /******************************************************************************/
-static void _isListReachable( trotListActual *la )
+static void _isListReachable( TrotListActual *la )
 {
 	/* DATA */
 	int flagFoundClientRef = 0;
 
-	trotListActual *currentLa = NULL;
+	TrotListActual *currentLa = NULL;
 
-	trotListActual *parent = NULL;
+	TrotListActual *parent = NULL;
 
-	trotListActual *tempLa = NULL;
+	TrotListActual *tempLa = NULL;
 
 
 	/* CODE */
@@ -2271,14 +2271,14 @@ static void _isListReachable( trotListActual *la )
 }
 
 /******************************************************************************/
-static TROT_INT _findNextParent( trotListActual *la, TROT_INT queryVisited, trotListActual **parent )
+static TROT_INT _findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotListActual **parent )
 {
 	/* DATA */
-	trotListRefListNode *refNode = NULL;
+	TrotListRefListNode *refNode = NULL;
 
 	TROT_INT i = 0;
 
-	trotListActual *tempParent = NULL;
+	TrotListActual *tempParent = NULL;
 
 
 	/* CODE */

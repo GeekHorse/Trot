@@ -52,8 +52,8 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
-	trotListNode *node = NULL;
+	TrotListActual *la = NULL;
+	TrotListNode *node = NULL;
 	TROT_INT value = 0;
 
 
@@ -130,8 +130,8 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
-	trotListNode *node = NULL;
+	TrotListActual *la = NULL;
+	TrotListNode *node = NULL;
 
 
 	/* PRECOND */

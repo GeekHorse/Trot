@@ -74,21 +74,21 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotStack *stack = NULL;
-	trotStackNode *stackNode = NULL;
+	TrotStack *stack = NULL;
+	TrotStackNode *stackNode = NULL;
 	TROT_INT stackEmpty = 0;
 
-	trotListActual *la1 = NULL;
+	TrotListActual *la1 = NULL;
 	TROT_INT count1 = 0;
 	TROT_INT n1 = 0;
 	TROT_INT kind1 = NODE_KIND_HEAD_OR_TAIL;
-	trotListActual *subLa1 = NULL;
+	TrotListActual *subLa1 = NULL;
 
-	trotListActual *la2 = NULL;
+	TrotListActual *la2 = NULL;
 	TROT_INT count2 = 0;
 	TROT_INT n2 = 0;
 	TROT_INT kind2 = NODE_KIND_HEAD_OR_TAIL;
-	trotListActual *subLa2 = NULL;
+	TrotListActual *subLa2 = NULL;
 
 	TROT_INT index = 0;
 
@@ -291,19 +291,19 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 	TROT_INT tempI = 0;
 
-	trotListNode *node = NULL;
+	TrotListNode *node = NULL;
 
 	TROT_INT count = 0;
 
-	trotListNode *startNode = NULL;
+	TrotListNode *startNode = NULL;
 
 	TrotList *newL = NULL;
-	trotListActual *newLa = NULL;
+	TrotListActual *newLa = NULL;
 
-	trotListNode *newNode = NULL;
+	TrotListNode *newNode = NULL;
 
 	TROT_INT i = 0;
 
@@ -483,12 +483,12 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
 	TROT_INT count = 0;
 
-	trotListNode *node = NULL;
-	trotListNode *insertBeforeThisNode = NULL;
+	TrotListNode *node = NULL;
+	TrotListNode *insertBeforeThisNode = NULL;
 
 	TrotList *delistL = NULL;
 	TrotList *copiedL = NULL;
@@ -661,14 +661,14 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotListActual *la = NULL;
+	TrotListActual *la = NULL;
 
 	TROT_INT tempI = 0;
 
 	TrotList *newL = NULL;
 
-	trotListNode *node = NULL;
-	trotListNode *tail = NULL;
+	TrotListNode *node = NULL;
+	TrotListNode *tail = NULL;
 
 	TROT_INT count = 0;
 

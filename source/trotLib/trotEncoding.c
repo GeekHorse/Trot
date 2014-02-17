@@ -469,7 +469,7 @@ static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
 	TROT_INT index = 0;
 	TROT_INT count = 0;
 
-	trotListActual *laParent = NULL;
+	TrotListActual *laParent = NULL;
 
 
 	/* CODE */

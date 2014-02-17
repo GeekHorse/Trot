@@ -48,24 +48,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param stack On success, the new stack.
 	\return TROT_RC
 */
-TROT_RC trotStackInit( trotStack **stack )
+TROT_RC trotStackInit( TrotStack **stack )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotStack *newStack = NULL;
+	TrotStack *newStack = NULL;
 
-	trotStackNode *newHead = NULL;
-	trotStackNode *newTail = NULL;
+	TrotStackNode *newHead = NULL;
+	TrotStackNode *newTail = NULL;
 
 
 	/* CODE */
 	PARANOID_ERR_IF( stack == NULL );
 	PARANOID_ERR_IF( (*stack) != NULL );
 
-	TROT_MALLOC( newHead, trotStackNode, 1 );
-	TROT_MALLOC( newTail, trotStackNode, 1 );
-	TROT_MALLOC( newStack, trotStack, 1 );
+	TROT_MALLOC( newHead, TrotStackNode, 1 );
+	TROT_MALLOC( newTail, TrotStackNode, 1 );
+	TROT_MALLOC( newStack, TrotStack, 1 );
 
 	newHead->la1 = NULL;
 	newHead->la1Node = NULL;
@@ -113,10 +113,10 @@ TROT_RC trotStackInit( trotStack **stack )
 	\param stack The stack to free.
 	\return void
 */
-void trotStackFree( trotStack **stack )
+void trotStackFree( TrotStack **stack )
 {
 	/* DATA */
-	trotStackNode *node = NULL;
+	TrotStackNode *node = NULL;
 
 
 	/* CODE */
@@ -151,14 +151,14 @@ void trotStackFree( trotStack **stack )
 	\param la2 The second list.
 	\return TROT_RC
 */
-TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la2 )
+TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la2 )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	trotStackNode *node = NULL;
+	TrotStackNode *node = NULL;
 
-	trotStackNode *newNode = NULL;
+	TrotStackNode *newNode = NULL;
 
 
 	/* CODE */
@@ -180,7 +180,7 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la
 	}
 
 	/* not already in stack, so lets add */
-	TROT_MALLOC( newNode, trotStackNode, 1 );
+	TROT_MALLOC( newNode, TrotStackNode, 1 );
 
 	newNode->la1 = la1;
 	newNode->la1Node = la1->head;
@@ -212,10 +212,10 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la
 	       has items still on it.
 	\return TROT_RC
 */
-TROT_RC trotStackPop( trotStack *stack, TROT_INT *empty )
+TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty )
 {
 	/* DATA */
-	trotStackNode *node = NULL;
+	TrotStackNode *node = NULL;
 
 
 	/* CODE */
@@ -249,10 +249,10 @@ TROT_RC trotStackPop( trotStack *stack, TROT_INT *empty )
 	\param stack The stack we want to manipulate.
 	\return TROT_RC
 */
-TROT_RC trotStackIncrementTopIndex( trotStack *stack )
+TROT_RC trotStackIncrementTopIndex( TrotStack *stack )
 {
 	/* DATA */
-	trotStackNode *stackNode = NULL;
+	TrotStackNode *stackNode = NULL;
 
 	/* CODE */
 	PARANOID_ERR_IF( stack == NULL );
