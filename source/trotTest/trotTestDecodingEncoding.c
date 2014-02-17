@@ -233,7 +233,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	TrotList *lEncodedList2 = NULL;
 	TrotList *lEncodedList3 = NULL;
 
-	// TrotList *lExpectedEncoding = NULL; TODO
+	TrotList *lExpectedEncoding = NULL;
 
 	TROT_LIST_COMPARE_RESULT compareResult;
 #if PRINT_GOOD_TEST_ENCODINGS
@@ -255,7 +255,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 #if PRINT_GOOD_TEST_ENCODINGS
 	TEST_ERR_IF( listToCString( lEncodedList1, &s ) != TROT_RC_SUCCESS );
 
-	printf( "lEncodedList1: %s\n", s );
+	printf( "lEncodedList1:     \"%s\"\n", s );
 
 	trotHookFree( s );
 	s = NULL;
@@ -267,7 +267,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 #if PRINT_GOOD_TEST_ENCODINGS
 	TEST_ERR_IF( listToCString( lEncodedList2, &s ) != TROT_RC_SUCCESS );
 
-	printf( "lEncodedList2: %s\n", s );
+	printf( "lEncodedList2:     \"%s\"\n", s );
 
 	trotHookFree( s );
 	s = NULL;
@@ -282,7 +282,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 #if PRINT_GOOD_TEST_ENCODINGS
 	TEST_ERR_IF( listToCString( lEncodedList3, &s ) != TROT_RC_SUCCESS );
 
-	printf( "lEncodedList3: %s\n", s );
+	printf( "lEncodedList3:     \"%s\"\n", s );
 
 	trotHookFree( s );
 	s = NULL;
@@ -291,8 +291,22 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList3, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
-	/* TODO: have an option to write out the encoding */
-	/* TODO: have an option to load the encoding and compare it against a known good encoding */
+	/* read in the "expected" encoding, and see if it matches */
+	TEST_ERR_IF( trotListAppendInt( lName, 'E' ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( load( lName, &lExpectedEncoding ) != 0 );
+	TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+	
+#if PRINT_GOOD_TEST_ENCODINGS
+	TEST_ERR_IF( listToCString( lExpectedEncoding, &s ) != TROT_RC_SUCCESS );
+
+	printf( "lExpectedEncoding: \"%s\"\n", s );
+
+	trotHookFree( s );
+	s = NULL;
+#endif
+
+	TEST_ERR_IF( trotListCompare( lEncodedList1, lExpectedEncoding, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
 
 	/* CLEANUP */
@@ -303,6 +317,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	trotListFree( &lEncodedList1 );
 	trotListFree( &lDecodedList2 );
 	trotListFree( &lEncodedList2 );
+	trotListFree( &lExpectedEncoding );
 
 	return rc;
 }
