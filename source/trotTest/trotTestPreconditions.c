@@ -60,6 +60,9 @@ int testPreconditions()
 	TEST_ERR_IF( trotListTwin( l1, NULL ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListTwin( l1, &l1 ) != TROT_RC_ERROR_PRECOND );
 
+	trotListFree( NULL );
+	trotListFree( &l2 );
+
 	TEST_ERR_IF( trotListRefCompare( NULL, l1, &n ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( l1, NULL, &n ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );

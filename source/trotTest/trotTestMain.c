@@ -40,6 +40,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int _getArgValue( int argc, char **argv, char *key, char **value );
 
 /******************************************************************************/
+void logNoop( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c )
+{
+	(void)library; (void)file; (void)line; (void)rc; (void)a; (void)b; (void)c;
+}
+
+/******************************************************************************/
 int main( int argc, char **argv )
 {
 	/* DATA */
@@ -175,16 +181,21 @@ int main( int argc, char **argv )
 	TEST_ERR_IF( sizeof( TROT_INT ) != TROT_INT_SIZE );
 	TEST_ERR_IF( sizeof( s32 ) != 4 );
 	TEST_ERR_IF( sizeof( u8 ) != 1 );
+	TEST_ERR_IF( TROT_MAX_CHILDREN > TROT_INT_MAX );
 
 	/* **************************************** */
-	if ( flagTestAll || flagTestPreconditions )
-	{
-		TEST_ERR_IF( testPreconditions() != 0 );
-	}
-
 	if ( flagTestAll || flagTestMisc )
 	{
 		TEST_ERR_IF( testMisc() != 0 );
+	}
+
+	/* when we test, lots of expected errors happen, so we turn off logging */
+	printf( "Disabling trotHookLog...\n" ); fflush( stdout );
+	trotHookLog = logNoop;
+
+	if ( flagTestAll || flagTestPreconditions )
+	{
+		TEST_ERR_IF( testPreconditions() != 0 );
 	}
 
 	if ( flagTestAll || flagTestBadTypesIndicesIntegerOps )

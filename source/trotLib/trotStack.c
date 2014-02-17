@@ -33,7 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Only used during Compare.
 	Keeps track of a stack of two lists we're comparing.
 	Used for comparing, and so we don't get into an infinite loop.
-	TODO: this whole file needs to go away when we change how we compare lists
+	TODO: This can go away once we move things out of the library and into
+	Trot itself.
 */
 #define TROT_FILE_NUMBER 10
 

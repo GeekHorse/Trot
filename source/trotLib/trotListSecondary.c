@@ -546,6 +546,10 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* get our delist list */
 	delistL = node->l[ 0 ];
 
+	/* lists cannot hold more than TROT_MAX_CHILDREN, so make sure we have room */
+	/* plus 1 because when you delist, you're removing a list, and then adding the children */
+	ERR_IF( TROT_MAX_CHILDREN - la->childrenCount + 1 < delistL->laPointsTo->childrenCount, TROT_RC_ERROR_LIST_OVERFLOW );
+
 	/* copy our delist (only if it contains something) */
 	if ( delistL->laPointsTo->childrenCount > 0 )
 	{

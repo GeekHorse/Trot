@@ -70,20 +70,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_STANDARD_ERRORS_MAX            3
 
 /* Trot specific rc values */
-/* TODO: when we remove decoding, tokenize, make sure all these are still used */
 #define TROT_RC_ERROR_BAD_INDEX      2001
 #define TROT_RC_ERROR_WRONG_KIND     2002
-#define TROT_RC_ERROR_INVALID_OP     2003
-#define TROT_RC_ERROR_BAD_TAG        2004
-#define TROT_RC_ERROR_DIVIDE_BY_ZERO 2005
-#define TROT_RC_ERROR_UNICODE        2006
-#define TROT_RC_ERROR_DECODE         2007
-#define TROT_RC_ERROR_LOAD           2008
-#define TROT_RC_ERROR_NOT_BYTE_VALUE 2009
+#define TROT_RC_ERROR_LIST_OVERFLOW  2003
+#define TROT_RC_ERROR_INVALID_OP     2004
+#define TROT_RC_ERROR_BAD_TAG        2005
+#define TROT_RC_ERROR_DIVIDE_BY_ZERO 2006
+#define TROT_RC_ERROR_UNICODE        2007
+#define TROT_RC_ERROR_DECODE         2008
 
 /* These must be kept in sync with the above defines */
 #define TROT_RC_TROT_ERRORS_MIN     2001
-#define TROT_RC_TROT_ERRORS_MAX     2009
+#define TROT_RC_TROT_ERRORS_MAX     2008
 
 /******************************************************************************/
 typedef enum
@@ -97,14 +95,14 @@ typedef enum
 #define TROT_TAG_CODE 1
 /* TODO: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
-#define TROT_TAG_MIN 0 /* TODO */
-#define TROT_TAG_MAX 1 /* TODO */
+#define TROT_TAG_MIN 0
+#define TROT_TAG_MAX 1
 
 /******************************************************************************/
 #define TROT_INT_SIZE 4
 
 #if ( TROT_INT_SIZE == 4 )
-#define TROT_INT int
+#define TROT_INT signed int
 #define TROT_INT_MAX         2147483647
 #define TROT_INT_MAX_STRING "2147483647"
 #define TROT_INT_MAX_STRING_LENGTH 10
@@ -112,6 +110,10 @@ typedef enum
 #define TROT_INT_MIN_STRING_LENGTH 11
 #else
 #error NEED TO DEFINE TROT_INT FOR TROT_INT_SIZE
+#endif
+
+#ifndef TROT_MAX_CHILDREN
+#define TROT_MAX_CHILDREN TROT_INT_MAX
 #endif
 
 /******************************************************************************/
@@ -138,9 +140,6 @@ extern void (*trotHookFree)( void *ptr );
    prints to stderr, but you can change this to plug Trot into your own
    logging system. */
 extern void (*trotHookLog)( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c );
-
-/******************************************************************************/
-typedef TROT_RC (*TrotLoadFunc)( TrotList *lName, TrotList **lBytes );
 
 /******************************************************************************/
 /* trotListPrimary.c */

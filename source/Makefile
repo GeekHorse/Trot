@@ -20,8 +20,8 @@ usage:
 	@echo "targets:"
 	@echo "  fast     - build fast version"
 	@echo "  small    - build small version"
-	@echo "  debug    - build for debug"
-	@echo "  debug2   - build for debug that includes PARANOID checks"
+	@echo "  debug    - build for debug, with smaller TROT_MAX_CHILDREN"
+	@echo "  debug2   - build for debug, with smaller TROT_MAX_CHILDREN, and PARANOID checks"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
@@ -38,9 +38,11 @@ small: all
 
 debug2: ARGS = debug2
 debug2: CFLAGS += -DBE_PARANOID
+debug2: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug2: all
 
 debug: ARGS = debug
+debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug: all
 
 profile: ARGS = profile

@@ -283,20 +283,13 @@ TROT_RC newIntNode( trotListNode **n_A );
 TROT_RC newListNode( trotListNode **n_A );
 
 /******************************************************************************/
-/* trotStack.c */ /* TODO: when are these used? */
+/* trotStack.c */
 TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
 TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la2 );
 TROT_RC trotStackPop( trotStack *stack, int *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
-
-/******************************************************************************/
-/* trotTokenize.c */
-/* TODO: remove some of these */
-TROT_RC trotTokenize( TrotList *lCharacters, TrotList **lTokenList_A );
-TROT_RC trotCreateToken( TROT_INT line, TROT_INT column, TROT_INT tokenType, TrotList **lToken_A );
-TROT_RC _trotWordToNumber( TrotList *lWord, int *isNumber, TROT_INT *number );
 
 /******************************************************************************/
 /* trotListInt.c */

@@ -51,8 +51,6 @@ static int (*createFunctions[])( TrotList **, int ) =
 		createHalfIntHalfList,
 		createHalfListHalfInt,
 
-/*		createSelfRefs, */
-
 		NULL
 	};
 
@@ -61,6 +59,7 @@ static int (*createFunctions[])( TrotList **, int ) =
 static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size );
 static int testEnlistDelist( int (*createFunction)( TrotList **, int ), int size );
 static int testSpans( int (*createFunction)( TrotList **, int ), int size );
+static int testMaxChildrenWithDelist();
 
 static int (*testFunctions[])( int (*)( TrotList **, int ), int ) = 
 	{
@@ -115,6 +114,10 @@ int testSecondaryFunctionality()
 			count *= 2;
 		}
 	}
+
+	/* test TROT_MAX_CHILDREN with delist */
+	TEST_ERR_IF( testMaxChildrenWithDelist() != 0 );
+
 
 	printf( "\n" ); fflush( stdout );
 
@@ -572,6 +575,85 @@ static int testSpans( int (*createFunction)( TrotList **, int ), int size )
 	cleanup:
 
 	printf( "\x1b[31;1mFAILED AT %d size:%d count:%d index1:%d usedIndex1:%d index2:%d usedIndex2:%d delistIndex:%d\n\x1b[0m", rc, size, count, index1, usedIndex1, index2, usedIndex2, delistIndex );
+	return rc;
+}
+
+/******************************************************************************/
+static int testMaxChildrenWithDelist()
+{
+	/* DATA */
+	int rc = 0;
+
+	TROT_INT count = 0;
+	TrotList *l = NULL;
+	TrotList *lwith1 = NULL;
+	TrotList *lwith2 = NULL;
+
+
+	/* CODE */
+	/* create our main l, to have TROT_MAX_CHILDREN - 1 children */
+	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+	
+	count = 1;
+	while ( count < TROT_MAX_CHILDREN )
+	{
+		TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_SUCCESS );
+
+		/* increment */
+		count += 1;
+	}
+
+	/* create lwith1, to have 1 child */
+	TEST_ERR_IF( trotListInit( &lwith1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lwith1, 1 ) != TROT_RC_SUCCESS );
+
+	/* create lwith2, to have 2 children */
+	TEST_ERR_IF( trotListInit( &lwith2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lwith2, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lwith2, 1 ) != TROT_RC_SUCCESS );
+
+	/* verify counts */
+	TEST_ERR_IF( trotListGetCount( l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != ( TROT_MAX_CHILDREN - 1 ) );
+
+	TEST_ERR_IF( trotListGetCount( lwith1, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != 1 );
+
+	TEST_ERR_IF( trotListGetCount( lwith2, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != 2 );
+
+	/* test adding lwith1 and delisting, which should work */
+	TEST_ERR_IF( trotListAppendList( l, lwith1 ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotListGetCount( l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
+
+	TEST_ERR_IF( trotListDelist( l, -1 ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotListGetCount( l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
+
+	/* test adding lwith2 and delisting, which should fail */
+	TEST_ERR_IF( trotListRemove( l, -1 ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotListAppendList( l, lwith2 ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotListGetCount( l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
+
+	TEST_ERR_IF( trotListDelist( l, -1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+
+	TEST_ERR_IF( trotListGetCount( l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
+
+	trotListFree( &l );
+	trotListFree( &lwith1 );
+	trotListFree( &lwith2 );
+
+
+	/* CLEANUP */
+	cleanup:
+
 	return rc;
 }
 

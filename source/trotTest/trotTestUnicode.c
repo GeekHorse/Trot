@@ -152,7 +152,7 @@ int testUnicode()
 	TEST_ERR_IF( testBadCharacter( 0x110000 ) != 0 );
 
 	/* test isWhitespace */
-	printf( "  Testing trotUnicodeIsWhitespace...\n" ); fflush( stdout );
+	printf( "  Testing whitespace...\n" ); fflush( stdout );
 
 	TEST_ERR_IF( trotUnicodeIsWhitespace( 1 ) != 0 );
 	TEST_ERR_IF( trotUnicodeIsWhitespace( 'J' ) != 0 );

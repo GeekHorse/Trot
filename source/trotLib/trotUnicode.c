@@ -375,7 +375,7 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 
 /******************************************************************************/
 /*!
-	\brief TODO
+	\brief
 	\param 
 	\return s32
 */

@@ -78,12 +78,14 @@ int testMisc()
 	TEST_ERR_IF( strcmp( string, "Unknown Error" ) != 0 );
 
 	/* check log function */
-	/*    rc success */
+	printf( "  Testing trotHookLog...\n" ); fflush( stdout );
+	/*    without errno */
 	trotHookLog( 1, 2, 3, 0, 10, 11, 12 );
+	trotHookLog( 1, 2, 3, 1, 10, 11, 12 );
 	/*    with errno */
 	errno = 1;
-	trotHookLog( 1, 2, 3, 1, 10, 11, 12 );
 	trotHookLog( 1, 2, 3, 0, 10, 11, 12 );
+	trotHookLog( 1, 2, 3, 1, 10, 11, 12 );
 	errno = 0;
 
 	printf( "\n" );

@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 #define MEMORY_MANAGEMENT_REFS_COUNT 10
 
-#define PRINT_ENCODED_LISTS 1
+#define PRINT_ENCODED_LISTS 0
 
 /******************************************************************************/
 /* which malloc to fail on */

@@ -50,8 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #define TROT_FILE_NUMBER 1
 
-/* TODO: make sure inserts and appends don't add more children than our maximum positive TROT_INT. then test that it works, and that minimum negative TROT_INT still errors correctly. Also delist. */
-
 /******************************************************************************/
 #include "trot.h"
 #include "trotInternal.h"
@@ -266,9 +264,7 @@ void trotListFree( TrotList **l_F )
 
 
 	/* CODE */
-	PARANOID_ERR_IF( l_F == NULL ); /* TODO: make this a normal if, in below, and add test for it? */
-
-	if ( (*l_F) == NULL )
+	if ( l_F == NULL || (*l_F) == NULL )
 	{
 		return;
 	}
@@ -349,7 +345,7 @@ void trotListFree( TrotList **l_F )
 		nextL = nextL->nextToFree;
 
 		/* *** */
-		trotHookFree( currentL->head ); /* TODO: rename these trotHookFree */
+		trotHookFree( currentL->head );
 		trotHookFree( currentL->tail );
 		trotHookFree( currentL->refListHead );
 		trotHookFree( currentL->refListTail );
@@ -414,6 +410,8 @@ TROT_RC trotListGetCount( TrotList *l, TROT_INT *c )
 
 	/* CODE */
 	(*c) = l->laPointsTo->childrenCount;
+
+	PARANOID_ERR_IF( (*c) > TROT_MAX_CHILDREN );
 
 
 	/* CLEANUP */
@@ -511,6 +509,9 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 	/* CODE */
 	la = l->laPointsTo;
 
+	/* lists cannot hold more than TROT_MAX_CHILDREN, so make sure we have room */
+	ERR_IF( TROT_MAX_CHILDREN - la->childrenCount < 1, TROT_RC_ERROR_LIST_OVERFLOW );
+
 	/* *** */
 	node = la->tail->prev;
 
@@ -575,6 +576,9 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 
 	/* CODE */
 	la = l->laPointsTo;
+
+	/* lists cannot hold more than TROT_MAX_CHILDREN, so make sure we have room */
+	ERR_IF( TROT_MAX_CHILDREN - la->childrenCount < 1, TROT_RC_ERROR_LIST_OVERFLOW );
 
 	/* *** */
 	node = la->tail->prev;
@@ -652,6 +656,9 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 	/* CODE */
 	la = l->laPointsTo;
+
+	/* lists cannot hold more than TROT_MAX_CHILDREN, so make sure we have room */
+	ERR_IF( TROT_MAX_CHILDREN - la->childrenCount < 1, TROT_RC_ERROR_LIST_OVERFLOW );
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
@@ -818,6 +825,9 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 
 	/* CODE */
 	la = l->laPointsTo;
+
+	/* lists cannot hold more than TROT_MAX_CHILDREN, so make sure we have room */
+	ERR_IF( TROT_MAX_CHILDREN - la->childrenCount < 1, TROT_RC_ERROR_LIST_OVERFLOW );
 
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
@@ -2331,13 +2341,12 @@ const char *trotRCToString( TROT_RC rc )
 
 		"Bad Index Error",
 		"Wrong Kind Error",
+		"List Overflow Error",
 		"Invalid Op Error",
 		"Bad Tag Error",
 		"Divide By Zero Error",
 		"Unicode Error",
-		"Decode Error",
-		"Load Error",
-		"Not Byte Value Error",
+		"Decode Error"
 	};
 
 	static const char *_rcUnknown = "Unknown Error";

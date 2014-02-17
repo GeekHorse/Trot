@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h> /* strlen */
 
 /******************************************************************************/
-#define PRINT_GOOD_TEST_ENCODINGS 1 /* TODO */
+#define PRINT_GOOD_TEST_ENCODINGS 0
 
 /******************************************************************************/
 static int doesFileExist( TrotList *lName, TROT_INT *exist );
@@ -87,9 +87,6 @@ static int doesFileExist( TrotList *lName, TROT_INT *exist )
 	TEST_ERR_IF( exist == NULL );
 
 	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
-
-/* TODO */
-printf( "%s\n", name );
 
 	if ( stat( name, &st ) == 0 )
 	{

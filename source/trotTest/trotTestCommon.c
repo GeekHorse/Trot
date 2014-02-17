@@ -352,43 +352,6 @@ int createHalfListHalfInt( TrotList **l, int count )
 }
 
 /******************************************************************************/
-int createSelfRefs( TrotList **l, int count )
-{
-	/* DATA */
-	int rc = 0;
-
-	TrotList *newList = NULL;
-
-	TROT_INT i = 1;
-
-	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
-
-	i = 1;
-	while ( i <= count )
-	{
-		TEST_ERR_IF( trotListAppendList( newList, newList ) != TROT_RC_SUCCESS );
-
-		i += 1;
-	}
-
-	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
-
-	/* give back */
-	(*l) = newList;
-	newList = NULL;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &newList );
-
-	return rc;
-}
-
-/******************************************************************************/
 int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 {
 	/* DATA */
@@ -696,7 +659,6 @@ void printList( TrotList *l, int indent )
 
 /******************************************************************************/
 #define LOAD_BUFFER_SIZE 1024
-#define BYTE_TYPE unsigned char /* TODO: define, use, and test a u8 type */
 int load( TrotList *lName, TrotList **lBytes )
 {
 	/* DATA */
@@ -711,14 +673,13 @@ int load( TrotList *lName, TrotList **lBytes )
 
 	TrotList *newLrBytes = NULL;
 
-	BYTE_TYPE buffer[ LOAD_BUFFER_SIZE ];
+	u8 buffer[ LOAD_BUFFER_SIZE ];
 
 
 	/* CODE */
 	TEST_ERR_IF( lName == NULL );
 	TEST_ERR_IF( lBytes == NULL );
 	TEST_ERR_IF( (*lBytes) != NULL );
-	TEST_ERR_IF( sizeof( BYTE_TYPE ) != 1 );
 
 	/* create our new byte list */
 	TEST_ERR_IF( trotListInit( &newLrBytes ) != TROT_RC_SUCCESS );
@@ -726,7 +687,7 @@ int load( TrotList *lName, TrotList **lBytes )
 	/* convert our TrotList name to a cString */
 	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
 
-	printf( "Loading: %s\n", name );
+	/* printf( "Loading: %s\n", name ); */
 
 	/* open */
 	fp = fopen( name, "rb" );
@@ -778,7 +739,6 @@ int load( TrotList *lName, TrotList **lBytes )
 	return rc;
 }
 #undef LOAD_BUFFER_SIZE
-#undef BYTE_TYPE
 
 /******************************************************************************/
 TROT_RC printListLikeCString( TrotList *l )

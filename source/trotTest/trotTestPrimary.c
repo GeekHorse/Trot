@@ -93,6 +93,8 @@ int testPrimaryFunctionality()
 	TrotList *l2 = NULL;
 	TROT_INT isSame = 0;
 
+	TROT_INT index = 0;
+
 
 	/* CODE */
 	printf( "Testing primary functionality..." ); fflush( stdout );
@@ -128,6 +130,25 @@ int testPrimaryFunctionality()
 	TEST_ERR_IF( trotListGetUserTag( l, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != 60 );
 	trotListFree( &l );
+
+	/* test TROT_MAX_CHILDREN */
+	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+	index = 1;
+	while ( index <= TROT_MAX_CHILDREN )
+	{
+		TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_SUCCESS );
+
+		/* increment */
+		index += 1;
+	}
+
+	TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+	TEST_ERR_IF( trotListAppendList( l, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+	TEST_ERR_IF( trotListInsertInt( l, 1, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+	TEST_ERR_IF( trotListInsertList( l, 1, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+
+	trotListFree( &l );
+	
 
 	/* *** */
 	count = 0;
