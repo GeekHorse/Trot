@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trotInternal_H
 
 /******************************************************************************/
-#include <stdio.h> /* for printf in ERR */
+#include <stdio.h> /* for printf */
 #include <stdlib.h> /* for NULL */
 
 /******************************************************************************/
@@ -145,9 +145,9 @@ struct trotListNode_STRUCT
 {
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
 	NODE_KIND_LIST. */
-	int kind; /* TODO: int? */
+	TROT_INT kind;
 	/*! count is how many TROT_INTs or trotListRefs are in this node. */
-	int count;
+	TROT_INT count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
 	NODE_SIZE of type TROT_INT, else n will be NULL. */
 	TROT_INT *n;
@@ -168,10 +168,10 @@ struct trotListActual_STRUCT
 {
 	/*! Flag that says whether this list is still reachable or not. If not
 	reachable, then this list can be freed */
-	int reachable;
+	TROT_INT reachable;
 	/*! Flag for 'is list reachable' so we don't get into an infinite
 	    loop */
-	int flagVisited;
+	TROT_INT flagVisited;
 	/*! Pointer to "previous" list. Used when we're seeing if a list is
 	    reachable */
 	trotListActual *previous;
@@ -191,7 +191,7 @@ struct trotListActual_STRUCT
 	/*! userTag. Allows user to tag this list as a user-defined type */
 	TROT_INT userTag;
 	/*! How many children are in the list */
-	int childrenCount;
+	TROT_INT childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
@@ -222,7 +222,7 @@ track of which references points to the trotList. */
 struct trotListRefListNode_STRUCT
 {
 	/*! How many references are in this node */
-	int count;
+	TROT_INT count;
 	/*! l will be NULL if this is the head or tail of the linked list.
 	else this will be an array of size REF_LIST_NODE_SIZE of type
 	TrotList */
@@ -277,7 +277,7 @@ struct trotStackNode_STRUCT
 
 /******************************************************************************/
 /* trotListPrimary.c */
-TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft );
+TROT_RC trotListNodeSplit( trotListNode *n, TROT_INT keepInLeft );
 
 TROT_RC newIntNode( trotListNode **n_A );
 TROT_RC newListNode( trotListNode **n_A );
@@ -288,7 +288,7 @@ TROT_RC trotStackInit( trotStack **stack );
 void trotStackFree( trotStack **stack );
 
 TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la2 );
-TROT_RC trotStackPop( trotStack *stack, int *empty );
+TROT_RC trotStackPop( trotStack *stack, TROT_INT *empty );
 TROT_RC trotStackIncrementTopIndex( trotStack *stack );
 
 /******************************************************************************/

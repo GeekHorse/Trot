@@ -454,7 +454,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 	TROT_INT character = 0;
 	TROT_INT newNumber = 0;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */

@@ -212,7 +212,7 @@ TROT_RC trotStackPush( trotStack *stack, trotListActual *la1, trotListActual *la
 	       has items still on it.
 	\return TROT_RC
 */
-TROT_RC trotStackPop( trotStack *stack, int *empty )
+TROT_RC trotStackPop( trotStack *stack, TROT_INT *empty )
 {
 	/* DATA */
 	trotStackNode *node = NULL;

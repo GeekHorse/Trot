@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int _getArgValue( int argc, char **argv, char *key, char **value );
 
 /******************************************************************************/
-void logNoop( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c )
+void logNoop( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c )
 {
 	(void)library; (void)file; (void)line; (void)rc; (void)a; (void)b; (void)c;
 }

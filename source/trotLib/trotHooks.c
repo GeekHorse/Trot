@@ -65,7 +65,7 @@ void *(*trotHookCalloc)( size_t nmemb, size_t size ) = calloc;
 void (*trotHookFree)( void *ptr ) = free;
 
 /*! The default log function. Sends log messages to stderr. */
-void trotHookLogDefault( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c )
+void trotHookLogDefault( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c )
 {
 	if ( errno == 0 )
 	{
@@ -91,4 +91,4 @@ void trotHookLogDefault( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, 
     end-users of the library, but useful for developers. The default function
     prints to stderr, but you can change this to plug Trot into your own
     logging system. */
-void (*trotHookLog)(     s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c ) = trotHookLogDefault;
+void (*trotHookLog)(     s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c ) = trotHookLogDefault;

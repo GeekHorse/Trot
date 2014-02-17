@@ -390,8 +390,8 @@ static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	char numberString[ TROT_INT_MIN_STRING_LENGTH + 1 ];
-	char *s = NULL;
+	TROT_INT numberString[ TROT_INT_MIN_STRING_LENGTH + 1 ];
+	TROT_INT *s = NULL;
 
 
 	/* CODE */

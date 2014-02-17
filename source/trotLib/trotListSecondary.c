@@ -76,18 +76,18 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 
 	trotStack *stack = NULL;
 	trotStackNode *stackNode = NULL;
-	int stackEmpty = 0;
+	TROT_INT stackEmpty = 0;
 
 	trotListActual *la1 = NULL;
 	TROT_INT count1 = 0;
 	TROT_INT n1 = 0;
-	int kind1 = NODE_KIND_HEAD_OR_TAIL;
+	TROT_INT kind1 = NODE_KIND_HEAD_OR_TAIL;
 	trotListActual *subLa1 = NULL;
 
 	trotListActual *la2 = NULL;
 	TROT_INT count2 = 0;
 	TROT_INT n2 = 0;
-	int kind2 = NODE_KIND_HEAD_OR_TAIL;
+	TROT_INT kind2 = NODE_KIND_HEAD_OR_TAIL;
 	trotListActual *subLa2 = NULL;
 
 	TROT_INT index = 0;
@@ -305,7 +305,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 	trotListNode *newNode = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -493,7 +493,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	TrotList *delistL = NULL;
 	TrotList *copiedL = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -672,7 +672,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 
 	TROT_INT count = 0;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */

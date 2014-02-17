@@ -59,7 +59,7 @@ static TROT_RC _refListAdd( trotListActual *la, TrotList *l );
 static void _refListRemove( trotListActual *la, TrotList *l );
 
 static void _isListReachable( trotListActual *la );
-static int _findNextParent( trotListActual *la, int queryVisited, trotListActual **parent );
+static TROT_INT _findNextParent( trotListActual *la, TROT_INT queryVisited, trotListActual **parent );
 
 /******************************************************************************/
 /*!
@@ -256,7 +256,7 @@ void trotListFree( TrotList **l_F )
 
 	trotListNode *node = NULL;
 
-	int j = 0;
+	TROT_INT j = 0;
 	trotListActual *tempList = NULL;
 
 	trotListActual *nextL = NULL;
@@ -644,8 +644,8 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 	TROT_INT count = 0;
 
-	int i = 0;
-	int j = 0;
+	TROT_INT i = 0;
+	TROT_INT j = 0;
 
 	trotListNode *newNode = NULL;
 
@@ -810,8 +810,8 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 
 	TROT_INT count = 0;
 
-	int i = 0;
-	int j = 0;
+	TROT_INT i = 0;
+	TROT_INT j = 0;
 
 	trotListNode *newNode = NULL;
 
@@ -1145,7 +1145,7 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 	TROT_INT giveBackN = 0;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -1232,7 +1232,7 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 
 	TrotList *giveBackL = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -1320,7 +1320,7 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 
 	TrotList *tempL = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -1422,8 +1422,8 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 	TrotList *tempL = NULL;
 
-	int i = 0;
-	int j = 0;
+	TROT_INT i = 0;
+	TROT_INT j = 0;
 
 	trotListNode *newNode = NULL;
 
@@ -1612,8 +1612,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 
 	TrotList *newL = NULL;
 
-	int i = 0;
-	int j = 0;
+	TROT_INT i = 0;
+	TROT_INT j = 0;
 
 	trotListNode *newNode = NULL;
 
@@ -1920,14 +1920,14 @@ TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag )
 	\param keepInLeft How many items to keep in n.
 	\return TROT_RC
 */
-TROT_RC trotListNodeSplit( trotListNode *n, int keepInLeft )
+TROT_RC trotListNodeSplit( trotListNode *n, TROT_INT keepInLeft )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	trotListNode *newNode = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* CODE */
@@ -2132,7 +2132,7 @@ static void _refListRemove( trotListActual *la, TrotList *l )
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 
 	/* CODE */
@@ -2271,12 +2271,12 @@ static void _isListReachable( trotListActual *la )
 }
 
 /******************************************************************************/
-static int _findNextParent( trotListActual *la, int queryVisited, trotListActual **parent )
+static TROT_INT _findNextParent( trotListActual *la, TROT_INT queryVisited, trotListActual **parent )
 {
 	/* DATA */
 	trotListRefListNode *refNode = NULL;
 
-	int i = 0;
+	TROT_INT i = 0;
 
 	trotListActual *tempParent = NULL;
 
