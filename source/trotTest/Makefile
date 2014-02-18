@@ -1,4 +1,4 @@
-.PHONY: all fast small debug debug2 profile clean
+.PHONY: all fast small debug debug2 debug3 profile clean
 
 CFLAGS += -I../trotLib
 LDFLAGS += ../trotLib/libTrot.a
@@ -14,11 +14,13 @@ fast: all
 
 small: fast
 
-debug2: debug
+debug3: debug2
 
-debug: CFLAGS += -g
-debug: LDFLAGS += -fprofile-arcs
-debug: all
+debug2: CFLAGS += -g
+debug2: LDFLAGS += -fprofile-arcs
+debug2: all
+
+debug: fast
 
 profile: CFLAGS += -pg
 profile: LDFLAGS += -pg

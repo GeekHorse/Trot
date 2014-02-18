@@ -1,4 +1,4 @@
-.PHONY: usage all fast small debug debug2 profile test vtest coverage clean trotLib trotTest
+.PHONY: usage all fast small debug debug2 debug3 profile test vtest coverage clean trotLib trotTest
 
 ARGS =
 
@@ -20,8 +20,13 @@ usage:
 	@echo "targets:"
 	@echo "  fast     - build fast version"
 	@echo "  small    - build small version"
-	@echo "  debug    - build for debug, with smaller TROT_MAX_CHILDREN"
-	@echo "  debug2   - build for debug, with smaller TROT_MAX_CHILDREN, and PARANOID checks"
+	@echo "  debug    - build fast version, with smaller TROT_MAX_CHILDREN"
+	@echo "             useful when running vtest"
+	@echo "  debug2   - build debug version, with smaller TROT_MAX_CHILDREN"
+	@echo "             useful when running test"
+	@echo "  debug3   - build debug version, with smaller TROT_MAX_CHILDREN, and PARANOID checks"
+	@echo "             useful to run with PARANOID checks, for extra protection against"
+	@echo "             code changes"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
@@ -36,14 +41,18 @@ fast: all
 small: ARGS = small
 small: all
 
+debug3: ARGS = debug3
+debug3: CFLAGS += -DBE_PARANOID
+debug3: CFLAGS += -DTROT_MAX_CHILDREN=5000
+debug3: all
+
 debug2: ARGS = debug2
-debug2: CFLAGS += -DBE_PARANOID
 debug2: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug2: all
 
 debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
-debug: all
+debug: fast
 
 profile: ARGS = profile
 profile: all

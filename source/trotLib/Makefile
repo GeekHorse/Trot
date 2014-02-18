@@ -1,4 +1,4 @@
-.PHONY: all fast small debug2 debug profile coverage clean
+.PHONY: all fast small debug debug2 debug3 profile coverage clean
 
 SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
@@ -12,10 +12,12 @@ fast: all
 small: CFLAGS += -Os
 small: all
 
-debug2: debug
+debug3: debug2
 
-debug: CFLAGS += -fprofile-arcs -ftest-coverage -g
-debug: all
+debug2: CFLAGS += -fprofile-arcs -ftest-coverage -g
+debug2: all
+
+debug: fast
 
 profile: CFLAGS += -pg
 profile: fast

@@ -97,9 +97,10 @@ int testPrimaryFunctionality()
 
 
 	/* CODE */
-	printf( "Testing primary functionality..." ); fflush( stdout );
+	printf( "Testing primary functionality...\n" ); fflush( stdout );
 
 	/* test refCompare */
+	printf( "  Testing refCompare...\n" ); fflush( stdout );
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListTwin( l, &l1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListInit( &l2 ) != TROT_RC_SUCCESS );
@@ -116,6 +117,7 @@ int testPrimaryFunctionality()
 	trotListFree( &l2 );
 
 	/* test tags */
+	printf( "  Testing tags...\n" ); fflush( stdout );
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
@@ -132,6 +134,16 @@ int testPrimaryFunctionality()
 	trotListFree( &l );
 
 	/* test TROT_MAX_CHILDREN */
+	printf( "  Testing TROT_MAX_CHILDREN...\n" ); fflush( stdout );
+
+	if ( TROT_MAX_CHILDREN == TROT_INT_MAX )
+	{
+		printf( "It's too memory intensive to test TROT_MAX_CHILDREN when it's\n" );
+		printf( "the same as TROT_INT_MAX. Please only run tests when built with\n" );
+		printf( "debug make targets.\n" );
+		TEST_ERR_IF( 1 );
+	}
+
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 	index = 1;
 	while ( index <= TROT_MAX_CHILDREN )
@@ -151,6 +163,7 @@ int testPrimaryFunctionality()
 	
 
 	/* *** */
+	printf( "  Testing rest of primary functions...\n" ); fflush( stdout );
 	count = 0;
 	while ( count <= MAGIC_NUMBER )
 	{

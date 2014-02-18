@@ -1,53 +1,93 @@
-The Trot Programming Language
+--- Info -----------------------------------------------------------------------
+What      : Trot(TM) Programming Language
+Version   : 0.2.00-wip
+Author    : Jeremiah Martell
+Copyright : (C) 2010-2014
+License   : 3-clause BSD
+Website   : http://GeekHorse.com
 
+--- Description ----------------------------------------------------------------
+Trot is a programming languaged designed:
 
-Trot characteristics:
----------------------
-- Only has two types: list and int.
-- Stack based with reverse polish notation.
-- Uses the actor model for easy concurrent programming.
-- Automatic garbage collection that's incremental and dynamically tunable.
-- Licensed under a three-clause BSD license (see LICENSE)
+- Small
+  Current sizes of the library are:
+  - make small, ~40 KB
+  - make fast,  ~60 KB
 
-This is my personal weekend project, so progress will be slow but steady.
+- Fast
+  To be determined.
 
-The current version is 0.1.2.
+- Simple
+  - Only 2 types: lists and ints.
+    Lists are by reference, so you can create any data structure: heirarchies,
+    maps, graphs, etc.
+    Ints are signed 32-bit integers, so they can also be used for unicode
+    characters.
+  - Code is stack based with reverse polish notation.
+
+- Garbage Collection
+  It can handle anything: Self references, mutual references, etc.
+  Future work will improve it to be incremental and dynamically tunable.
+
+- Actor Model
+  Uses the actor model for easy concurrent programming.
+  The actors communicate by pushing messages to each other, so there's no need
+  to worry about mutexes and such.
+
+- Easily embeddable
+  It will be easy to embed Trot into your application, say a C program, and have
+  easy Trot and C interactions.
+
+This is my personal "weekend project", so progress will be slow but steady.
+
 It will be usable at version 0.4. (see PLAN)
 
-
-Building:
----------
-Just run "make"
-
-targets:
-  all      - build normal
-  debug    - build for debug
-  test     - run tests
-  vtest    - run tests in valgrind
-  coverage - generate coverage report with gcov and lcov
-  clean    - cleans up files
-
-
-Quality:
------------------------
-- Trot is compiled with gcc's -Wall -Werror and -Wextra.
-  It compiles with 0 warnings.
-- Lots of unit tests guarantee everything works correctly.
-- gcov is used to make sure we get as much coverage as possible.
+--- Quality --------------------------------------------------------------------
+- Compiled with gcc's -Wall -Werror and -Wextra.
+  Compiles with 0 warnings.
+- Many unit tests guarantee everything works correctly.
+- gcov and lcov is used to make sure we get as much coverage as possible.
   Current coverage is 100% branch coverage.
 - Valgrind is used to look for memory leaks and memory corruption.
   There are 0 memory leaks or errors reported.
-- Compiles cleanly against C89 and C99 standards.
+- Compiles cleanly against C89, C99, and C11 standards.
+- All code is documented with doxygen comments.
+- All functions are reentrant.
+- Contains no third-party code, written entirely by Jeremiah.
 
+--- Building -------------------------------------------------------------------
+Just run "make".
 
-Documentation:
---------------
-The code is documented with doxygen comments, and there's a trot.doxygen file
-that can be used to generate documentation. Structures and functions are
-documented, but more documentation will come about the core data structure and
-the memory management algorithms.
+targets:
+  fast     - build fast version
+  small    - build small version
+  debug    - build fast version, with smaller TROT_MAX_CHILDREN
+             useful when running vtest
+  debug2   - build debug version, with smaller TROT_MAX_CHILDREN
+             useful when running test
+  debug3   - build debug version, with smaller TROT_MAX_CHILDREN, and PARANOID
+             checks
+             useful to run with PARANOID checks, for extra protection against
+             code changes
+  profile  - build for profiling
+  test     - run tests
+  vtest    - run tests in valgrind
+  coverage - generate coverage report with gcov and lcov
+  clean    - clean up files
 
+Trot has no dependencies other than standard C libraries. If you have trouble
+building Trot with the included Makefile, you can manually build Trot with
+something like this:
 
+cd source/trotLib
+gcc -c *.c
+ar rcs libTrot.a *.o
 
-Jeremiah Martell
+The other directories can be built just as easily.
 
+In source/trotLib/trotHooks.c, you can change the functions that Trot calls
+for malloc(), calloc(), and free(). This allows Trot to easily plug
+into a custom memory manager. You can also change the function that Trot calls
+for error logging, so Trot can plug into your logging system.
+
+--- END ------------------------------------------------------------------------

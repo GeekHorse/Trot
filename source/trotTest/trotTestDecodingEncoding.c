@@ -317,6 +317,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 	trotListFree( &lEncodedList1 );
 	trotListFree( &lDecodedList2 );
 	trotListFree( &lEncodedList2 );
+	trotListFree( &lEncodedList3 );
 	trotListFree( &lExpectedEncoding );
 
 	return rc;
