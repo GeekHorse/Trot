@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	Encodes trot lists to a textual format.
+	Encodes a trot list into a textual format.
 */
 #define TROT_FILE_NUMBER 6
 
@@ -39,15 +39,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC appendLeftBracketAndTags( TrotList *l, TrotList *lCharacters );
-static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n );
+static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l );
 static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l );
+static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n );
 
 /******************************************************************************/
 /*!
 	\brief Encodes a list into a list of characters.
-	\param 
+	\param[in] listToEncode The list to encode
+	\param[out] lCharacters_A On success, the encoding.
 	\return TROT_RC
+
+	listToEncode is not modified.
+	lCharacters_A is created, and caller is responsible for freeing.
 */
 TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 {
@@ -98,7 +102,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 	lCurrentList->laPointsTo->encodingChildNumber = -1;
 
 	/* start our encoding */
-	rc = appendLeftBracketAndTags( lCurrentList, newCharacters );
+	rc = appendLeftBracketAndTags( newCharacters, lCurrentList );
 	ERR_IF_PASSTHROUGH;
 
 	/* go through list */
@@ -188,7 +192,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 				lChildList->laPointsTo->encodingChildNumber = index;
 				lChildList->laPointsTo->encodingParent = lCurrentList->laPointsTo;
 
-				rc = appendLeftBracketAndTags( lChildList, newCharacters );
+				rc = appendLeftBracketAndTags( newCharacters, lChildList );
 				ERR_IF_PASSTHROUGH;
 
 				/* push to parent stacks, setup vars */
@@ -323,12 +327,21 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 /******************************************************************************/
 /*!
-	\brief Append left bracket and it's tags.
-	\param l List we're appending for. We need this to get the tag.
-	\param lCharacters List of characters we're going to append to.
+	\brief Append encoding of left bracket and it's tags.
+	\param[in] lCharacters List of characters to append to.
+	\param[in] l List we're appending the encoding of. We need this to get the
+		tags.
 	\return TROT_RC
+
+	lCharacters will have encoding text appended to it.
+	l will not be modified.
+
+	Example:
+	If l had a tag of 1 and a userTag of 55, then we would append to lCharacters
+	this:
+	"[ ~1 `55 "
 */
-static TROT_RC appendLeftBracketAndTags( TrotList *l, TrotList *lCharacters )
+static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -336,10 +349,12 @@ static TROT_RC appendLeftBracketAndTags( TrotList *l, TrotList *lCharacters )
 	TROT_INT tag = 0;
 
 
-	/* CODE */
-	PARANOID_ERR_IF( l == NULL );
+	/* PRECOND */
 	PARANOID_ERR_IF( lCharacters == NULL );
+	PARANOID_ERR_IF( l == NULL );
 
+
+	/* CODE */
 	/* append "[ " */
 	rc = trotListAppendInt( lCharacters, '[' );
 	ERR_IF_PASSTHROUGH;
@@ -380,10 +395,99 @@ static TROT_RC appendLeftBracketAndTags( TrotList *l, TrotList *lCharacters )
 
 /******************************************************************************/
 /*!
-	\brief Appends a number.
-	\param lCharacters List we're appending to.
+	\brief Appends encoding of a textual-reference.
+	\param[in] lCharacters List of characters to append to.
+	\param[in] l List we're appending the textual-reference encoding of.
+	\return TROT_RC
+
+	lCharacters will have the encoding text appended to it.
+	l will not be modified.
+*/
+static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TrotList *lAddress = NULL;
+	TROT_INT address = 0;
+
+	TROT_INT index = 0;
+	TROT_INT count = 0;
+
+	TrotListActual *laParent = NULL;
+
+
+	/* PRECOND */
+	PARANOID_ERR_IF( lCharacters == NULL );
+	PARANOID_ERR_IF( l == NULL );
+
+
+	/* CODE */
+	/* append "@" */
+	rc = trotListAppendInt( lCharacters, '@' );
+	ERR_IF_PASSTHROUGH;
+
+	/* if encodingChildNumber is -1, just need "@" */
+	if ( l->laPointsTo->encodingChildNumber == -1 )
+	{
+		goto cleanup;
+	}
+
+	/* create lAddress */
+	rc = trotListInit( &lAddress );
+	ERR_IF_PASSTHROUGH;
+
+	laParent = l->laPointsTo;
+	while ( laParent->encodingChildNumber > 0 )
+	{
+		rc = trotListInsertInt( lAddress, 1, laParent->encodingChildNumber );
+		ERR_IF_PASSTHROUGH;
+
+		laParent = laParent->encodingParent;
+		PARANOID_ERR_IF( laParent == NULL );
+	}
+
+	/* get count */
+	rc = trotListGetCount( lAddress, &count );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* foreach parent */
+	index = 1;
+	while ( index <= count )
+	{
+		/* get parent */
+		rc = trotListGetInt( lAddress, index, &address );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		/* append '.' */
+		rc = trotListAppendInt( lCharacters, '.' );
+		ERR_IF_PASSTHROUGH;
+
+		/* append number */
+		rc = appendNumber( lCharacters, address );
+		ERR_IF_PASSTHROUGH;
+
+		/* increment */
+		index += 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( &lAddress );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Appends encoding of a number.
+	\param lCharacters List of characters to append to.
 	\param n Number to append.
 	\return TROT_RC
+
+	lCharacters will have encoding text appended to it.
 */
 static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n )
 {
@@ -394,9 +498,11 @@ static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n )
 	TROT_INT *s = NULL;
 
 
-	/* CODE */
+	/* PRECOND */
 	PARANOID_ERR_IF( lCharacters == NULL );
 
+
+	/* CODE */
 	/* special case: 0 */
 	if ( n == 0 )
 	{
@@ -445,91 +551,8 @@ static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n )
 	}
 
 
-
 	/* CLEANUP */
 	cleanup:
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief 
-	\param 
-	\return TROT_RC
-*/
-static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-	TrotList *lAddress = NULL;
-	TROT_INT address = 0;
-
-	TROT_INT index = 0;
-	TROT_INT count = 0;
-
-	TrotListActual *laParent = NULL;
-
-
-	/* CODE */
-	PARANOID_ERR_IF( lCharacters == NULL );
-	PARANOID_ERR_IF( l == NULL );
-
-	/* append "@" */
-	rc = trotListAppendInt( lCharacters, '@' );
-	ERR_IF_PASSTHROUGH;
-
-	/* if encodingChildNumber is -1, just need "@" */
-	if ( l->laPointsTo->encodingChildNumber == -1 )
-	{
-		goto cleanup;
-	}
-
-	/* create lAddress */
-	rc = trotListInit( &lAddress );
-	ERR_IF_PASSTHROUGH;
-
-	laParent = l->laPointsTo;
-	while ( laParent->encodingChildNumber > 0 )
-	{
-		rc = trotListInsertInt( lAddress, 1, laParent->encodingChildNumber );
-		ERR_IF_PASSTHROUGH;
-
-		laParent = laParent->encodingParent;
-		PARANOID_ERR_IF( laParent == NULL );
-	}
-
-
-	/* get count */
-	rc = trotListGetCount( lAddress, &count );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-	/* foreach parent */
-	index = 1;
-	while ( index <= count )
-	{
-		/* get parent */
-		rc = trotListGetInt( lAddress, index, &address );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		/* append '.' */
-		rc = trotListAppendInt( lCharacters, '.' );
-		ERR_IF_PASSTHROUGH;
-
-		/* append number */
-		rc = appendNumber( lCharacters, address );
-		ERR_IF_PASSTHROUGH;
-
-		/* increment */
-		index += 1;
-	}
-
-
-	/* CLEANUP */
-	cleanup:
-
-	trotListFree( &lAddress );
 
 	return rc;
 }

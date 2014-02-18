@@ -30,8 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	Implements the integer math of "Hoof", our single data
-	structure for Trot.
+	Implements the integer math logic on a list. Used when running Trot code.
 */
 #define TROT_FILE_NUMBER 3
 
@@ -43,9 +42,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
 	\brief Does an int operand on the last single or last two values in the
 	       list.
-	\param l Pointer to a trotList.
-	\param op Which operand to do.
+	\param[in] l List to "work" on.
+	\param[in] op Which operand to do.
 	\return TROT_RC
+
+	l will be modified according to op.
+
+	Example:
+	If l is [ 1 2 3 4 ] and op is TROT_OP_ADD then l will become:
+	[ 1 2 7 ]
+
+	Example:
+	If l is [ 1 2 3 4 ] and op is TROT_OP_NEG then l will become:
+	[ 1 2 3 -4 ]
 */
 TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 {
@@ -59,6 +68,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 
 	/* PRECOND */
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	/* We'll catch an invalid op later on */
 
 
 	/* CODE */
@@ -107,7 +117,6 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 
 	/* now we can call trotListIntOperandValue */
 	rc = trotListIntOperandValue( l, op, value );
-	return rc;
 
 
 	/* CLEANUP */
@@ -116,14 +125,20 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 	return rc;
 }
 
-
 /******************************************************************************/
 /*!
-	\brief Does an int operand on the last value in the list and the passed in value.
-	\param l Pointer to a trotList.
-	\param op Which operand to do.
-	\param value Value to use with the last value in the list.
+	\brief Does an int operand on the last value in the list and the passed in
+		value.
+	\param[in] l Pointer to a trotList.
+	\param[in] op Which operand to do.
+	\param[in] value Value to use with the last value in the list.
 	\return TROT_RC
+
+	l will be modified according to op and value.
+
+	Example:
+	If l is [ 1 2 3 4 ] and op is TROT_OP_ADD and value is 5 then l will become:
+	[ 1 2 3 9 ]
 */
 TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 {
@@ -184,8 +199,6 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 		default:
 			ERR_IF_1( 1, TROT_RC_ERROR_INVALID_OP, op );
 	}
-
-	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */

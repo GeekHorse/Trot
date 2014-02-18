@@ -40,7 +40,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	We can also "plug into" their logging system.
 
 	Used in our unit tests for testing malloc/calloc failures.
-
 */
 
 /******************************************************************************/
@@ -92,3 +91,4 @@ void trotHookLogDefault( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT 
     prints to stderr, but you can change this to plug Trot into your own
     logging system. */
 void (*trotHookLog)(     s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c ) = trotHookLogDefault;
+

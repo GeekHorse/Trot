@@ -30,12 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\file
-	Implements the secondary functionality of "Hoof", our single data
-	structure for Trot.
+	Implements the secondary functionality for our lists.
 
 	Secondary functionality includes:
-	- Deep list compare
-	- List copy
+	- Deep list compare by value
+	- List copy (1 level deep only)
 	- Enlist
 	- Delist
 	- Copy Span
@@ -49,11 +48,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /*!
-	\brief Compares two lists.
-	\param l Pointer to a trotList.
-	\param lCompareTo Pointer to a TrotList that you want to compare the
-		first one to.
-	\param compareResult On success, the result of the comparison.
+	\brief Does a full-depth compare of 2 lists by value. Does not compare tags.
+	\param[in] l The first list.
+	\param[in] lCompareTo The second list.
+	\param[out] compareResult Result of the comparison.
 	\return TROT_RC
 
 	TODO: it doesnt compare references, just structure and values, which is ok,
@@ -228,13 +226,14 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 /******************************************************************************/
 /*!
 	\brief Copies a list.
-	\param l Pointer to a TrotList to copy.
-	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
-		On success, this will be a copy of the list.
+	\param[in] l The list.
+	\param[out] lCopy_A New copied list.
 	\return TROT_RC
 
 	This only copies the 1st level, it does not recurse. If you want a "deep"
 	copy, then encode then decode a list.
+
+	Tags are copied.
 */
 TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 {
@@ -255,7 +254,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 		rc = trotListInit( lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
-		/* make sure copied list has same tag */
+		/* make sure copied list has same tags */
 		(*lCopy_A)->laPointsTo->tag     = l->laPointsTo->tag;
 		(*lCopy_A)->laPointsTo->userTag = l->laPointsTo->userTag;
 	}
@@ -265,11 +264,8 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 		rc = trotListCopySpan( l, 1, -1, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
-		/* copy span copys the tag too */
+		/* copy span copys the tags too */
 	}
-
-
-	return 0;
 
 
 	/* CLEANUP */
@@ -281,10 +277,15 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 /******************************************************************************/
 /*!
 	\brief Takes a span of children and puts them into a list.
-	\param l Pointer to a trotList.
-	\param indexStart start index of items you want to enlist.
-	\param indexEnd end index of items you want to enlist.
+	\param[in] l The list.
+	\param[in] indexStart Start index of items you want to enlist.
+	\param[in] indexEnd End index of items you want to enlist.
 	\return TROT_RC
+
+	Example:
+	If list is [ 1 2 3 4 5 ], indexStart is 3, and indexEnd is 5 then list will
+	become:
+	[ 1 2 [ 3 4 5 ] ]
 */
 TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
@@ -412,6 +413,8 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	startNode->prev->next = newNode;
 	startNode->prev = newNode;
 
+	newNode = NULL;
+
 	/* remove nodes from old list */
 	startNode->prev->next = node->next;
 	node->next->prev = startNode->prev;
@@ -456,8 +459,6 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 		node = node->next;
 	}
 
-	return 0;
-
 
 	/* CLEANUP */
 	cleanup:
@@ -474,9 +475,13 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 /******************************************************************************/
 /*!
 	\brief Removes a list and puts it's children in it's place.
-	\param l Pointer to a trotList.
-	\param index index of list you want to delist.
+	\param[in] l The list.
+	\param[in] index Index of list you want to delist.
 	\return TROT_RC
+
+	Example:
+	If list is [ 1 2 [ 3 4 5 ] ] and index is 3 then list will become:
+	[ 1 2 3 4 5 ]
 */
 TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 {
@@ -594,7 +599,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* was the delist empty? */
 	if ( copiedL == NULL )
 	{
-		return 0;
+		goto cleanup;
 	}
 
 	/* adjust count */
@@ -632,8 +637,6 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* free our copied list */
 	trotListFree( &copiedL );
 
-	return 0;
-
 
 	/* CLEANUP */
 	cleanup:
@@ -644,12 +647,18 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 /******************************************************************************/
 /*!
 	\brief Makes a copy of a span in a list.
-	\param l Pointer to a TrotList that you want to copy a span in.
-	\param indexStart index of start of span.
-	\param indexEnd index of end of span.
-	\param lCopy_A Pointer to a TrotList pointer that must be NULL.
-		On success, this will be a copy of the span.
+	\param[in] l The list.
+	\param[in] indexStart Index of start of span.
+	\param[in] indexEnd Index of end of span.
+	\param[out] lCopy_A Copy of span.
 	\return TROT_RC
+
+	l is not modified.
+
+	Example:
+	If list is [ 1 2 3 4 5 ], indexStart is 3, and indexEnd is 5, then the new
+	list will contain:
+	[ 3 4 5 ]
 
 	TODO: This could potentially be removed and reimplemented when the Trot
 	virtual machine is finished. Which would make it slower, but would make
@@ -767,8 +776,6 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	(*lCopy_A) = newL;
 	newL = NULL;
 
-	return 0;
-
 
 	/* CLEANUP */
 	cleanup:
@@ -781,10 +788,15 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 /******************************************************************************/
 /*!
 	\brief Removes a span in a list.
-	\param l Pointer to a TrotList that you want to remove a span in.
-	\param indexStart index of start of span.
-	\param indexEnd index of end of span.
+	\param[in] l The list.
+	\param[in] indexStart Index of start of span.
+	\param[in] indexEnd Index of end of span.
 	\return TROT_RC
+
+	Example:
+	If list is [ 1 2 3 4 5 ], indexStart is 3, and indexEnd is 5, then list will
+	become:
+	[ 1 2 ]
 */
 TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
@@ -819,8 +831,6 @@ TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd 
 
 	/* free removed list */
 	trotListFree( &lRemoved );
-
-	return 0;
 
 
 	/* CLEANUP */

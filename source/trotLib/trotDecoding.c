@@ -40,15 +40,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number );
-static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList );
-static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference );
+static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A );
+static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference_A );
 
 /******************************************************************************/
 /*!
 	\brief Decodes a list of characters into a list.
-	\param lCharacters Characters to decode.
-	\param lDecodedList_A On success, the decoded list.
+	\param[in] lCharacters Characters to decode.
+	\param[out] lDecodedList_A On success, the decoded list.
 	\return TROT_RC
+
+	lCharacters is not modified.
+	lDecodedList_A is created, and caller is responsible for freeing.
 */
 TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 {
@@ -340,24 +343,25 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 /******************************************************************************/
 /*!
 	\brief Creates a new list of parts that were separated out of l.
-	\param l List that contains parts.
-	\param separator Separating character
-	\param lParts On success, contains the parts.
+	\param[in] listToSplit List that contains parts.
+	\param[in] separator Separating character
+	\param[out] lPartList_A On success, contains the parts.
 	\return TROT_RC
 
-	l is not modified.
+	listToSplit is not modified.
+	listToSplit must only contain characters, not lists.
 
-	l must only contain characters, not lists.
+	lPartList_A is created, and caller is responsible for freeing.
 
 	Example:
 	IN:
-		l = ["abc.def.ghi"]
+		listToSplit = ["abc.def.ghi"]
 		separator = '.'
 	OUT:
-		l = ["abc.def.ghi"]
-		lParts will be [["abc"]["def"]["ghi"]]
+		listToSplit = ["abc.def.ghi"]
+		lPartList_A will be [["abc"]["def"]["ghi"]]
 */
-static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList )
+static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -366,27 +370,29 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 	TROT_INT index = 0;
 	TROT_INT character = 0;
 
-	TrotList *newLrPartList = NULL;
+	TrotList *newLPartList = NULL;
 	TrotList *lPart = NULL;
 
 
-	/* CODE */
-	PARANOID_ERR_IF( l == NULL );
-	PARANOID_ERR_IF( lPartList == NULL );
-	PARANOID_ERR_IF( (*lPartList) != NULL );
+	/* PRECOND */
+	PARANOID_ERR_IF( listToSplit == NULL );
+	PARANOID_ERR_IF( lPartList_A == NULL );
+	PARANOID_ERR_IF( (*lPartList_A) != NULL );
 
+
+	/* CODE */
 	/* create giveback */
-	rc = trotListInit( &newLrPartList );
+	rc = trotListInit( &newLPartList );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotListInit( &lPart );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListAppendList( newLrPartList, lPart );
+	rc = trotListAppendList( newLPartList, lPart );
 	ERR_IF_PASSTHROUGH;
 
 	/* get count */
-	rc = trotListGetCount( l, &count );
+	rc = trotListGetCount( listToSplit, &count );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* foreach character */
@@ -394,7 +400,7 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 	while ( index <= count )
 	{
 		/* get next character */
-		rc = trotListGetInt( l, index, &character );
+		rc = trotListGetInt( listToSplit, index, &character );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* if separator */
@@ -405,7 +411,7 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 			rc = trotListInit( &lPart );
 			ERR_IF_PASSTHROUGH;
 
-			rc = trotListAppendList( newLrPartList, lPart );
+			rc = trotListAppendList( newLPartList, lPart );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* else add to current part */
@@ -420,14 +426,14 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 	}
 
 	/* give back */
-	(*lPartList) = newLrPartList;
-	newLrPartList = NULL;
+	(*lPartList_A) = newLPartList;
+	newLPartList = NULL;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newLrPartList );
+	trotListFree( &newLPartList );
 	trotListFree( &lPart );
 
 	return rc;
@@ -435,13 +441,15 @@ static TROT_RC splitList( TrotList *l, TROT_INT separator, TrotList **lPartList 
 
 /******************************************************************************/
 /*!
-	\brief
-	\param 
+	\brief Converts a word into a number.
+	\param[in] lWord The list to convert
+	\param[out] number On success, the number.
 	\return TROT_RC
 
-	NOTE: assumes word will only contain ints and not lists!
-	ok since this is static, but if that ever changes, may need to change some
-	paranoid checks into passthroughs.
+	lWord must not contain lists, only ints.
+
+	Example:
+	If lWord is ["123"] number would be 123.
 */
 static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 {
@@ -617,11 +625,19 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 /******************************************************************************/
 /*!
-	\brief 
-	\param 
+	\brief Takes a textual-reference and retrieves the correct list out of lTop
+	\param[in] lTop The top list.
+	\param[in] lPartList List that contains the parts of the textual-reference
+	\param[out] lReference_A On success, the list that the textual-reference
+		specified
 	\return TROT_RC
+
+	Example:
+	If lTop is [ 85 [ 86 ] [ [ 87 ] ] ]
+	and lPartList is [ [ "@" ] [ "3" ] [ "1" ] ]
+	then lReference_A would the the list that's [ 87 ].
 */
-static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference )
+static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -640,8 +656,8 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	/* PRECOND */
 	PARANOID_ERR_IF( lTop == NULL );
 	PARANOID_ERR_IF( lPartList == NULL );
-	PARANOID_ERR_IF( lReference == NULL );
-	PARANOID_ERR_IF( (*lReference) != NULL );
+	PARANOID_ERR_IF( lReference_A == NULL );
+	PARANOID_ERR_IF( (*lReference_A) != NULL );
 
 
 	/* CODE */
@@ -694,7 +710,7 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 
 
 	/* give back */
-	(*lReference) = lParent;
+	(*lReference_A) = lParent;
 	lParent = NULL;
 
 

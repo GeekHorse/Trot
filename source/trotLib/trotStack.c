@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Only used during Compare.
 	Keeps track of a stack of two lists we're comparing.
 	Used for comparing, and so we don't get into an infinite loop.
+
 	TODO: This can go away once we move things out of the library and into
 	Trot itself.
 */
@@ -45,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Creates a new stack.
-	\param stack On success, the new stack.
+	\param[out] stack The new stack.
 	\return TROT_RC
 */
 TROT_RC trotStackInit( TrotStack **stack )
@@ -89,12 +90,12 @@ TROT_RC trotStackInit( TrotStack **stack )
 
 	newStack->head = newHead;
 	newStack->tail = newTail;
+	newHead = NULL;
+	newTail = NULL;
 
 	/* give back */
 	(*stack) = newStack;
 	newStack = NULL;
-
-	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
@@ -110,7 +111,7 @@ TROT_RC trotStackInit( TrotStack **stack )
 /******************************************************************************/
 /*!
 	\brief Frees a stack.
-	\param stack The stack to free.
+	\param[in] stack The stack.
 	\return void
 */
 void trotStackFree( TrotStack **stack )
@@ -146,9 +147,9 @@ void trotStackFree( TrotStack **stack )
 /******************************************************************************/
 /*!
 	\brief Pushes a new node on the stack .
-	\param stack The stack to push to.
-	\param la1 The first list.
-	\param la2 The second list.
+	\param[in] stack The stack.
+	\param[in] la1 The first list.
+	\param[in] la2 The second list.
 	\return TROT_RC
 */
 TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la2 )
@@ -207,8 +208,8 @@ TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la
 /******************************************************************************/
 /*!
 	\brief Pops off the top of the stack.
-	\param stack The stack to pop off from.
-	\param empty After return, will be 1 if stack is empty, or 0 if stack
+	\param[in] stack The stack.
+	\param[out] empty Will be 1 if stack is empty, or 0 if stack
 	       has items still on it.
 	\return TROT_RC
 */
@@ -246,7 +247,7 @@ TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty )
 /******************************************************************************/
 /*!
 	\brief Increments the data on top the stack.
-	\param stack The stack we want to manipulate.
+	\param[in] stack The stack.
 	\return TROT_RC
 */
 TROT_RC trotStackIncrementTopIndex( TrotStack *stack )

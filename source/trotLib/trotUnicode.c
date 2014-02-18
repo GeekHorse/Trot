@@ -48,8 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Decodes a list of utf8 bytes to characters.
-	\param lBytes List of bytes.
-	\param lCharacters_A List to append decoded characters.
+	\param[in] lBytes List of bytes.
+	\param[in] lCharacters List to append decoded characters.
 	\return TROT_RC
 
 */
@@ -259,8 +259,8 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 /******************************************************************************/
 /*!
 	\brief Encodes a list of characters to utf8 bytes.
-	\param lBytes List of characters.
-	\param lCharacters_A List to append encoded utf8 bytes.
+	\param[in] lCharacters List of characters.
+	\param[in] lBytes List to append bytes to.
 	\return TROT_RC
 */
 TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
@@ -375,9 +375,9 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 
 /******************************************************************************/
 /*!
-	\brief
-	\param 
-	\return s32
+	\brief Is a character a whitespace character?
+	\param[in] character The character to check.
+	\return s32 1 if whitespace, 0 if not.
 */
 s32 trotUnicodeIsWhitespace( TROT_INT character )
 {
