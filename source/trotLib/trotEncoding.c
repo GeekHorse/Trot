@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l );
 static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l );
 static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n );
+static TROT_RC appendText( TrotList *lCharacters, TrotList *l, TROT_INT count, TROT_INT *index );
 
 /******************************************************************************/
 /*!
@@ -67,10 +68,11 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 	TrotList *lCurrentList = NULL;
 
+	TROT_INT tag = 0;
 	TROT_INT childrenCount = 0;
-	TROT_INT index = 0;
+	TROT_INT index = 1;
 
-	TROT_KIND kind = 0;
+	TROT_INT kind = 0;
 
 	TROT_INT n = 0;
 
@@ -115,11 +117,13 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* are we out of children? */
-		if ( index == childrenCount )
+		if ( index > childrenCount )
 		{
-			/* append "] " */
+			/* append "]" */
 			rc = trotListAppendInt( newCharacters, ']' );
 			ERR_IF_PASSTHROUGH;
+
+			/* append space */
 			rc = trotListAppendInt( newCharacters, ' ' );
 			ERR_IF_PASSTHROUGH;
 
@@ -141,12 +145,12 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 			rc = trotListRemoveInt( lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
+			/* increment */
+			index += 1;
+
 			/* continue */
 			continue;
 		}
-
-		/* increment */
-		index += 1;
 
 		/* get kind */
 		rc = trotListGetKind( lCurrentList, index, &kind );
@@ -154,16 +158,31 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 		if ( kind == TROT_KIND_INT )
 		{
-			/* get int */
-			rc = trotListGetInt( lCurrentList, index, &n );
+			/* get tag */
+			rc = trotListGetTag( lCurrentList, &tag );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			/* append number */
-			rc = appendNumber( newCharacters, n );
-			ERR_IF_PASSTHROUGH;
+			/* if tag'd text, append in text format */
+			if ( tag == TROT_TAG_TEXT )
+			{
+				rc = appendText( newCharacters, lCurrentList, childrenCount, &index );
+				ERR_IF_PASSTHROUGH;
+			}
+			/* else append in number format */
+			else
+			{
+				/* get int */
+				rc = trotListGetInt( lCurrentList, index, &n );
+				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			rc = trotListAppendInt( newCharacters, ' ' );
-			ERR_IF_PASSTHROUGH;
+				/* append number */
+				rc = appendNumber( newCharacters, n );
+				ERR_IF_PASSTHROUGH;
+
+				/* append space */
+				rc = trotListAppendInt( newCharacters, ' ' );
+				ERR_IF_PASSTHROUGH;
+			}
 		}
 		else /* kind == TROT_KIND_LIST */
 		{
@@ -182,8 +201,6 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 			{
 				/* append reference location */
 				rc = appendAbsTwinLocation( newCharacters, lChildList );
-				ERR_IF_PASSTHROUGH;
-				rc = trotListAppendInt( newCharacters, ' ' );
 				ERR_IF_PASSTHROUGH;
 			}
 			/* else we havent encoded this list yet, so encode it normally */
@@ -208,7 +225,12 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 				index = 0;
 			}
+
 		} /* end if (kind) */
+
+		/* increment */
+		index += 1;
+
 	} /* end while(1) */
 
 	/* go through tree again, resetting encodingChildNumber and encodingParent */
@@ -227,7 +249,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 	rc = trotListTwin( listToEncode, &lCurrentList );
 	ERR_IF_PASSTHROUGH;
 
-	index = 0;
+	index = 1;
 
 	PARANOID_ERR_IF( lCurrentList->laPointsTo == NULL );
 
@@ -241,7 +263,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* are we out of children? */
-		if ( index == childrenCount )
+		if ( index > childrenCount )
 		{
 			/* do we have a parent? */
 			rc = trotListGetCount( lParentStack, &parentStackCount );
@@ -261,12 +283,13 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 			rc = trotListRemoveInt( lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
+			/* increment */
+			index += 1;
+
 			/* continue */
 			continue;
 		}
 
-		/* increment */
-		index += 1;
 
 		/* get kind */
 		rc = trotListGetKind( lCurrentList, index, &kind );
@@ -302,7 +325,12 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 				PARANOID_ERR_IF( lCurrentList->laPointsTo == NULL );
 			}
+
 		} /* end if ( kind == TROT_KIND_LIST ) */
+
+		/* increment */
+		index += 1;
+
 	} /* end while ( 1 ) */
 
 	listToEncode->laPointsTo->encodingChildNumber = 0;
@@ -370,6 +398,7 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l )
 		ERR_IF_PASSTHROUGH;
 		rc = appendNumber( lCharacters, tag );
 		ERR_IF_PASSTHROUGH;
+
 		rc = trotListAppendInt( lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 	}
@@ -383,6 +412,7 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l )
 		ERR_IF_PASSTHROUGH;
 		rc = appendNumber( lCharacters, tag );
 		ERR_IF_PASSTHROUGH;
+
 		rc = trotListAppendInt( lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 	}
@@ -430,6 +460,10 @@ static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
 	/* if encodingChildNumber is -1, just need "@" */
 	if ( l->laPointsTo->encodingChildNumber == -1 )
 	{
+		/* append space */
+		rc = trotListAppendInt( lCharacters, ' ' );
+		ERR_IF_PASSTHROUGH;
+
 		goto cleanup;
 	}
 
@@ -471,6 +505,10 @@ static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
 		index += 1;
 	}
 
+	/* append space */
+	rc = trotListAppendInt( lCharacters, ' ' );
+	ERR_IF_PASSTHROUGH;
+
 
 	/* CLEANUP */
 	cleanup:
@@ -483,8 +521,8 @@ static TROT_RC appendAbsTwinLocation( TrotList *lCharacters, TrotList *l )
 /******************************************************************************/
 /*!
 	\brief Appends encoding of a number.
-	\param lCharacters List of characters to append to.
-	\param n Number to append.
+	\param[in] lCharacters List of characters to append to.
+	\param[in] n Number to append.
 	\return TROT_RC
 
 	lCharacters will have encoding text appended to it.
@@ -548,6 +586,120 @@ static TROT_RC appendNumber( TrotList *lCharacters, TROT_INT n )
 		ERR_IF_PASSTHROUGH;
 
 		s += 1;
+	}
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Appends ints in text format
+	\param[in] lCharacters List of characters to append to.
+	\param[in] l The list we're encoding
+	\param[in] count Count of l
+	\param[in] index Current index of l
+	\return TROT_RC
+
+	lCharacters will have encoding text appended to it.
+	index will be incremented
+*/
+static TROT_RC appendText( TrotList *lCharacters, TrotList *l, TROT_INT count, TROT_INT *index )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TROT_INT kind = 0;
+	TROT_INT character = 0;
+	TROT_INT state = 0;
+
+
+	/* PRECOND */
+	PARANOID_ERR_IF( lCharacters == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( index == NULL );
+
+
+	/* CODE */
+	/* go through ints, break if we hit a list */
+	while ( (*index) <= count )
+	{
+		/* get kind */
+		rc = trotListGetKind( l, (*index), &kind );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		if ( kind != TROT_KIND_INT )
+		{
+			/* go back */
+			(*index) -= 1;
+
+			break;
+		}
+
+		/* get character */
+		rc = trotListGetInt( l, (*index), &character );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		/* is printable character? */
+		/* not fully unicode correct, but good enough for now */
+		/* FUTURE IMPROVEMENT */
+		if (    character != '\"' 
+		     && ( character >= ' ' && character <= '~' )
+		   )
+		{
+			if ( state == 0 )
+			{
+				/* append " */
+				rc = trotListAppendInt( lCharacters, '\"' );
+				ERR_IF_PASSTHROUGH;
+
+				state = 1;
+			}
+
+			/* append character */
+			rc = trotListAppendInt( lCharacters, character );
+			ERR_IF_PASSTHROUGH;
+		}
+		else
+		{
+			if ( state == 1 )
+			{
+				/* append " */
+				rc = trotListAppendInt( lCharacters, '\"' );
+				ERR_IF_PASSTHROUGH;
+
+				/* append space */
+				rc = trotListAppendInt( lCharacters, ' ' );
+				ERR_IF_PASSTHROUGH;
+
+				state = 0;
+			}
+
+			/* append in number format */
+			rc = appendNumber( lCharacters, character );
+			ERR_IF_PASSTHROUGH;
+
+			/* append space */
+			rc = trotListAppendInt( lCharacters, ' ' );
+			ERR_IF_PASSTHROUGH;
+		}
+
+		/* increment */
+		(*index) += 1;
+	}
+
+	if ( state == 1 )
+	{
+		/* append " */
+		rc = trotListAppendInt( lCharacters, '\"' );
+		ERR_IF_PASSTHROUGH;
+
+		/* append space */
+		rc = trotListAppendInt( lCharacters, ' ' );
+		ERR_IF_PASSTHROUGH;
 	}
 
 

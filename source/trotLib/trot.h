@@ -84,19 +84,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_TROT_ERRORS_MAX     2008
 
 /******************************************************************************/
-typedef enum
-{
-	TROT_KIND_INT = 1,
-	TROT_KIND_LIST = 2
-} TROT_KIND;
+#define TROT_KIND_INT 1
+#define TROT_KIND_LIST 2
 
 /******************************************************************************/
 #define TROT_TAG_DATA 0
-#define TROT_TAG_CODE 1
+#define TROT_TAG_TEXT 1
+#define TROT_TAG_CODE 2
 /* TODO: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
 #define TROT_TAG_MIN 0
-#define TROT_TAG_MAX 1
+#define TROT_TAG_MAX 2
 
 /******************************************************************************/
 #define TROT_INT_SIZE 4
@@ -151,7 +149,7 @@ TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame );
 
 TROT_RC trotListGetCount( TrotList *l, TROT_INT *count );
 
-TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_KIND *kind );
+TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind );
 
 TROT_RC trotListAppendInt( TrotList *l, TROT_INT n );
 TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend );

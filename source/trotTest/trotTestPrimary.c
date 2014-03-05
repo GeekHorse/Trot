@@ -1038,7 +1038,7 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 	TROT_INT addingAtIndex = 0;
 	TROT_INT addingAtIndexB = 0; /* this may be the same, or it may be the negative version */
 
-	TROT_KIND kind;
+	TROT_INT kind = 0;
 
 	TrotList *newL = NULL;
 

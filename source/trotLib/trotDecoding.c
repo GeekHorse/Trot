@@ -39,6 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
+static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne );
+static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A );
 static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number );
 static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A );
 static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference_A );
@@ -66,7 +68,6 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	TrotList *lChild = NULL;
 
 	TrotList *lWord = NULL;
-	TROT_INT wordCount = 0;
 	TROT_INT ch = 0;
 
 	TROT_INT number = 0;
@@ -100,119 +101,69 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	rc = trotListInit( &lStack );
 	ERR_IF_PASSTHROUGH;
 
+
 	/* skip whitespace */
-	while ( index <= charactersCount )
-	{
-		rc = trotListGetInt( lCharacters, index, &ch );
-		ERR_IF_PASSTHROUGH;
-
-		if ( ! trotUnicodeIsWhitespace( ch ) )
-		{
-			break;
-		}
-
-		index += 1;
-	}
-
-	/* get first word */
-	rc = trotListInit( &lWord );
+	rc = skipWhitespace( lCharacters, charactersCount, &index, 0 );
 	ERR_IF_PASSTHROUGH;
 
-	while ( index <= charactersCount )
-	{
-		rc = trotListGetInt( lCharacters, index, &ch );
-		ERR_IF_PASSTHROUGH;
 
-		if ( trotUnicodeIsWhitespace( ch ) )
-		{
-			break;
-		}
-
-		rc = trotListAppendInt( lWord, ch );
-		ERR_IF_PASSTHROUGH;
-
-		index += 1;
-	}
-
-	rc = trotListGetCount( lWord, &wordCount );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-	/* first word must be '[' */
-
-	/* must be 1 for [ */
-	ERR_IF_1( wordCount != 1, TROT_RC_ERROR_DECODE, wordCount );
-
-	/* get character */
-	rc = trotListGetInt( lWord, 1, &ch );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+	/* get first character */
+	rc = trotListGetInt( lCharacters, index, &ch );
+	ERR_IF_PASSTHROUGH;
 
 	/* must be [ */
 	ERR_IF_1( ch != '[', TROT_RC_ERROR_DECODE, ch );
 
-	/* skip whitespace */
-	while ( index <= charactersCount )
-	{
-		rc = trotListGetInt( lCharacters, index, &ch );
-		ERR_IF_PASSTHROUGH;
+	/* skip past [ */
+	index += 1;
 
-		if ( ! trotUnicodeIsWhitespace( ch ) )
-		{
-			break;
-		}
-
-		index += 1;
-	}
 
 	/* decode rest of characters */
 	while ( 1 )
 	{
-		/* get next word */
-		trotListFree( &lWord );
-		rc = trotListInit( &lWord );
+		/* skip whitespace */
+		rc = skipWhitespace( lCharacters, charactersCount, &index, 1 );
+		ERR_IF_PASSTHROUGH;
+		
+		/* get next character */
+		rc = trotListGetInt( lCharacters, index, &ch );
 		ERR_IF_PASSTHROUGH;
 
-		while ( index <= charactersCount )
+		/* if double quote, decode text format */
+		if ( ch == '\"' )
 		{
-			rc = trotListGetInt( lCharacters, index, &ch );
-			ERR_IF_PASSTHROUGH;
-
-			if ( trotUnicodeIsWhitespace( ch ) )
-			{
-				break;
-			}
-
-			rc = trotListAppendInt( lWord, ch );
-			ERR_IF_PASSTHROUGH;
-
+			/* skip double quote */
 			index += 1;
-		}
 
-		rc = trotListGetCount( lWord, &wordCount );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		/* go ahead and skip whitespace */
-		while ( index <= charactersCount )
-		{
-			rc = trotListGetInt( lCharacters, index, &ch );
-			ERR_IF_PASSTHROUGH;
-
-			if ( ! trotUnicodeIsWhitespace( ch ) )
+			/* go through text */
+			while ( 1 )
 			{
-				break;
+				/* get character */
+				rc = trotListGetInt( lCharacters, index, &ch );
+				ERR_IF_PASSTHROUGH;
+
+				/* if double quote, we're at end of text format */
+				if ( ch == '\"' )
+				{
+					/* skip double quote */
+					index += 1;
+
+					break;
+				}
+
+				/* add to lCurrent */
+				rc = trotListAppendInt( lCurrent, ch );
+				ERR_IF_PASSTHROUGH;
+
+				/* increment */
+				index += 1;
 			}
-
-			index += 1;
 		}
-
-		/* get first character of word */
-		rc = trotListGetInt( lWord, 1, &ch );
-		ERR_IF_PASSTHROUGH;
-
-		/* if [ */
-		if ( ch == '[' )
+		/* if left bracket, create new child list and "go down" into it */
+		else if ( ch == '[' )
 		{
-			/* count must be 1 */
-			ERR_IF_1( wordCount != 1, TROT_RC_ERROR_DECODE, wordCount );
+			/* skip bracket */
+			index += 1;
 
 			/* create new list */
 			trotListFree( &lChild );
@@ -232,37 +183,38 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			lCurrent = lChild;
 			lChild = NULL;
 		}
-		/* if ] */
+		/* if right bracket, "go up" to parent */
 		else if ( ch == ']' )
 		{
-			/* count must be 1 */
-			ERR_IF_1( wordCount != 1, TROT_RC_ERROR_DECODE, wordCount );
+			/* skip bracket */
+			index += 1;
 
-			/* if we're at the end of our characters, we're done */
-			if ( index > charactersCount )
+			/* is stack empty? */
+			rc = trotListGetCount( lStack, &stackCount );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+			if ( stackCount == 0 )
 			{
 				break;
 			}
 
-			/* stack must not be empty */
-			rc = trotListGetCount( lStack, &stackCount );
-			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-			ERR_IF_1( stackCount == 0, TROT_RC_ERROR_DECODE, stackCount );
-
-			/* pop off stack */
+			/* pop off stack ... "go up" */
 			trotListFree( &lCurrent );
 			rc = trotListRemoveList( lStack, -1, &lCurrent );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
-		/* if tilde */
+		/* if tilde, set tag */
 		else if ( ch == '~' )
 		{
-			/* remove the tilde */
-			rc = trotListRemove( lWord, 1 );
-			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+			/* skip tilde */
+			index += 1;
 
-			/* the rest of the word must be a number */
+			/* get word */
+			trotListFree( &lWord );
+			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			ERR_IF_PASSTHROUGH;
+
+			/* word to number */
 			rc = wordToNumber( lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
@@ -270,24 +222,33 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			rc = trotListSetTag( lCurrent, number );
 			ERR_IF_PASSTHROUGH;
 		}
-		/* if backtick */
+		/* if backtick, set user tag */
 		else if ( ch == '`' )
 		{
-			/* remove the tilde */
-			rc = trotListRemove( lWord, 1 );
-			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+			/* skip backtick */
+			index += 1;
 
-			/* the rest of the word must be a number */
+			/* get word */
+			trotListFree( &lWord );
+			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			ERR_IF_PASSTHROUGH;
+
+			/* word to number */
 			rc = wordToNumber( lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
-			/* set tag */
+			/* set user tag */
 			rc = trotListSetUserTag( lCurrent, number );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
-		/* if @ */
+		/* if @, read in reference, and twin a previously-seen list */
 		else if ( ch == '@' )
 		{
+			/* get word */
+			trotListFree( &lWord );
+			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			ERR_IF_PASSTHROUGH;
+
 			/* split */
 			trotListFree( &lPartList );
 			rc = splitList( lWord, '.', &lPartList );
@@ -305,21 +266,27 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 		/* else, must be number */
 		else
 		{
-			/* the rest of the word must be a number */
+			/* get word */
+			trotListFree( &lWord );
+			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			ERR_IF_PASSTHROUGH;
+
+			/* word to number */
 			rc = wordToNumber( lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
+			/* add number to current list */
 			rc = trotListAppendInt( lCurrent, number );
 			ERR_IF_PASSTHROUGH;
 		}
-
 	}
 
-	/* stack must be empty */
-	rc = trotListGetCount( lStack, &stackCount );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+	/* skip whitespace */
+	rc = skipWhitespace( lCharacters, charactersCount, &index, 0 );
+	ERR_IF_PASSTHROUGH;
 
-	ERR_IF_1( stackCount != 0, TROT_RC_ERROR_DECODE, stackCount );
+	/* we must be at end of characters */
+	ERR_IF( index != (charactersCount + 1), TROT_RC_ERROR_DECODE );
 
 
 	/* give back */
@@ -342,99 +309,117 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 
 /******************************************************************************/
 /*!
-	\brief Creates a new list of parts that were separated out of l.
-	\param[in] listToSplit List that contains parts.
-	\param[in] separator Separating character
-	\param[out] lPartList_A On success, contains the parts.
+	\brief Skips whitespace characters.
+	\param[in] lCharacters List of characters.
+	\param[in] charactersCount Count of characters.
+	\param[in,out] index Current index into lCharacters.
+	\param[in] mustBeOne Whether there must be at least 1 whitespace character.
 	\return TROT_RC
 
-	listToSplit is not modified.
-	listToSplit must only contain characters, not lists.
-
-	lPartList_A is created, and caller is responsible for freeing.
-
-	Example:
-	IN:
-		listToSplit = ["abc.def.ghi"]
-		separator = '.'
-	OUT:
-		listToSplit = ["abc.def.ghi"]
-		lPartList_A will be [["abc"]["def"]["ghi"]]
+	index will be incremented to first non-whitespace character, or 1 past end of list.
 */
-static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A )
+static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	TROT_INT count = 0;
-	TROT_INT index = 0;
-	TROT_INT character = 0;
-
-	TrotList *newLPartList = NULL;
-	TrotList *lPart = NULL;
+	TROT_INT ch = 0;
 
 
 	/* PRECOND */
-	PARANOID_ERR_IF( listToSplit == NULL );
-	PARANOID_ERR_IF( lPartList_A == NULL );
-	PARANOID_ERR_IF( (*lPartList_A) != NULL );
+	PARANOID_ERR_IF( lCharacters == NULL );
+	PARANOID_ERR_IF( index == NULL );
 
 
 	/* CODE */
-	/* create giveback */
-	rc = trotListInit( &newLPartList );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListInit( &lPart );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListAppendList( newLPartList, lPart );
-	ERR_IF_PASSTHROUGH;
-
-	/* get count */
-	rc = trotListGetCount( listToSplit, &count );
-	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-	/* foreach character */
-	index = 1;
-	while ( index <= count )
+	if ( mustBeOne )
 	{
-		/* get next character */
-		rc = trotListGetInt( listToSplit, index, &character );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+		rc = trotListGetInt( lCharacters, (*index), &ch );
+		ERR_IF_PASSTHROUGH;
 
-		/* if separator */
-		if ( character == separator )
-		{
-			trotListFree( &lPart );
+		ERR_IF( ! trotUnicodeIsWhitespace( ch ), TROT_RC_ERROR_DECODE );
 
-			rc = trotListInit( &lPart );
-			ERR_IF_PASSTHROUGH;
-
-			rc = trotListAppendList( newLPartList, lPart );
-			ERR_IF_PASSTHROUGH;
-		}
-		/* else add to current part */
-		else
-		{
-			rc = trotListAppendInt( lPart, character );
-			ERR_IF_PASSTHROUGH;
-		}
-
-		/* increment index */
-		index += 1;
+		(*index) += 1;
 	}
 
-	/* give back */
-	(*lPartList_A) = newLPartList;
-	newLPartList = NULL;
+	while ( (*index) <= charactersCount )
+	{
+		rc = trotListGetInt( lCharacters, (*index), &ch );
+		ERR_IF_PASSTHROUGH;
+
+		if ( ! trotUnicodeIsWhitespace( ch ) )
+		{
+			break;
+		}
+
+		(*index) += 1;
+	}
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newLPartList );
-	trotListFree( &lPart );
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Gets the next word in lCharacters.
+	\param[in] lCharacters List of characters.
+	\param[in] charactersCount Count of characters.
+	\param[in,out] index Current index into lCharacters.
+	\param[out] lWord_A The next word.
+	\return TROT_RC
+
+	index will be incremented.
+	lWord_A will be created. Caller is responsible for freeing.
+*/
+static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TrotList *newLWord = NULL;
+	TROT_INT ch = 0;
+
+
+	/* PRECOND */
+	PARANOID_ERR_IF( lCharacters == NULL );
+	PARANOID_ERR_IF( index == NULL );
+	PARANOID_ERR_IF( lWord_A == NULL );
+	PARANOID_ERR_IF( (*lWord_A) != NULL );
+
+
+	/* CODE */
+	rc = trotListInit( &newLWord );
+	ERR_IF_PASSTHROUGH;
+
+	while ( (*index) <= charactersCount )
+	{
+		rc = trotListGetInt( lCharacters, (*index), &ch );
+		ERR_IF_PASSTHROUGH;
+
+		if ( trotUnicodeIsWhitespace( ch ) )
+		{
+			break;
+		}
+
+		rc = trotListAppendInt( newLWord, ch );
+		ERR_IF_PASSTHROUGH;
+
+		(*index) += 1;
+	}
+
+
+	/* give back */
+	(*lWord_A) = newLWord;
+	newLWord = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( &newLWord );
 
 	return rc;
 }
@@ -625,6 +610,105 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 /******************************************************************************/
 /*!
+	\brief Creates a new list of parts that were separated out of l.
+	\param[in] listToSplit List that contains parts.
+	\param[in] separator Separating character
+	\param[out] lPartList_A On success, contains the parts.
+	\return TROT_RC
+
+	listToSplit is not modified.
+	listToSplit must only contain characters, not lists.
+
+	lPartList_A is created, and caller is responsible for freeing.
+
+	Example:
+	IN:
+		listToSplit = ["abc.def.ghi"]
+		separator = '.'
+	OUT:
+		listToSplit = ["abc.def.ghi"]
+		lPartList_A will be [["abc"]["def"]["ghi"]]
+*/
+static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TROT_INT count = 0;
+	TROT_INT index = 0;
+	TROT_INT character = 0;
+
+	TrotList *newLPartList = NULL;
+	TrotList *lPart = NULL;
+
+
+	/* PRECOND */
+	PARANOID_ERR_IF( listToSplit == NULL );
+	PARANOID_ERR_IF( lPartList_A == NULL );
+	PARANOID_ERR_IF( (*lPartList_A) != NULL );
+
+
+	/* CODE */
+	/* create giveback */
+	rc = trotListInit( &newLPartList );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( &lPart );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListAppendList( newLPartList, lPart );
+	ERR_IF_PASSTHROUGH;
+
+	/* get count */
+	rc = trotListGetCount( listToSplit, &count );
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+	/* foreach character */
+	index = 1;
+	while ( index <= count )
+	{
+		/* get next character */
+		rc = trotListGetInt( listToSplit, index, &character );
+		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+
+		/* if separator */
+		if ( character == separator )
+		{
+			trotListFree( &lPart );
+
+			rc = trotListInit( &lPart );
+			ERR_IF_PASSTHROUGH;
+
+			rc = trotListAppendList( newLPartList, lPart );
+			ERR_IF_PASSTHROUGH;
+		}
+		/* else add to current part */
+		else
+		{
+			rc = trotListAppendInt( lPart, character );
+			ERR_IF_PASSTHROUGH;
+		}
+
+		/* increment index */
+		index += 1;
+	}
+
+	/* give back */
+	(*lPartList_A) = newLPartList;
+	newLPartList = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( &newLPartList );
+	trotListFree( &lPart );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
 	\brief Takes a textual-reference and retrieves the correct list out of lTop
 	\param[in] lTop The top list.
 	\param[in] lPartList List that contains the parts of the textual-reference
@@ -693,6 +777,9 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 		/* part into number */
 		rc = wordToNumber( lPart, &partNumber );
 		ERR_IF_PASSTHROUGH;
+
+		/* must be positive */
+		ERR_IF_1( partNumber <= 0, TROT_RC_ERROR_DECODE, partNumber );
 
 		/* get child of parent */
 		trotListFree( &lChild );

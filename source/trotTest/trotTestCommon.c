@@ -357,7 +357,7 @@ int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 	/* DATA */
 	int rc = 0;
 
-	TROT_KIND kind = 0;
+	TROT_INT kind = 0;
 
 	TROT_INT valueInList = 0;
 
@@ -687,7 +687,9 @@ int load( TrotList *lName, TrotList **lBytes )
 	/* convert our TrotList name to a cString */
 	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
 
-	/* printf( "Loading: %s\n", name ); */
+#if 0
+	printf( "Loading: %s\n", name );
+#endif
 
 	/* open */
 	fp = fopen( name, "rb" );

@@ -37,7 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h> /* time(), for seeding random number generator */
 
 /******************************************************************************/
-static int _getArgValue( int argc, char **argv, char *key, char **value );
+static int getArgValue( int argc, char **argv, char *key, char **value );
+static int getArgExist( int argc, char **argv, char *key );
 
 /******************************************************************************/
 void logNoop( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c )
@@ -79,7 +80,7 @@ int main( int argc, char **argv )
 	printf( "\n" );
 
 	/* **************************************** */
-	rc = _getArgValue( argc, argv, "-s", &argValue );
+	rc = getArgValue( argc, argv, "-s", &argValue );
 	if ( rc == 0 )
 	{
 		seed = atol( argValue );
@@ -90,7 +91,7 @@ int main( int argc, char **argv )
 	}
 
 	/* **************************************** */
-	rc = _getArgValue( argc, argv, "-t", &argValue );
+	rc = getArgValue( argc, argv, "-t", &argValue );
 	if ( rc == 0 )
 	{
 		if ( strcmp( argValue, "all" ) == 0 )
@@ -153,6 +154,7 @@ int main( int argc, char **argv )
 	if ( flagTestAnySet == 0 )
 	{
 		fprintf( stderr, "Usage: trotTest [options]\n" );
+		fprintf( stderr, "  -d             Enable debug logging\n" );
 		fprintf( stderr, "  -s <NUMBER>    Seed for random number generator\n" );
 		fprintf( stderr, "  -t <TEST>      Test to run\n" );
 		fprintf( stderr, "                 Possible tests:\n" );
@@ -189,9 +191,12 @@ int main( int argc, char **argv )
 		TEST_ERR_IF( testMisc() != 0 );
 	}
 
-	/* when we test, lots of expected errors happen, so we turn off logging */
-	printf( "Disabling trotHookLog...\n" ); fflush( stdout );
-	trotHookLog = logNoop;
+	if ( ! getArgExist( argc, argv, "-d" ) )
+	{
+		/* when we test, lots of expected errors happen, so we turn off logging */
+		printf( "Disabling trotHookLog...\n" ); fflush( stdout );
+		trotHookLog = logNoop;
+	}
 
 	if ( flagTestAll || flagTestPreconditions )
 	{
@@ -258,7 +263,7 @@ int main( int argc, char **argv )
 }
 
 /******************************************************************************/
-static int _getArgValue( int argc, char **argv, char *key, char **value )
+static int getArgValue( int argc, char **argv, char *key, char **value )
 {
 	/* DATA */
 	int i = 0;
@@ -286,3 +291,23 @@ static int _getArgValue( int argc, char **argv, char *key, char **value )
 	return -2;
 }
 
+/******************************************************************************/
+static int getArgExist( int argc, char **argv, char *key )
+{
+	/* DATA */
+	int i = 0;
+
+
+	/* CODE */
+	while ( i < argc )
+	{
+		if ( strcmp( key, argv[ i ] ) == 0 )
+		{
+			return 1;
+		}
+
+		i += 1;
+	}
+
+	return 0;
+}
