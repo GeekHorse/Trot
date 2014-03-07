@@ -1,21 +1,41 @@
 --- Info -----------------------------------------------------------------------
 What      : Trot(TM) Programming Language
-Version   : 0.2.00-wip
+Version   : 0.2.00
 Author    : Jeremiah Martell
 Copyright : (C) 2010-2014
 License   : 3-clause BSD
 Website   : http://GeekHorse.com
 
---- Description ----------------------------------------------------------------
-Trot is a programming languaged designed:
+--- Summary --------------------------------------------------------------------
+Trot is a small embeddable programming language that gives you control over the
+virtual programs that it runs. You can control their memory usage, virtual cpu
+usage, and garbage collection.
 
+This is my personal "weekend project", so progress will be slow but steady.
+
+It will be usable at version 0.4. (see PLAN)
+
+--- Details --------------------------------------------------------------------
 - Small
   Current sizes of the library are:
   - make small, ~40 KB
   - make fast,  ~60 KB
 
+- Easily embeddable
+  It will be easy to embed Trot into your application, say a C program, and have
+  easy Trot and C interactions.
+
+- Garbage Collection
+  It can handle anything: Self references, mutual references, etc.
+  Future work will improve it to be incremental and dynamically tunable.
+
 - Fast
   To be determined.
+
+- Actor Model
+  Uses the actor model for easy concurrent programming.
+  The actors communicate by pushing messages to each other, so there's no need
+  to worry about mutexes and such.
 
 - Simple
   - Only 2 types: lists and ints.
@@ -23,24 +43,7 @@ Trot is a programming languaged designed:
     maps, graphs, etc.
     Ints are signed 32-bit integers, so they can also be used for unicode
     characters.
-  - Code is stack based with reverse polish notation.
-
-- Garbage Collection
-  It can handle anything: Self references, mutual references, etc.
-  Future work will improve it to be incremental and dynamically tunable.
-
-- Actor Model
-  Uses the actor model for easy concurrent programming.
-  The actors communicate by pushing messages to each other, so there's no need
-  to worry about mutexes and such.
-
-- Easily embeddable
-  It will be easy to embed Trot into your application, say a C program, and have
-  easy Trot and C interactions.
-
-This is my personal "weekend project", so progress will be slow but steady.
-
-It will be usable at version 0.4. (see PLAN)
+  - Code is stack based.
 
 --- Quality --------------------------------------------------------------------
 - Compiled with gcc's -Wall -Werror and -Wextra.

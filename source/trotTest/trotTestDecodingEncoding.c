@@ -64,6 +64,7 @@ int testDecodingEncoding()
 	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad ) != 0 );
 	TEST_ERR_IF( testDecodingAddLists() != 0 );
 
+	printf( "\n" ); fflush( stdout );
 
 	/* CLEANUP */
 	cleanup:
@@ -185,6 +186,8 @@ static int processFiles( char *directory, ProcessFunction func )
 			/* send to func */
 			TEST_ERR_IF( func( dirNumber, fileNumber, lName ) != 0 );
 
+			printf( "." ); fflush( stdout );
+
 			/* set flag */
 			flagTestedAtLeastOne = 1;
 
@@ -210,6 +213,7 @@ static int processFiles( char *directory, ProcessFunction func )
 	/* make sure we tested at least one file */
 	TEST_ERR_IF( flagTestedAtLeastOne == 0 );
 
+	printf( "\n" ); fflush( stdout );
 
 	/* CLEANUP */
 	cleanup:

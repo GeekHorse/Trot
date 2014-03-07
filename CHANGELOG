@@ -1,0 +1,24 @@
+Trot Changelog:
+	0.2.00
+		2014-MAR-06
+
+		Summary:
+		- Finished basic encoding/decoding "compiler"
+
+	0.1.20
+		2011-OCT-09
+
+		Summary:
+		- Finished list library math functions
+
+	0.1.10
+		2011-SEP-24
+
+		Summary:
+		- Finished list library secondary functions
+
+	0.1.00
+		2011-APR-17
+
+		Summary:
+		- Finished list library primary functions

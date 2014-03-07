@@ -224,6 +224,8 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 				lChildList = NULL;
 
 				index = 0;
+
+				PARANOID_ERR_IF( lCurrentList->laPointsTo == NULL );
 			}
 
 		} /* end if (kind) */
@@ -289,7 +291,6 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 			/* continue */
 			continue;
 		}
-
 
 		/* get kind */
 		rc = trotListGetKind( lCurrentList, index, &kind );

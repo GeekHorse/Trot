@@ -591,6 +591,19 @@ static int testMaxChildrenWithDelist()
 
 
 	/* CODE */
+	if ( TROT_MAX_CHILDREN == TROT_INT_MAX )
+	{
+		printf( "\n\n\n" );
+		printf( "--- SKIPPING TROT_MAX_CHILDREN TEST! ---\n" );
+		printf( "It's too memory intensive to test TROT_MAX_CHILDREN when it's\n" );
+		printf( "the same as TROT_INT_MAX. To test TROT_MAX_CHILDREN, run the\n" );
+		printf( "tests against a debug version of Trot. ex: make debug\n" );
+		printf( "----------------------------------------\n" );
+		printf( "\n\n\n" );
+
+		goto cleanup;
+	}
+
 	/* create our main l, to have TROT_MAX_CHILDREN - 1 children */
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 	

@@ -102,7 +102,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
-/* TODO: these may change, or how we execute them may change */
+/* FUTURE: these may change, or how we execute them may change */
 typedef enum
 {
 	TROT_OP_ADD = 1,
@@ -145,10 +145,10 @@ struct TrotListNode_STRUCT
 {
 	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
 	NODE_KIND_LIST. */
-/* TODO: this can go away, since we know what kind it is based on the state of the l and n pointers */
+/* FUTURE: this can go away, since we know what kind it is based on the state of the l and n pointers */
 	TROT_INT kind;
 	/*! count is how many TROT_INTs or trotListRefs are in this node. */
-/* TODO: this could be made smaller by using a u8, since we're not going to have more than 256 sized nodes? */
+/* FUTURE: this could be made smaller by using a u8, since we're not going to have more than 256 sized nodes? */
 	TROT_INT count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
 	NODE_SIZE of type TROT_INT, else n will be NULL. */
@@ -180,11 +180,11 @@ struct TrotListActual_STRUCT
 	/*! Pointer to "nextToFree" list. Only set when this list is no longer
 	    reachable. We use this to keep a linked list of lists that need to
 	    be freed. */
-/* TODO: we could save space by combining these 3 trotlistactual pointers,
+/* FUTURE: we could save space by combining these 3 trotlistactual pointers,
 since it doesnt seem they're ever used at the same time */
 	TrotListActual *nextToFree;
 
-/* TODO: we could change our encoding to only need 1 value, not parent and number
+/* FUTURE: we could change our encoding to only need 1 value, not parent and number
 if it kept track of each lists reference number */
 	/*! Pointer to "parent" when we're encoding a list */
 	TrotListActual *encodingParent;
@@ -205,7 +205,7 @@ if it kept track of each lists reference number */
 	/*! Pointer to the tail of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
-/* TODO: do we need a tail pointer here? */
+/* FUTURE: do we need a tail pointer here? */
 	TrotListRefListNode *refListTail;
 	/*! Pointer to the head of the linked list that contains the actual data
 	in the list. */
@@ -226,7 +226,7 @@ struct TrotList_STRUCT
 
 /*! Structure for holding a linked list of references. Used in TrotList to keep
 track of which references points to the trotList. */
-/* TODO: does this need to be double-linked? */
+/* FUTURE: does this need to be double-linked? */
 struct TrotListRefListNode_STRUCT
 {
 	/*! How many references are in this node */

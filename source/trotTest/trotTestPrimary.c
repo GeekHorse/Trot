@@ -138,29 +138,33 @@ int testPrimaryFunctionality()
 
 	if ( TROT_MAX_CHILDREN == TROT_INT_MAX )
 	{
+		printf( "\n\n\n" );
+		printf( "--- SKIPPING TROT_MAX_CHILDREN TEST! ---\n" );
 		printf( "It's too memory intensive to test TROT_MAX_CHILDREN when it's\n" );
-		printf( "the same as TROT_INT_MAX. Please only run tests when built with\n" );
-		printf( "debug make targets.\n" );
-		TEST_ERR_IF( 1 );
+		printf( "the same as TROT_INT_MAX. To test TROT_MAX_CHILDREN, run the\n" );
+		printf( "tests against a debug version of Trot. ex: make debug\n" );
+		printf( "----------------------------------------\n" );
+		printf( "\n\n\n" );
 	}
-
-	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
-	index = 1;
-	while ( index <= TROT_MAX_CHILDREN )
+	else
 	{
-		TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+		index = 1;
+		while ( index <= TROT_MAX_CHILDREN )
+		{
+			TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_SUCCESS );
 
-		/* increment */
-		index += 1;
+			/* increment */
+			index += 1;
+		}
+
+		TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListAppendList( l, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListInsertInt( l, 1, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListInsertList( l, 1, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+
+		trotListFree( &l );
 	}
-
-	TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
-	TEST_ERR_IF( trotListAppendList( l, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
-	TEST_ERR_IF( trotListInsertInt( l, 1, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
-	TEST_ERR_IF( trotListInsertList( l, 1, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
-
-	trotListFree( &l );
-	
 
 	/* *** */
 	printf( "  Testing rest of primary functions...\n" ); fflush( stdout );

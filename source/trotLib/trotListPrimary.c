@@ -765,7 +765,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 		}
 
 		/* *** */
-		rc = newIntNode( &newNode ); /* TODO: newNode functions may be able to also place themselves in the list too, to consolidate some code */
+		rc = newIntNode( &newNode ); /* FUTURE: newNode functions may be able to also place themselves in the list too, to consolidate some code */
 		ERR_IF_PASSTHROUGH;
 
 		newNode->n[ 0 ] = n;
@@ -955,7 +955,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 		rc = trotListTwin( lToInsert, &newL );
 		ERR_IF_PASSTHROUGH;
 
-		/* Insert node into list */ /* TODO: inserting a node into a list should be a function */
+		/* Insert node into list */ /* FUTURE: inserting a node into a list should be a function */
 		newNode->l[ 0 ] = newL;
 		newL->laParent = la;
 		newL = NULL;
@@ -1190,7 +1190,7 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 	node->count -= 1;
 	l->laPointsTo->childrenCount -= 1;
 
-	if ( node->count == 0 ) /* TODO: this code may be able to be factored out into a function */
+	if ( node->count == 0 ) /* FUTURE: this code may be able to be factored out into a function */
 	{
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
@@ -1435,7 +1435,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 	/* CODE */
 	la = l->laPointsTo;
 
-/* TODO: turn negative into positive, make sure in range, and find node could
+/* FUTURE: turn negative into positive, make sure in range, and find node could
 	all be factored out into a function.
 	as well as other code, to make this file smaller */
 	/* Turn negative index into positive equivalent. */

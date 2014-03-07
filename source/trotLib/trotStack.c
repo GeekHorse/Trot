@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Keeps track of a stack of two lists we're comparing.
 	Used for comparing, and so we don't get into an infinite loop.
 
-	TODO: This can go away once we move things out of the library and into
+	FUTURE: This can go away once we move things out of the library and into
 	Trot itself. Should we go ahead and remove it now?
 */
 #define TROT_FILE_NUMBER 10

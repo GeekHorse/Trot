@@ -39,8 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define TROT_COPYRIGHT "Copyright (C) 2010-2014 Jeremiah Martell"
 
-#define TROT_VERSION_STRING "0.2.00-wip"
-#define TROT_VERSION 2000
+#define TROT_VERSION_STRING "0.2.00"
+#define TROT_VERSION 2001
 #define TROT_VERSION_MAJOR       ( TROT_VERSION / 10000 )
 #define TROT_VERSION_MINOR       ( ( TROT_VERSION / 1000 ) % 10 )
 #define TROT_VERSION_SUBMINOR    ( ( TROT_VERSION / 10 ) % 100 )
@@ -91,7 +91,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_TAG_DATA 0
 #define TROT_TAG_TEXT 1
 #define TROT_TAG_CODE 2
-/* TODO: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
+/* FUTURE: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
 #define TROT_TAG_MIN 0
 #define TROT_TAG_MAX 2
@@ -179,7 +179,7 @@ const char *trotRCToString( TROT_RC rc );
 /* trotListSecondary.c */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
-/* TODO: rename this so people know it's only 1 level copying? */
+/* FUTURE: rename this so people know it's only 1 level copying? */
 TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A );
 
 TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );

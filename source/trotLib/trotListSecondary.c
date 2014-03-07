@@ -54,17 +54,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\param[out] compareResult Result of the comparison.
 	\return TROT_RC
 
-	TODO: it doesnt compare references, just structure and values, which is ok,
+	FUTURE: it doesnt compare references, just structure and values, which is ok,
 	just need to document it. if you want a "real" compare, you must encode
 	both lists, then compare the outputs.
 	maybe we just need a "string compare" that will only compare 1 level deep
 	and then a true compare that uses encoding. ... same with copy?
 
-	TODO: need to remove this, and just implement it in Trot itself
+	FUTURE: need to remove this, and just implement it in Trot itself
 	that way, it will be easier, plus, people can modify it to suit their
 	needs. What if they want tags to match, but not usertags, etc.
 
-	TODO: a true compare can be done by using encode, and comparing the
+	FUTURE: a true compare can be done by using encode, and comparing the
 	resulting character lists.
 */
 TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
@@ -660,7 +660,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	list will contain:
 	[ 3 4 5 ]
 
-	TODO: This could potentially be removed and reimplemented when the Trot
+	FUTURE: This could potentially be removed and reimplemented when the Trot
 	virtual machine is finished. Which would make it slower, but would make
 	the trot library smaller. Do we want to eliminate everything from the
 	library that can be implemented in Trot?
