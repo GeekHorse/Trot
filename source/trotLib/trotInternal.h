@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h> /* for printf */
 #include <stdlib.h> /* for NULL */
 
+#include "trot.h"
+
 /******************************************************************************/
 #define NODE_SIZE 16
 

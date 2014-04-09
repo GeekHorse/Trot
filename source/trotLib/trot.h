@@ -39,8 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define TROT_COPYRIGHT "Copyright (C) 2010-2014 Jeremiah Martell"
 
-#define TROT_VERSION_STRING "0.2.00"
-#define TROT_VERSION 2001
+#define TROT_VERSION_STRING "0.2.01-wip"
+#define TROT_VERSION 2010
 #define TROT_VERSION_MAJOR       ( TROT_VERSION / 10000 )
 #define TROT_VERSION_MINOR       ( ( TROT_VERSION / 1000 ) % 10 )
 #define TROT_VERSION_SUBMINOR    ( ( TROT_VERSION / 10 ) % 100 )
@@ -48,9 +48,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* This defines s32 as a signed 32-bit integer */
+#ifndef s32
 #define s32 signed int
+#endif
 /* This defines u8 as an unsigned 8-bit integer */
+#ifndef u8
 #define u8  unsigned char
+#endif
 
 /******************************************************************************/
 #define TROT_RC s32
@@ -97,7 +101,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_TAG_MAX 2
 
 /******************************************************************************/
-#define TROT_INT_SIZE 4
+#define TROT_INT_SIZE 4 /* TODO: do we even need this? We may want to just
+hardcode TROT_INT to s32 since we're going to be using that everywhere */
+/* TODO: else we'd have to use TROT_INT everywhere else */
 
 #if ( TROT_INT_SIZE == 4 )
 #define TROT_INT signed int
