@@ -1,4 +1,4 @@
-.PHONY: usage all fast small debug debug2 debug3 profile test vtest coverage clean trotLib trotTest
+.PHONY: usage all fast small debug debug2 debug3 single profile test vtest coverage clean trotLib trotTest
 
 ARGS =
 
@@ -27,6 +27,7 @@ usage:
 	@echo "  debug3   - build debug version, with smaller TROT_MAX_CHILDREN, and PARANOID checks"
 	@echo "             useful to run with PARANOID checks, for extra protection against"
 	@echo "             code changes"
+	@echo "  single   - build a combined trotSingle.c file"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
 	@echo "  vtest    - run tests in valgrind"
@@ -54,10 +55,13 @@ debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug: fast
 
+single: ARGS = single
+single: all
+
 profile: ARGS = profile
 profile: all
 
-test: all
+test:
 	trotTest/trotTest -t all
 
 vtest: all

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Implements the integer math logic on a list. Used when running Trot code.
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 3
 
 /******************************************************************************/

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	\file
 	Encodes a trot list into a textual format.
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 6
 
 /******************************************************************************/

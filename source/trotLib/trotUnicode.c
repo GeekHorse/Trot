@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Table 3-6. UTF-8 Bit Distribution
 	Table 3-7. Well-Formed UTF-8 Byte Sequences
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 4
 
 /******************************************************************************/

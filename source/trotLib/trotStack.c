@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	FUTURE: This can go away once we move things out of the library and into
 	Trot itself. Should we go ahead and remove it now?
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 10
 
 /******************************************************************************/

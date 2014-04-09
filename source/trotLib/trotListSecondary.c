@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Copy Span
 	- Remove Span
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 2
 
 /******************************************************************************/

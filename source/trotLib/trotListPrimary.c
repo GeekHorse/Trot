@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	- Remove List Twin
 	- Remove
 */
+#undef  TROT_FILE_NUMBER
 #define TROT_FILE_NUMBER 1
 
 /******************************************************************************/
