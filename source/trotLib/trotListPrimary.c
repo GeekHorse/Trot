@@ -517,7 +517,7 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 	/* special cases to create new node */
 	if (    node == la->head             /* empty list */
 	     || node->kind != NODE_KIND_INT /* last node is not int kind */
-	     || node->count == NODE_SIZE    /* last node is full */
+	     || node->count == TROT_NODE_SIZE    /* last node is full */
 	   )
 	{
 		rc = newIntNode( &newNode );
@@ -585,7 +585,7 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 	/* special cases to create new node */
 	if (    node == la->head              /* empty list */
 	     || node->kind != NODE_KIND_LIST /* last node is not list kind */
-	     || node->count == NODE_SIZE     /* last node is full */
+	     || node->count == TROT_NODE_SIZE     /* last node is full */
 	   )
 	{
 		rc = newListNode( &newNode );
@@ -698,9 +698,9 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 	if ( node->kind == NODE_KIND_INT )
 	{
 		/* If node is full */
-		if ( node->count == NODE_SIZE )
+		if ( node->count == TROT_NODE_SIZE )
 		{
-			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
+			rc = trotListNodeSplit( node, TROT_NODE_SIZE / 2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
@@ -741,7 +741,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 		   node. */
 		if (    i == 0
 		     && node->prev->kind == NODE_KIND_INT
-		     && node->prev->count != NODE_SIZE 
+		     && node->prev->count != TROT_NODE_SIZE 
 		   )
 		{
 			node = node->prev;
@@ -867,9 +867,9 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 	if ( node->kind == NODE_KIND_LIST )
 	{
 		/* If node is full */
-		if ( node->count == NODE_SIZE )
+		if ( node->count == TROT_NODE_SIZE )
 		{
-			rc = trotListNodeSplit( node, NODE_SIZE / 2 );
+			rc = trotListNodeSplit( node, TROT_NODE_SIZE / 2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
@@ -918,7 +918,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 		   node. */
 		if (    i == 0
 		     && node->prev->kind == NODE_KIND_LIST
-		     && node->prev->count != NODE_SIZE 
+		     && node->prev->count != TROT_NODE_SIZE 
 		   )
 		{
 			node = node->prev;
@@ -1481,7 +1481,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			/* If the previous node is an int node with space, we
 			   can just append in that node. */
 			if (    node->prev->kind == NODE_KIND_INT
-			     && node->prev->count != NODE_SIZE 
+			     && node->prev->count != TROT_NODE_SIZE 
 			   )
 			{
 				/* append int into prev node */
@@ -1512,7 +1512,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			/* if the next node is an int node with room, we can just prepend to
 			   that node. */
 			if (    node->next->kind == NODE_KIND_INT
-			     && node->next->count != NODE_SIZE 
+			     && node->next->count != TROT_NODE_SIZE 
 			   )
 			{
 				/* prepend int */
@@ -1685,7 +1685,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			/* If the previous node is a list node with space, we
 			   can just append in that node. */
 			if (    node->prev->kind == NODE_KIND_LIST
-			     && node->prev->count != NODE_SIZE 
+			     && node->prev->count != TROT_NODE_SIZE 
 			   )
 			{
 				/* append into prev node */
@@ -1721,7 +1721,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			/* if the next node is a list node with room, we can just prepend to
 			   that node. */
 			if (    node->next->kind == NODE_KIND_LIST
-			     && node->next->count != NODE_SIZE 
+			     && node->next->count != TROT_NODE_SIZE 
 			   )
 			{
 				/* prepend int */
@@ -1952,7 +1952,7 @@ TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 		newNode->count = (n->count) - keepInLeft;
 
 		newNode->l = NULL;
-		TROT_MALLOC( newNode->n, TROT_INT, NODE_SIZE );
+		TROT_MALLOC( newNode->n, TROT_INT, TROT_NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n->count) )
@@ -1970,7 +1970,7 @@ TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 		newNode->count = (n->count) - keepInLeft;
 
 		newNode->n = NULL;
-		TROT_CALLOC( newNode->l, TrotList *, NODE_SIZE );
+		TROT_CALLOC( newNode->l, TrotList *, TROT_NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n->count) )
@@ -2027,7 +2027,7 @@ TROT_RC newIntNode( TrotListNode **n_A )
 	newNode->count = 0;
 
 	newNode->l = NULL;
-	TROT_MALLOC( newNode->n, TROT_INT, NODE_SIZE );
+	TROT_MALLOC( newNode->n, TROT_INT, TROT_NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -2070,7 +2070,7 @@ TROT_RC newListNode( TrotListNode **n_A )
 	newNode->count = 0;
 
 	newNode->n = NULL;
-	TROT_CALLOC( newNode->l, TrotList *, NODE_SIZE );
+	TROT_CALLOC( newNode->l, TrotList *, TROT_NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;

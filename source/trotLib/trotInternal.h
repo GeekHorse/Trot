@@ -38,7 +38,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trot.h"
 
 /******************************************************************************/
-#define NODE_SIZE 16
+#ifndef TROT_NODE_SIZE
+#define TROT_NODE_SIZE 16
+#endif
 
 /******************************************************************************/
 /* NOTE: Need to keep this in sync with TROT_KIND */
@@ -153,10 +155,10 @@ struct TrotListNode_STRUCT
 /* FUTURE: this could be made smaller by using a u8, since we're not going to have more than 256 sized nodes? */
 	TROT_INT count;
 	/*! if kind is NODE_KIND_INT, then n will point to an array of size
-	NODE_SIZE of type TROT_INT, else n will be NULL. */
+	TROT_NODE_SIZE of type TROT_INT, else n will be NULL. */
 	TROT_INT *n;
 	/*! if kind is NODE_KIND_LIST, then l will point to an array of size
-	NODE_SIZE of type trotList*, else l will be NULL. */
+	TROT_NODE_SIZE of type trotList*, else l will be NULL. */
 	TrotList **l;
 
 	/*! prev points to previous node in the linked list, or same node if

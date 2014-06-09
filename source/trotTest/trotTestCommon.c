@@ -500,7 +500,7 @@ int checkList( TrotList *l )
 
 				i += 1;
 			}
-			while ( i < NODE_SIZE )
+			while ( i < TROT_NODE_SIZE )
 			{
 				TEST_ERR_IF( node->l[ i ] != NULL );
 

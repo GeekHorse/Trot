@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-#define MAGIC_NUMBER (NODE_SIZE * 3)
+#define MAGIC_NUMBER (TROT_NODE_SIZE * 3)
 
 /******************************************************************************/
 /* helper functions */

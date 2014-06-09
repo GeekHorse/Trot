@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include "trot.h"
+#include "trotInternal.h"
 
 #include "trotTestCommon.h"
 
@@ -184,6 +185,12 @@ int main( int argc, char **argv )
 	TEST_ERR_IF( sizeof( s32 ) != 4 );
 	TEST_ERR_IF( sizeof( u8 ) != 1 );
 	TEST_ERR_IF( TROT_MAX_CHILDREN > TROT_INT_MAX );
+
+	/* Technically TROT_NODE_SIZE could probably be as small as 1, but then it
+	   becomes impossible to get 100% code coverage since certain edge cases
+	   would never happen. 4 is small, but still large enough so we can get
+	   100% code coverage without modifying our test cases */
+	TEST_ERR_IF( TROT_NODE_SIZE < 4 );
 
 	/* **************************************** */
 	if ( flagTestAll || flagTestMisc )

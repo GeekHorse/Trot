@@ -136,7 +136,11 @@ int testMemory()
 			}
 			while ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
-			TEST_ERR_IF( rc != TROT_RC_SUCCESS );
+			if ( rc != TROT_RC_SUCCESS )
+			{
+				printf( "rc = %d", rc );
+				TEST_ERR_IF( 1 );
+			}
 
 			j += 1;
 		}
@@ -446,7 +450,7 @@ static TROT_RC testFailedMallocs1( int test )
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendInt( l1,  1 );
 		ERR_IF_PASSTHROUGH;
@@ -455,7 +459,7 @@ static TROT_RC testFailedMallocs1( int test )
 	}
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendList( l1, l2 );
 		ERR_IF_PASSTHROUGH;
@@ -464,7 +468,7 @@ static TROT_RC testFailedMallocs1( int test )
 	}
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendInt( l1,  1 );
 		ERR_IF_PASSTHROUGH;
@@ -472,11 +476,11 @@ static TROT_RC testFailedMallocs1( int test )
 		i += 1;
 	}
 
-	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 2) + 1, 0 );
+	rc = trotListReplaceWithInt( l1, (TROT_NODE_SIZE * 2) + 1, 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 4), 0 );
+	rc = trotListReplaceWithInt( l1, (TROT_NODE_SIZE * 4), 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithInt( l1, (NODE_SIZE * 3) + 2, 0 );
+	rc = trotListReplaceWithInt( l1, (TROT_NODE_SIZE * 3) + 2, 0 );
 	ERR_IF_PASSTHROUGH;
 
 
@@ -491,7 +495,7 @@ static TROT_RC testFailedMallocs1( int test )
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendList( l1, l2 );
 		ERR_IF_PASSTHROUGH;
@@ -500,7 +504,7 @@ static TROT_RC testFailedMallocs1( int test )
 	}
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendInt( l1, 1 );
 		ERR_IF_PASSTHROUGH;
@@ -509,7 +513,7 @@ static TROT_RC testFailedMallocs1( int test )
 	}
 
 	i = 0;
-	while ( i < (NODE_SIZE * 2) )
+	while ( i < (TROT_NODE_SIZE * 2) )
 	{
 		rc = trotListAppendList( l1, l2 );
 		ERR_IF_PASSTHROUGH;
@@ -517,11 +521,11 @@ static TROT_RC testFailedMallocs1( int test )
 		i += 1;
 	}
 
-	rc = trotListReplaceWithList( l1, (NODE_SIZE * 2) + 1, l2 );
+	rc = trotListReplaceWithList( l1, (TROT_NODE_SIZE * 2) + 1, l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithList( l1, (NODE_SIZE * 4), l2 );
+	rc = trotListReplaceWithList( l1, (TROT_NODE_SIZE * 4), l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithList( l1, (NODE_SIZE * 3) + 2, l2 );
+	rc = trotListReplaceWithList( l1, (TROT_NODE_SIZE * 3) + 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
 
@@ -536,7 +540,7 @@ static TROT_RC testFailedMallocs1( int test )
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
-	while ( i < NODE_SIZE + 1 )
+	while ( i < TROT_NODE_SIZE + 2 )
 	{
 		rc = trotListInsertInt( l1, 1, 1 );
 		ERR_IF_PASSTHROUGH;
@@ -551,7 +555,7 @@ static TROT_RC testFailedMallocs1( int test )
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
-	while ( i < NODE_SIZE + 1 )
+	while ( i < TROT_NODE_SIZE + 2 )
 	{
 		rc = trotListInsertList( l1, -2, l2 );
 		ERR_IF_PASSTHROUGH;
@@ -602,7 +606,7 @@ static TROT_RC testFailedMallocs1( int test )
 	rc = trotListCopySpan( l1, 1, -2, &l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListDelist( l1, -10 );
+	rc = trotListDelist( l1, -6 );
 	ERR_IF_PASSTHROUGH;
 
 	trotListFree( &l1 );
@@ -670,7 +674,7 @@ static TROT_RC testFailedMallocs1( int test )
 
 		/* *** */
 		i = 0;
-		while ( i < NODE_SIZE + 1 )
+		while ( i < TROT_NODE_SIZE + 1 )
 		{
 			rc = trotListAppendInt( l1, 0x10 );
 			ERR_IF_PASSTHROUGH;

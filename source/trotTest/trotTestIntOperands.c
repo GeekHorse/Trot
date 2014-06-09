@@ -203,7 +203,7 @@ static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT 
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
 	i = 0;
-	while ( i < NODE_SIZE )
+	while ( i < TROT_NODE_SIZE )
 	{
 		TEST_ERR_IF( trotListAppendInt( l, 50 ) != TROT_RC_SUCCESS );
 
@@ -226,7 +226,7 @@ static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT 
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
 	i = 0;
-	while ( i < ( NODE_SIZE - 1 ) )
+	while ( i < ( TROT_NODE_SIZE - 1 ) )
 	{
 		TEST_ERR_IF( trotListAppendInt( l, 50 ) != TROT_RC_SUCCESS );
 
@@ -249,7 +249,7 @@ static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT 
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
 	i = 0;
-	while ( i < NODE_SIZE )
+	while ( i < TROT_NODE_SIZE )
 	{
 		TEST_ERR_IF( trotListAppendInt( l, 50 ) != TROT_RC_SUCCESS );
 
@@ -271,7 +271,7 @@ static int testDoubleOp( TROT_INT value1, TROT_INT value2, TROT_OP op, TROT_INT 
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
 	i = 0;
-	while ( i < ( NODE_SIZE - 1 ) )
+	while ( i < ( TROT_NODE_SIZE - 1 ) )
 	{
 		TEST_ERR_IF( trotListAppendInt( l, 50 ) != TROT_RC_SUCCESS );
 
