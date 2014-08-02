@@ -68,6 +68,7 @@ targets:
   debug2   - build debug version, with smaller TROT_MAX_CHILDREN
   debug3   - build debug version, with smaller TROT_MAX_CHILDREN,
              TROT_ENABLE_LOGGING, and PARANOID checks.
+  single   - build a combined trotSingle.c file
   profile  - build for profiling
   test     - run tests
   vtest    - run tests in valgrind
