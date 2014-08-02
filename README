@@ -65,13 +65,9 @@ targets:
   fast     - build fast version
   small    - build small version
   debug    - build fast version, with smaller TROT_MAX_CHILDREN
-             useful when running vtest
   debug2   - build debug version, with smaller TROT_MAX_CHILDREN
-             useful when running test
-  debug3   - build debug version, with smaller TROT_MAX_CHILDREN, and PARANOID
-             checks
-             useful to run with PARANOID checks, for extra protection against
-             code changes
+  debug3   - build debug version, with smaller TROT_MAX_CHILDREN,
+             TROT_ENABLE_LOGGING, and PARANOID checks.
   profile  - build for profiling
   test     - run tests
   vtest    - run tests in valgrind
@@ -87,10 +83,5 @@ gcc -c *.c
 ar rcs libTrot.a *.o
 
 The other directories can be built just as easily.
-
-In source/trotLib/trotHooks.c, you can change the functions that Trot calls
-for malloc(), calloc(), and free(). This allows Trot to easily plug
-into a custom memory manager. You can also change the function that Trot calls
-for error logging, so Trot can plug into your logging system.
 
 --- END ------------------------------------------------------------------------

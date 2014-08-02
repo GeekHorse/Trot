@@ -132,20 +132,6 @@ typedef enum
 typedef struct TrotList_STRUCT TrotList;
 
 /******************************************************************************/
-/* trotHooks.c */
-/* These function pointers will be used by Trot. You can use them to plug
-   Trot into your own memory management system. */
-extern void *(*trotHookCalloc)( size_t nmemb, size_t size );
-extern void *(*trotHookMalloc)( size_t size );
-extern void (*trotHookFree)( void *ptr );
-
-/* This function pointer is used by Trot to log errors. Not really useful for
-   end-users of the library, but useful for developers. The default function
-   prints to stderr, but you can change this to plug Trot into your own
-   logging system. */
-extern void (*trotHookLog)( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c );
-
-/******************************************************************************/
 /* trotListPrimary.c */
 TROT_RC trotListInit( TrotList **l_A );
 TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A );

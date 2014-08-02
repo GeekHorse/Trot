@@ -466,8 +466,8 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 	if ( newNode != NULL )
 	{
-		trotHookFree( newNode->l );
-		trotHookFree( newNode );
+		TROT_HOOK_FREE( newNode->l );
+		TROT_HOOK_FREE( newNode );
 	}
 
 	return rc;
@@ -586,8 +586,8 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		trotHookFree( node->l );
-		trotHookFree( node );
+		TROT_HOOK_FREE( node->l );
+		TROT_HOOK_FREE( node );
 	}
 
 	/* adjust count */

@@ -46,8 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int failOnMallocCount = 0;
 static int currentMallocCount = 0;
 
-/* malloc/calloc that will always fail */
-void *badCalloc( size_t nmemb, size_t size )
+void *trotHookCalloc( size_t nmemb, size_t size )
 {
 	currentMallocCount += 1;
 	if ( currentMallocCount == failOnMallocCount )
@@ -58,7 +57,7 @@ void *badCalloc( size_t nmemb, size_t size )
 	return calloc( nmemb, size );
 }
 
-void *badMalloc( size_t size )
+void *trotHookMalloc( size_t size )
 {
 	currentMallocCount += 1;
 	if ( currentMallocCount == failOnMallocCount )
@@ -67,6 +66,11 @@ void *badMalloc( size_t size )
 	}
 
 	return malloc( size );
+}
+
+void trotHookFree( void *ptr )
+{
+	free( ptr );
 }
 
 /******************************************************************************/
@@ -98,10 +102,13 @@ int testMemory()
 	int **iArray = NULL;
 
 	int i = 0;
-	int j = 0;
 
+#ifdef DEBUG
+	int j = 0;
+	int flagAtLeastOneFailed = 0;
 	char *spinner = "-\\|/";
 	unsigned int spinnerI = 0;
+#endif
 
 
 	/* CODE */
@@ -112,9 +119,13 @@ int testMemory()
 	/* testing bad mallocs */
 	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
 
-	trotHookCalloc = badCalloc;
-	trotHookMalloc = badMalloc;
-
+#ifndef DEBUG
+	printf( "\n\n\n" );
+	printf( "--- SKIPPING FAILED MALLOC TESTS! ------\n" );
+	printf( "You need to build a debug version of Trot to test failed mallocs.\n" );
+	printf( "----------------------------------------\n" );
+	printf( "\n\n\n" );
+#else
 	i = 0;
 	while ( failedFuncs[ i ].func != NULL )
 	{
@@ -123,6 +134,7 @@ int testMemory()
 		{
 			failOnMallocCount = 0;
 			spinnerI = 0;
+			flagAtLeastOneFailed = 0;
 
 			do
 			{
@@ -133,12 +145,23 @@ int testMemory()
 				failOnMallocCount += 1;
 
 				rc = failedFuncs[ i ].func( j );
+
+				if ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED )
+				{
+					flagAtLeastOneFailed = 1;
+				}
 			}
 			while ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 			if ( rc != TROT_RC_SUCCESS )
 			{
 				printf( "rc = %d", rc );
+				TEST_ERR_IF( 1 );
+			}
+
+			if ( flagAtLeastOneFailed == 0 )
+			{
+				printf( "There were no memory failures. There should have been at least 1.\n" );
 				TEST_ERR_IF( 1 );
 			}
 
@@ -150,9 +173,8 @@ int testMemory()
 		i += 1;
 	}
 
-	/* *** */
-	trotHookCalloc = calloc;
-	trotHookMalloc = malloc;
+	failOnMallocCount = 0;
+#endif
 
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
@@ -160,7 +182,7 @@ int testMemory()
 	iArray = (int **) trotHookCalloc( 10, sizeof( int * ) );
 	TEST_ERR_IF( iArray == NULL );
 	TEST_ERR_IF( iArray[ 5 ] != NULL );
-	trotHookFree( iArray );
+	TROT_HOOK_FREE( iArray );
 
 	/* **************************************** */
 	/* test memory management */
@@ -354,7 +376,7 @@ static int testMemoryManagement()
 	}
 
 	/* free our clientRef array */
-	trotHookFree( clientRefs );
+	TROT_HOOK_FREE( clientRefs );
 
 
 	/* CLEANUP */
@@ -772,7 +794,7 @@ static TROT_RC testFailedMallocs2( int test )
 
 	printf( "lEncodedList1: %s\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 
@@ -788,7 +810,7 @@ static TROT_RC testFailedMallocs2( int test )
 
 	printf( "lEncodedList2: %s\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 

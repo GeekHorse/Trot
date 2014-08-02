@@ -733,7 +733,7 @@ int load( TrotList *lName, TrotList **lBytes )
 
 	if ( name != NULL )
 	{
-		trotHookFree( name );
+		TROT_HOOK_FREE( name );
 	}
 
 	trotListFree( &newLrBytes );
@@ -763,7 +763,7 @@ TROT_RC printListLikeCString( TrotList *l )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	
 	return rc;
 }
@@ -818,7 +818,7 @@ TROT_RC listToCString( TrotList *l, char **cString_A )
 
 	if ( newCString != NULL )
 	{
-		trotHookFree( newCString );
+		TROT_HOOK_FREE( newCString );
 	}
 
 	return rc;

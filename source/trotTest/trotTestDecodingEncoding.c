@@ -110,7 +110,7 @@ static int doesFileExist( TrotList *lName, TROT_INT *exist )
 
 	if ( name != NULL )
 	{
-		trotHookFree( name );
+		TROT_HOOK_FREE( name );
 	}
 
 	return rc;
@@ -261,7 +261,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 
 	printf( "lEncodedList1:     \"%s\"\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 
@@ -273,7 +273,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 
 	printf( "lEncodedList2:     \"%s\"\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 
@@ -288,7 +288,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 
 	printf( "lEncodedList3:     \"%s\"\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 
@@ -305,7 +305,7 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 
 	printf( "lExpectedEncoding: \"%s\"\n", s );
 
-	trotHookFree( s );
+	TROT_HOOK_FREE( s );
 	s = NULL;
 #endif
 

@@ -55,28 +55,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ERR_IF( cond, error_to_return ) \
 	if ( (cond) ) \
 	{ \
-		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, 0, 0, 0 ); \
+		TROT_HOOK_LOG( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, 0, 0, 0 ); \
 		rc = error_to_return; \
 		goto cleanup; \
 	}
+
 #define ERR_IF_1( cond, error_to_return, a ) \
 	if ( (cond) ) \
 	{ \
-		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, 0, 0 ); \
+		TROT_HOOK_LOG( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, 0, 0 ); \
 		rc = error_to_return; \
 		goto cleanup; \
 	}
+
 #define ERR_IF_2( cond, error_to_return, a, b ) \
 	if ( (cond) ) \
 	{ \
-		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, 0 ); \
+		TROT_HOOK_LOG( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, 0 ); \
 		rc = error_to_return; \
 		goto cleanup; \
 	}
+
 #define ERR_IF_3( cond, error_to_return, a, b, c ) \
 	if ( (cond) ) \
 	{ \
-		trotHookLog( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, c ); \
+		TROT_HOOK_LOG( TROT_LIBRARY_NUMBER, TROT_FILE_NUMBER, __LINE__, error_to_return, a, b, c ); \
 		rc = error_to_return; \
 		goto cleanup; \
 	}
@@ -97,12 +100,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) trotHookMalloc( sizeof( POINTER_TYPE ) * (SIZE) ); \
+	POINTER = ( POINTER_TYPE * ) TROT_HOOK_MALLOC( sizeof( POINTER_TYPE ) * (SIZE) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) trotHookCalloc( SIZE, sizeof( POINTER_TYPE ) ); \
+	POINTER = ( POINTER_TYPE * ) TROT_HOOK_CALLOC( SIZE, sizeof( POINTER_TYPE ) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
 
 /******************************************************************************/
@@ -219,7 +222,7 @@ if it kept track of each lists reference number */
 	TrotListNode *tail;
 };
 
-/*! trotListRef is a reference to a TrotList */
+/*! TrotList is a reference to a TrotListActual */
 struct TrotList_STRUCT
 {
 	/*! The list that this ref is inside of. */
@@ -307,6 +310,56 @@ TROT_RC trotStackIncrementTopIndex( TrotStack *stack );
 /* trotListInt.c */
 TROT_RC trotListIntOperand( TrotList *l, TROT_OP op );
 TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
+
+/******************************************************************************/
+#ifdef DEBUG
+
+	extern void *trotHookMalloc( size_t size );
+	#ifndef TROT_HOOK_MALLOC
+	#define TROT_HOOK_MALLOC trotHookMalloc
+	#endif
+
+	extern void *trotHookCalloc( size_t nmemb, size_t size );
+	#ifndef TROT_HOOK_CALLOC
+	#define TROT_HOOK_CALLOC trotHookCalloc
+	#endif
+
+	extern void trotHookFree( void *ptr );
+	#ifndef TROT_HOOK_FREE
+	#define TROT_HOOK_FREE trotHookFree
+	#endif
+
+#else
+
+	#ifndef TROT_HOOK_MALLOC
+	#define TROT_HOOK_MALLOC malloc
+	#endif
+
+	#ifndef TROT_HOOK_CALLOC
+	#define TROT_HOOK_CALLOC calloc
+	#endif
+
+	#ifndef TROT_HOOK_FREE
+	#define TROT_HOOK_FREE free
+	#endif
+
+#endif
+
+/******************************************************************************/
+#ifdef TROT_ENABLE_LOGGING
+
+	extern void trotHookLog( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c );
+	#ifndef TROT_HOOK_LOG
+	#define TROT_HOOK_LOG( p, f, l, r, a, b, c ) trotHookLog( p, f, l, r, a, b, c )
+	#endif
+
+#else
+
+	#ifndef TROT_HOOK_LOG
+	#define TROT_HOOK_LOG( p, f, l, r, a, b, c )
+	#endif
+
+#endif
 
 /******************************************************************************/
 #endif

@@ -1,4 +1,4 @@
-.PHONY: usage all fast small debug debug2 debug3 single profile test vtest coverage clean trotLib trotTest
+.PHONY: usage all fast small debug debug2 debug3 single singleFast singleSmall singleDebug singleCoverage profile test vtest coverage clean trotLib trotTest
 
 ARGS =
 
@@ -21,12 +21,9 @@ usage:
 	@echo "  fast     - build fast version"
 	@echo "  small    - build small version"
 	@echo "  debug    - build fast version, with smaller TROT_MAX_CHILDREN"
-	@echo "             useful when running vtest"
 	@echo "  debug2   - build debug version, with smaller TROT_MAX_CHILDREN"
-	@echo "             useful when running test"
-	@echo "  debug3   - build debug version, with smaller TROT_MAX_CHILDREN, and PARANOID checks"
-	@echo "             useful to run with PARANOID checks, for extra protection against"
-	@echo "             code changes"
+	@echo "  debug3   - build debug version, with smaller TROT_MAX_CHILDREN,"
+	@echo "             TROT_ENABLE_LOGGING, and PARANOID checks."
 	@echo "  single   - build a combined trotSingle.c file"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
@@ -43,20 +40,36 @@ small: ARGS = small
 small: all
 
 debug3: ARGS = debug3
+debug3: CFLAGS += -DTROT_ENABLE_LOGGING
 debug3: CFLAGS += -DBE_PARANOID
 debug3: CFLAGS += -DTROT_MAX_CHILDREN=5000
+debug3: CFLAGS += -DDEBUG=3
 debug3: all
 
 debug2: ARGS = debug2
 debug2: CFLAGS += -DTROT_MAX_CHILDREN=5000
+debug2: CFLAGS += -DDEBUG=2
 debug2: all
 
 debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
+debug: CFLAGS += -DDEBUG=1
+
 debug: fast
 
 single: ARGS = single
 single: all
+
+singleFast: ARGS = singleFast
+singleFast: all
+
+singleSmall: ARGS = singleSmall
+singleSmall: all
+
+singleDebug: ARGS = singleDebug
+singleDebug: CFLAGS += -DTROT_MAX_CHILDREN=5000
+singleDebug: CFLAGS += -DDEBUG=1
+singleDebug: all
 
 profile: ARGS = profile
 profile: all
@@ -69,6 +82,9 @@ vtest: all
 
 coverage:
 	cd trotLib && $(MAKE) coverage
+
+singleCoverage:
+	cd trotLib && $(MAKE) singleCoverage
 
 clean:
 	rm -rf html

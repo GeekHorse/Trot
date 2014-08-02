@@ -169,26 +169,26 @@ TROT_RC trotListInit( TrotList **l_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newRefHead );
-	trotHookFree( newRefTail );
-	trotHookFree( newHead );
-	trotHookFree( newTail );
+	TROT_HOOK_FREE( newRefHead );
+	TROT_HOOK_FREE( newRefTail );
+	TROT_HOOK_FREE( newHead );
+	TROT_HOOK_FREE( newTail );
 	if ( newLa != NULL )
 	{
-		trotHookFree( newLa->refListHead );
-		trotHookFree( newLa->refListTail );
-		trotHookFree( newLa->head );
-		trotHookFree( newLa->tail );
-		trotHookFree( newLa );
+		TROT_HOOK_FREE( newLa->refListHead );
+		TROT_HOOK_FREE( newLa->refListTail );
+		TROT_HOOK_FREE( newLa->head );
+		TROT_HOOK_FREE( newLa->tail );
+		TROT_HOOK_FREE( newLa );
 	}
 	if ( newL != NULL )
 	{
-		trotHookFree( newL->laPointsTo->refListHead );
-		trotHookFree( newL->laPointsTo->refListTail );
-		trotHookFree( newL->laPointsTo->head );
-		trotHookFree( newL->laPointsTo->tail );
-		trotHookFree( newL->laPointsTo );
-		trotHookFree( newL );
+		TROT_HOOK_FREE( newL->laPointsTo->refListHead );
+		TROT_HOOK_FREE( newL->laPointsTo->refListTail );
+		TROT_HOOK_FREE( newL->laPointsTo->head );
+		TROT_HOOK_FREE( newL->laPointsTo->tail );
+		TROT_HOOK_FREE( newL->laPointsTo );
+		TROT_HOOK_FREE( newL );
 	}
 
 	return rc;
@@ -235,7 +235,7 @@ TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newL );
+	TROT_HOOK_FREE( newL );
 
 	return rc;
 }
@@ -277,7 +277,7 @@ void trotListFree( TrotList **l_F )
 	refListRemove( la, (*l_F) );
 
 	/* free ref */
-	trotHookFree( (*l_F) );
+	TROT_HOOK_FREE( (*l_F) );
 	(*l_F) = NULL;
 
 	/* is list reachable? */
@@ -299,7 +299,7 @@ void trotListFree( TrotList **l_F )
 		{
 			if ( node->kind == NODE_KIND_INT )
 			{
-				trotHookFree( node->n );
+				TROT_HOOK_FREE( node->n );
 			}
 			else /* NODE_KIND_LIST */
 			{
@@ -309,7 +309,7 @@ void trotListFree( TrotList **l_F )
 			
 					refListRemove( laTemp, node->l[ j ] );
 
-					trotHookFree( node->l[ j ] );
+					TROT_HOOK_FREE( node->l[ j ] );
 					node->l[ j ] = NULL;
 
 					if ( laTemp->reachable == 1 )
@@ -324,11 +324,11 @@ void trotListFree( TrotList **l_F )
 					}
 				}
 
-				trotHookFree( node->l );
+				TROT_HOOK_FREE( node->l );
 			}
 
 			node = node->next;
-			trotHookFree( node->prev );
+			TROT_HOOK_FREE( node->prev );
 		}
 
 		laCurrent = laCurrent->nextToFree;
@@ -345,11 +345,11 @@ void trotListFree( TrotList **l_F )
 		laNext = laNext->nextToFree;
 
 		/* *** */
-		trotHookFree( laCurrent->head );
-		trotHookFree( laCurrent->tail );
-		trotHookFree( laCurrent->refListHead );
-		trotHookFree( laCurrent->refListTail );
-		trotHookFree( laCurrent );
+		TROT_HOOK_FREE( laCurrent->head );
+		TROT_HOOK_FREE( laCurrent->tail );
+		TROT_HOOK_FREE( laCurrent->refListHead );
+		TROT_HOOK_FREE( laCurrent->refListTail );
+		TROT_HOOK_FREE( laCurrent );
 	}
 
 	return;
@@ -982,8 +982,8 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 
 	if ( newNode != NULL )
 	{
-		trotHookFree( newNode->l );
-		trotHookFree( newNode );
+		TROT_HOOK_FREE( newNode->l );
+		TROT_HOOK_FREE( newNode );
 	}
 
 	return rc;
@@ -1196,8 +1196,8 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		trotHookFree( node->n );
-		trotHookFree( node );
+		TROT_HOOK_FREE( node->n );
+		TROT_HOOK_FREE( node );
 	}
 
 	/* give back */
@@ -1285,8 +1285,8 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		trotHookFree( node->l );
-		trotHookFree( node );
+		TROT_HOOK_FREE( node->l );
+		TROT_HOOK_FREE( node );
 	}
 
 	/* give back */
@@ -1384,13 +1384,13 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 
 		if ( node->kind == NODE_KIND_INT )
 		{
-			trotHookFree( node->n );
+			TROT_HOOK_FREE( node->n );
 		}
 		else
 		{
-			trotHookFree( node->l );
+			TROT_HOOK_FREE( node->l );
 		}
-		trotHookFree( node );
+		TROT_HOOK_FREE( node );
 	}
 
 	return TROT_RC_SUCCESS;
@@ -1583,8 +1583,8 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
 
-			trotHookFree( node->l );
-			trotHookFree( node );
+			TROT_HOOK_FREE( node->l );
+			TROT_HOOK_FREE( node );
 		}
 	}
 
@@ -1796,8 +1796,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
 
-			trotHookFree( node->n );
-			trotHookFree( node );
+			TROT_HOOK_FREE( node->n );
+			TROT_HOOK_FREE( node );
 		}
 	}
 
@@ -1997,7 +1997,7 @@ TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newNode );
+	TROT_HOOK_FREE( newNode );
 
 	return rc;
 }
@@ -2040,7 +2040,7 @@ TROT_RC newIntNode( TrotListNode **n_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newNode );
+	TROT_HOOK_FREE( newNode );
 
 	return rc;
 }
@@ -2083,7 +2083,7 @@ TROT_RC newListNode( TrotListNode **n_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newNode );
+	TROT_HOOK_FREE( newNode );
 
 	return rc;
 }
@@ -2139,7 +2139,7 @@ static TROT_RC refListAdd( TrotListActual *la, TrotList *l )
 	/* CLEANUP */
 	cleanup:
 
-	trotHookFree( newRefNode );
+	TROT_HOOK_FREE( newRefNode );
 
 	return rc;
 }
@@ -2188,8 +2188,8 @@ static void refListRemove( TrotListActual *la, TrotList *l )
 					refNode->prev->next = refNode->next;
 					refNode->next->prev = refNode->prev;
 
-					trotHookFree( refNode->l );
-					trotHookFree( refNode );
+					TROT_HOOK_FREE( refNode->l );
+					TROT_HOOK_FREE( refNode );
 				}
 
 				return;

@@ -1,4 +1,4 @@
-.PHONY: all fast small debug debug2 debug3 single profile coverage clean
+.PHONY: all fast small debug debug2 debug3 single singleFast singleSmall singleDebug singleCoverage profile coverage clean
 
 SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
@@ -19,6 +19,15 @@ debug2: all
 
 debug: fast
 
+singleFast: CFLAGS += -O3
+singleFast: single
+
+singleSmall: CFLAGS += -Os
+singleSmall: single
+
+singleDebug: CFLAGS += -fprofile-arcs -ftest-coverage -g
+singleDebug: single
+
 single:
 	rm -f trotSingle.c.temp
 	rm -f trotSingle.c
@@ -34,6 +43,13 @@ profile: fast
 
 coverage:
 	gcov -o . *.c
+	mkdir lcov
+	lcov --directory . --capture --output-file ./lcov/trot.info
+	genhtml ./lcov/trot.info -o ./lcov
+	@echo "Load ./trotLib/lcov/index.html in your browser for lcov data."
+
+singleCoverage:
+	gcov -o . ./trotSingle.c
 	mkdir lcov
 	lcov --directory . --capture --output-file ./lcov/trot.info
 	genhtml ./lcov/trot.info -o ./lcov

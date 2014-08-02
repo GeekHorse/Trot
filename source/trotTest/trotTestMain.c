@@ -36,16 +36,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h> /* printf(), fprintf(), fflush() */ 
 #include <string.h> /* strcmp() */
 #include <time.h> /* time(), for seeding random number generator */
+#include <errno.h> /* errno, for log function */
+#include <string.h> /* strerror, for log function */
 
 /******************************************************************************/
 static int getArgValue( int argc, char **argv, char *key, char **value );
-static int getArgExist( int argc, char **argv, char *key );
-
-/******************************************************************************/
-void logNoop( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c )
-{
-	(void)library; (void)file; (void)line; (void)rc; (void)a; (void)b; (void)c;
-}
 
 /******************************************************************************/
 int main( int argc, char **argv )
@@ -155,7 +150,6 @@ int main( int argc, char **argv )
 	if ( flagTestAnySet == 0 )
 	{
 		fprintf( stderr, "Usage: trotTest [options]\n" );
-		fprintf( stderr, "  -d             Enable debug logging\n" );
 		fprintf( stderr, "  -s <NUMBER>    Seed for random number generator\n" );
 		fprintf( stderr, "  -t <TEST>      Test to run\n" );
 		fprintf( stderr, "                 Possible tests:\n" );
@@ -196,13 +190,6 @@ int main( int argc, char **argv )
 	if ( flagTestAll || flagTestMisc )
 	{
 		TEST_ERR_IF( testMisc() != 0 );
-	}
-
-	if ( ! getArgExist( argc, argv, "-d" ) )
-	{
-		/* when we test, lots of expected errors happen, so we turn off logging */
-		printf( "Disabling trotHookLog...\n" ); fflush( stdout );
-		trotHookLog = logNoop;
 	}
 
 	if ( flagTestAll || flagTestPreconditions )
@@ -299,22 +286,38 @@ static int getArgValue( int argc, char **argv, char *key, char **value )
 }
 
 /******************************************************************************/
-static int getArgExist( int argc, char **argv, char *key )
+/*!
+	\brief The log function. Sends log messages to stderr.
+	\param[in] library 
+	\param[in] file
+	\param[in] line
+	\param[in] rc
+	\param[in] a
+	\param[in] b
+	\param[in] c
+	\return void
+*/
+#ifdef TROT_ENABLE_LOGGING
+void trotHookLog( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c )
 {
-	/* DATA */
-	int i = 0;
-
-
-	/* CODE */
-	while ( i < argc )
+	if ( errno == 0 )
 	{
-		if ( strcmp( key, argv[ i ] ) == 0 )
-		{
-			return 1;
-		}
-
-		i += 1;
+		fprintf( stderr, "%d %d %5d - %2d %s - - %d %d %d\n",
+			library, file, line,
+			rc, ( rc == 0 ? "" : trotRCToString( rc ) ),
+			a, b, c
+		);
 	}
-
-	return 0;
+	else
+	{
+		fprintf( stderr, "%d %d %5d - %2d %s - %d %s - %d %d %d\n",
+			library, file, line,
+			rc, ( rc == 0 ? "" : trotRCToString( rc ) ),
+			errno, strerror( errno ),
+			a, b, c
+		);
+	}
+	fflush( stderr );
 }
+#endif
+
