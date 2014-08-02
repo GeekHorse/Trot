@@ -18,8 +18,8 @@ It will be usable at version 0.4. (see PLAN)
 --- Details --------------------------------------------------------------------
 - Small
   Current sizes of the library are:
-  - make small, ~40 KB
-  - make fast,  ~60 KB
+  - make small, ~32 KB
+  - make fast,  ~38 KB
 
 - Easily embeddable
   It will be easy to embed Trot into your application, say a C program, and have
