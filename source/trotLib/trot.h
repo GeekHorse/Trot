@@ -32,9 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trot_H
 
 /******************************************************************************/
-#include <stdlib.h> /* for size_t, in memory hook functions */
-
-/******************************************************************************/
 #define TROT_NAME "Trot"
 
 #define TROT_COPYRIGHT "Copyright (C) 2010-2014 Jeremiah Martell"

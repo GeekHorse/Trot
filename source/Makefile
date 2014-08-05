@@ -20,10 +20,12 @@ usage:
 	@echo "targets:"
 	@echo "  fast     - build fast version"
 	@echo "  small    - build small version"
-	@echo "  debug    - build fast version, with smaller TROT_MAX_CHILDREN"
-	@echo "  debug2   - build debug version, with smaller TROT_MAX_CHILDREN"
+	@echo "  debug    - build debug version, with smaller TROT_MAX_CHILDREN"
+	@echo "  debug2   - build debug version, with smaller TROT_MAX_CHILDREN,"
+	@echo "             and necessary flags to generate test coverage."
 	@echo "  debug3   - build debug version, with smaller TROT_MAX_CHILDREN,"
-	@echo "             TROT_ENABLE_LOGGING, and PARANOID checks."
+	@echo "             TROT_ENABLE_LOGGING, PARANOID checks,"
+	@echo "             and necessary flags to generate test coverage."
 	@echo "  single   - build a combined trotSingle.c file"
 	@echo "  profile  - build for profiling"
 	@echo "  test     - run tests"
@@ -54,7 +56,6 @@ debug2: all
 debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug: CFLAGS += -DDEBUG=1
-
 debug: fast
 
 single: ARGS = single
@@ -74,10 +75,10 @@ singleDebug: all
 profile: ARGS = profile
 profile: all
 
-test:
+test: trotTest
 	trotTest/trotTest -t all
 
-vtest: all
+vtest:
 	valgrind --leak-check=full trotTest/trotTest -t all
 
 coverage:
@@ -92,7 +93,7 @@ clean:
 	cd trotLib && $(MAKE) clean
 	cd trotTest && $(MAKE) clean
 
-trotTest: trotLib
+trotTest:
 	cd trotTest && $(MAKE) $(ARGS)
 
 trotLib:

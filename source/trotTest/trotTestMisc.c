@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #include <string.h> /* strcmp */
-#include <errno.h>  /* errno */
 
 #include "trot.h"
 #include "trotInternal.h"
@@ -76,19 +75,6 @@ int testMisc()
 
 	string = trotRCToString( -2 );
 	TEST_ERR_IF( strcmp( string, "Unknown Error" ) != 0 );
-
-#if TROT_ENABLE_LOGGING
-	/* check log function */
-	printf( "  Testing TROT_HOOK_LOG...\n" ); fflush( stdout );
-	/*    without errno */
-	TROT_HOOK_LOG( 1, 2, 3, 0, 10, 11, 12 );
-	TROT_HOOK_LOG( 1, 2, 3, 1, 10, 11, 12 );
-	/*    with errno */
-	errno = 1;
-	TROT_HOOK_LOG( 1, 2, 3, 0, 10, 11, 12 );
-	TROT_HOOK_LOG( 1, 2, 3, 1, 10, 11, 12 );
-	errno = 0;
-#endif
 
 	printf( "\n" );
 

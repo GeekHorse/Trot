@@ -32,24 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define trotInternal_H
 
 /******************************************************************************/
-#include <stdio.h> /* for printf */
+#include <stdio.h> /* for printf, fprintf, fflush */
 #include <stdlib.h> /* for NULL */
 
 #include "trot.h"
-
-/******************************************************************************/
-#ifndef TROT_NODE_SIZE
-#define TROT_NODE_SIZE 16
-#endif
-
-/******************************************************************************/
-/* NOTE: Need to keep this in sync with TROT_KIND */
-#define NODE_KIND_HEAD_OR_TAIL 0
-#define NODE_KIND_INT 1
-#define NODE_KIND_LIST 2
-
-/******************************************************************************/
-#define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
 #define ERR_IF( cond, error_to_return ) \
@@ -107,6 +93,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE * ) TROT_HOOK_CALLOC( SIZE, sizeof( POINTER_TYPE ) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
+
+
+
+/******************************************************************************/
+#ifndef TROT_NODE_SIZE
+#define TROT_NODE_SIZE 16
+#endif
+
+/******************************************************************************/
+/* NOTE: Need to keep this in sync with TROT_KIND */
+#define NODE_KIND_HEAD_OR_TAIL 0
+#define NODE_KIND_INT 1
+#define NODE_KIND_LIST 2
+
+/******************************************************************************/
+#define REF_LIST_NODE_SIZE 16
 
 /******************************************************************************/
 /* FUTURE: these may change, or how we execute them may change */
@@ -348,7 +350,7 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
 /******************************************************************************/
 #ifdef TROT_ENABLE_LOGGING
 
-	extern void trotHookLog( s32 library, s32 file, s32 line, TROT_INT rc, TROT_INT a, TROT_INT b, TROT_INT c );
+	extern void trotHookLog( s32 library, s32 file, s32 line, s32 rc, s32 a, s32 b, s32 c );
 	#ifndef TROT_HOOK_LOG
 	#define TROT_HOOK_LOG( p, f, l, r, a, b, c ) trotHookLog( p, f, l, r, a, b, c )
 	#endif

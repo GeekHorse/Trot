@@ -65,9 +65,6 @@ int main( int argc, char **argv )
 
 	int flagTestAnySet = 0;
 
-	int timeStart = 0;
-	int timeEnd = 0;
-
 
 	/* CODE */
 	printf( "Testing:\n" );
@@ -172,9 +169,6 @@ int main( int argc, char **argv )
 	srand( seed );
 
 	/* **************************************** */
-	timeStart = time( NULL );
-
-	/* **************************************** */
 	TEST_ERR_IF( sizeof( TROT_INT ) != TROT_INT_SIZE );
 	TEST_ERR_IF( sizeof( s32 ) != 4 );
 	TEST_ERR_IF( sizeof( u8 ) != 1 );
@@ -232,14 +226,6 @@ int main( int argc, char **argv )
 	{
 		TEST_ERR_IF( testMemory() != 0 );
 	}
-
-	/* **************************************** */
-	timeEnd = time( NULL );
-
-	printf( "\nTests took %d:%02d:%02d to complete\n",
-		( timeEnd - timeStart ) / (60 * 60),
-		( ( timeEnd - timeStart ) / 60 ) % 60,
-		( timeEnd - timeStart ) % 60 );
 
 	/* **************************************** */
 	/* success! */
