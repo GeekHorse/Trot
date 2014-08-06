@@ -81,6 +81,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( listToEncode == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lCharacters_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lCharacters_A) != NULL, TROT_RC_ERROR_PRECOND );

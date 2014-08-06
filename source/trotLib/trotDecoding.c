@@ -80,6 +80,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lDecodedList_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lDecodedList_A) != NULL, TROT_RC_ERROR_PRECOND );

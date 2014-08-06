@@ -68,6 +68,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	/* We'll catch an invalid op later on */
 
@@ -151,6 +152,7 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 

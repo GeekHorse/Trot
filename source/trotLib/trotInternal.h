@@ -364,5 +364,25 @@ TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
 #endif
 
 /******************************************************************************/
+#ifdef ENABLE_FAILURE_POINT
+
+	extern int failure_point_current_count;
+	extern int failure_point_fail_on_count;
+	#ifndef FAILURE_POINT
+	#define FAILURE_POINT \
+		failure_point_current_count += 1; \
+		if ( failure_point_current_count >= failure_point_fail_on_count ) \
+		{ \
+			return TROT_RC_ERROR_FAILURE_POINT; \
+		}
+	#endif
+
+#else
+
+	#define FAILURE_POINT
+
+#endif
+
+/******************************************************************************/
 #endif
 

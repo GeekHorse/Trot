@@ -66,9 +66,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_ERROR_PRECOND                  1
 #define TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED 2
 #define TROT_RC_ERROR_STANDARD_LIBRARY_ERROR   3
+#define TROT_RC_ERROR_FAILURE_POINT            4
 
 /* This must be kept in sync with the above defines */
-#define TROT_RC_STANDARD_ERRORS_MAX            3
+#define TROT_RC_STANDARD_ERRORS_MAX            4
 
 /* Trot specific rc values */
 #define TROT_RC_ERROR_BAD_INDEX      2001

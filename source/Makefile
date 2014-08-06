@@ -15,6 +15,7 @@ c11: CFLAGS += -std=c11 -pedantic
 c11: all
 
 export CFLAGS
+export LDFLAGS
 
 usage:
 	@echo "targets:"

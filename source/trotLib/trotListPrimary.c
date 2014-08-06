@@ -83,6 +83,7 @@ TROT_RC trotListInit( TrotList **l_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*l_A) != NULL, TROT_RC_ERROR_PRECOND );
 
@@ -210,6 +211,7 @@ TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( l_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*l_A) != NULL, TROT_RC_ERROR_PRECOND );
@@ -371,6 +373,7 @@ TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l1 == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( l2 == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( isSame == NULL, TROT_RC_ERROR_PRECOND );
@@ -404,6 +407,7 @@ TROT_RC trotListGetCount( TrotList *l, TROT_INT *count )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( count == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -441,6 +445,7 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( kind == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -503,6 +508,7 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -570,6 +576,7 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lToAppend == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -651,6 +658,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -819,6 +827,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lToInsert == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1010,6 +1019,7 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( n == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1077,6 +1087,7 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lTwin_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lTwin_A) != NULL, TROT_RC_ERROR_PRECOND );
@@ -1149,6 +1160,7 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( n == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1235,6 +1247,7 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lRemoved_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lRemoved_A) != NULL, TROT_RC_ERROR_PRECOND );
@@ -1323,6 +1336,7 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -1430,6 +1444,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -1625,6 +1640,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lToInsert == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1824,6 +1840,7 @@ TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( tag == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1852,6 +1869,7 @@ TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -1881,6 +1899,7 @@ TROT_RC trotListGetUserTag( TrotList *l, TROT_INT *tag )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( tag == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -1909,6 +1928,7 @@ TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -2362,6 +2382,7 @@ const char *trotRCToString( TROT_RC rc )
 		"Precondition Error",
 		"Memory Allocation Error",
 		"Standard Library Error",
+		"Failure Point Error",
 
 		"Bad Index Error",
 		"Wrong Kind Error",

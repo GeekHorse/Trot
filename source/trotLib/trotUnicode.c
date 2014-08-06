@@ -70,6 +70,7 @@ TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( lBytes == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
 
@@ -280,6 +281,7 @@ TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( lCharacters == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lBytes == NULL, TROT_RC_ERROR_PRECOND );
 

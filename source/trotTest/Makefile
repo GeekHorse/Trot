@@ -38,9 +38,9 @@ clean:
 	rm -f trotTest
 	rm -f *.o
 
-trotTest : $(OBJECTS) $(HEADERS) ../trotLib/libTrot.a
+trotTest: $(OBJECTS) $(HEADERS)
 	$(CC) *.o $(LDFLAGS) -o trotTest
 
-%.o : %.c *.h
+%.o: %.c *.h
 	$(CC) $(CFLAGS) -c $<
 

@@ -93,6 +93,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lCompareTo == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( compareResult == NULL, TROT_RC_ERROR_PRECOND );
@@ -243,6 +244,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
@@ -311,6 +313,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -503,6 +506,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
@@ -686,6 +690,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
@@ -808,6 +813,7 @@ TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd 
 
 
 	/* PRECOND */
+	FAILURE_POINT;
 	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
 
 
