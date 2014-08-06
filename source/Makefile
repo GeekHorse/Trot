@@ -46,17 +46,17 @@ debug3: ARGS = debug3
 debug3: CFLAGS += -DTROT_ENABLE_LOGGING
 debug3: CFLAGS += -DBE_PARANOID
 debug3: CFLAGS += -DTROT_MAX_CHILDREN=5000
-debug3: CFLAGS += -DDEBUG=3
+debug3: CFLAGS += -DTROT_DEBUG=3
 debug3: all
 
 debug2: ARGS = debug2
 debug2: CFLAGS += -DTROT_MAX_CHILDREN=5000
-debug2: CFLAGS += -DDEBUG=2
+debug2: CFLAGS += -DTROT_DEBUG=2
 debug2: all
 
 debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
-debug: CFLAGS += -DDEBUG=1
+debug: CFLAGS += -DTROT_DEBUG=1
 debug: fast
 
 single: ARGS = single
@@ -70,7 +70,7 @@ singleSmall: all
 
 singleDebug: ARGS = singleDebug
 singleDebug: CFLAGS += -DTROT_MAX_CHILDREN=5000
-singleDebug: CFLAGS += -DDEBUG=1
+singleDebug: CFLAGS += -DTROT_DEBUG=1
 singleDebug: all
 
 profile: ARGS = profile

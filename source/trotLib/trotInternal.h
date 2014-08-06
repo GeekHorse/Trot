@@ -314,7 +314,7 @@ TROT_RC trotListIntOperand( TrotList *l, TROT_OP op );
 TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
 
 /******************************************************************************/
-#ifdef DEBUG
+#ifdef TROT_DEBUG
 
 	extern void *trotHookMalloc( size_t size );
 	#ifndef TROT_HOOK_MALLOC

@@ -77,7 +77,7 @@ void trotHookFree( void *ptr )
 static int testMemoryManagement();
 static int testDeepList();
 
-#ifdef DEBUG
+#ifdef TROT_DEBUG
 static TROT_RC testFailedMallocs1( int test );
 static TROT_RC testFailedMallocs2( int test );
 
@@ -105,7 +105,7 @@ int testMemory()
 
 	int i = 0;
 
-#ifdef DEBUG
+#ifdef TROT_DEBUG
 	int j = 0;
 	int flagAtLeastOneFailed = 0;
 	char *spinner = "-\\|/";
@@ -121,7 +121,7 @@ int testMemory()
 	/* testing bad mallocs */
 	printf( "  Testing bad mallocs...\n" ); fflush( stdout );
 
-#ifndef DEBUG
+#ifndef TROT_DEBUG
 
 	printf( "\n\n\n" );
 	printf( "--- SKIPPING FAILED MALLOC TESTS! ------\n" );
@@ -445,7 +445,7 @@ static int testDeepList()
 	return rc;
 }
 
-#ifdef DEBUG
+#ifdef TROT_DEBUG
 /******************************************************************************/
 static TROT_RC testFailedMallocs1( int test )
 {
