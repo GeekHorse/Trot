@@ -47,17 +47,17 @@ debug3: CFLAGS += -DTROT_ENABLE_LOGGING
 debug3: CFLAGS += -DBE_PARANOID
 debug3: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug3: CFLAGS += -DTROT_DEBUG=3
-debug3: all
+debug3: trotLib trotTest
 
 debug2: ARGS = debug2
 debug2: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug2: CFLAGS += -DTROT_DEBUG=2
-debug2: all
+debug2: trotLib trotTest
 
 debug: ARGS = debug
 debug: CFLAGS += -DTROT_MAX_CHILDREN=5000
 debug: CFLAGS += -DTROT_DEBUG=1
-debug: fast
+debug: trotLib trotTest
 
 single: ARGS = single
 single: all
