@@ -132,8 +132,8 @@ TROT_RC trotListInit( TrotList **l_A )
 	newLa->encodingParent = NULL;
 	newLa->encodingChildNumber = 0;
 
-	newLa->tag = TROT_TAG_DATA;
-	newLa->userTag = 0;
+	newLa->type = TROT_TYPE_DATA;
+	newLa->tag = 0;
 
 	newLa->childrenCount = 0;
 
@@ -1828,6 +1828,66 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 
 /******************************************************************************/
 /*!
+	\brief Gets type of list.
+	\param[in] l The list.
+	\param[out] type The type of the list.
+	\return TROT_RC
+*/
+TROT_RC trotListGetType( TrotList *l, TROT_INT *type )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+
+	/* PRECOND */
+	FAILURE_POINT;
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( type == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	(*type) = l->laPointsTo->type;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Sets type of list.
+	\param[in] l The list.
+	\param[in] tag Type value to set.
+	\return TROT_RC
+*/
+TROT_RC trotListSetType( TrotList *l, TROT_INT type )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+
+	/* PRECOND */
+	FAILURE_POINT;
+	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	/* TODO: do we need to check this? users should be able to create new types */
+	ERR_IF_1( type < TROT_TYPE_MIN || type > TROT_TYPE_MAX, TROT_RC_ERROR_BAD_TYPE, type );
+
+	l->laPointsTo->type = type;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
 	\brief Gets tag of list.
 	\param[in] l The list.
 	\param[out] tag The tag of the list.
@@ -1857,9 +1917,9 @@ TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
 
 /******************************************************************************/
 /*!
-	\brief Sets tag of list.
+	\brief Sets the tag of a list.
 	\param[in] l The list.
-	\param[in] tag Tag value to set.
+	\param[in] tag The tag value to set.
 	\return TROT_RC
 */
 TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
@@ -1874,66 +1934,7 @@ TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
 
 
 	/* CODE */
-	ERR_IF_1( tag < TROT_TAG_MIN || tag > TROT_TAG_MAX, TROT_RC_ERROR_BAD_TAG, tag );
-
 	l->laPointsTo->tag = tag;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief Gets user tag of list.
-	\param[in] l The list.
-	\param[out] tag The user tag of the list.
-	\return TROT_RC
-*/
-TROT_RC trotListGetUserTag( TrotList *l, TROT_INT *tag )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-
-	/* PRECOND */
-	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( tag == NULL, TROT_RC_ERROR_PRECOND );
-
-
-	/* CODE */
-	(*tag) = l->laPointsTo->userTag;
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief Sets the uer tag of a list.
-	\param[in] l The list.
-	\param[in] tag The tag value to set.
-	\return TROT_RC
-*/
-TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-
-	/* PRECOND */
-	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
-
-
-	/* CODE */
-	l->laPointsTo->userTag = tag;
 
 
 	/* CLEANUP */
@@ -2388,7 +2389,7 @@ const char *trotRCToString( TROT_RC rc )
 		"Wrong Kind Error",
 		"List Overflow Error",
 		"Invalid Op Error",
-		"Bad Tag Error",
+		"Bad Type Error",
 		"Divide By Zero Error",
 		"Unicode Error",
 		"Decode Error"

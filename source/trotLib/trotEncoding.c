@@ -69,7 +69,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 	TrotList *lCurrentList = NULL;
 
-	TROT_INT tag = 0;
+	TROT_INT type = 0;
 	TROT_INT childrenCount = 0;
 	TROT_INT index = 1;
 
@@ -160,12 +160,12 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 
 		if ( kind == TROT_KIND_INT )
 		{
-			/* get tag */
-			rc = trotListGetTag( lCurrentList, &tag );
+			/* get type */
+			rc = trotListGetType( lCurrentList, &type );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			/* if tag'd text, append in text format */
-			if ( tag == TROT_TAG_TEXT )
+			/* if type text, append in text format */
+			if ( type == TROT_TYPE_TEXT )
 			{
 				rc = appendText( newCharacters, lCurrentList, childrenCount, &index );
 				ERR_IF_PASSTHROUGH;
@@ -368,7 +368,7 @@ TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A )
 	l will not be modified.
 
 	Example:
-	If l had a tag of 1 and a userTag of 55, then we would append to lCharacters
+	If l had a type of 1 and a tag of 55, then we would append to lCharacters
 	this:
 	"[ ~1 `55 "
 */
@@ -377,6 +377,7 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
+	TROT_INT type = 0;
 	TROT_INT tag = 0;
 
 
@@ -392,22 +393,22 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lCharacters, TrotList *l )
 	rc = trotListAppendInt( lCharacters, ' ' );
 	ERR_IF_PASSTHROUGH;
 
-	/* append tag */
-	tag = l->laPointsTo->tag;
+	/* append type */
+	type = l->laPointsTo->type;
 
-	if ( tag != 0 )
+	if ( type != 0 )
 	{
 		rc = trotListAppendInt( lCharacters, '~' );
 		ERR_IF_PASSTHROUGH;
-		rc = appendNumber( lCharacters, tag );
+		rc = appendNumber( lCharacters, type );
 		ERR_IF_PASSTHROUGH;
 
 		rc = trotListAppendInt( lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 	}
 
-	/* append userTag */
-	tag = l->laPointsTo->userTag;
+	/* append tag */
+	tag = l->laPointsTo->tag;
 
 	if ( tag != 0 )
 	{

@@ -185,8 +185,10 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 	TrotList *l1 = NULL;
 	TrotList *l1Copy = NULL;
 
-	TROT_INT tag1 = TROT_TAG_DATA;
-	TROT_INT tag2 = TROT_TAG_DATA;
+	TROT_INT type1 = TROT_TYPE_DATA;
+	TROT_INT type2 = TROT_TYPE_DATA;
+	TROT_INT tag1 = TROT_TYPE_DATA;
+	TROT_INT tag2 = TROT_TYPE_DATA;
 
 	TrotList *l2 = NULL;
 
@@ -221,77 +223,77 @@ static int testCopyCompare( int (*createFunction)( TrotList **, int ), int size 
 
 	/* empty list, default tag */
 	TEST_ERR_IF( (*createFunction)( &l1, 0 ) != 0 );
-	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l1, &type1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l1Copy, &type2 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( tag1 != tag2 );
+	TEST_ERR_IF( type1 != type2 );
 
 	trotListFree( &l1 );
 	trotListFree( &l1Copy );
 
 	/* empty list, new tag */
 	TEST_ERR_IF( (*createFunction)( &l1, 0 ) != 0 );
-	tag1 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	type1 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListSetType( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
+	tag1 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
-	tag1 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
 	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
-	tag2 = TROT_TAG_DATA;
+	type2 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListGetType( l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
+	tag2 = TROT_TYPE_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
-	tag2 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
 	trotListFree( &l1 );
 	trotListFree( &l1Copy );
 
 	/* list with data, new tag */
 	TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
-	tag1 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	type1 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListSetType( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
-	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
 	TEST_ERR_IF( trotListCopy( l1, &l1Copy ) != TROT_RC_SUCCESS );
-	tag2 = TROT_TAG_DATA;
+	type2 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListGetType( l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
+	tag2 = TROT_TYPE_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
-	tag2 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
 	trotListFree( &l1 );
 	trotListFree( &l1Copy );
 
 	/* list with data, new tag, copy a span */
 	TEST_ERR_IF( (*createFunction)( &l1, size ) != 0 );
-	tag1 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListSetTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
+	type1 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListSetType( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
+	tag1 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListSetTag( l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( trotListGetTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
-	tag1 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListSetUserTag( l1, TROT_TAG_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetUserTag( l1, &tag1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag1 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
 	TEST_ERR_IF( trotListCopySpan( l1, (rand() % size) + 1, (rand() % size) + 1, &l1Copy ) != TROT_RC_SUCCESS );
-	tag2 = TROT_TAG_DATA;
+	type2 = TROT_TYPE_DATA;
+	TEST_ERR_IF( trotListGetType( l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
+	tag2 = TROT_TYPE_DATA;
 	TEST_ERR_IF( trotListGetTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
-	tag2 = TROT_TAG_DATA;
-	TEST_ERR_IF( trotListGetUserTag( l1Copy, &tag2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag2 != TROT_TAG_CODE );
+	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
 	trotListFree( &l1 );
 	trotListFree( &l1Copy );

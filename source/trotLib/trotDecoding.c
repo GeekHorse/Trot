@@ -205,7 +205,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			rc = trotListRemoveList( lStack, -1, &lCurrent );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
-		/* if tilde, set tag */
+		/* if tilde, set type */
 		else if ( ch == '~' )
 		{
 			/* skip tilde */
@@ -221,10 +221,10 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			ERR_IF_PASSTHROUGH;
 
 			/* set tag */
-			rc = trotListSetTag( lCurrent, number );
+			rc = trotListSetType( lCurrent, number );
 			ERR_IF_PASSTHROUGH;
 		}
-		/* if backtick, set user tag */
+		/* if backtick, set tag */
 		else if ( ch == '`' )
 		{
 			/* skip backtick */
@@ -239,8 +239,8 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			rc = wordToNumber( lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
-			/* set user tag */
-			rc = trotListSetUserTag( lCurrent, number );
+			/* set tag */
+			rc = trotListSetTag( lCurrent, number );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if @, read in reference, and twin a previously-seen list */

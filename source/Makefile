@@ -4,19 +4,6 @@ ARGS =
 
 CFLAGS += -Wall -Werror -Wextra
 
-# targets to test against c89, c99, and c11 standards
-c89: CFLAGS += -std=c89 -pedantic
-c89: all
-
-c99: CFLAGS += -std=c99 -pedantic
-c99: all
-
-c11: CFLAGS += -std=c11 -pedantic
-c11: all
-
-export CFLAGS
-export LDFLAGS
-
 usage:
 	@echo "targets:"
 	@echo "  fast     - build fast version"
@@ -33,6 +20,19 @@ usage:
 	@echo "  vtest    - run tests in valgrind"
 	@echo "  coverage - generate coverage report with gcov and lcov"
 	@echo "  clean    - cleans up files"
+
+# targets to test against c89, c99, and c11 standards
+c89: CFLAGS += -std=c89 -pedantic
+c89: all
+
+c99: CFLAGS += -std=c99 -pedantic
+c99: all
+
+c11: CFLAGS += -std=c11 -pedantic
+c11: all
+
+export CFLAGS
+export LDFLAGS
 
 all: trotLib trotTest
 

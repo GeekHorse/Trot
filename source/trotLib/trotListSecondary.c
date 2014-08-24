@@ -257,9 +257,9 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 		rc = trotListInit( lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
-		/* make sure copied list has same tags */
-		(*lCopy_A)->laPointsTo->tag     = l->laPointsTo->tag;
-		(*lCopy_A)->laPointsTo->userTag = l->laPointsTo->userTag;
+		/* make sure copied list has same type and tag */
+		(*lCopy_A)->laPointsTo->type = l->laPointsTo->type;
+		(*lCopy_A)->laPointsTo->tag  = l->laPointsTo->tag;
 	}
 	/* else, use CopySpan */
 	else
@@ -267,7 +267,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 		rc = trotListCopySpan( l, 1, -1, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
-		/* copy span copys the tags too */
+		/* copy span copys the type and tag too */
 	}
 
 
@@ -773,9 +773,9 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 		node = node->next;
 	}
 
-	/* make sure copied span has same tag */
-	newL->laPointsTo->tag     = l->laPointsTo->tag;
-	newL->laPointsTo->userTag = l->laPointsTo->userTag;
+	/* make sure copied span has same type and tag */
+	newL->laPointsTo->type = l->laPointsTo->type;
+	newL->laPointsTo->tag  = l->laPointsTo->tag;
 
 
 	/* give back */

@@ -201,10 +201,10 @@ if it kept track of each lists reference number */
 	    twins when encoding */
 	TROT_INT encodingChildNumber;
 
-	/*! Tag. Which "type" of list this is. */
+	/*! Type. Which type of list this is. */
+	TROT_INT type;
+	/*! Tag. Allows user to tag this list */
 	TROT_INT tag;
-	/*! userTag. Allows user to tag this list as a user-defined type */
-	TROT_INT userTag;
 	/*! How many children are in the list */
 	TROT_INT childrenCount;
 	/*! Pointer to the head of the linked list that contains the refs that

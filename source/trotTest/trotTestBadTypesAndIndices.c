@@ -95,8 +95,8 @@ int testBadTypesAndIndices()
 	TEST_ERR_IF( trotListReplaceWithList( l, 11, l ) != TROT_RC_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListReplaceWithList( l, -11, l ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListSetTag( l, TROT_TAG_MIN - 1 ) != TROT_RC_ERROR_BAD_TAG );
-	TEST_ERR_IF( trotListSetTag( l, TROT_TAG_MAX + 1 ) != TROT_RC_ERROR_BAD_TAG );
+	TEST_ERR_IF( trotListSetType( l, TROT_TYPE_MIN - 1 ) != TROT_RC_ERROR_BAD_TYPE );
+	TEST_ERR_IF( trotListSetType( l, TROT_TYPE_MAX + 1 ) != TROT_RC_ERROR_BAD_TYPE );
 
 	TEST_ERR_IF( trotListEnlist( l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListEnlist( l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );

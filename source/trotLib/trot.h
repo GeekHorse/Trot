@@ -76,7 +76,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_ERROR_WRONG_KIND     2002
 #define TROT_RC_ERROR_LIST_OVERFLOW  2003
 #define TROT_RC_ERROR_INVALID_OP     2004
-#define TROT_RC_ERROR_BAD_TAG        2005
+#define TROT_RC_ERROR_BAD_TYPE       2005
 #define TROT_RC_ERROR_DIVIDE_BY_ZERO 2006
 #define TROT_RC_ERROR_UNICODE        2007
 #define TROT_RC_ERROR_DECODE         2008
@@ -90,13 +90,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_KIND_LIST 2
 
 /******************************************************************************/
-#define TROT_TAG_DATA 0
-#define TROT_TAG_TEXT 1
-#define TROT_TAG_CODE 2
+#define TROT_TYPE_DATA 0
+#define TROT_TYPE_TEXT 1
+#define TROT_TYPE_CODE 2
 /* FUTURE: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
-#define TROT_TAG_MIN 0
-#define TROT_TAG_MAX 2
+#define TROT_TYPE_MIN 0
+#define TROT_TYPE_MAX 2
 
 /******************************************************************************/
 #define TROT_INT_SIZE 4 /* TODO: do we even need this? We may want to just
@@ -157,11 +157,11 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index );
 TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n );
 TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert );
 
+TROT_RC trotListGetType( TrotList *l, TROT_INT *type );
+TROT_RC trotListSetType( TrotList *l, TROT_INT type );
+
 TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag );
 TROT_RC trotListSetTag( TrotList *l, TROT_INT tag );
-
-TROT_RC trotListGetUserTag( TrotList *l, TROT_INT *tag );
-TROT_RC trotListSetUserTag( TrotList *l, TROT_INT tag );
 
 const char *trotRCToString( TROT_RC rc );
 

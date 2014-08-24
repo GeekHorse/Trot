@@ -43,7 +43,8 @@ int testPreconditions()
 	TrotList *l2 = NULL;
 	TROT_INT kind = 0;
 	TROT_INT n = 0;
-	TROT_INT tag = TROT_TAG_DATA;
+	TROT_INT type = TROT_TYPE_DATA;
+	TROT_INT tag = TROT_TYPE_DATA;
 	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
 
@@ -104,13 +105,13 @@ int testPreconditions()
 	TEST_ERR_IF( trotListReplaceWithList( NULL, 1, l1 ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListReplaceWithList( l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
 
+	TEST_ERR_IF( trotListGetType( NULL, &type ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListGetType( l1, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListSetType( NULL, TROT_TYPE_DATA ) != TROT_RC_ERROR_PRECOND );
+
 	TEST_ERR_IF( trotListGetTag( NULL, &tag ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListGetTag( l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListSetTag( NULL, TROT_TAG_DATA ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetUserTag( NULL, &tag ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetUserTag( l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListSetUserTag( NULL, TROT_TAG_DATA ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotListSetTag( NULL, TROT_TYPE_DATA ) != TROT_RC_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListCompare( NULL, l1, &compareResult ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListCompare( l1, NULL, &compareResult ) != TROT_RC_ERROR_PRECOND );

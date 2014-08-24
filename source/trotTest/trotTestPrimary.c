@@ -87,6 +87,7 @@ int testPrimaryFunctionality()
 	int j = 0;
 
 	TrotList *l = NULL;
+	TROT_INT type = 0;
 	TROT_INT tag = 0;
 
 	TrotList *l1 = NULL;
@@ -120,16 +121,16 @@ int testPrimaryFunctionality()
 	printf( "  Testing tags...\n" ); fflush( stdout );
 	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag != 0 );
-	TEST_ERR_IF( trotListSetTag( l, 1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( tag != 1 );
+	TEST_ERR_IF( trotListGetType( l, &type ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type != 0 );
+	TEST_ERR_IF( trotListSetType( l, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( l, &type ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( type != 1 );
 
-	TEST_ERR_IF( trotListGetUserTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != 0 );
-	TEST_ERR_IF( trotListSetUserTag( l, 60 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetUserTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( l, 60 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != 60 );
 	trotListFree( &l );
 
