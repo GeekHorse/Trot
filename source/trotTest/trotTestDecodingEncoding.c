@@ -41,17 +41,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PRINT_GOOD_TEST_ENCODINGS 0
 
 /******************************************************************************/
-static int doesFileExist( TrotList *lName, TROT_INT *exist );
+static int doesFileExist( TrotList *lMemLimit, TrotList *lName, TROT_INT *exist );
 
-typedef int (*ProcessFunction)( int dirNumber, int fileNumber, TrotList *lName );
-static int processFiles( char *directory, ProcessFunction func );
+typedef int (*ProcessFunction)( TrotList *lMemLimit, int dirNumber, int fileNumber, TrotList *lName );
+static int processFiles( TrotList *lMemLimit, char *directory, ProcessFunction func );
 
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lName );
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lName );
-static int testDecodingAddLists();
+static int testDecodingEncodingGood( TrotList *lMemLimit, int dirNumber, int fileNumber, TrotList *lName );
+static int testDecodingEncodingBad( TrotList *lMemLimit, int dirNumber, int fileNumber, TrotList *lName );
+static int testDecodingAddLists( TrotList *lMemLimit );
 
 /******************************************************************************/
-int testDecodingEncoding()
+int testDecodingEncoding( TrotList *lMemLimit )
 {
 	/* DATA */
 	int rc = 0;
@@ -60,9 +60,9 @@ int testDecodingEncoding()
 	/* CODE */
 	printf( "Testing decoding and encoding...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/good/", testDecodingEncodingGood ) != 0 );
-	TEST_ERR_IF( processFiles( "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad ) != 0 );
-	TEST_ERR_IF( testDecodingAddLists() != 0 );
+	TEST_ERR_IF( processFiles( lMemLimit, "./trotTest/testData/DecodeFiles/good/", testDecodingEncodingGood ) != 0 );
+	TEST_ERR_IF( processFiles( lMemLimit, "./trotTest/testData/DecodeFiles/bad/", testDecodingEncodingBad ) != 0 );
+	TEST_ERR_IF( testDecodingAddLists( lMemLimit ) != 0 );
 
 	printf( "\n" ); fflush( stdout );
 
@@ -73,7 +73,7 @@ int testDecodingEncoding()
 }
 
 /******************************************************************************/
-static int doesFileExist( TrotList *lName, TROT_INT *exist )
+static int doesFileExist( TrotList *lMemLimit, TrotList *lName, TROT_INT *exist )
 {
 	/* DATA */
 	int rc = 0;
@@ -87,7 +87,7 @@ static int doesFileExist( TrotList *lName, TROT_INT *exist )
 	TEST_ERR_IF( lName == NULL );
 	TEST_ERR_IF( exist == NULL );
 
-	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lName, &name ) != TROT_RC_SUCCESS );
 
 	if ( stat( name, &st ) == 0 )
 	{
@@ -110,7 +110,7 @@ static int doesFileExist( TrotList *lName, TROT_INT *exist )
 
 	if ( name != NULL )
 	{
-		TROT_HOOK_FREE( name );
+		TROT_FREE( name, strlen( name ) + 1 );
 	}
 
 	return rc;
@@ -123,7 +123,7 @@ static int doesFileExist( TrotList *lName, TROT_INT *exist )
 	\param func Processing function to pass each file to.
 	\return int
 */
-static int processFiles( char *directory, ProcessFunction func )
+static int processFiles( TrotList *lMemLimit, char *directory, ProcessFunction func )
 {
 	/* DATA */
 	int rc = 0;
@@ -143,48 +143,48 @@ static int processFiles( char *directory, ProcessFunction func )
 	TEST_ERR_IF( func == NULL );
 
 	/* create TrotList filename */
-	TEST_ERR_IF( trotListInit( &lName ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &lName ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( appendCStringToList( lName, directory ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( appendCStringToList( lMemLimit, lName, directory ) != TROT_RC_SUCCESS );
 
 	/* foreach directory */
 	while ( 1 )
 	{
-		TEST_ERR_IF( trotListAppendInt( lName, ( dirNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListAppendInt( lName, ( dirNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, ( dirNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, ( dirNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
 
 		/* does directory exist? */
-		TEST_ERR_IF( doesFileExist( lName, &exist ) != 0 );
+		TEST_ERR_IF( doesFileExist( lMemLimit, lName, &exist ) != 0 );
 
 		if ( exist == 0 )
 		{
 			break;
 		}
 
-		TEST_ERR_IF( trotListAppendInt( lName, '/' ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, '/' ) != TROT_RC_SUCCESS );
 
 		/* foreach file in this directory */
 		fileNumber = 1;
 
 		while ( 1 )
 		{
-			TEST_ERR_IF( trotListAppendInt( lName, ( fileNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListAppendInt( lName, ( fileNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, ( fileNumber / 10 ) + '0' ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, ( fileNumber % 10 ) + '0' ) != TROT_RC_SUCCESS );
 
 			/* does file exist? */
-			TEST_ERR_IF( doesFileExist( lName, &exist ) != 0 );
+			TEST_ERR_IF( doesFileExist( lMemLimit, lName, &exist ) != 0 );
 
 			if ( exist == 0 )
 			{
 				/* remove our number from end of name */
-				TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 
 				break;
 			}
 
 			/* send to func */
-			TEST_ERR_IF( func( dirNumber, fileNumber, lName ) != 0 );
+			TEST_ERR_IF( func( lMemLimit, dirNumber, fileNumber, lName ) != 0 );
 
 			printf( "." ); fflush( stdout );
 
@@ -192,19 +192,19 @@ static int processFiles( char *directory, ProcessFunction func )
 			flagTestedAtLeastOne = 1;
 
 			/* remove our number from end of name */
-			TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 
 			/* next */
 			fileNumber += 1;
 		}
 
 		/* remove the last '/' from end of name */
-		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 
 		/* remove our number from end of name */
-		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 
 		/* next */
 		dirNumber += 1;
@@ -218,13 +218,13 @@ static int processFiles( char *directory, ProcessFunction func )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lName );
+	trotListFree( lMemLimit, &lName );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lName )
+static int testDecodingEncodingGood( TrotList *lMemLimit, int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
@@ -251,84 +251,84 @@ static int testDecodingEncodingGood( int dirNumber, int fileNumber, TrotList *lN
 
 	TEST_ERR_IF( lName == NULL );
 
-	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
+	TEST_ERR_IF( load( lMemLimit, lName, &lBytes ) != 0 );
 
-	TEST_ERR_IF( trotDecode( lBytes, &lDecodedList1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotDecode( lMemLimit, lBytes, &lDecodedList1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lDecodedList1, &lEncodedList1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList1, &lEncodedList1 ) != TROT_RC_SUCCESS );
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lEncodedList1, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList1, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lEncodedList1:     \"%s\"\n", s );
 
-	TROT_HOOK_FREE( s );
+	TROT_FREE( s, strlen( s ) + 1 );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotDecode( lEncodedList1, &lDecodedList2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotDecode( lMemLimit, lEncodedList1, &lDecodedList2 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotEncode( lDecodedList2, &lEncodedList2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList2, &lEncodedList2 ) != TROT_RC_SUCCESS );
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lEncodedList2, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList2, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lEncodedList2:     \"%s\"\n", s );
 
-	TROT_HOOK_FREE( s );
+	TROT_FREE( s, strlen( s ) + 1 );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
 	/* we encode twice to make sure we've correctly reset the internal encoding
 	   numbers in the lists */
-	TEST_ERR_IF( trotEncode( lDecodedList2, &lEncodedList3 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList2, &lEncodedList3 ) != TROT_RC_SUCCESS );
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lEncodedList3, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList3, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lEncodedList3:     \"%s\"\n", s );
 
-	TROT_HOOK_FREE( s );
+	TROT_FREE( s, strlen( s ) + 1 );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotListCompare( lEncodedList1, lEncodedList3, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lEncodedList3, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
 	/* read in the "expected" encoding, and see if it matches */
-	TEST_ERR_IF( trotListAppendInt( lName, 'E' ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( load( lName, &lExpectedEncoding ) != 0 );
-	TEST_ERR_IF( trotListRemove( lName, -1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, 'E' ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( load( lMemLimit, lName, &lExpectedEncoding ) != 0 );
+	TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 	
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lExpectedEncoding, &s ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lExpectedEncoding, &s ) != TROT_RC_SUCCESS );
 
 	printf( "lExpectedEncoding: \"%s\"\n", s );
 
-	TROT_HOOK_FREE( s );
+	TROT_FREE( s, strlen( s ) + 1 );
 	s = NULL;
 #endif
 
-	TEST_ERR_IF( trotListCompare( lEncodedList1, lExpectedEncoding, &compareResult ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lExpectedEncoding, &compareResult ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lBytes );
-	trotListFree( &lDecodedList1 );
-	trotListFree( &lEncodedList1 );
-	trotListFree( &lDecodedList2 );
-	trotListFree( &lEncodedList2 );
-	trotListFree( &lEncodedList3 );
-	trotListFree( &lExpectedEncoding );
+	trotListFree( lMemLimit, &lBytes );
+	trotListFree( lMemLimit, &lDecodedList1 );
+	trotListFree( lMemLimit, &lEncodedList1 );
+	trotListFree( lMemLimit, &lDecodedList2 );
+	trotListFree( lMemLimit, &lEncodedList2 );
+	trotListFree( lMemLimit, &lEncodedList3 );
+	trotListFree( lMemLimit, &lExpectedEncoding );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lName )
+static int testDecodingEncodingBad( TrotList *lMemLimit, int dirNumber, int fileNumber, TrotList *lName )
 {
 	/* DATA */
 	int rc = 0;
@@ -345,23 +345,23 @@ static int testDecodingEncodingBad( int dirNumber, int fileNumber, TrotList *lNa
 
 	TEST_ERR_IF( lName == NULL );
 
-	TEST_ERR_IF( load( lName, &lBytes ) != 0 );
+	TEST_ERR_IF( load( lMemLimit, lName, &lBytes ) != 0 );
 
-	trot_rc = trotDecode( lBytes, &lDecodedList );
+	trot_rc = trotDecode( lMemLimit, lBytes, &lDecodedList );
 	TEST_ERR_IF( trot_rc == TROT_RC_SUCCESS );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lBytes );
-	trotListFree( &lDecodedList );
+	trotListFree( lMemLimit, &lBytes );
+	trotListFree( lMemLimit, &lDecodedList );
 
 	return rc;
 }
 
 /******************************************************************************/
-static int testDecodingAddLists()
+static int testDecodingAddLists( TrotList *lMemLimit )
 {
 	/* DATA */
 	int rc = 0;
@@ -379,15 +379,15 @@ static int testDecodingAddLists()
 	while ( 1 )
 	{
 		/* create lCharacters */
-		trotListFree( &lCharacters );
-		trot_rc = trotListInit( &lCharacters );
+		trotListFree( lMemLimit, &lCharacters );
+		trot_rc = trotListInit( lMemLimit, &lCharacters );
 		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
 
-		trot_rc = appendCStringToList( lCharacters, characters );
+		trot_rc = appendCStringToList( lMemLimit, lCharacters, characters );
 		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
 
 		/* get count */
-		trotListGetCount( lCharacters, &count );
+		trotListGetCount( lMemLimit, lCharacters, &count );
 
 		if ( i > count + 1 )
 		{
@@ -395,12 +395,12 @@ static int testDecodingAddLists()
 		}
 
 		/* add a list at i, we reuse lCharacters because it already exists */
-		trot_rc = trotListInsertList( lCharacters, i, lCharacters );
+		trot_rc = trotListInsertList( lMemLimit, lCharacters, i, lCharacters );
 		TEST_ERR_IF( trot_rc != TROT_RC_SUCCESS );
 
 		/* decode, which should fail */
-		trotListFree( &lDecoded );
-		trot_rc = trotDecode( lCharacters, &lDecoded );
+		trotListFree( lMemLimit, &lDecoded );
+		trot_rc = trotDecode( lMemLimit, lCharacters, &lDecoded );
 		TEST_ERR_IF( trot_rc == TROT_RC_SUCCESS );
 
 		/* increment */
@@ -411,8 +411,8 @@ static int testDecodingAddLists()
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lCharacters );
-	trotListFree( &lDecoded );
+	trotListFree( lMemLimit, &lCharacters );
+	trotListFree( lMemLimit, &lDecoded );
 
 	return rc;
 }

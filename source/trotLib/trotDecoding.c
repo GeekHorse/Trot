@@ -40,15 +40,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne );
-static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A );
-static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number );
-static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A );
-static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference_A );
+static TROT_RC skipWhitespace( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne );
+static TROT_RC getWord( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A );
+static TROT_RC wordToNumber( TrotList *lMemLimit, TrotList *lWord, TROT_INT *number );
+static TROT_RC splitList( TrotList *lMemLimit, TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A );
+static TROT_RC getReferenceList( TrotList *lMemLimit, TrotList *lTop, TrotList *lPartList, TrotList **lReference_A );
 
 /******************************************************************************/
 /*!
 	\brief Decodes a list of characters into a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] lCharacters Characters to decode.
 	\param[out] lDecodedList_A On success, the decoded list.
 	\return TROT_RC
@@ -56,7 +57,7 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	lCharacters is not modified.
 	lDecodedList_A is created, and caller is responsible for freeing.
 */
-TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
+TROT_RC trotDecode( TrotList *lMemLimit, TrotList *lCharacters, TrotList **lDecodedList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -88,29 +89,29 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 
 	/* CODE */
 	/* get count of characters */
-	rc = trotListGetCount( lCharacters, &charactersCount );
+	rc = trotListGetCount( lMemLimit, lCharacters, &charactersCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* create "top" list */
-	rc = trotListInit( &lTop );
+	rc = trotListInit( lMemLimit, &lTop );
 	ERR_IF_PASSTHROUGH;
 
 	/* create current list */
-	rc = trotListTwin( lTop, &lCurrent );
+	rc = trotListTwin( lMemLimit, lTop, &lCurrent );
 	ERR_IF_PASSTHROUGH;
 
 	/* create our stack */
-	rc = trotListInit( &lStack );
+	rc = trotListInit( lMemLimit, &lStack );
 	ERR_IF_PASSTHROUGH;
 
 
 	/* skip whitespace */
-	rc = skipWhitespace( lCharacters, charactersCount, &index, 0 );
+	rc = skipWhitespace( lMemLimit, lCharacters, charactersCount, &index, 0 );
 	ERR_IF_PASSTHROUGH;
 
 
 	/* get first character */
-	rc = trotListGetInt( lCharacters, index, &ch );
+	rc = trotListGetInt( lMemLimit, lCharacters, index, &ch );
 	ERR_IF_PASSTHROUGH;
 
 	/* must be [ */
@@ -124,11 +125,11 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	while ( 1 )
 	{
 		/* skip whitespace */
-		rc = skipWhitespace( lCharacters, charactersCount, &index, 1 );
+		rc = skipWhitespace( lMemLimit, lCharacters, charactersCount, &index, 1 );
 		ERR_IF_PASSTHROUGH;
 		
 		/* get next character */
-		rc = trotListGetInt( lCharacters, index, &ch );
+		rc = trotListGetInt( lMemLimit, lCharacters, index, &ch );
 		ERR_IF_PASSTHROUGH;
 
 		/* if double quote, decode text format */
@@ -141,7 +142,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			while ( 1 )
 			{
 				/* get character */
-				rc = trotListGetInt( lCharacters, index, &ch );
+				rc = trotListGetInt( lMemLimit, lCharacters, index, &ch );
 				ERR_IF_PASSTHROUGH;
 
 				/* if double quote, we're at end of text format */
@@ -154,7 +155,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 				}
 
 				/* add to lCurrent */
-				rc = trotListAppendInt( lCurrent, ch );
+				rc = trotListAppendInt( lMemLimit, lCurrent, ch );
 				ERR_IF_PASSTHROUGH;
 
 				/* increment */
@@ -168,20 +169,20 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			index += 1;
 
 			/* create new list */
-			trotListFree( &lChild );
-			rc = trotListInit( &lChild );
+			trotListFree( lMemLimit, &lChild );
+			rc = trotListInit( lMemLimit, &lChild );
 			ERR_IF_PASSTHROUGH;
 
 			/* add new list to current list */
-			rc = trotListAppendList( lCurrent, lChild );
+			rc = trotListAppendList( lMemLimit, lCurrent, lChild );
 			ERR_IF_PASSTHROUGH;
 
 			/* push current list */
-			rc = trotListAppendList( lStack, lCurrent );
+			rc = trotListAppendList( lMemLimit, lStack, lCurrent );
 			ERR_IF_PASSTHROUGH;
 
 			/* switchup lCurrent and lChild ... "go down" */
-			trotListFree( &lCurrent );
+			trotListFree( lMemLimit, &lCurrent );
 			lCurrent = lChild;
 			lChild = NULL;
 		}
@@ -192,7 +193,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			index += 1;
 
 			/* is stack empty? */
-			rc = trotListGetCount( lStack, &stackCount );
+			rc = trotListGetCount( lMemLimit, lStack, &stackCount );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( stackCount == 0 )
@@ -201,8 +202,8 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			}
 
 			/* pop off stack ... "go up" */
-			trotListFree( &lCurrent );
-			rc = trotListRemoveList( lStack, -1, &lCurrent );
+			trotListFree( lMemLimit, &lCurrent );
+			rc = trotListRemoveList( lMemLimit, lStack, -1, &lCurrent );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if tilde, set type */
@@ -212,16 +213,16 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			index += 1;
 
 			/* get word */
-			trotListFree( &lWord );
-			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			trotListFree( lMemLimit, &lWord );
+			rc = getWord( lMemLimit, lCharacters, charactersCount, &index, &lWord );
 			ERR_IF_PASSTHROUGH;
 
 			/* word to number */
-			rc = wordToNumber( lWord, &number );
+			rc = wordToNumber( lMemLimit, lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
 			/* set tag */
-			rc = trotListSetType( lCurrent, number );
+			rc = trotListSetType( lMemLimit, lCurrent, number );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* if backtick, set tag */
@@ -231,60 +232,60 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 			index += 1;
 
 			/* get word */
-			trotListFree( &lWord );
-			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			trotListFree( lMemLimit, &lWord );
+			rc = getWord( lMemLimit, lCharacters, charactersCount, &index, &lWord );
 			ERR_IF_PASSTHROUGH;
 
 			/* word to number */
-			rc = wordToNumber( lWord, &number );
+			rc = wordToNumber( lMemLimit, lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
 			/* set tag */
-			rc = trotListSetTag( lCurrent, number );
+			rc = trotListSetTag( lMemLimit, lCurrent, number );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if @, read in reference, and twin a previously-seen list */
 		else if ( ch == '@' )
 		{
 			/* get word */
-			trotListFree( &lWord );
-			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			trotListFree( lMemLimit, &lWord );
+			rc = getWord( lMemLimit, lCharacters, charactersCount, &index, &lWord );
 			ERR_IF_PASSTHROUGH;
 
 			/* split */
-			trotListFree( &lPartList );
-			rc = splitList( lWord, '.', &lPartList );
+			trotListFree( lMemLimit, &lPartList );
+			rc = splitList( lMemLimit, lWord, '.', &lPartList );
 			ERR_IF_PASSTHROUGH;
 
 			/* get reference */
-			trotListFree( &lChild );
-			rc = getReferenceList( lTop, lPartList, &lChild );
+			trotListFree( lMemLimit, &lChild );
+			rc = getReferenceList( lMemLimit, lTop, lPartList, &lChild );
 			ERR_IF_PASSTHROUGH;
 
 			/* add to current */
-			rc = trotListAppendList( lCurrent, lChild );
+			rc = trotListAppendList( lMemLimit, lCurrent, lChild );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* else, must be number */
 		else
 		{
 			/* get word */
-			trotListFree( &lWord );
-			rc = getWord( lCharacters, charactersCount, &index, &lWord );
+			trotListFree( lMemLimit, &lWord );
+			rc = getWord( lMemLimit, lCharacters, charactersCount, &index, &lWord );
 			ERR_IF_PASSTHROUGH;
 
 			/* word to number */
-			rc = wordToNumber( lWord, &number );
+			rc = wordToNumber( lMemLimit, lWord, &number );
 			ERR_IF_PASSTHROUGH;
 
 			/* add number to current list */
-			rc = trotListAppendInt( lCurrent, number );
+			rc = trotListAppendInt( lMemLimit, lCurrent, number );
 			ERR_IF_PASSTHROUGH;
 		}
 	}
 
 	/* skip whitespace */
-	rc = skipWhitespace( lCharacters, charactersCount, &index, 0 );
+	rc = skipWhitespace( lMemLimit, lCharacters, charactersCount, &index, 0 );
 	ERR_IF_PASSTHROUGH;
 
 	/* we must be at end of characters */
@@ -299,12 +300,12 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lTop );
-	trotListFree( &lCurrent );
-	trotListFree( &lWord );
-	trotListFree( &lStack );
-	trotListFree( &lPartList );
-	trotListFree( &lChild );
+	trotListFree( lMemLimit, &lTop );
+	trotListFree( lMemLimit, &lCurrent );
+	trotListFree( lMemLimit, &lWord );
+	trotListFree( lMemLimit, &lStack );
+	trotListFree( lMemLimit, &lPartList );
+	trotListFree( lMemLimit, &lChild );
 
 	return rc;
 }
@@ -312,6 +313,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 /******************************************************************************/
 /*!
 	\brief Skips whitespace characters.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] lCharacters List of characters.
 	\param[in] charactersCount Count of characters.
 	\param[in,out] index Current index into lCharacters.
@@ -320,7 +322,7 @@ TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A )
 
 	index will be incremented to first non-whitespace character, or 1 past end of list.
 */
-static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne )
+static TROT_RC skipWhitespace( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, s32 mustBeOne )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -329,6 +331,7 @@ static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, 
 
 
 	/* PRECOND */
+	PARANOID_ERR_IF( lMemLimit == NULL );
 	PARANOID_ERR_IF( lCharacters == NULL );
 	PARANOID_ERR_IF( index == NULL );
 
@@ -336,7 +339,7 @@ static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, 
 	/* CODE */
 	if ( mustBeOne )
 	{
-		rc = trotListGetInt( lCharacters, (*index), &ch );
+		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
 		ERR_IF( ! trotUnicodeIsWhitespace( ch ), TROT_RC_ERROR_DECODE );
@@ -346,7 +349,7 @@ static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, 
 
 	while ( (*index) <= charactersCount )
 	{
-		rc = trotListGetInt( lCharacters, (*index), &ch );
+		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
 		if ( ! trotUnicodeIsWhitespace( ch ) )
@@ -367,6 +370,7 @@ static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, 
 /******************************************************************************/
 /*!
 	\brief Gets the next word in lCharacters.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] lCharacters List of characters.
 	\param[in] charactersCount Count of characters.
 	\param[in,out] index Current index into lCharacters.
@@ -376,7 +380,7 @@ static TROT_RC skipWhitespace( TrotList *lCharacters, TROT_INT charactersCount, 
 	index will be incremented.
 	lWord_A will be created. Caller is responsible for freeing.
 */
-static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A )
+static TROT_RC getWord( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT charactersCount, TROT_INT *index, TrotList **lWord_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -386,6 +390,7 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 
 
 	/* PRECOND */
+	PARANOID_ERR_IF( lMemLimit == NULL );
 	PARANOID_ERR_IF( lCharacters == NULL );
 	PARANOID_ERR_IF( index == NULL );
 	PARANOID_ERR_IF( lWord_A == NULL );
@@ -393,12 +398,12 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 
 
 	/* CODE */
-	rc = trotListInit( &newLWord );
+	rc = trotListInit( lMemLimit, &newLWord );
 	ERR_IF_PASSTHROUGH;
 
 	while ( (*index) <= charactersCount )
 	{
-		rc = trotListGetInt( lCharacters, (*index), &ch );
+		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
 		if ( trotUnicodeIsWhitespace( ch ) )
@@ -406,7 +411,7 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 			break;
 		}
 
-		rc = trotListAppendInt( newLWord, ch );
+		rc = trotListAppendInt( lMemLimit, newLWord, ch );
 		ERR_IF_PASSTHROUGH;
 
 		(*index) += 1;
@@ -421,7 +426,7 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newLWord );
+	trotListFree( lMemLimit, &newLWord );
 
 	return rc;
 }
@@ -429,6 +434,7 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 /******************************************************************************/
 /*!
 	\brief Converts a word into a number.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] lWord The list to convert
 	\param[out] number On success, the number.
 	\return TROT_RC
@@ -438,7 +444,7 @@ static TROT_RC getWord( TrotList *lCharacters, TROT_INT charactersCount, TROT_IN
 	Example:
 	If lWord is ["123"] number would be 123.
 */
-static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
+static TROT_RC wordToNumber( TrotList *lMemLimit, TrotList *lWord, TROT_INT *number )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -453,17 +459,18 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 
 	/* PRECOND */
+	PARANOID_ERR_IF( lMemLimit == NULL );
 	PARANOID_ERR_IF( lWord == NULL );
 	PARANOID_ERR_IF( number == NULL );
 
 
 	/* CODE */
 	/* get count */
-	rc = trotListGetCount( lWord, &count );
+	rc = trotListGetCount( lMemLimit, lWord, &count );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* get first character */
-	rc = trotListGetInt( lWord, 1, &character );
+	rc = trotListGetInt( lMemLimit, lWord, 1, &character );
 	ERR_IF_PASSTHROUGH;
 
 	/* make sure it's a good format */
@@ -473,7 +480,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 		index += 1;
 	}
 
-	rc = trotListGetInt( lWord, index, &character );
+	rc = trotListGetInt( lMemLimit, lWord, index, &character );
 	ERR_IF_PASSTHROUGH;
 
 	ERR_IF_1( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE, character );
@@ -484,7 +491,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 	while ( index <= count )
 	{
-		rc = trotListGetInt( lWord, index, &character );
+		rc = trotListGetInt( lMemLimit, lWord, index, &character );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		ERR_IF_1( ( ! ( character >= '0' && character <= '9' ) ), TROT_RC_ERROR_DECODE, character );
@@ -495,7 +502,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 	/* make sure number can fit into our TROT_INT */
 	index = 1;
 
-	rc = trotListGetInt( lWord, index, &character );
+	rc = trotListGetInt( lMemLimit, lWord, index, &character );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	if ( character == '-' )
@@ -509,7 +516,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 			while ( index <= count )
 			{	
-				rc = trotListGetInt( lWord, index, &character );
+				rc = trotListGetInt( lMemLimit, lWord, index, &character );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 				ERR_IF ( character > TROT_INT_MIN_STRING[ i ], TROT_RC_ERROR_DECODE );
@@ -534,7 +541,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 			while ( index <= count )
 			{	
-				rc = trotListGetInt( lWord, index, &character );
+				rc = trotListGetInt( lMemLimit, lWord, index, &character );
 				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 				ERR_IF_1( character > TROT_INT_MAX_STRING[ i ], TROT_RC_ERROR_DECODE, character );
@@ -553,7 +560,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 	/* get our number started */
 	index = 1;
 
-	rc = trotListGetInt( lWord, index, &character );
+	rc = trotListGetInt( lMemLimit, lWord, index, &character );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* if negative, get real first number */
@@ -561,7 +568,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 	{
 		index += 1;
 
-		rc = trotListGetInt( lWord, index, &character );
+		rc = trotListGetInt( lMemLimit, lWord, index, &character );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		newNumber = character - '0';
@@ -572,7 +579,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 		while ( index <= count )
 		{
-			rc = trotListGetInt( lWord, index, &character );
+			rc = trotListGetInt( lMemLimit, lWord, index, &character );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	
 			newNumber *= 10;
@@ -590,7 +597,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 
 		while ( index <= count )
 		{
-			rc = trotListGetInt( lWord, index, &character );
+			rc = trotListGetInt( lMemLimit, lWord, index, &character );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 	
 			newNumber *= 10;
@@ -613,6 +620,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 /******************************************************************************/
 /*!
 	\brief Creates a new list of parts that were separated out of l.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] listToSplit List that contains parts.
 	\param[in] separator Separating character
 	\param[out] lPartList_A On success, contains the parts.
@@ -631,7 +639,7 @@ static TROT_RC wordToNumber( TrotList *lWord, TROT_INT *number )
 		listToSplit = ["abc.def.ghi"]
 		lPartList_A will be [["abc"]["def"]["ghi"]]
 */
-static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A )
+static TROT_RC splitList( TrotList *lMemLimit, TrotList *listToSplit, TROT_INT separator, TrotList **lPartList_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -645,6 +653,7 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 
 
 	/* PRECOND */
+	PARANOID_ERR_IF( lMemLimit == NULL );
 	PARANOID_ERR_IF( listToSplit == NULL );
 	PARANOID_ERR_IF( lPartList_A == NULL );
 	PARANOID_ERR_IF( (*lPartList_A) != NULL );
@@ -652,17 +661,17 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 
 	/* CODE */
 	/* create giveback */
-	rc = trotListInit( &newLPartList );
+	rc = trotListInit( lMemLimit, &newLPartList );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInit( &lPart );
+	rc = trotListInit( lMemLimit, &lPart );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListAppendList( newLPartList, lPart );
+	rc = trotListAppendList( lMemLimit, newLPartList, lPart );
 	ERR_IF_PASSTHROUGH;
 
 	/* get count */
-	rc = trotListGetCount( listToSplit, &count );
+	rc = trotListGetCount( lMemLimit, listToSplit, &count );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* foreach character */
@@ -670,24 +679,24 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 	while ( index <= count )
 	{
 		/* get next character */
-		rc = trotListGetInt( listToSplit, index, &character );
+		rc = trotListGetInt( lMemLimit, listToSplit, index, &character );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* if separator */
 		if ( character == separator )
 		{
-			trotListFree( &lPart );
+			trotListFree( lMemLimit, &lPart );
 
-			rc = trotListInit( &lPart );
+			rc = trotListInit( lMemLimit, &lPart );
 			ERR_IF_PASSTHROUGH;
 
-			rc = trotListAppendList( newLPartList, lPart );
+			rc = trotListAppendList( lMemLimit, newLPartList, lPart );
 			ERR_IF_PASSTHROUGH;
 		}
 		/* else add to current part */
 		else
 		{
-			rc = trotListAppendInt( lPart, character );
+			rc = trotListAppendInt( lMemLimit, lPart, character );
 			ERR_IF_PASSTHROUGH;
 		}
 
@@ -703,8 +712,8 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newLPartList );
-	trotListFree( &lPart );
+	trotListFree( lMemLimit, &newLPartList );
+	trotListFree( lMemLimit, &lPart );
 
 	return rc;
 }
@@ -712,6 +721,7 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 /******************************************************************************/
 /*!
 	\brief Takes a textual-reference and retrieves the correct list out of lTop
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] lTop The top list.
 	\param[in] lPartList List that contains the parts of the textual-reference
 	\param[out] lReference_A On success, the list that the textual-reference
@@ -723,7 +733,7 @@ static TROT_RC splitList( TrotList *listToSplit, TROT_INT separator, TrotList **
 	and lPartList is [ [ "@" ] [ "3" ] [ "1" ] ]
 	then lReference_A would the the list that's [ 87 ].
 */
-static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList **lReference_A )
+static TROT_RC getReferenceList( TrotList *lMemLimit, TrotList *lTop, TrotList *lPartList, TrotList **lReference_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -740,6 +750,7 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 
 
 	/* PRECOND */
+	PARANOID_ERR_IF( lMemLimit == NULL );
 	PARANOID_ERR_IF( lTop == NULL );
 	PARANOID_ERR_IF( lPartList == NULL );
 	PARANOID_ERR_IF( lReference_A == NULL );
@@ -748,23 +759,23 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 
 	/* CODE */
 	/* get partListCount */
-	rc = trotListGetCount( lPartList, &partListCount );
+	rc = trotListGetCount( lMemLimit, lPartList, &partListCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* get first part */
-	rc = trotListGetList( lPartList, 1, &lPart );
+	rc = trotListGetList( lMemLimit, lPartList, 1, &lPart );
 	ERR_IF_PASSTHROUGH;
 
 	/* first part must be '@'
 	   we already know it starts with '@', so just make sure there's nothing
 	   else in the part */
-	rc = trotListGetCount( lPart, &partCount );
+	rc = trotListGetCount( lMemLimit, lPart, &partCount );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	ERR_IF_1( partCount != 1, TROT_RC_ERROR_DECODE, partCount );
 
 	/* start parent */
-	rc = trotListTwin( lTop, &lParent );
+	rc = trotListTwin( lMemLimit, lTop, &lParent );
 	ERR_IF_PASSTHROUGH;
 
 	/* for each part, starting at 2 */
@@ -772,24 +783,24 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	while ( partListIndex <= partListCount )
 	{
 		/* get part */
-		trotListFree( &lPart );
-		rc = trotListGetList( lPartList, partListIndex, &lPart );
+		trotListFree( lMemLimit, &lPart );
+		rc = trotListGetList( lMemLimit, lPartList, partListIndex, &lPart );
 		ERR_IF_PASSTHROUGH;
 
 		/* part into number */
-		rc = wordToNumber( lPart, &partNumber );
+		rc = wordToNumber( lMemLimit, lPart, &partNumber );
 		ERR_IF_PASSTHROUGH;
 
 		/* must be positive */
 		ERR_IF_1( partNumber <= 0, TROT_RC_ERROR_DECODE, partNumber );
 
 		/* get child of parent */
-		trotListFree( &lChild );
-		rc = trotListGetList( lParent, partNumber, &lChild );
+		trotListFree( lMemLimit, &lChild );
+		rc = trotListGetList( lMemLimit, lParent, partNumber, &lChild );
 		ERR_IF_PASSTHROUGH;
 
 		/* switchup parent and child, "go down" */
-		trotListFree( &lParent );
+		trotListFree( lMemLimit, &lParent );
 		lParent = lChild;
 		lChild = NULL;
 
@@ -806,9 +817,9 @@ static TROT_RC getReferenceList( TrotList *lTop, TrotList *lPartList, TrotList *
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &lPart );
-	trotListFree( &lParent );
-	trotListFree( &lChild );
+	trotListFree( lMemLimit, &lPart );
+	trotListFree( lMemLimit, &lParent );
+	trotListFree( lMemLimit, &lChild );
 
 	return rc;
 }

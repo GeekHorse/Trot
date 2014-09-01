@@ -31,13 +31,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_FILE_NUMBER 501
 
 /******************************************************************************/
+#include <string.h> /* strlen */
+
 #include "trot.h"
 #include "trotInternal.h"
 
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int addListWithValue( TrotList *l, TROT_INT index, TROT_INT value )
+int addListWithValue( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT value )
 {
 	/* DATA */
 	int rc = 0;
@@ -46,21 +48,21 @@ int addListWithValue( TrotList *l, TROT_INT index, TROT_INT value )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListAppendInt( newList, value ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListInsertList( l, index, newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, value ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInsertList( lMemLimit, l, index, newList ) != TROT_RC_SUCCESS );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createAllInts( TrotList **l, int count )
+int createAllInts( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -70,23 +72,23 @@ int createAllInts( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( trotListAppendInt( newList, i ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, i ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -98,13 +100,13 @@ int createAllInts( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createAllLists( TrotList **l, int count )
+int createAllLists( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -114,23 +116,23 @@ int createAllLists( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( addListWithValue( newList, i, i ) != 0 );
+		TEST_ERR_IF( addListWithValue( lMemLimit, newList, i, i ) != 0 );
 
 		i += 1;
 	}
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -142,13 +144,13 @@ int createAllLists( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createIntListAlternating( TrotList **l, int count )
+int createIntListAlternating( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -158,30 +160,30 @@ int createIntListAlternating( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
 		if ( i % 2 == 1 )
 		{
-			TEST_ERR_IF( trotListAppendInt( newList, i ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, i ) != TROT_RC_SUCCESS );
 		}
 		else
 		{
-			TEST_ERR_IF( addListWithValue( newList, i, i ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, newList, i, i ) != 0 );
 		}
 
 		i += 1;
 	}
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -193,13 +195,13 @@ int createIntListAlternating( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createListIntAlternating( TrotList **l, int count )
+int createListIntAlternating( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -209,30 +211,30 @@ int createListIntAlternating( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= count )
 	{
 		if ( i % 2 == 1 )
 		{
-			TEST_ERR_IF( addListWithValue( newList, i, i ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, newList, i, i ) != 0 );
 		}
 		else
 		{
-			TEST_ERR_IF( trotListAppendInt( newList, i ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, i ) != TROT_RC_SUCCESS );
 		}
 
 		i += 1;
 	}
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -244,13 +246,13 @@ int createListIntAlternating( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createHalfIntHalfList( TrotList **l, int count )
+int createHalfIntHalfList( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -260,30 +262,30 @@ int createHalfIntHalfList( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
 	{
-		TEST_ERR_IF( trotListAppendInt( newList, i ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, i ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 	while ( i <= count )
 	{
-		TEST_ERR_IF( addListWithValue( newList, i, i ) != 0 );
+		TEST_ERR_IF( addListWithValue( lMemLimit, newList, i, i ) != 0 );
 
 		i += 1;
 	}
 
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -295,13 +297,13 @@ int createHalfIntHalfList( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int createHalfListHalfInt( TrotList **l, int count )
+int createHalfListHalfInt( TrotList *lMemLimit, TrotList **l, int count )
 {
 	/* DATA */
 	int rc = 0;
@@ -311,30 +313,30 @@ int createHalfListHalfInt( TrotList **l, int count )
 	TROT_INT i = 1;
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( &newList ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newList ) != TROT_RC_SUCCESS );
 
 	i = 1;
 	while ( i <= ( count / 2 ) )
 	{
-		TEST_ERR_IF( addListWithValue( newList, i, i ) != 0 );
+		TEST_ERR_IF( addListWithValue( lMemLimit, newList, i, i ) != 0 );
 
 		i += 1;
 	}
 	while ( i <= count )
 	{
-		TEST_ERR_IF( trotListAppendInt( newList, i ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, newList, i ) != TROT_RC_SUCCESS );
 
 		i += 1;
 	}
 
 
 	/* check list */
-	TEST_ERR_IF( checkList( newList ) != 0 );
+	TEST_ERR_IF( checkList( lMemLimit, newList ) != 0 );
 
 	i = 1;
 	while ( i <= count )
 	{
-		TEST_ERR_IF( check( newList, i, i ) != 0 );
+		TEST_ERR_IF( check( lMemLimit, newList, i, i ) != 0 );
 		i += 1;
 	}
 
@@ -346,13 +348,13 @@ int createHalfListHalfInt( TrotList **l, int count )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newList );
+	trotListFree( lMemLimit, &newList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
+int check( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 {
 	/* DATA */
 	int rc = 0;
@@ -365,17 +367,17 @@ int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetKind( l, index, &kind ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetKind( lMemLimit, l, index, &kind ) != TROT_RC_SUCCESS );
 
 	if ( kind == TROT_KIND_INT )
 	{
-		TEST_ERR_IF( trotListGetInt( l, index, &valueInList ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lMemLimit, l, index, &valueInList ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else if ( kind == TROT_KIND_LIST )
 	{
-		TEST_ERR_IF( trotListGetList( l, index, &subList ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListGetInt( subList, 1, &valueInList ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetList( lMemLimit, l, index, &subList ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetInt( lMemLimit, subList, 1, &valueInList ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( valueInList != valueToCheckAgainst );
 	}
 	else
@@ -387,13 +389,13 @@ int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &subList );
+	trotListFree( lMemLimit, &subList );
 
 	return rc;
 }
 
 /******************************************************************************/
-int checkList( TrotList *l )
+int checkList( TrotList *lMemLimit, TrotList *l )
 {
 	/* DATA */
 	int rc = 0;
@@ -418,6 +420,7 @@ int checkList( TrotList *l )
 	#ifndef BE_PARANOID
 	return 0;
 	#endif
+	(void)lMemLimit;
 
 	TEST_ERR_IF( l == NULL );
 
@@ -592,7 +595,7 @@ static void printIndent( int indent )
 }
 	
 
-void printList( TrotList *l, int indent )
+void printList( TrotList *lMemLimit, TrotList *l, int indent )
 {
 	/* DATA */
 	TrotListActual *la = l->laPointsTo;
@@ -642,7 +645,7 @@ void printList( TrotList *l, int indent )
 			{
 				printIndent( indent );
 				/* printf( "(%p>%p)\n", (void *)node->l[ i ], (void *)node->l[ i ]->laPointsTo ); */
-				printList( node->l[ i ], indent + 1 );
+				printList( lMemLimit, node->l[ i ], indent + 1 );
 			}
 		}
 
@@ -659,7 +662,7 @@ void printList( TrotList *l, int indent )
 
 /******************************************************************************/
 #define LOAD_BUFFER_SIZE 1024
-int load( TrotList *lName, TrotList **lBytes )
+int load( TrotList *lMemLimit, TrotList *lName, TrotList **lBytes )
 {
 	/* DATA */
 	int rc = 0;
@@ -682,10 +685,10 @@ int load( TrotList *lName, TrotList **lBytes )
 	TEST_ERR_IF( (*lBytes) != NULL );
 
 	/* create our new byte list */
-	TEST_ERR_IF( trotListInit( &newLrBytes ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &newLrBytes ) != TROT_RC_SUCCESS );
 
 	/* convert our TrotList name to a cString */
-	TEST_ERR_IF( listToCString( lName, &name ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lName, &name ) != TROT_RC_SUCCESS );
 
 #if 0
 	printf( "Loading: %s\n", name );
@@ -705,7 +708,7 @@ int load( TrotList *lName, TrotList **lBytes )
 		i = 0;
 		while ( i < bytesRead )
 		{
-			TEST_ERR_IF( trotListAppendInt( newLrBytes, buffer[ i ] ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, newLrBytes, buffer[ i ] ) != TROT_RC_SUCCESS );
 
 			i += 1;
 		}
@@ -733,17 +736,17 @@ int load( TrotList *lName, TrotList **lBytes )
 
 	if ( name != NULL )
 	{
-		TROT_HOOK_FREE( name );
+		TROT_FREE( name, strlen(name) + 1 );
 	}
 
-	trotListFree( &newLrBytes );
+	trotListFree( lMemLimit, &newLrBytes );
 
 	return rc;
 }
 #undef LOAD_BUFFER_SIZE
 
 /******************************************************************************/
-TROT_RC printListLikeCString( TrotList *l )
+TROT_RC printListLikeCString( TrotList *lMemLimit, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -754,7 +757,7 @@ TROT_RC printListLikeCString( TrotList *l )
 	/* CODE */
 	PARANOID_ERR_IF( l == NULL );
 
-	rc = listToCString( l, &s );
+	rc = listToCString( lMemLimit, l, &s );
 	ERR_IF_PASSTHROUGH;
 
 	printf( "%s\n", s );
@@ -763,13 +766,13 @@ TROT_RC printListLikeCString( TrotList *l )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( s );
+	TROT_FREE( s, strlen(s) + 1 );
 	
 	return rc;
 }
 
 /******************************************************************************/
-TROT_RC listToCString( TrotList *l, char **cString_A )
+TROT_RC listToCString( TrotList *lMemLimit, TrotList *l, char **cString_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -787,7 +790,7 @@ TROT_RC listToCString( TrotList *l, char **cString_A )
 	PARANOID_ERR_IF( cString_A == NULL );
 	PARANOID_ERR_IF( (*cString_A) != NULL );
 
-	rc = trotListGetCount( l, &count );
+	rc = trotListGetCount( lMemLimit, l, &count );
 	ERR_IF_PASSTHROUGH;
 
 	TROT_MALLOC( newCString, char, count + 1 );
@@ -795,7 +798,7 @@ TROT_RC listToCString( TrotList *l, char **cString_A )
 	i = 1;
 	while ( i <= count )
 	{
-		rc = trotListGetInt( l, i, &c );
+		rc = trotListGetInt( lMemLimit, l, i, &c );
 		ERR_IF_PASSTHROUGH;
 
 		PARANOID_ERR_IF( c < 0 );
@@ -818,14 +821,14 @@ TROT_RC listToCString( TrotList *l, char **cString_A )
 
 	if ( newCString != NULL )
 	{
-		TROT_HOOK_FREE( newCString );
+		TROT_FREE( newCString, strlen(newCString) + 1 );
 	}
 
 	return rc;
 }
 
 /******************************************************************************/
-TROT_RC appendCStringToList( TrotList *l, char *cString )
+TROT_RC appendCStringToList( TrotList *lMemLimit, TrotList *l, char *cString )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -837,7 +840,7 @@ TROT_RC appendCStringToList( TrotList *l, char *cString )
 
 	while ( *cString != '\0' )
 	{
-		rc = trotListAppendInt( l, (*cString) );
+		rc = trotListAppendInt( lMemLimit, l, (*cString) );
 		ERR_IF_PASSTHROUGH;
 
 		cString += 1;

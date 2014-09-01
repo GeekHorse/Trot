@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int testMisc()
+int testMisc( TrotList *lMemLimit )
 {
 	/* DATA */
 	int rc = 0;
@@ -47,6 +47,8 @@ int testMisc()
 	/* CODE */
 	/* **************************************** */
 	printf( "Testing misc...\n" ); fflush( stdout );
+
+	(void)lMemLimit;
 
 	/* make sure we haven't forgotten any text for our RCs */
 	string = trotRCToString( TROT_RC_SUCCESS );

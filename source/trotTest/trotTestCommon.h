@@ -56,36 +56,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* major test functions */
-int testPreconditions();
-int testMisc();
-int testMemory();
-int testBadTypesAndIndices();
-int testPrimaryFunctionality();
-int testSecondaryFunctionality();
-int testIntOperands();
-int testBadIntegerOps();
-int testUnicode();
-int testDecodingEncoding();
+int testPreconditions( TrotList *lMemLimit );
+int testMisc( TrotList *lMemLimit );
+int testMemory( TrotList *lMemLimit );
+int testBadTypesAndIndices( TrotList *lMemLimit );
+int testPrimaryFunctionality( TrotList *lMemLimit );
+int testSecondaryFunctionality( TrotList *lMemLimit );
+int testIntOperands( TrotList *lMemLimit );
+int testUnicode( TrotList *lMemLimit );
+int testDecodingEncoding( TrotList *lMemLimit );
 
 /******************************************************************************/
 /* create functions */
-int createAllInts( TrotList **l, int count );
-int createAllLists( TrotList **l, int count );
-int createIntListAlternating( TrotList **l, int count );
-int createListIntAlternating( TrotList **l, int count );
-int createHalfIntHalfList( TrotList **l, int count );
-int createHalfListHalfInt( TrotList **l, int count );
+int createAllInts( TrotList *lMemLimit, TrotList **l, int count );
+int createAllLists( TrotList *lMemLimit, TrotList **l, int count );
+int createIntListAlternating( TrotList *lMemLimit, TrotList **l, int count );
+int createListIntAlternating( TrotList *lMemLimit, TrotList **l, int count );
+int createHalfIntHalfList( TrotList *lMemLimit, TrotList **l, int count );
+int createHalfListHalfInt( TrotList *lMemLimit, TrotList **l, int count );
 
 /******************************************************************************/
 /* misc functions */
-int addListWithValue( TrotList *l, TROT_INT index, TROT_INT value );
-int check( TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst );
-int checkList( TrotList *l );
-void printList( TrotList *l, int indent );
-int load( TrotList *lName, TrotList **lBytes );
+int addListWithValue( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT value );
+int check( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT valueToCheckAgainst );
+int checkList( TrotList *lMemLimit, TrotList *l );
+void printList( TrotList *lMemLimit, TrotList *l, int indent );
+int load( TrotList *lMemLimit, TrotList *lName, TrotList **lBytes );
 
-TROT_RC listToCString( TrotList *l, char **cString_A );
-TROT_RC appendCStringToList( TrotList *l, char *cString );
+TROT_RC listToCString( TrotList *lMemLimit, TrotList *l, char **cString_A );
+TROT_RC appendCStringToList( TrotList *lMemLimit, TrotList *l, char *cString );
 
 /******************************************************************************/
 #endif

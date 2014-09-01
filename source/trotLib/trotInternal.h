@@ -85,16 +85,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
 
 /******************************************************************************/
+/* TODO: could probably do without POINTER_SIZE */
 #define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE * ) TROT_HOOK_MALLOC( sizeof( POINTER_TYPE ) * (SIZE) ); \
-	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
+	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
+	rc = trotMemLimitAdd( lMemLimit, sizeof( POINTER_TYPE ) * (SIZE) ); \
+	ERR_IF_PASSTHROUGH;
 
 /******************************************************************************/
+/* TODO: could probably do without POINTER_SIZE */
 #define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
 	POINTER = ( POINTER_TYPE * ) TROT_HOOK_CALLOC( SIZE, sizeof( POINTER_TYPE ) ); \
-	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED );
+	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
+	rc = trotMemLimitAdd( lMemLimit, sizeof( POINTER_TYPE ) * (SIZE) ); \
+	ERR_IF_PASSTHROUGH;
 
-
+/******************************************************************************/
+#define TROT_FREE( POINTER, SIZE ) \
+	if ( POINTER != NULL ) \
+	{ \
+		trotMemLimitSub( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
+		TROT_HOOK_FREE( POINTER ); \
+	}
 
 /******************************************************************************/
 #ifndef TROT_NODE_SIZE
@@ -294,24 +306,22 @@ struct TrotStackNode_STRUCT
 
 /******************************************************************************/
 /* trotListPrimary.c */
-TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft );
+TROT_RC trotMemLimitAdd( TrotList *lMemLimit, TROT_INT update );
+void trotMemLimitSub( TrotList *lMemLimit, TROT_INT update );
 
-TROT_RC newIntNode( TrotListNode **n_A );
-TROT_RC newListNode( TrotListNode **n_A );
+TROT_RC trotListNodeSplit( TrotList *lMemLimit, TrotListNode *n, TROT_INT keepInLeft );
+
+TROT_RC newIntNode( TrotList *lMemLimit, TrotListNode **n_A );
+TROT_RC newListNode( TrotList *lMemLimit, TrotListNode **n_A );
 
 /******************************************************************************/
 /* trotStack.c */
-TROT_RC trotStackInit( TrotStack **stack );
-void trotStackFree( TrotStack **stack );
+TROT_RC trotStackInit( TrotList *lMemLimit, TrotStack **stack );
+void trotStackFree( TrotList *lMemLimit, TrotStack **stack );
 
-TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la2 );
-TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty );
-TROT_RC trotStackIncrementTopIndex( TrotStack *stack );
-
-/******************************************************************************/
-/* trotListInt.c */
-TROT_RC trotListIntOperand( TrotList *l, TROT_OP op );
-TROT_RC trotListIntOperandValue( TrotList *l, TROT_OP op, TROT_INT value );
+TROT_RC trotStackPush( TrotList *lMemLimit, TrotStack *stack, TrotListActual *la1, TrotListActual *la2 );
+TROT_RC trotStackPop( TrotList *lMemLimit,  TrotStack *stack, TROT_INT *empty );
+TROT_RC trotStackIncrementTopIndex( TrotList *lMemLimit, TrotStack *stack );
 
 /******************************************************************************/
 #ifdef TROT_DEBUG

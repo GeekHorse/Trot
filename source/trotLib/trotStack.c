@@ -47,10 +47,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Creates a new stack.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[out] stack The new stack.
 	\return TROT_RC
 */
-TROT_RC trotStackInit( TrotStack **stack )
+TROT_RC trotStackInit( TrotList *lMemLimit, TrotStack **stack )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -102,9 +103,9 @@ TROT_RC trotStackInit( TrotStack **stack )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newHead );
-	TROT_HOOK_FREE( newTail );
-	TROT_HOOK_FREE( newStack );
+	TROT_FREE( newHead, 1 );
+	TROT_FREE( newTail, 1 );
+	TROT_FREE( newStack, 1 );
 
 	return rc;
 }
@@ -112,10 +113,11 @@ TROT_RC trotStackInit( TrotStack **stack )
 /******************************************************************************/
 /*!
 	\brief Frees a stack.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] stack The stack.
 	\return void
 */
-void trotStackFree( TrotStack **stack )
+void trotStackFree( TrotList *lMemLimit, TrotStack **stack )
 {
 	/* DATA */
 	TrotStackNode *node = NULL;
@@ -134,12 +136,12 @@ void trotStackFree( TrotStack **stack )
 	{
 		node = node->next;
 
-		TROT_HOOK_FREE( node->prev );
+		TROT_FREE( node->prev, 1 );
 	}
 
-	TROT_HOOK_FREE( (*stack)->tail );
+	TROT_FREE( (*stack)->tail, 1 );
 
-	TROT_HOOK_FREE( (*stack) );
+	TROT_FREE( (*stack), 1 );
 	(*stack) = NULL;
 
 	return;
@@ -148,12 +150,13 @@ void trotStackFree( TrotStack **stack )
 /******************************************************************************/
 /*!
 	\brief Pushes a new node on the stack .
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] stack The stack.
 	\param[in] la1 The first list.
 	\param[in] la2 The second list.
 	\return TROT_RC
 */
-TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la2 )
+TROT_RC trotStackPush( TrotList *lMemLimit, TrotStack *stack, TrotListActual *la1, TrotListActual *la2 )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -209,12 +212,13 @@ TROT_RC trotStackPush( TrotStack *stack, TrotListActual *la1, TrotListActual *la
 /******************************************************************************/
 /*!
 	\brief Pops off the top of the stack.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] stack The stack.
 	\param[out] empty Will be 1 if stack is empty, or 0 if stack
 	       has items still on it.
 	\return TROT_RC
 */
-TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty )
+TROT_RC trotStackPop( TrotList *lMemLimit, TrotStack *stack, TROT_INT *empty )
 {
 	/* DATA */
 	TrotStackNode *node = NULL;
@@ -231,7 +235,7 @@ TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty )
 	node->prev->next = node->next;
 	node->next->prev = node->prev;
 
-	TROT_HOOK_FREE( node );
+	TROT_FREE( node, 1 );
 
 	if ( stack->tail->prev == stack->head )
 	{
@@ -248,15 +252,18 @@ TROT_RC trotStackPop( TrotStack *stack, TROT_INT *empty )
 /******************************************************************************/
 /*!
 	\brief Increments the data on top the stack.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] stack The stack.
 	\return TROT_RC
 */
-TROT_RC trotStackIncrementTopIndex( TrotStack *stack )
+TROT_RC trotStackIncrementTopIndex( TrotList *lMemLimit, TrotStack *stack )
 {
 	/* DATA */
 	TrotStackNode *stackNode = NULL;
 
 	/* CODE */
+	(void)lMemLimit;
+
 	PARANOID_ERR_IF( stack == NULL );
 
 	PARANOID_ERR_IF( stack->tail->prev == stack->head );

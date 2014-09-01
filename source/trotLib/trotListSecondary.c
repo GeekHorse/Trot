@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Does a full-depth compare of 2 lists by value. Does not compare tags.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The first list.
 	\param[in] lCompareTo The second list.
 	\param[out] compareResult Result of the comparison.
@@ -68,7 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	FUTURE: a true compare can be done by using encode, and comparing the
 	resulting character lists.
 */
-TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
+TROT_RC trotListCompare( TrotList *lMemLimit, TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -110,17 +111,17 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 	}
 
 	/* init stack */
-	rc = trotStackInit( &stack );
+	rc = trotStackInit( lMemLimit, &stack );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotStackPush( stack, l->laPointsTo, lCompareTo->laPointsTo );
+	rc = trotStackPush( lMemLimit, stack, l->laPointsTo, lCompareTo->laPointsTo );
 	ERR_IF_PASSTHROUGH;
 
 	/* compare loop */
 	while ( 1 )
 	{
 		/* increment top of stack */
-		rc = trotStackIncrementTopIndex( stack );
+		rc = trotStackIncrementTopIndex( lMemLimit, stack );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* get both stack info */
@@ -136,7 +137,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 		/* if both are too big */
 		if ( index > count1 && index > count2 )
 		{
-			rc = trotStackPop( stack, &stackEmpty );
+			rc = trotStackPop( lMemLimit, stack, &stackEmpty );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( stackEmpty )
@@ -211,7 +212,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 		   if they point to same, there's no need to compare */
 		if ( subLa1 != subLa2 )
 		{
-			rc = trotStackPush( stack, subLa1, subLa2 );
+			rc = trotStackPush( lMemLimit, stack, subLa1, subLa2 );
 			ERR_IF_PASSTHROUGH;
 		}
 	}
@@ -220,7 +221,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 	/* CLEANUP */
 	cleanup:
 
-	trotStackFree( &stack );
+	trotStackFree( lMemLimit, &stack );
 
 	return rc;
 }
@@ -228,6 +229,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 /******************************************************************************/
 /*!
 	\brief Copies a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[out] lCopy_A New copied list.
 	\return TROT_RC
@@ -237,7 +239,7 @@ TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RE
 
 	Tags are copied.
 */
-TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
+TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -254,7 +256,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 	/* if list is empty, just give back a new list */
 	if ( l->laPointsTo->childrenCount == 0 )
 	{
-		rc = trotListInit( lCopy_A );
+		rc = trotListInit( lMemLimit, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
 		/* make sure copied list has same type and tag */
@@ -264,7 +266,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 	/* else, use CopySpan */
 	else
 	{
-		rc = trotListCopySpan( l, 1, -1, lCopy_A );
+		rc = trotListCopySpan( lMemLimit, l, 1, -1, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
 		/* copy span copys the type and tag too */
@@ -280,6 +282,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 /******************************************************************************/
 /*!
 	\brief Takes a span of children and puts them into a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Start index of items you want to enlist.
 	\param[in] indexEnd End index of items you want to enlist.
@@ -290,7 +293,7 @@ TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A )
 	become:
 	[ 1 2 [ 3 4 5 ] ]
 */
-TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -363,7 +366,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	/* split this node if necessary */
 	if ( count + 1 != indexStart )
 	{
-		rc = trotListNodeSplit( node, indexStart - count - 1 );
+		rc = trotListNodeSplit( lMemLimit, node, indexStart - count - 1 );
 		ERR_IF_PASSTHROUGH;
 
 		count += node->count;
@@ -390,16 +393,16 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	/* split this node if necessary */
 	if ( count + node->count != indexEnd )
 	{
-		rc = trotListNodeSplit( node, indexEnd - count );
+		rc = trotListNodeSplit( lMemLimit, node, indexEnd - count );
 		ERR_IF_PASSTHROUGH;
 	}
 
 	/* create our new node */
-	rc = newListNode( &newNode );
+	rc = newListNode( lMemLimit, &newNode );
 	ERR_IF_PASSTHROUGH;
 
 	/* create our new list */
-	rc = trotListInit( &newL );
+	rc = trotListInit( lMemLimit, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* insert our new list into our node */
@@ -469,8 +472,8 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 
 	if ( newNode != NULL )
 	{
-		TROT_HOOK_FREE( newNode->l );
-		TROT_HOOK_FREE( newNode );
+		TROT_FREE( newNode->l, TROT_NODE_SIZE );
+		TROT_FREE( newNode, 1 );
 	}
 
 	return rc;
@@ -479,6 +482,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 /******************************************************************************/
 /*!
 	\brief Removes a list and puts it's children in it's place.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Index of list you want to delist.
 	\return TROT_RC
@@ -487,7 +491,7 @@ TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 	If list is [ 1 2 [ 3 4 5 ] ] and index is 3 then list will become:
 	[ 1 2 3 4 5 ]
 */
-TROT_RC trotListDelist( TrotList *l, TROT_INT index )
+TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -544,7 +548,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* split this node if necessary */
 	if ( count + 1 != index )
 	{
-		rc = trotListNodeSplit( node, index - count - 1 );
+		rc = trotListNodeSplit( lMemLimit, node, index - count - 1 );
 		ERR_IF_PASSTHROUGH;
 
 		node = node->next;
@@ -563,7 +567,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	/* copy our delist (only if it contains something) */
 	if ( delistL->laPointsTo->childrenCount > 0 )
 	{
-		rc = trotListCopySpan( delistL, 1, -1, &copiedL );
+		rc = trotListCopySpan( lMemLimit, delistL, 1, -1, &copiedL );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -590,8 +594,8 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		TROT_HOOK_FREE( node->l );
-		TROT_HOOK_FREE( node );
+		TROT_FREE( node->l, TROT_NODE_SIZE );
+		TROT_FREE( node, 1 );
 	}
 
 	/* adjust count */
@@ -599,7 +603,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 
 	/* free our delistL */
 	delistL->laParent = NULL;
-	trotListFree( &delistL );
+	trotListFree( lMemLimit, &delistL );
 
 	/* was the delist empty? */
 	if ( copiedL == NULL )
@@ -640,7 +644,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	copiedL->laPointsTo->tail->prev = copiedL->laPointsTo->head;
 
 	/* free our copied list */
-	trotListFree( &copiedL );
+	trotListFree( lMemLimit, &copiedL );
 
 
 	/* CLEANUP */
@@ -652,6 +656,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 /******************************************************************************/
 /*!
 	\brief Makes a copy of a span in a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Index of start of span.
 	\param[in] indexEnd Index of end of span.
@@ -670,7 +675,7 @@ TROT_RC trotListDelist( TrotList *l, TROT_INT index )
 	the trot library smaller. Do we want to eliminate everything from the
 	library that can be implemented in Trot?
 */
-TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
+TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -725,7 +730,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	}
 
 	/* make our new list */
-	rc = trotListInit( &newL );
+	rc = trotListInit( lMemLimit, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -756,12 +761,12 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 		{
 			if ( node->kind == NODE_KIND_INT )
 			{
-				rc = trotListAppendInt( newL, node->n[ i ] );
+				rc = trotListAppendInt( lMemLimit, newL, node->n[ i ] );
 				ERR_IF_PASSTHROUGH;
 			}
 			else
 			{
-				rc = trotListAppendList( newL, node->l[ i ] );
+				rc = trotListAppendList( lMemLimit, newL, node->l[ i ] );
 				ERR_IF_PASSTHROUGH;
 			}
 
@@ -786,7 +791,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newL );
+	trotListFree( lMemLimit, &newL );
 
 	return rc;
 }
@@ -794,6 +799,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 /******************************************************************************/
 /*!
 	\brief Removes a span in a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Index of start of span.
 	\param[in] indexEnd Index of end of span.
@@ -804,7 +810,7 @@ TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, T
 	become:
 	[ 1 2 ]
 */
-TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListRemoveSpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -829,15 +835,15 @@ TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd 
 	}
 
 	/* enlist */
-	rc = trotListEnlist( l, indexStart, indexEnd );
+	rc = trotListEnlist( lMemLimit, l, indexStart, indexEnd );
 	ERR_IF_PASSTHROUGH;
 
 	/* remove list */
-	rc = trotListRemoveList( l, indexStart < indexEnd ? indexStart : indexEnd, &lRemoved );
+	rc = trotListRemoveList( lMemLimit, l, indexStart < indexEnd ? indexStart : indexEnd, &lRemoved );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* free removed list */
-	trotListFree( &lRemoved );
+	trotListFree( lMemLimit, &lRemoved );
 
 
 	/* CLEANUP */

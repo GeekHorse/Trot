@@ -55,19 +55,127 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC refListAdd( TrotListActual *la, TrotList *l );
-static void refListRemove( TrotListActual *la, TrotList *l );
+#define TROT_MEM_LIMIT_INDEX_LIMIT 1
+#define TROT_MEM_LIMIT_INDEX_USED  2
+
+#define TROT_MEM_LIMIT_INDEX_MAX   2
+
+/******************************************************************************/
+static TROT_RC refListAdd( TrotList *lMemLimit, TrotListActual *la, TrotList *l );
+static void refListRemove( TrotList *lMemLimit, TrotListActual *la, TrotList *l );
 
 static void isListReachable( TrotListActual *la );
 static TROT_INT findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotListActual **parent );
 
 /******************************************************************************/
 /*!
+	\brief Allocates a new list to keep track of the memory limit and memory
+		used.
+	\param[in] limit Memory limit
+	\param[out] lMemLimit_A On success, will be new memory limit list.
+	\return TROT_RC
+*/
+TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TrotList *newL = NULL;
+
+
+	/* PRECOND */
+	FAILURE_POINT;
+	ERR_IF( limit <= 0, TROT_RC_ERROR_PRECOND );
+	ERR_IF( lMemLimit_A == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( (*lMemLimit_A) != NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	rc = trotListInit( NULL, &newL );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListSetType( NULL, newL, TROT_TYPE_MEM_LIMIT );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListAppendInt( NULL, newL, limit );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListAppendInt( NULL, newL, 0 );
+	ERR_IF_PASSTHROUGH;
+
+	/* give back */
+	(*lMemLimit_A) = newL;
+	newL = NULL;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	trotListFree( NULL, &newL );
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Get memory used
+	\param[in] lMemLimit List that holds memory limit and memory used.
+	\param[out] used On success, the current memory usage.
+	\return TROT_RC
+*/
+TROT_RC trotMemLimitGetUsed( TrotList *lMemLimit, TROT_INT *used )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TROT_INT type = 0;
+
+
+	/* PRECOND */
+	FAILURE_POINT;
+	ERR_IF( lMemLimit == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( used == NULL, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	(*used) = 0;
+
+	rc = trotListGetType( NULL, lMemLimit, &type );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( type != TROT_TYPE_MEM_LIMIT, TROT_RC_ERROR_BAD_TYPE );
+
+	rc = trotListGetInt( NULL, lMemLimit, TROT_MEM_LIMIT_INDEX_USED, used );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
+
+/******************************************************************************/
+/*!
+	\brief Frees a memory limit list.
+	\param[in] lMemLimit Mem limit list to free.
+	\return void
+*/
+void trotMemLimitFree( TrotList **lMemLimit_F )
+{
+	trotListFree( NULL, lMemLimit_F );
+
+	return;
+}
+
+/******************************************************************************/
+/*!
 	\brief Allocates a new list and new reference to the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[out] l_A On success, will be new reference to a new list.
 	\return TROT_RC
 */
-TROT_RC trotListInit( TrotList **l_A )
+TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -156,7 +264,7 @@ TROT_RC trotListInit( TrotList **l_A )
 	newLa = NULL;
 
 	/* add first ref to list's ref list */
-	rc = refListAdd( newL->laPointsTo, newL );
+	rc = refListAdd( lMemLimit, newL->laPointsTo, newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
@@ -170,26 +278,26 @@ TROT_RC trotListInit( TrotList **l_A )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newRefHead );
-	TROT_HOOK_FREE( newRefTail );
-	TROT_HOOK_FREE( newHead );
-	TROT_HOOK_FREE( newTail );
+	TROT_FREE( newRefHead, 1 );
+	TROT_FREE( newRefTail, 1 );
+	TROT_FREE( newHead, 1 );
+	TROT_FREE( newTail, 1 );
 	if ( newLa != NULL )
 	{
-		TROT_HOOK_FREE( newLa->refListHead );
-		TROT_HOOK_FREE( newLa->refListTail );
-		TROT_HOOK_FREE( newLa->head );
-		TROT_HOOK_FREE( newLa->tail );
-		TROT_HOOK_FREE( newLa );
+		TROT_FREE( newLa->refListHead, 1 );
+		TROT_FREE( newLa->refListTail, 1 );
+		TROT_FREE( newLa->head, 1 );
+		TROT_FREE( newLa->tail, 1 );
+		TROT_FREE( newLa, 1 );
 	}
 	if ( newL != NULL )
 	{
-		TROT_HOOK_FREE( newL->laPointsTo->refListHead );
-		TROT_HOOK_FREE( newL->laPointsTo->refListTail );
-		TROT_HOOK_FREE( newL->laPointsTo->head );
-		TROT_HOOK_FREE( newL->laPointsTo->tail );
-		TROT_HOOK_FREE( newL->laPointsTo );
-		TROT_HOOK_FREE( newL );
+		TROT_FREE( newL->laPointsTo->refListHead, 1 );
+		TROT_FREE( newL->laPointsTo->refListTail, 1 );
+		TROT_FREE( newL->laPointsTo->head, 1 );
+		TROT_FREE( newL->laPointsTo->tail, 1 );
+		TROT_FREE( newL->laPointsTo, 1 );
+		TROT_FREE( newL, 1 );
 	}
 
 	return rc;
@@ -198,11 +306,12 @@ TROT_RC trotListInit( TrotList **l_A )
 /******************************************************************************/
 /*!
 	\brief Creates a new reference to a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l List to create a new reference to.
 	\param[out] l_A On success, new reference to the list.
 	\return TROT_RC
 */
-TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
+TROT_RC trotListTwin( TrotList *lMemLimit, TrotList *l, TrotList **l_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -223,7 +332,7 @@ TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
 	newL->laParent = NULL;
 	newL->laPointsTo = l->laPointsTo;
 
-	rc = refListAdd( newL->laPointsTo, newL );
+	rc = refListAdd( lMemLimit, newL->laPointsTo, newL );
 	ERR_IF_PASSTHROUGH;
 
 
@@ -237,7 +346,7 @@ TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newL );
+	TROT_FREE( newL, 1 );
 
 	return rc;
 }
@@ -246,12 +355,13 @@ TROT_RC trotListTwin( TrotList *l, TrotList **l_A )
 /*!
 	\brief Frees a list reference. Actual list will be freed if the list is no
 		longer reachable.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l_F Address of list reference to free.
 	\return void
 
 	l_F can be NULL, or the address of a NULL pointer, and this will be a noop.
 */
-void trotListFree( TrotList **l_F )
+void trotListFree( TrotList *lMemLimit, TrotList **l_F )
 {
 	/* DATA */
 	TrotListActual *la = NULL;
@@ -276,10 +386,10 @@ void trotListFree( TrotList **l_F )
 	la = (*l_F)->laPointsTo;
 
 	/* remove ref from list's ref list */
-	refListRemove( la, (*l_F) );
+	refListRemove( lMemLimit, la, (*l_F) );
 
 	/* free ref */
-	TROT_HOOK_FREE( (*l_F) );
+	TROT_FREE( (*l_F), 1 );
 	(*l_F) = NULL;
 
 	/* is list reachable? */
@@ -301,7 +411,7 @@ void trotListFree( TrotList **l_F )
 		{
 			if ( node->kind == NODE_KIND_INT )
 			{
-				TROT_HOOK_FREE( node->n );
+				TROT_FREE( node->n, TROT_NODE_SIZE );
 			}
 			else /* NODE_KIND_LIST */
 			{
@@ -309,9 +419,9 @@ void trotListFree( TrotList **l_F )
 				{
 					laTemp = node->l[ j ]->laPointsTo;
 			
-					refListRemove( laTemp, node->l[ j ] );
+					refListRemove( lMemLimit, laTemp, node->l[ j ] );
 
-					TROT_HOOK_FREE( node->l[ j ] );
+					TROT_FREE( node->l[ j ], 1 );
 					node->l[ j ] = NULL;
 
 					if ( laTemp->reachable == 1 )
@@ -326,11 +436,11 @@ void trotListFree( TrotList **l_F )
 					}
 				}
 
-				TROT_HOOK_FREE( node->l );
+				TROT_FREE( node->l, TROT_NODE_SIZE );
 			}
 
 			node = node->next;
-			TROT_HOOK_FREE( node->prev );
+			TROT_FREE( node->prev, 1 );
 		}
 
 		laCurrent = laCurrent->nextToFree;
@@ -347,11 +457,11 @@ void trotListFree( TrotList **l_F )
 		laNext = laNext->nextToFree;
 
 		/* *** */
-		TROT_HOOK_FREE( laCurrent->head );
-		TROT_HOOK_FREE( laCurrent->tail );
-		TROT_HOOK_FREE( laCurrent->refListHead );
-		TROT_HOOK_FREE( laCurrent->refListTail );
-		TROT_HOOK_FREE( laCurrent );
+		TROT_FREE( laCurrent->head, 1 );
+		TROT_FREE( laCurrent->tail, 1 );
+		TROT_FREE( laCurrent->refListHead, 1 );
+		TROT_FREE( laCurrent->refListTail, 1 );
+		TROT_FREE( laCurrent, 1 );
 	}
 
 	return;
@@ -360,13 +470,14 @@ void trotListFree( TrotList **l_F )
 /******************************************************************************/
 /*!
 	\brief Compares list references to see if they point to the same list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l1 First reference.
 	\param[in] l2 Second reference.
 	\param[out] isSame 0 if refs point to different lists, 1 if they point to
 		the same lists.
 	\return TROT_RC
 */
-TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame )
+TROT_RC trotListRefCompare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, TROT_INT *isSame )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -380,6 +491,8 @@ TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	(*isSame) = 0;
 
 	if ( l1->laPointsTo == l2->laPointsTo )
@@ -397,11 +510,12 @@ TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame )
 /******************************************************************************/
 /*!
 	\brief Gets the count of items in the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l Pointer to a TrotList pointer.
 	\param[out] count On success, will contain the count of this list.
 	\return TROT_RC
 */
-TROT_RC trotListGetCount( TrotList *l, TROT_INT *count )
+TROT_RC trotListGetCount( TrotList *lMemLimit, TrotList *l, TROT_INT *count )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -413,6 +527,8 @@ TROT_RC trotListGetCount( TrotList *l, TROT_INT *count )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	(*count) = l->laPointsTo->childrenCount;
 
 	PARANOID_ERR_IF( (*count) > TROT_MAX_CHILDREN );
@@ -427,12 +543,13 @@ TROT_RC trotListGetCount( TrotList *l, TROT_INT *count )
 /******************************************************************************/
 /*!
 	\brief Gets the kind of an item in the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Index of the item in the list to ge the kind of.
 	\param[out] kind On success, will contain the kind of the item.
 	\return TROT_RC
 */
-TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind )
+TROT_RC trotListGetKind( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *kind )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -451,6 +568,8 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	la = l->laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
@@ -492,11 +611,12 @@ TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind )
 /******************************************************************************/
 /*!
 	\brief Appends an int to the end of the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] n The int to append.
 	\return TROT_RC
 */
-TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
+TROT_RC trotListAppendInt( TrotList *lMemLimit, TrotList *l, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -527,7 +647,7 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 	     || node->count == TROT_NODE_SIZE    /* last node is full */
 	   )
 	{
-		rc = newIntNode( &newNode );
+		rc = newIntNode( lMemLimit, &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		newNode->next = la->tail;
@@ -558,11 +678,12 @@ TROT_RC trotListAppendInt( TrotList *l, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Appends a list to the end of the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list to append to.
 	\param[in] lToAppend The list to append.
 	\return TROT_RC
 */
-TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
+TROT_RC trotListAppendList( TrotList *lMemLimit, TrotList *l, TrotList *lToAppend )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -596,7 +717,7 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 	     || node->count == TROT_NODE_SIZE     /* last node is full */
 	   )
 	{
-		rc = newListNode( &newNode );
+		rc = newListNode( lMemLimit, &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		newNode->next = la->tail;
@@ -610,7 +731,7 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 	}
 
 	/* append */
-	rc = trotListTwin( lToAppend, &newL );
+	rc = trotListTwin( lMemLimit, lToAppend, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	node->l[ node->count ] = newL;
@@ -627,7 +748,7 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newL );
+	trotListFree( lMemLimit, &newL );
 
 	return rc;
 }
@@ -635,12 +756,13 @@ TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend )
 /******************************************************************************/
 /*!
 	\brief Inserts an int into the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list to insert into.
 	\param[in] index Where to insert.
 	\param[in] n The int to insert.
 	\return TROT_RC
 */
-TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
+TROT_RC trotListInsertInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -678,7 +800,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 	   list. And two, if they want to add to an empty list. */
 	if ( index == (la->childrenCount) + 1 )
 	{
-		rc = trotListAppendInt( l, n );
+		rc = trotListAppendInt( lMemLimit, l, n );
 		ERR_IF_PASSTHROUGH;
 
 		return TROT_RC_SUCCESS;
@@ -709,7 +831,7 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 		/* If node is full */
 		if ( node->count == TROT_NODE_SIZE )
 		{
-			rc = trotListNodeSplit( node, TROT_NODE_SIZE / 2 );
+			rc = trotListNodeSplit( lMemLimit, node, TROT_NODE_SIZE / 2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
@@ -761,20 +883,20 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 
 			la->childrenCount += 1;
 
-			return TROT_RC_SUCCESS;
+			return TROT_RC_SUCCESS; /* TODO: we need to get rid of early returns */
 		}
 
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = trotListNodeSplit( node, i );
+			rc = trotListNodeSplit( lMemLimit, node, i );
 			ERR_IF_PASSTHROUGH;
 
 			node = node->next;
 		}
 
 		/* *** */
-		rc = newIntNode( &newNode ); /* FUTURE: newNode functions may be able to also place themselves in the list too, to consolidate some code */
+		rc = newIntNode( lMemLimit, &newNode ); /* FUTURE: newNode functions may be able to also place the new node in the list too, to consolidate some code */
 		ERR_IF_PASSTHROUGH;
 
 		newNode->n[ 0 ] = n;
@@ -802,12 +924,13 @@ TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Inserts a list into the list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list to insert into.
 	\param[in] index Where to insert.
 	\param[in] lToInsert The list to insert.
 	\return TROT_RC
 */
-TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
+TROT_RC trotListInsertList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -848,7 +971,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 	   list. And two, if they want to add to an empty list. */
 	if ( index == (la->childrenCount) + 1 )
 	{
-		rc = trotListAppendList( l, lToInsert );
+		rc = trotListAppendList( lMemLimit, l, lToInsert );
 		ERR_IF_PASSTHROUGH;
 
 		return TROT_RC_SUCCESS;
@@ -879,7 +1002,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 		/* If node is full */
 		if ( node->count == TROT_NODE_SIZE )
 		{
-			rc = trotListNodeSplit( node, TROT_NODE_SIZE / 2 );
+			rc = trotListNodeSplit( lMemLimit, node, TROT_NODE_SIZE / 2 );
 			ERR_IF_PASSTHROUGH;
 
 			/* Since node has been split, we may need to go to next
@@ -896,7 +1019,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 		   (count + 1) is the beginning index of the node */
 
 		/* *** */
-		rc = trotListTwin( lToInsert, &newL );
+		rc = trotListTwin( lMemLimit, lToInsert, &newL );
 		ERR_IF_PASSTHROUGH;
 
 		/* Now let's move any lists over to make room */
@@ -934,7 +1057,7 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 			node = node->prev;
 
 			/* Insert list into node */
-			rc = trotListTwin( lToInsert, &newL );
+			rc = trotListTwin( lMemLimit, lToInsert, &newL );
 			ERR_IF_PASSTHROUGH;
 
 			node->l[ node->count ] = newL;
@@ -951,18 +1074,18 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 		/* if not at beginning, we'll have to split the node */
 		if ( i != 0 )
 		{
-			rc = trotListNodeSplit( node, i );
+			rc = trotListNodeSplit( lMemLimit, node, i );
 			ERR_IF_PASSTHROUGH;
 
 			node = node->next;
 		}
 
 		/* *** */
-		rc = newListNode( &newNode );
+		rc = newListNode( lMemLimit, &newNode );
 		ERR_IF_PASSTHROUGH;
 
 		/* *** */
-		rc = trotListTwin( lToInsert, &newL );
+		rc = trotListTwin( lMemLimit, lToInsert, &newL );
 		ERR_IF_PASSTHROUGH;
 
 		/* Insert node into list */ /* FUTURE: inserting a node into a list should be a function */
@@ -987,12 +1110,12 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newL );
+	trotListFree( lMemLimit, &newL );
 
 	if ( newNode != NULL )
 	{
-		TROT_HOOK_FREE( newNode->l );
-		TROT_HOOK_FREE( newNode );
+		TROT_FREE( newNode->l, TROT_NODE_SIZE );
+		TROT_FREE( newNode, 1 );
 	}
 
 	return rc;
@@ -1001,12 +1124,13 @@ TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert )
 /******************************************************************************/
 /*!
 	\brief Get int at index in list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which int to get.
 	\param[out] n On success, the int that was at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
+TROT_RC trotListGetInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1025,6 +1149,8 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	la = l->laPointsTo;
 
 	/* Turn negative index into positive equivalent. */
@@ -1069,12 +1195,13 @@ TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets list at index in list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which list to get.
 	\param[out] lTwin_A On success, the list that was at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
+TROT_RC trotListGetList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList **lTwin_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1121,7 +1248,7 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 
 	ERR_IF_1( node->kind != NODE_KIND_LIST, TROT_RC_ERROR_WRONG_KIND, node->kind );
 
-	rc = trotListTwin( node->l[ (node->count) - 1 - (count - index) ], &newL );
+	rc = trotListTwin( lMemLimit, node->l[ (node->count) - 1 - (count - index) ], &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* give back */
@@ -1140,12 +1267,13 @@ TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A )
 /******************************************************************************/
 /*!
 	\brief Gets and removes int in list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which int to get and remove.
 	\param[out] n On success, the int that was at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
+TROT_RC trotListRemoveInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1166,6 +1294,8 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
@@ -1208,8 +1338,8 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		TROT_HOOK_FREE( node->n );
-		TROT_HOOK_FREE( node );
+		TROT_FREE( node->n, TROT_NODE_SIZE );
+		TROT_FREE( node, 1 );
 	}
 
 	/* give back */
@@ -1227,12 +1357,13 @@ TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n )
 /******************************************************************************/
 /*!
 	\brief Gets and removes list in list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which list to get.
 	\param[out] lRemoved_A On success, list that was at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
+TROT_RC trotListRemoveList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1254,6 +1385,8 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	/* Turn negative index into positive equivalent. */
 	if ( index < 0 )
 	{
@@ -1298,8 +1431,8 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
 
-		TROT_HOOK_FREE( node->l );
-		TROT_HOOK_FREE( node );
+		TROT_FREE( node->l, TROT_NODE_SIZE );
+		TROT_FREE( node, 1 );
 	}
 
 	/* give back */
@@ -1317,11 +1450,12 @@ TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A )
 /******************************************************************************/
 /*!
 	\brief Removes whatever is at index in list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index What to remove.
 	\return TROT_RC
 */
-TROT_RC trotListRemove( TrotList *l, TROT_INT index )
+TROT_RC trotListRemove( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1379,7 +1513,7 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 	{
 		tempL = node->l[ i ];
 		tempL->laParent = NULL;
-		trotListFree( &tempL );
+		trotListFree( lMemLimit, &tempL );
 		while ( i < ( (node->count) - 1 ) )
 		{
 			node->l[ i ] = node->l[ i + 1 ];
@@ -1398,13 +1532,13 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 
 		if ( node->kind == NODE_KIND_INT )
 		{
-			TROT_HOOK_FREE( node->n );
+			TROT_FREE( node->n, TROT_NODE_SIZE );
 		}
 		else
 		{
-			TROT_HOOK_FREE( node->l );
+			TROT_FREE( node->l, TROT_NODE_SIZE );
 		}
-		TROT_HOOK_FREE( node );
+		TROT_FREE( node, 1 );
 	}
 
 	return TROT_RC_SUCCESS;
@@ -1419,12 +1553,13 @@ TROT_RC trotListRemove( TrotList *l, TROT_INT index )
 /******************************************************************************/
 /*!
 	\brief Replaces whatever is at index in l with an int.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which item to replace.
 	\param[in] n The int to put at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
+TROT_RC trotListReplaceWithInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1508,7 +1643,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			else
 			{
 				/* *** */
-				rc = newIntNode( &newNode );
+				rc = newIntNode( lMemLimit, &newNode );
 				ERR_IF_PASSTHROUGH;
 
 				newNode->n[ 0 ] = n;
@@ -1546,7 +1681,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			else
 			{
 				/* *** */
-				rc = newIntNode( &newNode );
+				rc = newIntNode( lMemLimit, &newNode );
 				ERR_IF_PASSTHROUGH;
 
 				newNode->n[ 0 ] = n;
@@ -1563,11 +1698,11 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 		/* we'll have to split the node */
 		else
 		{
-			rc = trotListNodeSplit( node, i + 1 );
+			rc = trotListNodeSplit( lMemLimit, node, i + 1 );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
-			rc = newIntNode( &newNode );
+			rc = newIntNode( lMemLimit, &newNode );
 			ERR_IF_PASSTHROUGH;
 
 			newNode->n[ 0 ] = n;
@@ -1584,7 +1719,7 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 		/* we've put in our int, now we need to remove a list */
 		tempL = node->l[ i ];
 		tempL->laParent = NULL;
-		trotListFree( &tempL );
+		trotListFree( lMemLimit, &tempL );
 		while ( i < ( (node->count) - 1 ) )
 		{
 			node->l[ i ] = node->l[ i + 1 ];
@@ -1598,8 +1733,8 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
 
-			TROT_HOOK_FREE( node->l );
-			TROT_HOOK_FREE( node );
+			TROT_FREE( node->l, TROT_NODE_SIZE );
+			TROT_FREE( node, 1 );
 		}
 	}
 
@@ -1613,12 +1748,13 @@ TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n )
 /******************************************************************************/
 /*!
 	\brief Replaces whatever is at index in l with a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Which item to replace.
 	\param[in[ lToInsert The list to put at index in l.
 	\return TROT_RC
 */
-TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert )
+TROT_RC trotListReplaceWithList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList *lToInsert )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1674,7 +1810,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	}
 
 	/* create our new twin */
-	rc = trotListTwin( lToInsert, &newL );
+	rc = trotListTwin( lMemLimit, lToInsert, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -1685,7 +1821,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 		/* free old */
 		tempL = node->l[ i ];
 		tempL->laParent = NULL;
-		trotListFree( &tempL );
+		trotListFree( lMemLimit, &tempL );
 
 		/* replace with new */
 		node->l[ i ] = newL;
@@ -1715,7 +1851,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			else
 			{
 				/* *** */
-				rc = newListNode( &newNode );
+				rc = newListNode( lMemLimit, &newNode );
 				ERR_IF_PASSTHROUGH;
 
 				newNode->l[ 0 ] = newL;
@@ -1758,7 +1894,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			else
 			{
 				/* *** */
-				rc = newListNode( &newNode );
+				rc = newListNode( lMemLimit, &newNode );
 				ERR_IF_PASSTHROUGH;
 
 				newNode->l[ 0 ] = newL;
@@ -1778,11 +1914,11 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 		/* we'll have to split the node */
 		else
 		{
-			rc = trotListNodeSplit( node, i + 1 );
+			rc = trotListNodeSplit( lMemLimit, node, i + 1 );
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
-			rc = newListNode( &newNode );
+			rc = newListNode( lMemLimit, &newNode );
 			ERR_IF_PASSTHROUGH;
 
 			newNode->l[ 0 ] = newL;
@@ -1812,8 +1948,8 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
 
-			TROT_HOOK_FREE( node->n );
-			TROT_HOOK_FREE( node );
+			TROT_FREE( node->n, TROT_NODE_SIZE );
+			TROT_FREE( node, 1 );
 		}
 	}
 
@@ -1821,7 +1957,7 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( &newL );
+	trotListFree( lMemLimit, &newL );
 
 	return rc;
 }
@@ -1829,11 +1965,12 @@ TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInser
 /******************************************************************************/
 /*!
 	\brief Gets type of list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[out] type The type of the list.
 	\return TROT_RC
 */
-TROT_RC trotListGetType( TrotList *l, TROT_INT *type )
+TROT_RC trotListGetType( TrotList *lMemLimit, TrotList *l, TROT_INT *type )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1846,6 +1983,8 @@ TROT_RC trotListGetType( TrotList *l, TROT_INT *type )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	(*type) = l->laPointsTo->type;
 
 
@@ -1858,11 +1997,12 @@ TROT_RC trotListGetType( TrotList *l, TROT_INT *type )
 /******************************************************************************/
 /*!
 	\brief Sets type of list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] tag Type value to set.
 	\return TROT_RC
 */
-TROT_RC trotListSetType( TrotList *l, TROT_INT type )
+TROT_RC trotListSetType( TrotList *lMemLimit, TrotList *l, TROT_INT type )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1874,8 +2014,7 @@ TROT_RC trotListSetType( TrotList *l, TROT_INT type )
 
 
 	/* CODE */
-	/* TODO: do we need to check this? users should be able to create new types */
-	ERR_IF_1( type < TROT_TYPE_MIN || type > TROT_TYPE_MAX, TROT_RC_ERROR_BAD_TYPE, type );
+	(void)lMemLimit;
 
 	l->laPointsTo->type = type;
 
@@ -1889,11 +2028,12 @@ TROT_RC trotListSetType( TrotList *l, TROT_INT type )
 /******************************************************************************/
 /*!
 	\brief Gets tag of list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[out] tag The tag of the list.
 	\return TROT_RC
 */
-TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
+TROT_RC trotListGetTag( TrotList *lMemLimit, TrotList *l, TROT_INT *tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1906,6 +2046,8 @@ TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	(*tag) = l->laPointsTo->tag;
 
 
@@ -1918,11 +2060,12 @@ TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag )
 /******************************************************************************/
 /*!
 	\brief Sets the tag of a list.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] l The list.
 	\param[in] tag The tag value to set.
 	\return TROT_RC
 */
-TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
+TROT_RC trotListSetTag( TrotList *lMemLimit, TrotList *l, TROT_INT tag )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1934,6 +2077,8 @@ TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
 
 
 	/* CODE */
+	(void)lMemLimit;
+
 	l->laPointsTo->tag = tag;
 
 
@@ -1947,11 +2092,12 @@ TROT_RC trotListSetTag( TrotList *l, TROT_INT tag )
 /*!
 	\brief Splits a node, leaving keepInLeft into the left/prev node, and
 		moving the rest into the new right/next node.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[in] n Node to split.
 	\param[in] keepInLeft How many items to keep in n.
 	\return TROT_RC
 */
-TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
+TROT_RC trotListNodeSplit( TrotList *lMemLimit, TrotListNode *n, TROT_INT keepInLeft )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2018,7 +2164,7 @@ TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newNode );
+	TROT_FREE( newNode, 1 );
 
 	return rc;
 }
@@ -2026,10 +2172,11 @@ TROT_RC trotListNodeSplit( TrotListNode *n, TROT_INT keepInLeft )
 /******************************************************************************/
 /*!
 	\brief Creates a new TrotListNode for Int.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[out] n_A On success, the new node.
 	\return TROT_RC
 */
-TROT_RC newIntNode( TrotListNode **n_A )
+TROT_RC newIntNode( TrotList *lMemLimit, TrotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2061,7 +2208,7 @@ TROT_RC newIntNode( TrotListNode **n_A )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newNode );
+	TROT_FREE( newNode, 1 );
 
 	return rc;
 }
@@ -2069,10 +2216,11 @@ TROT_RC newIntNode( TrotListNode **n_A )
 /******************************************************************************/
 /*!
 	\brief Creates a new TrotListNode for List.
+	\param[in] lMemLimit List that maintains memory limit
 	\param[out] n_A On success, the new node.
 	\return TROT_RC
 */
-TROT_RC newListNode( TrotListNode **n_A )
+TROT_RC newListNode( TrotList *lMemLimit, TrotListNode **n_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2104,13 +2252,13 @@ TROT_RC newListNode( TrotListNode **n_A )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newNode );
+	TROT_FREE( newNode, 1 );
 
 	return rc;
 }
 
 /******************************************************************************/
-static TROT_RC refListAdd( TrotListActual *la, TrotList *l )
+static TROT_RC refListAdd( TrotList *lMemLimit, TrotListActual *la, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2160,13 +2308,13 @@ static TROT_RC refListAdd( TrotListActual *la, TrotList *l )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_HOOK_FREE( newRefNode );
+	TROT_FREE( newRefNode, 1 );
 
 	return rc;
 }
 
 /******************************************************************************/
-static void refListRemove( TrotListActual *la, TrotList *l )
+static void refListRemove( TrotList *lMemLimit, TrotListActual *la, TrotList *l )
 {
 	/* DATA */
 	TrotListRefListNode *refNode = NULL;
@@ -2209,8 +2357,8 @@ static void refListRemove( TrotListActual *la, TrotList *l )
 					refNode->prev->next = refNode->next;
 					refNode->next->prev = refNode->prev;
 
-					TROT_HOOK_FREE( refNode->l );
-					TROT_HOOK_FREE( refNode );
+					TROT_FREE( refNode->l, TROT_NODE_SIZE );
+					TROT_FREE( refNode, 1 );
 				}
 
 				return;
@@ -2369,6 +2517,63 @@ static TROT_INT findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotL
 }
 
 /******************************************************************************/
+TROT_RC trotMemLimitAdd( TrotList *lMemLimit, TROT_INT update )
+{
+	TrotListNode *node = NULL;
+
+	TROT_INT old = 0;
+
+	if ( lMemLimit == NULL )
+	{
+		return TROT_RC_SUCCESS;
+	}
+
+	node = lMemLimit->laPointsTo->tail->prev;
+
+	PARANOID_ERR_IF( lMemLimit->laPointsTo->type != TROT_TYPE_MEM_LIMIT );
+	PARANOID_ERR_IF( lMemLimit->laPointsTo->childrenCount != TROT_MEM_LIMIT_INDEX_MAX );
+	PARANOID_ERR_IF( node->kind != NODE_KIND_INT );
+	PARANOID_ERR_IF( node->count != TROT_MEM_LIMIT_INDEX_MAX );
+	PARANOID_ERR_IF( node->n == NULL );
+
+	old = node->n[ TROT_MEM_LIMIT_INDEX_USED - 1 ];
+
+	if (    ( old + update ) > node->n[ TROT_MEM_LIMIT_INDEX_LIMIT - 1 ]
+	     || ( old + update ) < 0
+	   )
+	{
+		return TROT_RC_ERROR_MEM_LIMIT;
+	}
+
+	node->n[ TROT_MEM_LIMIT_INDEX_USED - 1 ] += update;
+
+	return TROT_RC_SUCCESS;
+}
+
+/******************************************************************************/
+void trotMemLimitSub( TrotList *lMemLimit, TROT_INT update )
+{
+	TrotListNode *node = NULL;
+
+	if ( lMemLimit == NULL )
+	{
+		return;
+	}
+
+	node = lMemLimit->laPointsTo->tail->prev;
+
+	PARANOID_ERR_IF( lMemLimit->laPointsTo->type != TROT_TYPE_MEM_LIMIT );
+	PARANOID_ERR_IF( lMemLimit->laPointsTo->childrenCount != TROT_MEM_LIMIT_INDEX_MAX );
+	PARANOID_ERR_IF( node->kind != NODE_KIND_INT );
+	PARANOID_ERR_IF( node->count != TROT_MEM_LIMIT_INDEX_MAX );
+	PARANOID_ERR_IF( node->n == NULL );
+
+	node->n[ TROT_MEM_LIMIT_INDEX_USED - 1 ] -= update;
+
+	PARANOID_ERR_IF( node->n[ TROT_MEM_LIMIT_INDEX_USED - 1 ] < 0 );
+}
+
+/******************************************************************************/
 /*!
 	\brief Provides a const char string representation for a TROT_RC
 	\param[in] rc A TROT_RC value.
@@ -2392,7 +2597,8 @@ const char *trotRCToString( TROT_RC rc )
 		"Bad Type Error",
 		"Divide By Zero Error",
 		"Unicode Error",
-		"Decode Error"
+		"Decode Error",
+		"Mem Limit Error"
 	};
 
 	static const char *_rcUnknown = "Unknown Error";

@@ -80,10 +80,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_ERROR_DIVIDE_BY_ZERO 2006
 #define TROT_RC_ERROR_UNICODE        2007
 #define TROT_RC_ERROR_DECODE         2008
+#define TROT_RC_ERROR_MEM_LIMIT      2009
 
 /* These must be kept in sync with the above defines */
 #define TROT_RC_TROT_ERRORS_MIN     2001
-#define TROT_RC_TROT_ERRORS_MAX     2008
+#define TROT_RC_TROT_ERRORS_MAX     2009
 
 /******************************************************************************/
 #define TROT_KIND_INT 1
@@ -93,10 +94,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_TYPE_DATA 0
 #define TROT_TYPE_TEXT 1
 #define TROT_TYPE_CODE 2
+#define TROT_TYPE_MEM_LIMIT 3
 /* FUTURE: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
 #define TROT_TYPE_MIN 0
-#define TROT_TYPE_MAX 2
+#define TROT_TYPE_MAX 3
 
 /******************************************************************************/
 #define TROT_INT_SIZE 4 /* TODO: do we even need this? We may want to just
@@ -131,66 +133,70 @@ typedef struct TrotList_STRUCT TrotList;
 
 /******************************************************************************/
 /* trotListPrimary.c */
-TROT_RC trotListInit( TrotList **l_A );
-TROT_RC trotListTwin( TrotList *l, TrotList **lTwin_A );
-void trotListFree( TrotList **l_F );
+TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A );
+TROT_RC trotMemLimitGetUsed( TrotList *lMemLimit, TROT_INT *used );
+void trotMemLimitFree( TrotList **lMemLimit_F );
 
-TROT_RC trotListRefCompare( TrotList *l1, TrotList *l2, TROT_INT *isSame );
+TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A );
+TROT_RC trotListTwin( TrotList *lMemLimit, TrotList *l, TrotList **lTwin_A );
+void trotListFree( TrotList *lMemLimit, TrotList **l_F );
 
-TROT_RC trotListGetCount( TrotList *l, TROT_INT *count );
+TROT_RC trotListRefCompare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, TROT_INT *isSame );
 
-TROT_RC trotListGetKind( TrotList *l, TROT_INT index, TROT_INT *kind );
+TROT_RC trotListGetCount( TrotList *lMemLimit, TrotList *l, TROT_INT *count );
 
-TROT_RC trotListAppendInt( TrotList *l, TROT_INT n );
-TROT_RC trotListAppendList( TrotList *l, TrotList *lToAppend );
+TROT_RC trotListGetKind( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *kind );
 
-TROT_RC trotListInsertInt( TrotList *l, TROT_INT index, TROT_INT n );
-TROT_RC trotListInsertList( TrotList *l, TROT_INT index, TrotList *lToInsert );
+TROT_RC trotListAppendInt( TrotList *lMemLimit, TrotList *l, TROT_INT n );
+TROT_RC trotListAppendList( TrotList *lMemLimit, TrotList *l, TrotList *lToAppend );
 
-TROT_RC trotListGetInt( TrotList *l, TROT_INT index, TROT_INT *n );
-TROT_RC trotListGetList( TrotList *l, TROT_INT index, TrotList **lTwin_A );
+TROT_RC trotListInsertInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT n );
+TROT_RC trotListInsertList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList *lToInsert );
 
-TROT_RC trotListRemoveInt( TrotList *l, TROT_INT index, TROT_INT *n );
-TROT_RC trotListRemoveList( TrotList *l, TROT_INT index, TrotList **lRemoved_A );
-TROT_RC trotListRemove( TrotList *l, TROT_INT index );
+TROT_RC trotListGetInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *n );
+TROT_RC trotListGetList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList **lTwin_A );
 
-TROT_RC trotListReplaceWithInt( TrotList *l, TROT_INT index, TROT_INT n );
-TROT_RC trotListReplaceWithList( TrotList *l, TROT_INT index, TrotList *lToInsert );
+TROT_RC trotListRemoveInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT *n );
+TROT_RC trotListRemoveList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList **lRemoved_A );
+TROT_RC trotListRemove( TrotList *lMemLimit, TrotList *l, TROT_INT index );
 
-TROT_RC trotListGetType( TrotList *l, TROT_INT *type );
-TROT_RC trotListSetType( TrotList *l, TROT_INT type );
+TROT_RC trotListReplaceWithInt( TrotList *lMemLimit, TrotList *l, TROT_INT index, TROT_INT n );
+TROT_RC trotListReplaceWithList( TrotList *lMemLimit, TrotList *l, TROT_INT index, TrotList *lToInsert );
 
-TROT_RC trotListGetTag( TrotList *l, TROT_INT *tag );
-TROT_RC trotListSetTag( TrotList *l, TROT_INT tag );
+TROT_RC trotListGetType( TrotList *lMemLimit, TrotList *l, TROT_INT *type );
+TROT_RC trotListSetType( TrotList *lMemLimit, TrotList *l, TROT_INT type );
+
+TROT_RC trotListGetTag( TrotList *lMemLimit, TrotList *l, TROT_INT *tag );
+TROT_RC trotListSetTag( TrotList *lMemLimit, TrotList *l, TROT_INT tag );
 
 const char *trotRCToString( TROT_RC rc );
 
 /******************************************************************************/
 /* trotListSecondary.c */
-TROT_RC trotListCompare( TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
+TROT_RC trotListCompare( TrotList *lMemLimit, TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
 
 /* FUTURE: rename this so people know it's only 1 level copying? */
-TROT_RC trotListCopy( TrotList *l, TrotList **lCopy_A );
+TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A );
 
-TROT_RC trotListEnlist( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
-TROT_RC trotListDelist( TrotList *l, TROT_INT index );
+TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
+TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index );
 
-TROT_RC trotListCopySpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A );
-TROT_RC trotListRemoveSpan( TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
+TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A );
+TROT_RC trotListRemoveSpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
 
 /******************************************************************************/
 /* trotUnicode.c */
-TROT_RC trotUtf8ToCharacters( TrotList *lBytes, TrotList *lCharacters );
-TROT_RC trotCharactersToUtf8( TrotList *lCharacters, TrotList *lBytes );
+TROT_RC trotUtf8ToCharacters( TrotList *lMemLimit, TrotList *lBytes, TrotList *lCharacters );
+TROT_RC trotCharactersToUtf8( TrotList *lMemLimit, TrotList *lCharacters, TrotList *lBytes );
 s32 trotUnicodeIsWhitespace( TROT_INT character );
 
 /******************************************************************************/
 /* trotDecoding.c */
-TROT_RC trotDecode( TrotList *lCharacters, TrotList **lDecodedList_A );
+TROT_RC trotDecode( TrotList *lMemLimit, TrotList *lCharacters, TrotList **lDecodedList_A );
 
 /******************************************************************************/
 /* trotDecoding.c */
-TROT_RC trotEncode( TrotList *listToEncode, TrotList **lCharacters_A );
+TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCharacters_A );
 
 /******************************************************************************/
 #endif

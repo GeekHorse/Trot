@@ -47,7 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( TrotList **, int ) =
+static int (*createFunctions[])( TrotList *, TrotList **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -60,14 +60,14 @@ static int (*createFunctions[])( TrotList **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
-static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testPrepend( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAppend( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddToMiddle( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
+static int testAddAtOddIndices( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices );
 
-static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndices );
+static int testReplace( TrotList *lMemLimit, TrotList *l, int intsOrLists, int positiveOrNegativeIndices );
 
-static int (*testFunctions[])( TrotList *, int, int, int ) = 
+static int (*testFunctions[])( TrotList *, TrotList *, int, int, int ) = 
 	{
 		testPrepend,
 		testAppend,
@@ -77,7 +77,7 @@ static int (*testFunctions[])( TrotList *, int, int, int ) =
 	};
 
 /******************************************************************************/
-int testPrimaryFunctionality()
+int testPrimaryFunctionality( TrotList *lMemLimit )
 {
 	/* DATA */
 	int rc = 0;
@@ -102,37 +102,37 @@ int testPrimaryFunctionality()
 
 	/* test refCompare */
 	printf( "  Testing refCompare...\n" ); fflush( stdout );
-	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListTwin( l, &l1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListInit( &l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListTwin( lMemLimit, l, &l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &l2 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListRefCompare( l, l, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefCompare( lMemLimit, l, l, &isSame ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( isSame != 1 );
-	TEST_ERR_IF( trotListRefCompare( l, l1, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefCompare( lMemLimit, l, l1, &isSame ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( isSame != 1 );
-	TEST_ERR_IF( trotListRefCompare( l1, l2, &isSame ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRefCompare( lMemLimit, l1, l2, &isSame ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( isSame != 0 );
 
-	trotListFree( &l );
-	trotListFree( &l1 );
-	trotListFree( &l2 );
+	trotListFree( lMemLimit, &l );
+	trotListFree( lMemLimit, &l1 );
+	trotListFree( lMemLimit, &l2 );
 
 	/* test tags */
 	printf( "  Testing tags...\n" ); fflush( stdout );
-	TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( lMemLimit, &l ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetType( l, &type ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( lMemLimit, l, &type ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type != 0 );
-	TEST_ERR_IF( trotListSetType( l, 1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetType( l, &type ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetType( lMemLimit, l, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( lMemLimit, l, &type ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type != 1 );
 
-	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( lMemLimit, l, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != 0 );
-	TEST_ERR_IF( trotListSetTag( l, 60 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( l, &tag ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( lMemLimit, l, 60 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( lMemLimit, l, &tag ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag != 60 );
-	trotListFree( &l );
+	trotListFree( lMemLimit, &l );
 
 	/* test TROT_MAX_CHILDREN */
 	printf( "  Testing TROT_MAX_CHILDREN...\n" ); fflush( stdout );
@@ -149,22 +149,22 @@ int testPrimaryFunctionality()
 	}
 	else
 	{
-		TEST_ERR_IF( trotListInit( &l ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( lMemLimit, &l ) != TROT_RC_SUCCESS );
 		index = 1;
 		while ( index <= TROT_MAX_CHILDREN )
 		{
-			TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, l, 1 ) != TROT_RC_SUCCESS );
 
 			/* increment */
 			index += 1;
 		}
 
-		TEST_ERR_IF( trotListAppendInt( l, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
-		TEST_ERR_IF( trotListAppendList( l, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
-		TEST_ERR_IF( trotListInsertInt( l, 1, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
-		TEST_ERR_IF( trotListInsertList( l, 1, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListAppendInt( lMemLimit, l, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListAppendList( lMemLimit, l, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListInsertInt( lMemLimit, l, 1, 1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+		TEST_ERR_IF( trotListInsertList( lMemLimit, l, 1, l ) != TROT_RC_ERROR_LIST_OVERFLOW );
 
-		trotListFree( &l );
+		trotListFree( lMemLimit, &l );
 	}
 
 	/* *** */
@@ -185,38 +185,38 @@ int testPrimaryFunctionality()
 				printf( "." ); fflush( stdout );
 
 				/* test adding ints */
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_INTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_INTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
 				/* test adding lists */
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_POSITIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_LISTS, TEST_REMOVE_SPECIFIC_KIND, TEST_NEGATIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_POSITIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
-				TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-				TEST_ERR_IF( testFunctions[ j ]( l, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
-				trotListFree( &l );
+				TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, l, TEST_ADDING_LISTS, TEST_REMOVE_GENERIC, TEST_NEGATIVE_INDICES ) != 0 );
+				trotListFree( lMemLimit, &l );
 
 				j += 1;
 			}
@@ -224,25 +224,25 @@ int testPrimaryFunctionality()
 			/* replace is different, we don't care about removing. so we just call it here instead */
 			printf( "." ); fflush( stdout );
 
-			TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-			TEST_ERR_IF( testReplace( l, TEST_ADDING_INTS, TEST_POSITIVE_INDICES ) != 0 );
+			TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+			TEST_ERR_IF( testReplace( lMemLimit, l, TEST_ADDING_INTS, TEST_POSITIVE_INDICES ) != 0 );
 
-			trotListFree( &l );
+			trotListFree( lMemLimit, &l );
 
-			TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-			TEST_ERR_IF( testReplace( l, TEST_ADDING_INTS, TEST_NEGATIVE_INDICES ) != 0 );
+			TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+			TEST_ERR_IF( testReplace( lMemLimit, l, TEST_ADDING_INTS, TEST_NEGATIVE_INDICES ) != 0 );
 
-			trotListFree( &l );
+			trotListFree( lMemLimit, &l );
 
-			TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-			TEST_ERR_IF( testReplace( l, TEST_ADDING_LISTS, TEST_POSITIVE_INDICES ) != 0 );
+			TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+			TEST_ERR_IF( testReplace( lMemLimit, l, TEST_ADDING_LISTS, TEST_POSITIVE_INDICES ) != 0 );
 
-			trotListFree( &l );
+			trotListFree( lMemLimit, &l );
 
-			TEST_ERR_IF( createFunctions[ i ]( &l, count ) != 0 );
-			TEST_ERR_IF( testReplace( l, TEST_ADDING_LISTS, TEST_NEGATIVE_INDICES ) != 0 );
+			TEST_ERR_IF( createFunctions[ i ]( lMemLimit, &l, count ) != 0 );
+			TEST_ERR_IF( testReplace( lMemLimit, l, TEST_ADDING_LISTS, TEST_NEGATIVE_INDICES ) != 0 );
 
-			trotListFree( &l );
+			trotListFree( lMemLimit, &l );
 
 			i += 1;
 		}
@@ -269,7 +269,7 @@ int testPrimaryFunctionality()
 }
 
 /******************************************************************************/
-static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testPrepend( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -292,7 +292,7 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetCount( l, &countAtStart ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test prepending */
 	addingAtIndex = 0;
@@ -314,11 +314,11 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListInsertInt( l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertInt( lMemLimit, l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( addListWithValue( l, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, l, addingAtIndexB, newNumber ) != 0 );
 		}
 		else
 		{
@@ -328,7 +328,7 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		countAdded += 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -337,8 +337,8 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -346,8 +346,8 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -371,22 +371,22 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRemove( l, addingAtIndexB ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, l, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRemoveInt( l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRemoveList( l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveList( lMemLimit, l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListGetInt( lMemLimit, removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
-				trotListFree( &removedL );
+				trotListFree( lMemLimit, &removedL );
 			}
 			else
 			{
@@ -403,7 +403,7 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		countAdded -= 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -412,8 +412,8 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -421,8 +421,8 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -431,7 +431,7 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListGetCount( l, &countAtEnd ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -446,7 +446,7 @@ static int testPrepend( TrotList *l, int intsOrLists, int removeSpecificOrGeneri
 }
 
 /******************************************************************************/
-static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAppend( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -469,7 +469,7 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetCount( l, &countAtStart ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test appending */
 	addingAtIndex = countAtStart;
@@ -491,11 +491,11 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListInsertInt( l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertInt( lMemLimit, l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( addListWithValue( l, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, l, addingAtIndexB, newNumber ) != 0 );
 		}
 		else
 		{
@@ -505,7 +505,7 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		countAdded += 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -514,8 +514,8 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -523,8 +523,8 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -548,22 +548,22 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRemove( l, addingAtIndexB ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, l, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRemoveInt( l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRemoveList( l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveList( lMemLimit, l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListGetInt( lMemLimit, removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
-				trotListFree( &removedL );
+				trotListFree( lMemLimit, &removedL );
 			}
 			else
 			{
@@ -580,7 +580,7 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		countAdded -= 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -589,8 +589,8 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -598,8 +598,8 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -608,7 +608,7 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListGetCount( l, &countAtEnd ) != 0 );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtEnd ) != 0 );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -623,7 +623,7 @@ static int testAppend( TrotList *l, int intsOrLists, int removeSpecificOrGeneric
 }
 
 /******************************************************************************/
-static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddToMiddle( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -648,7 +648,7 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetCount( l, &countAtStart ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test adding to middle */
 	startedAddingAtIndex = (countAtStart / 2 );
@@ -676,11 +676,11 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListInsertInt( l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertInt( lMemLimit, l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( addListWithValue( l, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, l, addingAtIndexB, newNumber ) != 0 );
 		}
 		else
 		{
@@ -690,7 +690,7 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		countAdded += 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -699,8 +699,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -708,8 +708,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -717,8 +717,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -742,22 +742,22 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRemove( l, addingAtIndexB ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, l, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRemoveInt( l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRemoveList( l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveList( lMemLimit, l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListGetInt( lMemLimit, removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
-				trotListFree( &removedL );
+				trotListFree( lMemLimit, &removedL );
 			}
 			else
 			{
@@ -774,7 +774,7 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		countAdded -= 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -783,8 +783,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -792,8 +792,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 		}
@@ -801,8 +801,8 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -811,7 +811,7 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListGetCount( l, &countAtEnd ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -826,7 +826,7 @@ static int testAddToMiddle( TrotList *l, int intsOrLists, int removeSpecificOrGe
 }
 
 /******************************************************************************/
-static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
+static int testAddAtOddIndices( TrotList *lMemLimit, TrotList *l, int intsOrLists, int removeSpecificOrGeneric, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -849,7 +849,7 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetCount( l, &countAtStart ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test prepending */
 	addingAtIndex = -1;
@@ -876,11 +876,11 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListInsertInt( l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertInt( lMemLimit, l, addingAtIndexB, newNumber ) != TROT_RC_SUCCESS );
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( addListWithValue( l, addingAtIndexB, newNumber ) != 0 );
+			TEST_ERR_IF( addListWithValue( lMemLimit, l, addingAtIndexB, newNumber ) != 0 );
 		}
 		else
 		{
@@ -890,7 +890,7 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		countAdded += 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -899,8 +899,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 
@@ -911,8 +911,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -920,8 +920,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -945,22 +945,22 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 
 		if ( removeSpecificOrGeneric == TEST_REMOVE_GENERIC )
 		{
-			TEST_ERR_IF( trotListRemove( l, addingAtIndexB ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListRemove( lMemLimit, l, addingAtIndexB ) != TROT_RC_SUCCESS );
 		}
 		else if ( removeSpecificOrGeneric == TEST_REMOVE_SPECIFIC_KIND )
 		{
 			if ( intsOrLists == TEST_ADDING_INTS )
 			{
-				TEST_ERR_IF( trotListRemoveInt( l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, addingAtIndexB, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 			}
 			else if ( intsOrLists == TEST_ADDING_LISTS )
 			{
-				TEST_ERR_IF( trotListRemoveList( l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
-				TEST_ERR_IF( trotListGetInt( removedL, 1, &removedN ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemoveList( lMemLimit, l, addingAtIndexB, &removedL ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListGetInt( lMemLimit, removedL, 1, &removedN ) != TROT_RC_SUCCESS );
 				TEST_ERR_IF( removedN != newNumber );
 
-				trotListFree( &removedL );
+				trotListFree( lMemLimit, &removedL );
 			}
 			else
 			{
@@ -977,7 +977,7 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		countAdded -= 1;
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
 		index = 1;
 		testNew = 1000;
@@ -986,8 +986,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		{
 			testNew += 1;
 
-			TEST_ERR_IF( check( l, index, testNew ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testNew ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testNew ) != 0 );
 
 			index += 1;
 
@@ -998,8 +998,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -1007,8 +1007,8 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		{
 			testOriginal += 1;
 
-			TEST_ERR_IF( check( l, index, testOriginal ) != 0 );
-			TEST_ERR_IF( check( l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, index, testOriginal ) != 0 );
+			TEST_ERR_IF( check( lMemLimit, l, INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index, countAtStart + countAdded ), testOriginal ) != 0 );
 
 			index += 1;
 		}
@@ -1017,7 +1017,7 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 		TEST_ERR_IF( (testNew - 1000) != countAdded );
 	}
 
-	TEST_ERR_IF( trotListGetCount( l, &countAtEnd ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtEnd ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( countAtEnd != countAtStart );
 
 	return 0;
@@ -1032,7 +1032,7 @@ static int testAddAtOddIndices( TrotList *l, int intsOrLists, int removeSpecific
 }
 
 /******************************************************************************/
-static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndices )
+static int testReplace( TrotList *lMemLimit, TrotList *l, int intsOrLists, int positiveOrNegativeIndices )
 {
 	/* DATA */
 	int rc = 0;
@@ -1051,7 +1051,7 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListGetCount( l, &countAtStart ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAtStart ) != TROT_RC_SUCCESS );
 
 	/* test replace */
 	addingAtIndex = 1;
@@ -1067,18 +1067,18 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 			addingAtIndexB = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( addingAtIndex, countAtStart );
 		}
 
-		TEST_ERR_IF( trotListGetKind( l, addingAtIndexB, &kind ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetKind( lMemLimit, l, addingAtIndexB, &kind ) != TROT_RC_SUCCESS );
 
 		if ( intsOrLists == TEST_ADDING_INTS )
 		{
-			TEST_ERR_IF( trotListReplaceWithInt( l, addingAtIndexB, -1 ) != TROT_RC_SUCCESS )
+			TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, l, addingAtIndexB, -1 ) != TROT_RC_SUCCESS )
 		}
 		else if ( intsOrLists == TEST_ADDING_LISTS )
 		{
-			TEST_ERR_IF( trotListInit( &newL ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListAppendInt( newL, -1 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListReplaceWithList( l, addingAtIndexB, newL ) != TROT_RC_SUCCESS );
-			trotListFree( &newL );
+			TEST_ERR_IF( trotListInit( lMemLimit, &newL ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, newL, -1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l, addingAtIndexB, newL ) != TROT_RC_SUCCESS );
+			trotListFree( lMemLimit, &newL );
 		}
 		else
 		{
@@ -1086,9 +1086,9 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 		}
 
 		/* check */
-		TEST_ERR_IF( checkList( l ) != 0 );
+		TEST_ERR_IF( checkList( lMemLimit, l ) != 0 );
 
-		TEST_ERR_IF( trotListGetCount( l, &countAfter ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetCount( lMemLimit, l, &countAfter ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( countAfter != countAtStart );
 
 		index = 1;
@@ -1096,11 +1096,11 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 		{
 			if ( index == addingAtIndex )
 			{
-				TEST_ERR_IF( check( l, index, -1 ) != 0 );
+				TEST_ERR_IF( check( lMemLimit, l, index, -1 ) != 0 );
 			}
 			else
 			{
-				TEST_ERR_IF( check( l, index, index ) != 0 );
+				TEST_ERR_IF( check( lMemLimit, l, index, index ) != 0 );
 			}
 
 			index += 1;
@@ -1109,14 +1109,14 @@ static int testReplace( TrotList *l, int intsOrLists, int positiveOrNegativeIndi
 		/* replace back to original */
 		if ( kind == TROT_KIND_INT )
 		{
-			TEST_ERR_IF( trotListReplaceWithInt( l, addingAtIndexB, addingAtIndex ) != TROT_RC_SUCCESS )
+			TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, l, addingAtIndexB, addingAtIndex ) != TROT_RC_SUCCESS )
 		}
 		else
 		{
-			TEST_ERR_IF( trotListInit( &newL ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListAppendInt( newL, addingAtIndex ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListReplaceWithList( l, addingAtIndexB, newL ) != TROT_RC_SUCCESS );
-			trotListFree( &newL );
+			TEST_ERR_IF( trotListInit( lMemLimit, &newL ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListAppendInt( lMemLimit, newL, addingAtIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l, addingAtIndexB, newL ) != TROT_RC_SUCCESS );
+			trotListFree( lMemLimit, &newL );
 		}
 
 		/* increment */
