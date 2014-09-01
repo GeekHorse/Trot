@@ -125,7 +125,7 @@ int testMemory( TrotList *lMemLimit )
 	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
-	TROT_MALLOC( iArray, int *, 10 );
+	TROT_MALLOC( iArray, 10 );
 
 	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
@@ -135,7 +135,7 @@ int testMemory( TrotList *lMemLimit )
 	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
-	TROT_CALLOC( iArray, int *, 10 );
+	TROT_CALLOC( iArray, 10 );
 
 	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
@@ -213,7 +213,7 @@ int testMemory( TrotList *lMemLimit )
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
 	printf( "  Testing calloc...\n" ); fflush( stdout );
-	TROT_CALLOC( iArray, int *, 10 );
+	TROT_CALLOC( iArray, 10 );
 	TEST_ERR_IF( iArray == NULL );
 	TEST_ERR_IF( iArray[ 5 ] != NULL );
 	TROT_FREE( iArray, 10 );
@@ -281,7 +281,7 @@ static int testMemoryManagement( TrotList *lMemLimit )
 
 	/* CODE */
 	/* create our client refs */
-	TROT_CALLOC( clientRefs, TrotList *, MEMORY_MANAGEMENT_REFS_COUNT );
+	TROT_CALLOC( clientRefs, MEMORY_MANAGEMENT_REFS_COUNT );
 
 	i = 0;
 	while ( i < MEMORY_MANAGEMENT_REFS_COUNT )

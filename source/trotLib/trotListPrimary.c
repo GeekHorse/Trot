@@ -198,8 +198,8 @@ TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A )
 
 	/* CODE */
 	/* create list of refs that point to this list */
-	TROT_MALLOC( newRefHead, TrotListRefListNode, 1 );
-	TROT_MALLOC( newRefTail, TrotListRefListNode, 1 );
+	TROT_MALLOC( newRefHead, 1 );
+	TROT_MALLOC( newRefTail, 1 );
 
 	newRefHead->count = 0;
 	newRefHead->l = NULL;
@@ -212,8 +212,8 @@ TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A )
 	newRefTail->prev = newRefHead;
 
 	/* create the data list */
-	TROT_MALLOC( newHead, TrotListNode, 1 );
-	TROT_MALLOC( newTail, TrotListNode, 1 );
+	TROT_MALLOC( newHead, 1 );
+	TROT_MALLOC( newTail, 1 );
 
 	newHead->kind = NODE_KIND_HEAD_OR_TAIL;
 	newHead->count = 0;
@@ -230,7 +230,7 @@ TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A )
 	newTail->next = newTail;
 
 	/* create actual list structure */
-	TROT_MALLOC( newLa, TrotListActual, 1 );
+	TROT_MALLOC( newLa, 1 );
 
 	newLa->reachable = 1;
 	newLa->flagVisited = 0;
@@ -256,7 +256,7 @@ TROT_RC trotListInit( TrotList *lMemLimit, TrotList **l_A )
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	TROT_MALLOC( newL, TrotList, 1 );
+	TROT_MALLOC( newL, 1 );
 
 	newL->laParent = NULL;
 
@@ -327,7 +327,7 @@ TROT_RC trotListTwin( TrotList *lMemLimit, TrotList *l, TrotList **l_A )
 
 
 	/* CODE */
-	TROT_MALLOC( newL, TrotList, 1 );
+	TROT_MALLOC( newL, 1 );
 
 	newL->laParent = NULL;
 	newL->laPointsTo = l->laPointsTo;
@@ -2112,7 +2112,7 @@ TROT_RC trotListNodeSplit( TrotList *lMemLimit, TrotListNode *n, TROT_INT keepIn
 
 
 	/* CODE */
-	TROT_MALLOC( newNode, TrotListNode, 1 );
+	TROT_MALLOC( newNode, 1 );
 
 	if ( n->kind == NODE_KIND_INT )
 	{
@@ -2120,7 +2120,7 @@ TROT_RC trotListNodeSplit( TrotList *lMemLimit, TrotListNode *n, TROT_INT keepIn
 		newNode->count = (n->count) - keepInLeft;
 
 		newNode->l = NULL;
-		TROT_MALLOC( newNode->n, TROT_INT, TROT_NODE_SIZE );
+		TROT_MALLOC( newNode->n, TROT_NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n->count) )
@@ -2138,7 +2138,7 @@ TROT_RC trotListNodeSplit( TrotList *lMemLimit, TrotListNode *n, TROT_INT keepIn
 		newNode->count = (n->count) - keepInLeft;
 
 		newNode->n = NULL;
-		TROT_CALLOC( newNode->l, TrotList *, TROT_NODE_SIZE );
+		TROT_CALLOC( newNode->l, TROT_NODE_SIZE );
 
 		i = keepInLeft;
 		while ( i < (n->count) )
@@ -2190,13 +2190,13 @@ TROT_RC newIntNode( TrotList *lMemLimit, TrotListNode **n_A )
 
 
 	/* CODE */
-	TROT_MALLOC( newNode, TrotListNode, 1 );
+	TROT_MALLOC( newNode, 1 );
 
 	newNode->kind = NODE_KIND_INT;
 	newNode->count = 0;
 
 	newNode->l = NULL;
-	TROT_MALLOC( newNode->n, TROT_INT, TROT_NODE_SIZE );
+	TROT_MALLOC( newNode->n, TROT_NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -2234,13 +2234,13 @@ TROT_RC newListNode( TrotList *lMemLimit, TrotListNode **n_A )
 
 
 	/* CODE */
-	TROT_MALLOC( newNode, TrotListNode, 1 );
+	TROT_MALLOC( newNode, 1 );
 
 	newNode->kind = NODE_KIND_LIST;
 	newNode->count = 0;
 
 	newNode->n = NULL;
-	TROT_CALLOC( newNode->l, TrotList *, TROT_NODE_SIZE );
+	TROT_CALLOC( newNode->l, TROT_NODE_SIZE );
 
 	/* give back */
 	(*n_A) = newNode;
@@ -2290,9 +2290,9 @@ static TROT_RC refListAdd( TrotList *lMemLimit, TrotListActual *la, TrotList *l 
 
 	/* there was no room in list, so create new node, insert ref into new
 	   node, and insert node into list */
-	TROT_MALLOC( newRefNode, TrotListRefListNode, 1 );
+	TROT_MALLOC( newRefNode, 1 );
 
-	TROT_CALLOC( newRefNode->l, TrotList *, REF_LIST_NODE_SIZE );
+	TROT_CALLOC( newRefNode->l, REF_LIST_NODE_SIZE );
 
 	newRefNode->count = 1;
 	newRefNode->l[ 0 ] = l;

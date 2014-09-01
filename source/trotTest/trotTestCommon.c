@@ -793,7 +793,7 @@ TROT_RC listToCString( TrotList *lMemLimit, TrotList *l, char **cString_A )
 	rc = trotListGetCount( lMemLimit, l, &count );
 	ERR_IF_PASSTHROUGH;
 
-	TROT_MALLOC( newCString, char, count + 1 );
+	TROT_MALLOC( newCString, count + 1 );
 
 	i = 1;
 	while ( i <= count )

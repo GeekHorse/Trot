@@ -66,9 +66,9 @@ TROT_RC trotStackInit( TrotList *lMemLimit, TrotStack **stack )
 	PARANOID_ERR_IF( stack == NULL );
 	PARANOID_ERR_IF( (*stack) != NULL );
 
-	TROT_MALLOC( newHead, TrotStackNode, 1 );
-	TROT_MALLOC( newTail, TrotStackNode, 1 );
-	TROT_MALLOC( newStack, TrotStack, 1 );
+	TROT_MALLOC( newHead, 1 );
+	TROT_MALLOC( newTail, 1 );
+	TROT_MALLOC( newStack, 1 );
 
 	newHead->la1 = NULL;
 	newHead->la1Node = NULL;
@@ -185,7 +185,7 @@ TROT_RC trotStackPush( TrotList *lMemLimit, TrotStack *stack, TrotListActual *la
 	}
 
 	/* not already in stack, so lets add */
-	TROT_MALLOC( newNode, TrotStackNode, 1 );
+	TROT_MALLOC( newNode, 1 );
 
 	newNode->la1 = la1;
 	newNode->la1Node = la1->head;

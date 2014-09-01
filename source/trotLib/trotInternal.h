@@ -85,19 +85,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define dline printf( "dline:" __FILE__ ":%d\n", __LINE__ ); fflush( stdout );
 
 /******************************************************************************/
-/* TODO: could probably do without POINTER_SIZE */
-#define TROT_MALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) TROT_HOOK_MALLOC( sizeof( POINTER_TYPE ) * (SIZE) ); \
+#define TROT_MALLOC( POINTER, SIZE ) \
+	POINTER = TROT_HOOK_MALLOC( sizeof( * (POINTER) ) * (SIZE) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
-	rc = trotMemLimitAdd( lMemLimit, sizeof( POINTER_TYPE ) * (SIZE) ); \
+	rc = trotMemLimitAdd( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
 	ERR_IF_PASSTHROUGH;
 
 /******************************************************************************/
-/* TODO: could probably do without POINTER_SIZE */
-#define TROT_CALLOC( POINTER, POINTER_TYPE, SIZE ) \
-	POINTER = ( POINTER_TYPE * ) TROT_HOOK_CALLOC( SIZE, sizeof( POINTER_TYPE ) ); \
+#define TROT_CALLOC( POINTER, SIZE ) \
+	POINTER = TROT_HOOK_CALLOC( SIZE, sizeof( * (POINTER) ) ); \
 	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
-	rc = trotMemLimitAdd( lMemLimit, sizeof( POINTER_TYPE ) * (SIZE) ); \
+	rc = trotMemLimitAdd( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
 	ERR_IF_PASSTHROUGH;
 
 /******************************************************************************/
