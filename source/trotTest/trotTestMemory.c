@@ -107,6 +107,9 @@ int testMemory( TrotList *lMemLimit )
 
 	int i = 0;
 
+	TrotList *lTestMemLimit = NULL;
+	TROT_INT testMemLimit = 0;
+
 #ifdef TROT_DEBUG
 	int j = 0;
 	int flagAtLeastOneFailed = 0;
@@ -118,33 +121,6 @@ int testMemory( TrotList *lMemLimit )
 	/* CODE */
 	/* **************************************** */
 	printf( "Testing memory management and garbage collection...\n" ); fflush( stdout );
-
-	/* **************************************** */
-	/* testing mem limit */
-	printf( "  Testing mem limit...\n" ); fflush( stdout );
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != 0 );
-
-	TROT_MALLOC( iArray, 10 );
-
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
-
-	TROT_FREE( iArray, 10 );
-
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != 0 );
-
-	TROT_CALLOC( iArray, 10 );
-
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
-
-	TROT_FREE( iArray, 10 );
-
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != 0 );
-	
 
 	/* **************************************** */
 	/* testing bad mallocs */
@@ -209,6 +185,87 @@ int testMemory( TrotList *lMemLimit )
 
 	failOnMallocCount = 0;
 #endif
+
+	/* **************************************** */
+	/* testing mem limit */
+	printf( "  Testing mem limit...\n" ); fflush( stdout );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( memUsed != 0 );
+
+	TROT_MALLOC( iArray, 10 );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
+
+	TROT_FREE( iArray, 10 );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( memUsed != 0 );
+
+	TROT_CALLOC( iArray, 10 );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
+
+	TROT_FREE( iArray, 10 );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( memUsed != 0 );
+
+	/* *** */
+	testMemLimit = 0;
+	TEST_ERR_IF( trotMemLimitInit( testMemLimit, &lTestMemLimit ) != TROT_RC_SUCCESS );
+
+	i = 0;
+	while ( failedFuncs[ i ].func != NULL )
+	{
+		j = 0;
+		while ( j < failedFuncs[ i ].numberOfTests )
+		{
+			spinnerI = 0;
+			flagAtLeastOneFailed = 0;
+			testMemLimit = 0;
+
+			do
+			{
+				spinnerI += 1;
+				printf( "\r%d: %d of %d %c", i, j, failedFuncs[ i ].numberOfTests - 1, spinner[ spinnerI % 4 ]  ); fflush( stdout );
+
+				TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, testMemLimit ) != TROT_RC_SUCCESS );
+
+				rc = failedFuncs[ i ].func( lTestMemLimit, j );
+
+				if ( rc == TROT_RC_ERROR_MEM_LIMIT )
+				{
+					flagAtLeastOneFailed = 1;
+				}
+
+				testMemLimit += 1;
+			}
+			while ( rc == TROT_RC_ERROR_MEM_LIMIT );
+
+			if ( rc != TROT_RC_SUCCESS )
+			{
+				printf( "\nERROR: Expecting PINTO_RC_SUCCESS but got %s.\n", trotRCToString( rc ) );
+				TEST_ERR_IF( 1 );
+			}
+
+			if ( flagAtLeastOneFailed == 0 )
+			{
+				printf( "There were no mem limit failures. There should have been at least 1.\n" );
+				TEST_ERR_IF( 1 );
+			}
+
+			j += 1;
+		}
+
+		printf( "\r%d            \n", i ); fflush( stdout );
+
+		i += 1;
+	}
+
+	trotMemLimitFree( &lTestMemLimit );
 
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */

@@ -85,7 +85,7 @@ TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A )
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( limit <= 0, TROT_RC_ERROR_PRECOND );
+	ERR_IF( limit < 0, TROT_RC_ERROR_PRECOND );
 	ERR_IF( lMemLimit_A == NULL, TROT_RC_ERROR_PRECOND );
 	ERR_IF( (*lMemLimit_A) != NULL, TROT_RC_ERROR_PRECOND );
 
@@ -116,6 +116,42 @@ TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A )
 	return rc;
 }
 
+/******************************************************************************/
+/*!
+	\brief Set memory limit
+	\param[in] lMemLimit List that holds memory limit and memory used.
+	\param[out] limit The new limit
+	\return TROT_RC
+*/
+TROT_RC trotMemLimitSetLimit( TrotList *lMemLimit, TROT_INT limit )
+{
+	/* DATA */
+	TROT_RC rc = TROT_RC_SUCCESS;
+
+	TROT_INT type = 0;
+
+
+	/* PRECOND */
+	FAILURE_POINT;
+	ERR_IF( lMemLimit == NULL, TROT_RC_ERROR_PRECOND );
+	ERR_IF( limit < 0, TROT_RC_ERROR_PRECOND );
+
+
+	/* CODE */
+	rc = trotListGetType( NULL, lMemLimit, &type );
+	ERR_IF_PASSTHROUGH;
+
+	ERR_IF( type != TROT_TYPE_MEM_LIMIT, TROT_RC_ERROR_BAD_TYPE );
+
+	rc = trotListReplaceWithInt( NULL, lMemLimit, TROT_MEM_LIMIT_INDEX_LIMIT, limit );
+	ERR_IF_PASSTHROUGH;
+
+
+	/* CLEANUP */
+	cleanup:
+
+	return rc;
+}
 /******************************************************************************/
 /*!
 	\brief Get memory used

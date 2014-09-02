@@ -86,17 +86,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define TROT_MALLOC( POINTER, SIZE ) \
-	POINTER = TROT_HOOK_MALLOC( sizeof( * (POINTER) ) * (SIZE) ); \
-	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
 	rc = trotMemLimitAdd( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
-	ERR_IF_PASSTHROUGH;
+	ERR_IF_PASSTHROUGH; \
+	POINTER = TROT_HOOK_MALLOC( sizeof( * (POINTER) ) * (SIZE) ); \
+	if ( (POINTER) == NULL ) \
+	{ \
+		trotMemLimitSub( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
+		ERR_IF( 1, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
+	}
 
 /******************************************************************************/
 #define TROT_CALLOC( POINTER, SIZE ) \
-	POINTER = TROT_HOOK_CALLOC( SIZE, sizeof( * (POINTER) ) ); \
-	ERR_IF( POINTER == NULL, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
 	rc = trotMemLimitAdd( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
-	ERR_IF_PASSTHROUGH;
+	ERR_IF_PASSTHROUGH; \
+	POINTER = TROT_HOOK_CALLOC( SIZE, sizeof( * (POINTER) ) ); \
+	if ( (POINTER) == NULL ) \
+	{ \
+		trotMemLimitSub( lMemLimit, sizeof( * (POINTER) ) * (SIZE) ); \
+		ERR_IF( 1, TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED ); \
+	}
 
 /******************************************************************************/
 #define TROT_FREE( POINTER, SIZE ) \

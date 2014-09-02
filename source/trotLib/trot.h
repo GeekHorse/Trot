@@ -134,6 +134,7 @@ typedef struct TrotList_STRUCT TrotList;
 /******************************************************************************/
 /* trotListPrimary.c */
 TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A );
+TROT_RC trotMemLimitSetLimit( TrotList *lMemLimit, TROT_INT limit );
 TROT_RC trotMemLimitGetUsed( TrotList *lMemLimit, TROT_INT *used );
 void trotMemLimitFree( TrotList **lMemLimit_F );
 
