@@ -184,6 +184,7 @@ struct TrotListNode_STRUCT
 	TROT_NODE_SIZE of type trotList*, else l will be NULL. */
 	TrotList **l;
 
+/* FUTURE: we don't need a double linked list, change this to single */
 	/*! prev points to previous node in the linked list, or same node if
 	this is the head of the list. */
 	struct TrotListNode_STRUCT *prev;
