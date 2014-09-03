@@ -223,7 +223,7 @@ TROT_RC trotDecode( TrotList *lMemLimit, TrotList *lCharacters, TrotList **lDeco
 
 			/* set tag */
 			rc = trotListSetType( lMemLimit, lCurrent, number );
-			ERR_IF_PASSTHROUGH;
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 		}
 		/* if backtick, set tag */
 		else if ( ch == '`' )
