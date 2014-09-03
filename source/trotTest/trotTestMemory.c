@@ -214,6 +214,15 @@ int testMemory( TrotList *lMemLimit )
 	TEST_ERR_IF( memUsed != 0 );
 
 	/* *** */
+	TEST_ERR_IF( trotListInit( NULL, &lTestMemLimit ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, 0 ) != TROT_RC_ERROR_BAD_TYPE );
+	TEST_ERR_IF( trotMemLimitGetUsed( lTestMemLimit, &memUsed ) != TROT_RC_ERROR_BAD_TYPE );
+	TEST_ERR_IF( trotListSetType( NULL, lTestMemLimit, TROT_TYPE_MEM_LIMIT ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotMemLimitGetUsed( lTestMemLimit, &memUsed ) != TROT_RC_ERROR_BAD_INDEX );
+	trotListFree( NULL, &lTestMemLimit );
+
+	/* *** */
 	testMemLimit = 0;
 	TEST_ERR_IF( trotMemLimitInit( testMemLimit, &lTestMemLimit ) != TROT_RC_SUCCESS );
 
@@ -540,6 +549,8 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	int i = 0;
 	int j = 0;
 
+	TrotList *lTestMemLimit = NULL;
+
 	TrotList *l1 = NULL;
 	TrotList *l2 = NULL;
 	TrotList *l3 = NULL;
@@ -551,6 +562,12 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	(void)test;
 
 	/* primary functions */
+	rc = trotMemLimitInit( 0, &lTestMemLimit );
+	ERR_IF_PASSTHROUGH;
+
+	trotMemLimitFree( &lTestMemLimit );
+
+
 	rc = trotListInit( lMemLimit, &l1 );
 	ERR_IF_PASSTHROUGH;
 

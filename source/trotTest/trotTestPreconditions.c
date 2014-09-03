@@ -64,6 +64,16 @@ int testPreconditions( TrotList *lMemLimit )
 	trotListFree( lMemLimit, NULL );
 	trotListFree( lMemLimit, &l2 );
 
+	TEST_ERR_IF( trotMemLimitInit( -1, &l2 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotMemLimitInit( 0, NULL ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotMemLimitInit( 0, &l1 ) != TROT_RC_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotMemLimitSetLimit( NULL, 0 ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotMemLimitSetLimit( l1, -1 ) != TROT_RC_ERROR_PRECOND );
+
+	TEST_ERR_IF( trotMemLimitGetUsed( NULL, &n ) != TROT_RC_ERROR_PRECOND );
+	TEST_ERR_IF( trotMemLimitGetUsed( l1, NULL ) != TROT_RC_ERROR_PRECOND );
+
 	TEST_ERR_IF( trotListRefCompare( lMemLimit, NULL, l1, &n ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lMemLimit, l1, NULL, &n ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListRefCompare( lMemLimit, l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );

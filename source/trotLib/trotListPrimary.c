@@ -95,13 +95,17 @@ TROT_RC trotMemLimitInit( TROT_INT limit, TrotList **lMemLimit_A )
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotListSetType( NULL, newL, TROT_TYPE_MEM_LIMIT );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	rc = trotListAppendInt( NULL, newL, limit );
 	ERR_IF_PASSTHROUGH;
 
 	rc = trotListAppendInt( NULL, newL, 0 );
+#if TROT_NODE_SIZE > 1
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+#else
 	ERR_IF_PASSTHROUGH;
+#endif
 
 	/* give back */
 	(*lMemLimit_A) = newL;
@@ -139,7 +143,7 @@ TROT_RC trotMemLimitSetLimit( TrotList *lMemLimit, TROT_INT limit )
 
 	/* CODE */
 	rc = trotListGetType( NULL, lMemLimit, &type );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	ERR_IF( type != TROT_TYPE_MEM_LIMIT, TROT_RC_ERROR_BAD_TYPE );
 
@@ -177,7 +181,7 @@ TROT_RC trotMemLimitGetUsed( TrotList *lMemLimit, TROT_INT *used )
 	(*used) = 0;
 
 	rc = trotListGetType( NULL, lMemLimit, &type );
-	ERR_IF_PASSTHROUGH;
+	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	ERR_IF( type != TROT_TYPE_MEM_LIMIT, TROT_RC_ERROR_BAD_TYPE );
 
