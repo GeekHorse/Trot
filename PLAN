@@ -4,11 +4,11 @@ Trot Build Plan:
 
 	0.4    Compiler, Real version written in Trot itself
 
-	0.5    Improve garbage collection
-
-	0.6    Optimization
+	0.5    Optimization
 	       Benchmark programs
 
-	0.7    Standard Libraries?
+	0.6    Standard Libraries?
 	       Big number, sort, network, etc?
+
+	0.7    Improve garbage collection
 
