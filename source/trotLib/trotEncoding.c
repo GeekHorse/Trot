@@ -43,7 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l );
 static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l );
 static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT n );
-static TROT_RC appendText( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l, TROT_INT count, TROT_INT *index );
 
 /******************************************************************************/
 /*!
@@ -165,27 +164,17 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 			rc = trotListGetType( lMemLimit, lCurrentList, &type );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			/* if type text, append in text format */
-			if ( type == TROT_TYPE_TEXT )
-			{
-				rc = appendText( lMemLimit, newCharacters, lCurrentList, childrenCount, &index );
-				ERR_IF_PASSTHROUGH;
-			}
-			/* else append in number format */
-			else
-			{
-				/* get int */
-				rc = trotListGetInt( lMemLimit, lCurrentList, index, &n );
-				PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
+			/* get int */
+			rc = trotListGetInt( lMemLimit, lCurrentList, index, &n );
+			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-				/* append number */
-				rc = appendNumber( lMemLimit, newCharacters, n );
-				ERR_IF_PASSTHROUGH;
+			/* append number */
+			rc = appendNumber( lMemLimit, newCharacters, n );
+			ERR_IF_PASSTHROUGH;
 
-				/* append space */
-				rc = trotListAppendInt( lMemLimit, newCharacters, ' ' );
-				ERR_IF_PASSTHROUGH;
-			}
+			/* append space */
+			rc = trotListAppendInt( lMemLimit, newCharacters, ' ' );
+			ERR_IF_PASSTHROUGH;
 		}
 		else /* kind == TROT_KIND_LIST */
 		{
@@ -597,122 +586,6 @@ static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_IN
 		ERR_IF_PASSTHROUGH;
 
 		s += 1;
-	}
-
-
-	/* CLEANUP */
-	cleanup:
-
-	return rc;
-}
-
-/******************************************************************************/
-/*!
-	\brief Appends ints in text format
-	\param[in] lMemLimit List that maintains memory limit
-	\param[in] lCharacters List of characters to append to.
-	\param[in] l The list we're encoding
-	\param[in] count Count of l
-	\param[in] index Current index of l
-	\return TROT_RC
-
-	lCharacters will have encoding text appended to it.
-	index will be incremented
-*/
-static TROT_RC appendText( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l, TROT_INT count, TROT_INT *index )
-{
-	/* DATA */
-	TROT_RC rc = TROT_RC_SUCCESS;
-
-	TROT_INT kind = 0;
-	TROT_INT character = 0;
-	TROT_INT state = 0;
-
-
-	/* PRECOND */
-	PARANOID_ERR_IF( lMemLimit == NULL );
-	PARANOID_ERR_IF( lCharacters == NULL );
-	PARANOID_ERR_IF( l == NULL );
-	PARANOID_ERR_IF( index == NULL );
-
-
-	/* CODE */
-	/* go through ints, break if we hit a list */
-	while ( (*index) <= count )
-	{
-		/* get kind */
-		rc = trotListGetKind( lMemLimit, l, (*index), &kind );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		if ( kind != TROT_KIND_INT )
-		{
-			/* go back */
-			(*index) -= 1;
-
-			break;
-		}
-
-		/* get character */
-		rc = trotListGetInt( lMemLimit, l, (*index), &character );
-		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
-
-		/* is printable character? */
-		/* not fully unicode correct, but good enough for now */
-		/* FUTURE IMPROVEMENT */
-		if (    character != '\"' 
-		     && ( character >= ' ' && character <= '~' )
-		   )
-		{
-			if ( state == 0 )
-			{
-				/* append " */
-				rc = trotListAppendInt( lMemLimit, lCharacters, '\"' );
-				ERR_IF_PASSTHROUGH;
-
-				state = 1;
-			}
-
-			/* append character */
-			rc = trotListAppendInt( lMemLimit, lCharacters, character );
-			ERR_IF_PASSTHROUGH;
-		}
-		else
-		{
-			if ( state == 1 )
-			{
-				/* append " */
-				rc = trotListAppendInt( lMemLimit, lCharacters, '\"' );
-				ERR_IF_PASSTHROUGH;
-
-				/* append space */
-				rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
-				ERR_IF_PASSTHROUGH;
-
-				state = 0;
-			}
-
-			/* append in number format */
-			rc = appendNumber( lMemLimit, lCharacters, character );
-			ERR_IF_PASSTHROUGH;
-
-			/* append space */
-			rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
-			ERR_IF_PASSTHROUGH;
-		}
-
-		/* increment */
-		(*index) += 1;
-	}
-
-	if ( state == 1 )
-	{
-		/* append " */
-		rc = trotListAppendInt( lMemLimit, lCharacters, '\"' );
-		ERR_IF_PASSTHROUGH;
-
-		/* append space */
-		rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
-		ERR_IF_PASSTHROUGH;
 	}
 
 

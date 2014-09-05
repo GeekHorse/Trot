@@ -89,7 +89,7 @@ typedef struct
 static FailedFunc failedFuncs[] =
 {
 	{ testFailedMallocs1, 1 },
-	{ testFailedMallocs2, 11 },
+	{ testFailedMallocs2, 7 },
 	{ NULL, 0 }
 };
 
@@ -837,13 +837,9 @@ static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
 	"[ [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] [ ~1 ] ]",
 	"[ [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] [ `1 ] ]",
 	"[ @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ 11 @ ]",
-	"[ ~1 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 \"x\" 2000 ]",
-	"[ ~1 \"xxxxxxxxxx\" ]",
-	"[ ~1 \"xxxxxxxxx\" ]",
 
 	/* for decoding */
 	"[ [ ] @.1 1 ]",
-	"[ ~1 \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" ]"
 	};
 
 	TrotList *lCharacters = NULL;

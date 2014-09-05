@@ -92,9 +92,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 #define TROT_TYPE_DATA 0
-#define TROT_TYPE_TEXT 1
-#define TROT_TYPE_CODE 2
-#define TROT_TYPE_MEM_LIMIT 3
+#define TROT_TYPE_CODE 1
+#define TROT_TYPE_MEM_LIMIT 2
 /* FUTURE: we'll eventually have CODE, FUNCTION, VM_IMAGE, FUNCTION_STACK, ERROR, etc */
 
 /******************************************************************************/

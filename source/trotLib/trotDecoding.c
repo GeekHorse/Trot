@@ -132,38 +132,8 @@ TROT_RC trotDecode( TrotList *lMemLimit, TrotList *lCharacters, TrotList **lDeco
 		rc = trotListGetInt( lMemLimit, lCharacters, index, &ch );
 		ERR_IF_PASSTHROUGH;
 
-		/* if double quote, decode text format */
-		if ( ch == '\"' )
-		{
-			/* skip double quote */
-			index += 1;
-
-			/* go through text */
-			while ( 1 )
-			{
-				/* get character */
-				rc = trotListGetInt( lMemLimit, lCharacters, index, &ch );
-				ERR_IF_PASSTHROUGH;
-
-				/* if double quote, we're at end of text format */
-				if ( ch == '\"' )
-				{
-					/* skip double quote */
-					index += 1;
-
-					break;
-				}
-
-				/* add to lCurrent */
-				rc = trotListAppendInt( lMemLimit, lCurrent, ch );
-				ERR_IF_PASSTHROUGH;
-
-				/* increment */
-				index += 1;
-			}
-		}
 		/* if left bracket, create new child list and "go down" into it */
-		else if ( ch == '[' )
+		if ( ch == '[' )
 		{
 			/* skip bracket */
 			index += 1;
