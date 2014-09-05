@@ -45,7 +45,6 @@ int testPreconditions( TrotList *lMemLimit )
 	TROT_INT n = 0;
 	TROT_INT type = TROT_TYPE_DATA;
 	TROT_INT tag = TROT_TYPE_DATA;
-	TROT_LIST_COMPARE_RESULT compareResult = TROT_LIST_COMPARE_EQUAL;
 
 
 	/* CODE */
@@ -122,10 +121,6 @@ int testPreconditions( TrotList *lMemLimit )
 	TEST_ERR_IF( trotListGetTag( lMemLimit, NULL, &tag ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListGetTag( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListSetTag( lMemLimit, NULL, TROT_TYPE_DATA ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListCompare( lMemLimit, NULL, l1, &compareResult ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCompare( lMemLimit, l1, NULL, &compareResult ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCompare( lMemLimit, l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );
 
 	TEST_ERR_IF( trotListCopy( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotListCopy( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );

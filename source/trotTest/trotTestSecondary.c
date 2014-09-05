@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /******************************************************************************/
+#include <string.h>
+
 #include "trot.h"
 #include "trotInternal.h"
 
@@ -136,38 +138,43 @@ static int compare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, int shouldB
 	/* DATA */
 	int rc = 0;
 
-	TROT_LIST_COMPARE_RESULT compareResult1 = TROT_LIST_COMPARE_EQUAL;
-	TROT_LIST_COMPARE_RESULT compareResult2 = TROT_LIST_COMPARE_EQUAL;
+	TrotList *l1Encoded = NULL;
+	TrotList *l2Encoded = NULL;
+
+	char *s1 = NULL;
+	char *s2 = NULL;
 
 
 	/* CODE */
+	TEST_ERR_IF( trotEncode( lMemLimit, l1, &l1Encoded ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( lMemLimit, l2, &l2Encoded ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( listToCString( lMemLimit, l1Encoded, &s1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, l2Encoded, &s2 ) != TROT_RC_SUCCESS );
+
+#if 0
+printf( "s1: %s\n", s1 );
+printf( "s2: %s\n", s2 );
+printf( "\n" );
+#endif
+
 	if ( shouldBeEqual )
 	{
-		TEST_ERR_IF( trotListCompare( lMemLimit, l1, l2, &compareResult1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compareResult1 != TROT_LIST_COMPARE_EQUAL );
-
-		TEST_ERR_IF( trotListCompare( lMemLimit, l2, l1, &compareResult1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compareResult1 != TROT_LIST_COMPARE_EQUAL );
+		TEST_ERR_IF( strcmp( s1, s2 ) != 0 );
 	}
 	else
 	{
-		TEST_ERR_IF( trotListCompare( lMemLimit, l1, l2, &compareResult1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compareResult1 == TROT_LIST_COMPARE_EQUAL );
-
-		TEST_ERR_IF( trotListCompare( lMemLimit, l2, l1, &compareResult2 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compareResult2 == TROT_LIST_COMPARE_EQUAL );
-
-		if ( compareResult1 == TROT_LIST_COMPARE_LESS_THAN )
-		{
-			TEST_ERR_IF( compareResult2 != TROT_LIST_COMPARE_GREATER_THAN );
-		}
-		else
-		{
-			TEST_ERR_IF( compareResult2 != TROT_LIST_COMPARE_LESS_THAN );
-		}
+		TEST_ERR_IF( strcmp( s1, s2 ) == 0 );
 	}
 
-	return 0;
+	TROT_FREE( s1, strlen( s1 ) + 1 );
+	s1 = NULL;
+
+	TROT_FREE( s2, strlen( s2 ) + 1 );
+	s2 = NULL;
+
+	trotListFree( lMemLimit, &l1Encoded );
+	trotListFree( lMemLimit, &l2Encoded );
 
 
 	/* CLEANUP */
@@ -191,6 +198,7 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 	TROT_INT tag2 = TROT_TYPE_DATA;
 
 	TrotList *l2 = NULL;
+	TrotList *l2Copy = NULL;
 
 	TROT_INT index = 0;
 
@@ -318,6 +326,11 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
 
+		/* create copy */
+		TEST_ERR_IF( trotListCopy( lMemLimit, l2, &l2Copy ) != TROT_RC_SUCCESS );
+
+		TEST_ERR_IF( compare( lMemLimit, l2, l2Copy, 1 ) != 0 );
+
 		/* test adding int */
 		TEST_ERR_IF( trotListInsertInt( lMemLimit, l2, index, 0 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
@@ -340,8 +353,8 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
 
-		/* test adding twin of l1 */
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l1 ) != TROT_RC_SUCCESS );
+		/* test adding twin */
+		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l2 ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
 
 		TEST_ERR_IF( trotListInsertList( lMemLimit, l1, index, l1 ) != TROT_RC_SUCCESS );
@@ -351,8 +364,8 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
 
-		/* test adding copy of l1 */
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l1Copy ) != TROT_RC_SUCCESS );
+		/* test adding copy */
+		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l2Copy ) != TROT_RC_SUCCESS );
 		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
 
 		TEST_ERR_IF( trotListInsertList( lMemLimit, l1, index, l1Copy ) != TROT_RC_SUCCESS );
@@ -373,6 +386,7 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 		trotListFree( lMemLimit, &l1 );
 		trotListFree( lMemLimit, &l1Copy );
 		trotListFree( lMemLimit, &l2 );
+		trotListFree( lMemLimit, &l2Copy );
 
 		index += 1;
 	}

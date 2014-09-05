@@ -300,46 +300,6 @@ struct TrotProgram_STRUCT
 };
 
 /******************************************************************************/
-typedef struct TrotStack_STRUCT TrotStack;
-typedef struct TrotStackNode_STRUCT TrotStackNode;
-
-/*! Holds a stack of trotStackNodes.
-    Only used during Compare so we don't get into an infinite loop */
-struct TrotStack_STRUCT
-{
-	/*! head of our stack */
-	TrotStackNode *head;
-	/*! tail of our stack */
-	TrotStackNode *tail;
-};
-
-/*! Holds state for our progress comparing two lists */
-struct TrotStackNode_STRUCT
-{
-	/*! list1 */
-	TrotListActual *la1;
-	/*! current node in list1 */
-	TrotListNode *la1Node;
-	/*! current item in l1Node */
-	TROT_INT la1Count;
-
-	/*! list2 */
-	TrotListActual *la2;
-	/*! current node in list2 */
-	TrotListNode *la2Node;
-	/*! current item in l2Node */
-	TROT_INT la2Count;
-
-	/*! current index */
-	TROT_INT index;
-
-	/*! previous trotStackNode */
-	TrotStackNode *prev;
-	/*! next trotStackNode */
-	TrotStackNode *next;
-};
-
-/******************************************************************************/
 /* trotListPrimary.c */
 TROT_RC trotMemLimitAdd( TrotList *lMemLimit, TROT_INT update );
 void trotMemLimitSub( TrotList *lMemLimit, TROT_INT update );
@@ -388,8 +348,6 @@ TROT_RC newListNode( TrotList *lMemLimit, TrotListNode **n_A );
 
 /******************************************************************************/
 /* trotListSecondary.c */
-TROT_RC trotListCompare( TrotList *lMemLimit, TrotList *l, TrotList *lCompareTo, TROT_LIST_COMPARE_RESULT *compareResult );
-
 /* FUTURE: rename this so people know it's only 1 level copying? */
 TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A );
 
@@ -412,15 +370,6 @@ TROT_RC trotDecode( TrotList *lMemLimit, TrotList *lCharacters, TrotList **lDeco
 /******************************************************************************/
 /* trotDecoding.c */
 TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCharacters_A );
-
-/******************************************************************************/
-/* trotStack.c */
-TROT_RC trotStackInit( TrotList *lMemLimit, TrotStack **stack );
-void trotStackFree( TrotList *lMemLimit, TrotStack **stack );
-
-TROT_RC trotStackPush( TrotList *lMemLimit, TrotStack *stack, TrotListActual *la1, TrotListActual *la2 );
-TROT_RC trotStackPop( TrotList *lMemLimit,  TrotStack *stack, TROT_INT *empty );
-TROT_RC trotStackIncrementTopIndex( TrotList *lMemLimit, TrotStack *stack );
 
 /******************************************************************************/
 #ifdef TROT_DEBUG

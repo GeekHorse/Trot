@@ -239,10 +239,8 @@ static int testDecodingEncodingGood( TrotList *lMemLimit, int dirNumber, int fil
 
 	TrotList *lExpectedEncoding = NULL;
 
-	TROT_LIST_COMPARE_RESULT compareResult;
-#if PRINT_GOOD_TEST_ENCODINGS
-	char *s = NULL;
-#endif	
+	char *s1 = NULL;
+	char *s2 = NULL;
 
 
 	/* CODE */
@@ -256,62 +254,60 @@ static int testDecodingEncodingGood( TrotList *lMemLimit, int dirNumber, int fil
 	TEST_ERR_IF( trotDecode( lMemLimit, lBytes, &lDecodedList1 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList1, &lEncodedList1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList1, &s1 ) != TROT_RC_SUCCESS );
+
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList1, &s ) != TROT_RC_SUCCESS );
-
-	printf( "lEncodedList1:     \"%s\"\n", s );
-
-	TROT_FREE( s, strlen( s ) + 1 );
-	s = NULL;
+	printf( "lEncodedList1:     \"%s\"\n", s1 );
 #endif
 
 	TEST_ERR_IF( trotDecode( lMemLimit, lEncodedList1, &lDecodedList2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList2, &lEncodedList2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList2, &s2 ) != TROT_RC_SUCCESS );
+
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList2, &s ) != TROT_RC_SUCCESS );
-
-	printf( "lEncodedList2:     \"%s\"\n", s );
-
-	TROT_FREE( s, strlen( s ) + 1 );
-	s = NULL;
+	printf( "lEncodedList2:     \"%s\"\n", s2 );
 #endif
 
-	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lEncodedList2, &compareResult ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+	TEST_ERR_IF( strcmp( s1, s2 ) != 0 );
+
+	TROT_FREE( s2, strlen( s2 ) + 1 );
+	s2 = NULL;
+
 
 	/* we encode twice to make sure we've correctly reset the internal encoding
 	   numbers in the lists */
 	TEST_ERR_IF( trotEncode( lMemLimit, lDecodedList2, &lEncodedList3 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList3, &s2 ) != TROT_RC_SUCCESS );
+
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lMemLimit, lEncodedList3, &s ) != TROT_RC_SUCCESS );
-
-	printf( "lEncodedList3:     \"%s\"\n", s );
-
-	TROT_FREE( s, strlen( s ) + 1 );
-	s = NULL;
+	printf( "lEncodedList3:     \"%s\"\n", s2 );
 #endif
 
-	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lEncodedList3, &compareResult ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+	TEST_ERR_IF( strcmp( s1, s2 ) != 0 );
+
+	TROT_FREE( s2, strlen( s2 ) + 1 );
+	s2 = NULL;
+
 
 	/* read in the "expected" encoding, and see if it matches */
 	TEST_ERR_IF( trotListAppendInt( lMemLimit, lName, 'E' ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( load( lMemLimit, lName, &lExpectedEncoding ) != 0 );
 	TEST_ERR_IF( trotListRemove( lMemLimit, lName, -1 ) != TROT_RC_SUCCESS );
 	
+	TEST_ERR_IF( listToCString( lMemLimit, lExpectedEncoding, &s2 ) != TROT_RC_SUCCESS );
+
 #if PRINT_GOOD_TEST_ENCODINGS
-	TEST_ERR_IF( listToCString( lMemLimit, lExpectedEncoding, &s ) != TROT_RC_SUCCESS );
-
-	printf( "lExpectedEncoding: \"%s\"\n", s );
-
-	TROT_FREE( s, strlen( s ) + 1 );
-	s = NULL;
+	printf( "lExpectedEncoding: \"%s\"\n", s2 );
 #endif
 
-	TEST_ERR_IF( trotListCompare( lMemLimit, lEncodedList1, lExpectedEncoding, &compareResult ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( compareResult != TROT_LIST_COMPARE_EQUAL );
+	TEST_ERR_IF( strcmp( s1, s2 ) != 0 );
 
+	TROT_FREE( s2, strlen( s2 ) + 1 );
+	s2 = NULL;
+
+	TROT_FREE( s1, strlen( s1 ) + 1 );
+	s1 = NULL;
 
 	/* CLEANUP */
 	cleanup:

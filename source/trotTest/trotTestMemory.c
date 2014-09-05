@@ -555,8 +555,6 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	TrotList *l2 = NULL;
 	TrotList *l3 = NULL;
 
-	TROT_LIST_COMPARE_RESULT compareResult;
-
 
 	/* CODE */
 	(void)test;
@@ -712,9 +710,6 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	ERR_IF_PASSTHROUGH;
 
 	/* secondary functions */
-	rc = trotListCompare( lMemLimit, l1, l2, &compareResult );
-	ERR_IF_PASSTHROUGH;
-
 	trotListFree( lMemLimit, &l2 );
 
 	rc = trotListCopy( lMemLimit, l1, &l2 );
@@ -766,9 +761,6 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	rc = trotListAppendList( lMemLimit, l2, l3 );
 	ERR_IF_PASSTHROUGH;
 	trotListFree( lMemLimit, &l3 );
-	
-	rc = trotListCompare( lMemLimit, l1, l2, &compareResult );
-	ERR_IF_PASSTHROUGH;
 
 	trotListFree( lMemLimit, &l1 );
 	trotListFree( lMemLimit, &l2 );
