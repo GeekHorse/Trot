@@ -77,7 +77,6 @@ void trotHookFree( void *ptr )
 static int testMemoryManagement( TrotList *lMemLimit );
 static int testDeepList( TrotList *lMemLimit );
 
-#ifdef TROT_DEBUG
 static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test );
 static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test );
 
@@ -93,7 +92,6 @@ static FailedFunc failedFuncs[] =
 	{ testFailedMallocs2, 11 },
 	{ NULL, 0 }
 };
-#endif
 
 /******************************************************************************/
 int testMemory( TrotList *lMemLimit )
@@ -110,12 +108,10 @@ int testMemory( TrotList *lMemLimit )
 	TrotList *lTestMemLimit = NULL;
 	TROT_INT testMemLimit = 0;
 
-#ifdef TROT_DEBUG
 	int j = 0;
 	int flagAtLeastOneFailed = 0;
 	char *spinner = "-\\|/";
 	unsigned int spinnerI = 0;
-#endif
 
 
 	/* CODE */
@@ -539,7 +535,6 @@ static int testDeepList( TrotList *lMemLimit )
 	return rc;
 }
 
-#ifdef TROT_DEBUG
 /******************************************************************************/
 static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 {
@@ -916,5 +911,4 @@ static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
 
 	return rc;
 }
-#endif
 
