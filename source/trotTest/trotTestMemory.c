@@ -542,7 +542,6 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	int i = 0;
-	int j = 0;
 
 	TrotList *lTestMemLimit = NULL;
 
@@ -759,58 +758,6 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 
 	trotListFree( lMemLimit, &l1 );
 	trotListFree( lMemLimit, &l2 );
-
-
-	/* It just so happens these values are 1 byte, 2 byte,
-	   3 byte, and 4 byte utf8 characters */
-	j = 0;
-	while ( j < 4 )
-	{
-		/* *** */
-		rc = trotListInit( lMemLimit, &l1 );
-		ERR_IF_PASSTHROUGH;
-		rc = trotListInit( lMemLimit, &l2 );
-		ERR_IF_PASSTHROUGH;
-		rc = trotListInit( lMemLimit, &l3 );
-		ERR_IF_PASSTHROUGH;
-
-		/* *** */
-		i = 0;
-		while ( i <= j )
-		{
-			rc = trotListAppendInt( lMemLimit, l1, 0x10 );
-			ERR_IF_PASSTHROUGH;
-
-			i += 1;
-		}
-
-		/* *** */
-		i = 0;
-		while ( i < TROT_NODE_SIZE + 1 )
-		{
-			rc = trotListAppendInt( lMemLimit, l1, 0x10 );
-			ERR_IF_PASSTHROUGH;
-			rc = trotListAppendInt( lMemLimit, l1, 0x100 );
-			ERR_IF_PASSTHROUGH;
-			rc = trotListAppendInt( lMemLimit, l1, 0x1000 );
-			ERR_IF_PASSTHROUGH;
-			rc = trotListAppendInt( lMemLimit, l1, 0x100000 );
-			ERR_IF_PASSTHROUGH;
-	
-			i += 1;
-		}
-
-		rc = trotCharactersToUtf8( lMemLimit, l1, l2 );
-		ERR_IF_PASSTHROUGH;
-		rc = trotUtf8ToCharacters( lMemLimit, l2, l3 );
-		ERR_IF_PASSTHROUGH;
-
-		trotListFree( lMemLimit, &l1 );
-		trotListFree( lMemLimit, &l2 );
-		trotListFree( lMemLimit, &l3 );
-
-		j += 1;
-	}
 
 
 	/* CLEANUP */

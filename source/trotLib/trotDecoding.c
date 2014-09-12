@@ -312,7 +312,7 @@ static TROT_RC skipWhitespace( TrotList *lMemLimit, TrotList *lCharacters, TROT_
 		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
-		ERR_IF( ! trotUnicodeIsWhitespace( ch ), TROT_RC_ERROR_DECODE );
+		ERR_IF( ch != ' ', TROT_RC_ERROR_DECODE );
 
 		(*index) += 1;
 	}
@@ -322,7 +322,7 @@ static TROT_RC skipWhitespace( TrotList *lMemLimit, TrotList *lCharacters, TROT_
 		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
-		if ( ! trotUnicodeIsWhitespace( ch ) )
+		if ( ch != ' ' )
 		{
 			break;
 		}
@@ -376,7 +376,7 @@ static TROT_RC getWord( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT cha
 		rc = trotListGetInt( lMemLimit, lCharacters, (*index), &ch );
 		ERR_IF_PASSTHROUGH;
 
-		if ( trotUnicodeIsWhitespace( ch ) )
+		if ( ch == ' ' )
 		{
 			break;
 		}

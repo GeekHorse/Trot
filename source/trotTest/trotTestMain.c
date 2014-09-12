@@ -59,7 +59,6 @@ int main( int argc, char **argv )
 	int flagTestBadTypesIndices = 0;
 	int flagTestPrimaryFunctionality = 0;
 	int flagTestSecondaryFunctionality = 0;
-	int flagTestUnicode = 0;
 	int flagTestDecodingEncoding = 0;
 
 	int flagTestAnySet = 0;
@@ -124,11 +123,6 @@ int main( int argc, char **argv )
 			flagTestSecondaryFunctionality = 1;
 			flagTestAnySet = 1;
 		}
-		else if ( strcmp( argValue, "uni" ) == 0 )
-		{
-			flagTestUnicode = 1;
-			flagTestAnySet = 1;
-		}
 		else if ( strcmp( argValue, "cod" ) == 0 )
 		{
 			flagTestDecodingEncoding = 1;
@@ -153,7 +147,6 @@ int main( int argc, char **argv )
 		fprintf( stderr, "                   bad = bad types and indices\n" );
 		fprintf( stderr, "                   f1  = primary functionality\n" );
 		fprintf( stderr, "                   f2  = secondary functionality\n" );
-		fprintf( stderr, "                   uni = unicode\n" );
 		fprintf( stderr, "                   cod = decoding, encoding\n" );
 		fprintf( stderr, "\n" );
 
@@ -217,14 +210,6 @@ int main( int argc, char **argv )
 	if ( flagTestAll || flagTestSecondaryFunctionality )
 	{
 		TEST_ERR_IF( testSecondaryFunctionality( lMemLimit ) != 0 );
-	}
-
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( memUsed != 0 );
-
-	if ( flagTestAll || flagTestUnicode )
-	{
-		TEST_ERR_IF( testUnicode( lMemLimit ) != 0 );
 	}
 
 	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );

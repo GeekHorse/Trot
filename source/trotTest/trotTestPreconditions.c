@@ -136,12 +136,6 @@ int testPreconditions( TrotList *lMemLimit )
 
 	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
 
-	TEST_ERR_IF( trotUtf8ToCharacters( lMemLimit, NULL, l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotUtf8ToCharacters( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotCharactersToUtf8( lMemLimit, NULL, l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotCharactersToUtf8( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
 	TEST_ERR_IF( trotEncode( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
 	TEST_ERR_IF( trotEncode( lMemLimit, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
