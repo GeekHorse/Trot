@@ -55,6 +55,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
+static TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TROT_INT n );
+static TROT_RC newListNode( TrotProgram *program, TrotListActual *la, TrotListNode *insertBeforeThis, TrotList *l );
+
 static TROT_RC refListAdd( TrotProgram *program, TrotListActual *la, TrotList *l );
 static void refListRemove( TrotProgram *program, TrotListActual *la, TrotList *l );
 
@@ -509,8 +512,6 @@ TROT_RC trotListAppendInt( TrotProgram *program, TrotList *l, TROT_INT n )
 	TrotListActual *la = NULL;
 	TrotListNode *node = NULL;
 
-	TrotListNode *newNode = NULL;
-
 
 	/* PRECOND */
 	FAILURE_POINT;
@@ -533,16 +534,15 @@ TROT_RC trotListAppendInt( TrotProgram *program, TrotList *l, TROT_INT n )
 	     || node->count == TROT_NODE_SIZE    /* last node is full */
 	   )
 	{
-		rc = newIntNode( program, la->tail, &newNode );
+		rc = newIntNode( program, la->tail, n );
 		ERR_IF_PASSTHROUGH;
-
-		node = newNode;
-		newNode = NULL;
+	}
+	else
+	{
+		node->n[ node->count ] = n;
+		node->count += 1;
 	}
 
-	/* append */
-	node->n[ node->count ] = n;
-	node->count += 1;
 
 	la->childrenCount += 1;
 
@@ -571,8 +571,6 @@ TROT_RC trotListAppendList( TrotProgram *program, TrotList *l, TrotList *lToAppe
 	TrotListActual *la = NULL;
 	TrotListNode *node = NULL;
 
-	TrotListNode *newNode = NULL;
-
 	TrotList *newL = NULL;
 
 
@@ -592,9 +590,6 @@ TROT_RC trotListAppendList( TrotProgram *program, TrotList *l, TrotList *lToAppe
 	/* *** */
 	node = la->tail->prev;
 
-	/* *** */
-	rc = trotListTwin( program, lToAppend, &newL );
-	ERR_IF_PASSTHROUGH;
 
 	/* special cases to create new node */
 	if (    node == la->head              /* empty list */
@@ -602,29 +597,28 @@ TROT_RC trotListAppendList( TrotProgram *program, TrotList *l, TrotList *lToAppe
 	     || node->count == TROT_NODE_SIZE     /* last node is full */
 	   )
 	{
-		rc = newListNode( program, la->tail, &newNode );
+		rc = newListNode( program, la, la->tail, lToAppend );
+		ERR_IF_PASSTHROUGH;
+	}
+	else
+	{
+		/* *** */
+		rc = trotListTwin( program, lToAppend, &newL );
 		ERR_IF_PASSTHROUGH;
 
-		node = newNode;
-		newNode = NULL;
+		/* append */
+		node->l[ node->count ] = newL;
+		newL->laParent = la;
+		newL = NULL;
+
+		node->count += 1;
 	}
 
-	/* append */
-	node->l[ node->count ] = newL;
-	newL->laParent = la;
-	newL = NULL;
-
-	node->count += 1;
-
 	la->childrenCount += 1;
-
-	newL = NULL;
 
 
 	/* CLEANUP */
 	cleanup:
-
-	trotListFree( program, &newL );
 
 	return rc;
 }
@@ -651,8 +645,6 @@ TROT_RC trotListInsertInt( TrotProgram *program, TrotList *l, TROT_INT index, TR
 
 	TROT_INT i = 0;
 	TROT_INT j = 0;
-
-	TrotListNode *newNode = NULL;
 
 
 	/* PRECOND */
@@ -773,11 +765,8 @@ TROT_RC trotListInsertInt( TrotProgram *program, TrotList *l, TROT_INT index, TR
 		}
 
 		/* *** */
-		rc = newIntNode( program, node, &newNode );
+		rc = newIntNode( program, node, n );
 		ERR_IF_PASSTHROUGH;
-
-		newNode->n[ 0 ] = n;
-		newNode->count = 1;
 
 		la->childrenCount += 1;
 
@@ -813,8 +802,6 @@ TROT_RC trotListInsertList( TrotProgram *program, TrotList *l, TROT_INT index, T
 
 	TROT_INT i = 0;
 	TROT_INT j = 0;
-
-	TrotListNode *newNode = NULL;
 
 	TrotList *newL = NULL;
 
@@ -852,6 +839,7 @@ TROT_RC trotListInsertList( TrotProgram *program, TrotList *l, TROT_INT index, T
 	ERR_IF_1( index <= 0, TROT_RC_ERROR_BAD_INDEX, index );
 	ERR_IF_1( index > (la->childrenCount ), TROT_RC_ERROR_BAD_INDEX, index );
 
+	/* FUTURE: factor this out into a function, maybe include index check above too */
 	/* Find node where list needs to be added into */
 	node = la->head->next;
 	while ( 1 )
@@ -952,23 +940,10 @@ TROT_RC trotListInsertList( TrotProgram *program, TrotList *l, TROT_INT index, T
 		}
 
 		/* *** */
-		rc = trotListTwin( program, lToInsert, &newL );
+		rc = newListNode( program, la, node, lToInsert );
 		ERR_IF_PASSTHROUGH;
-
-		/* *** */
-		rc = newListNode( program, node, &newNode );
-		ERR_IF_PASSTHROUGH;
-
-		/* Insert node into list */ /* FUTURE: inserting a node into a list should be a function */
-		newNode->l[ 0 ] = newL;
-		newL->laParent = la;
-		newL = NULL;
-
-		newNode->count = 1;
 
 		la->childrenCount += 1;
-
-		newL = NULL;
 	}
 
 
@@ -1439,8 +1414,6 @@ TROT_RC trotListReplaceWithInt( TrotProgram *program, TrotList *l, TROT_INT inde
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	TrotListNode *newNode = NULL;
-
 
 	/* PRECOND */
 	FAILURE_POINT;
@@ -1508,11 +1481,8 @@ TROT_RC trotListReplaceWithInt( TrotProgram *program, TrotList *l, TROT_INT inde
 			else
 			{
 				/* *** */
-				rc = newIntNode( program, node, &newNode );
+				rc = newIntNode( program, node, n );
 				ERR_IF_PASSTHROUGH;
-
-				newNode->n[ 0 ] = n;
-				newNode->count = 1;
 			}
 		}
 		/* else if end of node */
@@ -1539,11 +1509,8 @@ TROT_RC trotListReplaceWithInt( TrotProgram *program, TrotList *l, TROT_INT inde
 			else
 			{
 				/* *** */
-				rc = newIntNode( program, node->next, &newNode );
+				rc = newIntNode( program, node->next, n );
 				ERR_IF_PASSTHROUGH;
-
-				newNode->n[ 0 ] = n;
-				newNode->count = 1;
 			}
 		}
 		/* we'll have to split the node */
@@ -1553,11 +1520,8 @@ TROT_RC trotListReplaceWithInt( TrotProgram *program, TrotList *l, TROT_INT inde
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
-			rc = newIntNode( program, node->next, &newNode );
+			rc = newIntNode( program, node->next, n );
 			ERR_IF_PASSTHROUGH;
-
-			newNode->n[ 0 ] = n;
-			newNode->count = 1;
 		}
 
 		/* we've put in our int, now we need to remove a list */
@@ -1616,8 +1580,6 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 	TROT_INT i = 0;
 	TROT_INT j = 0;
 
-	TrotListNode *newNode = NULL;
-
 
 	/* PRECOND */
 	FAILURE_POINT;
@@ -1654,13 +1616,13 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 		PARANOID_ERR_IF( node == la->tail );
 	}
 
-	/* create our new twin */
-	rc = trotListTwin( program, lToInsert, &newL );
-	ERR_IF_PASSTHROUGH;
-
 	/* *** */
 	if ( node->kind == NODE_KIND_LIST )
 	{
+		/* create our new twin */
+		rc = trotListTwin( program, lToInsert, &newL );
+		ERR_IF_PASSTHROUGH;
+
 		i = index - count - 1;
 
 		/* free old */
@@ -1686,6 +1648,10 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 			     && node->prev->count != TROT_NODE_SIZE 
 			   )
 			{
+				/* create our new twin */
+				rc = trotListTwin( program, lToInsert, &newL );
+				ERR_IF_PASSTHROUGH;
+
 				/* append into prev node */
 				node->prev->l[ node->prev->count ] = newL;
 				newL->laParent = la;
@@ -1696,14 +1662,8 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 			else
 			{
 				/* *** */
-				rc = newListNode( program, node, &newNode );
+				rc = newListNode( program, la, node, lToInsert );
 				ERR_IF_PASSTHROUGH;
-
-				newNode->l[ 0 ] = newL;
-				newL->laParent = la;
-				newL = NULL;
-
-				newNode->count = 1;
 			}
 		}
 		/* else if end of node */
@@ -1715,7 +1675,11 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 			     && node->next->count != TROT_NODE_SIZE 
 			   )
 			{
-				/* prepend int */
+				/* create our new twin */
+				rc = trotListTwin( program, lToInsert, &newL );
+				ERR_IF_PASSTHROUGH;
+
+				/* prepend list */
 				j = node->next->count;
 				while ( j != 0 )
 				{
@@ -1732,14 +1696,8 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 			else
 			{
 				/* *** */
-				rc = newListNode( program, node->next, &newNode );
+				rc = newListNode( program, la, node->next, lToInsert );
 				ERR_IF_PASSTHROUGH;
-
-				newNode->l[ 0 ] = newL;
-				newL->laParent = la;
-				newL = NULL;
-
-				newNode->count = 1;
 			}
 		}
 		/* we'll have to split the node */
@@ -1749,14 +1707,8 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 			ERR_IF_PASSTHROUGH;
 
 			/* *** */
-			rc = newListNode( program, node->next, &newNode );
+			rc = newListNode( program, la, node->next, lToInsert );
 			ERR_IF_PASSTHROUGH;
-
-			newNode->l[ 0 ] = newL;
-			newL->laParent = la;
-			newL = NULL;
-
-			newNode->count = 1;
 		}
 
 		/* we've put in our list, now we need to remove an int */
@@ -1780,8 +1732,6 @@ TROT_RC trotListReplaceWithList( TrotProgram *program, TrotList *l, TROT_INT ind
 
 	/* CLEANUP */
 	cleanup:
-
-	trotListFree( program, &newL );
 
 	return rc;
 }
@@ -1971,10 +1921,10 @@ TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepI
 	\brief Creates a new TrotListNode for Int.
 	\param[in] program List that maintains memory limit
 	\param[in] insertBeforeThis Node in list to insert before
-	\param[out] n_A On success, the new node.
+	\param[in] n Int to insert into new node.
 	\return TROT_RC
 */
-TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotListNode **n_A )
+static TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -1985,18 +1935,19 @@ TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotLi
 	/* PRECOND */
 	PARANOID_ERR_IF( program == NULL );
 	PARANOID_ERR_IF( insertBeforeThis == NULL );
-	PARANOID_ERR_IF( n_A == NULL );
-	PARANOID_ERR_IF( (*n_A) != NULL );
 
 
 	/* CODE */
 	TROT_MALLOC( newNode, 1 );
 
 	newNode->kind = NODE_KIND_INT;
-	newNode->count = 0;
 
 	newNode->l = NULL;
 	TROT_MALLOC( newNode->n, TROT_NODE_SIZE );
+
+	newNode->count = 1;
+
+	newNode->n[ 0 ] = n;
 
 	/* insert node in list */
 	newNode->next = insertBeforeThis;
@@ -2004,10 +1955,6 @@ TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotLi
 
 	insertBeforeThis->prev->next = newNode;
 	insertBeforeThis->prev = newNode;
-
-	/* give back */
-	(*n_A) = newNode;
-	newNode = NULL;
 
 	return TROT_RC_SUCCESS;
 
@@ -2025,32 +1972,42 @@ TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotLi
 	\brief Creates a new TrotListNode for List.
 	\param[in] program List that maintains memory limit
 	\param[in] insertBeforeThis Node in list to insert before
-	\param[out] n_A On success, the new node.
+	\param[in] l List to twin and insert into new node
 	\return TROT_RC
 */
-TROT_RC newListNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotListNode **n_A )
+static TROT_RC newListNode( TrotProgram *program, TrotListActual *la, TrotListNode *insertBeforeThis, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	TrotListNode *newNode = NULL;
 
+	TrotList *newL = NULL;
+
 
 	/* PRECOND */
 	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( la == NULL );
 	PARANOID_ERR_IF( insertBeforeThis == NULL );
-	PARANOID_ERR_IF( n_A == NULL );
-	PARANOID_ERR_IF( (*n_A) != NULL );
+	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
+	rc = trotListTwin( program, l, &newL );
+	ERR_IF_PASSTHROUGH;
+
 	TROT_MALLOC( newNode, 1 );
 
 	newNode->kind = NODE_KIND_LIST;
-	newNode->count = 0;
 
 	newNode->n = NULL;
 	TROT_CALLOC( newNode->l, TROT_NODE_SIZE );
+
+	newNode->count = 1;
+
+	newNode->l[ 0 ] = newL;
+	newL->laParent = la;
+	newL = NULL;
 
 	/* insert node in list */
 	newNode->next = insertBeforeThis;
@@ -2059,16 +2016,13 @@ TROT_RC newListNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotL
 	insertBeforeThis->prev->next = newNode;
 	insertBeforeThis->prev = newNode;
 
-	/* give back */
-	(*n_A) = newNode;
-	newNode = NULL;
-
 	return TROT_RC_SUCCESS;
 
 
 	/* CLEANUP */
 	cleanup:
 
+	trotListFree( program, &newL );
 	TROT_FREE( newNode, 1 );
 
 	return rc;

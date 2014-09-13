@@ -96,32 +96,6 @@ int testBadTypesAndIndices( TrotProgram *program )
 	TEST_ERR_IF( trotListReplaceWithList( program, l, 11, l ) != TROT_RC_ERROR_BAD_INDEX );
 	TEST_ERR_IF( trotListReplaceWithList( program, l, -11, l ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListEnlist( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( program, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( program, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( program, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( program, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( program, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
-
-	TEST_ERR_IF( trotListDelist( program, l, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( program, l, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( program, l, 11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( program, l, 1 ) != TROT_RC_ERROR_WRONG_KIND );
-
-	TEST_ERR_IF( trotListCopySpan( program, l, 0, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( program, l, -11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( program, l, 11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( program, l, 1, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( program, l, 1, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( program, l, 1, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-
-	TEST_ERR_IF( trotListRemoveSpan( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( program, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( program, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
-
 	trotListFree( program, &l );
 
 

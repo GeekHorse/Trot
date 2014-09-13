@@ -687,35 +687,6 @@ static TROT_RC testFailedMallocs1( TrotProgram *program, int test )
 	rc = trotListAppendInt( program, l1, 1 );
 	ERR_IF_PASSTHROUGH;
 
-	/* secondary functions */
-	trotListFree( program, &l2 );
-
-	rc = trotListCopy( program, l1, &l2 );
-	ERR_IF_PASSTHROUGH;
-
-	trotListFree( program, &l2 );
-
-	rc = trotListEnlist( program, l1, 2, -2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListDelist( program, l1, 2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListCopySpan( program, l1, 1, -2, &l2 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListDelist( program, l1, -6 );
-	ERR_IF_PASSTHROUGH;
-
-	trotListFree( program, &l1 );
-	trotListFree( program, &l2 );
-
-	/* *** */
-	rc = trotListInit( program, &l1 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListCopy( program, l1, &l2 );
-	ERR_IF_PASSTHROUGH;
-
 	trotListFree( program, &l1 );
 	trotListFree( program, &l2 );
 
