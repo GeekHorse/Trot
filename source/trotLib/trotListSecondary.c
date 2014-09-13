@@ -33,7 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Implements the secondary functionality for our lists.
 
 	Secondary functionality includes:
-	- Deep list compare by value
 	- List copy (1 level deep only)
 	- Enlist
 	- Delist
@@ -50,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /*!
 	\brief Copies a list.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] l The list.
 	\param[out] lCopy_A New copied list.
 	\return TROT_RC
@@ -60,7 +59,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	Tags are copied.
 */
-TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
+TROT_RC trotListCopy( TrotProgram *program, TrotList *l, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -68,16 +67,17 @@ TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( lCopy_A == NULL );
+	PARANOID_ERR_IF( (*lCopy_A) != NULL );
 
 
 	/* CODE */
 	/* if list is empty, just give back a new list */
 	if ( l->laPointsTo->childrenCount == 0 )
 	{
-		rc = trotListInit( lMemLimit, lCopy_A );
+		rc = trotListInit( program, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
 		/* make sure copied list has same type and tag */
@@ -87,7 +87,7 @@ TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
 	/* else, use CopySpan */
 	else
 	{
-		rc = trotListCopySpan( lMemLimit, l, 1, -1, lCopy_A );
+		rc = trotListCopySpan( program, l, 1, -1, lCopy_A );
 		ERR_IF_PASSTHROUGH;
 
 		/* copy span copys the type and tag too */
@@ -103,7 +103,7 @@ TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
 /******************************************************************************/
 /*!
 	\brief Takes a span of children and puts them into a list.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Start index of items you want to enlist.
 	\param[in] indexEnd End index of items you want to enlist.
@@ -114,7 +114,7 @@ TROT_RC trotListCopy( TrotList *lMemLimit, TrotList *l, TrotList **lCopy_A )
 	become:
 	[ 1 2 [ 3 4 5 ] ]
 */
-TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListEnlist( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -138,7 +138,8 @@ TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, T
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
@@ -187,7 +188,7 @@ TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, T
 	/* split this node if necessary */
 	if ( count + 1 != indexStart )
 	{
-		rc = trotListNodeSplit( lMemLimit, node, indexStart - count - 1 );
+		rc = trotListNodeSplit( program, node, indexStart - count - 1 );
 		ERR_IF_PASSTHROUGH;
 
 		count += node->count;
@@ -214,16 +215,16 @@ TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, T
 	/* split this node if necessary */
 	if ( count + node->count != indexEnd )
 	{
-		rc = trotListNodeSplit( lMemLimit, node, indexEnd - count );
+		rc = trotListNodeSplit( program, node, indexEnd - count );
 		ERR_IF_PASSTHROUGH;
 	}
 
 	/* create our new node */
-	rc = newListNode( lMemLimit, &newNode );
+	rc = newListNode( program, &newNode );
 	ERR_IF_PASSTHROUGH;
 
 	/* create our new list */
-	rc = trotListInit( lMemLimit, &newL );
+	rc = trotListInit( program, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* insert our new list into our node */
@@ -303,7 +304,7 @@ TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, T
 /******************************************************************************/
 /*!
 	\brief Removes a list and puts it's children in it's place.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] l The list.
 	\param[in] index Index of list you want to delist.
 	\return TROT_RC
@@ -312,7 +313,7 @@ TROT_RC trotListEnlist( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, T
 	If list is [ 1 2 [ 3 4 5 ] ] and index is 3 then list will become:
 	[ 1 2 3 4 5 ]
 */
-TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
+TROT_RC trotListDelist( TrotProgram *program, TrotList *l, TROT_INT index )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -332,7 +333,8 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
@@ -369,7 +371,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 	/* split this node if necessary */
 	if ( count + 1 != index )
 	{
-		rc = trotListNodeSplit( lMemLimit, node, index - count - 1 );
+		rc = trotListNodeSplit( program, node, index - count - 1 );
 		ERR_IF_PASSTHROUGH;
 
 		node = node->next;
@@ -388,7 +390,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 	/* copy our delist (only if it contains something) */
 	if ( delistL->laPointsTo->childrenCount > 0 )
 	{
-		rc = trotListCopySpan( lMemLimit, delistL, 1, -1, &copiedL );
+		rc = trotListCopySpan( program, delistL, 1, -1, &copiedL );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -424,7 +426,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 
 	/* free our delistL */
 	delistL->laParent = NULL;
-	trotListFree( lMemLimit, &delistL );
+	trotListFree( program, &delistL );
 
 	/* was the delist empty? */
 	if ( copiedL == NULL )
@@ -465,7 +467,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 	copiedL->laPointsTo->tail->prev = copiedL->laPointsTo->head;
 
 	/* free our copied list */
-	trotListFree( lMemLimit, &copiedL );
+	trotListFree( program, &copiedL );
 
 
 	/* CLEANUP */
@@ -477,7 +479,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 /******************************************************************************/
 /*!
 	\brief Makes a copy of a span in a list.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Index of start of span.
 	\param[in] indexEnd Index of end of span.
@@ -496,7 +498,7 @@ TROT_RC trotListDelist( TrotList *lMemLimit, TrotList *l, TROT_INT index )
 	the trot library smaller. Do we want to eliminate everything from the
 	library that can be implemented in Trot?
 */
-TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
+TROT_RC trotListCopySpan( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -517,9 +519,10 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( lCopy_A == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( (*lCopy_A) != NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( l == NULL );
+	PARANOID_ERR_IF( lCopy_A == NULL );
+	PARANOID_ERR_IF( (*lCopy_A) != NULL );
 
 
 	/* CODE */
@@ -551,7 +554,7 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 	}
 
 	/* make our new list */
-	rc = trotListInit( lMemLimit, &newL );
+	rc = trotListInit( program, &newL );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
@@ -582,12 +585,12 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 		{
 			if ( node->kind == NODE_KIND_INT )
 			{
-				rc = trotListAppendInt( lMemLimit, newL, node->n[ i ] );
+				rc = trotListAppendInt( program, newL, node->n[ i ] );
 				ERR_IF_PASSTHROUGH;
 			}
 			else
 			{
-				rc = trotListAppendList( lMemLimit, newL, node->l[ i ] );
+				rc = trotListAppendList( program, newL, node->l[ i ] );
 				ERR_IF_PASSTHROUGH;
 			}
 
@@ -612,7 +615,7 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( lMemLimit, &newL );
+	trotListFree( program, &newL );
 
 	return rc;
 }
@@ -620,7 +623,7 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 /******************************************************************************/
 /*!
 	\brief Removes a span in a list.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] l The list.
 	\param[in] indexStart Index of start of span.
 	\param[in] indexEnd Index of end of span.
@@ -631,7 +634,7 @@ TROT_RC trotListCopySpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart,
 	become:
 	[ 1 2 ]
 */
-TROT_RC trotListRemoveSpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
+TROT_RC trotListRemoveSpan( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -641,7 +644,8 @@ TROT_RC trotListRemoveSpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStar
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( l == NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
@@ -656,15 +660,15 @@ TROT_RC trotListRemoveSpan( TrotList *lMemLimit, TrotList *l, TROT_INT indexStar
 	}
 
 	/* enlist */
-	rc = trotListEnlist( lMemLimit, l, indexStart, indexEnd );
+	rc = trotListEnlist( program, l, indexStart, indexEnd );
 	ERR_IF_PASSTHROUGH;
 
 	/* remove list */
-	rc = trotListRemoveList( lMemLimit, l, indexStart < indexEnd ? indexStart : indexEnd, &lRemoved );
+	rc = trotListRemoveList( program, l, indexStart < indexEnd ? indexStart : indexEnd, &lRemoved );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* free removed list */
-	trotListFree( lMemLimit, &lRemoved );
+	trotListFree( program, &lRemoved );
 
 
 	/* CLEANUP */

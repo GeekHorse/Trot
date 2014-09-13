@@ -40,11 +40,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* helper functions */
-static int compare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, int shouldBeEqual );
+static int compare( TrotProgram *program, TrotList *l1, TrotList *l2, int shouldBeEqual );
 
 /******************************************************************************/
 /* create functions */
-static int (*createFunctions[])( TrotList *lMemLimit, TrotList **, int ) =
+static int (*createFunctions[])( TrotProgram *program, TrotList **, int ) =
 	{
 		createAllInts,
 		createAllLists,
@@ -58,12 +58,12 @@ static int (*createFunctions[])( TrotList *lMemLimit, TrotList **, int ) =
 
 /******************************************************************************/
 /* test functions */
-static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size );
-static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size );
-static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size );
-static int testMaxChildrenWithDelist( TrotList *lMemLimit );
+static int testCopyCompare( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size );
+static int testEnlistDelist( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size );
+static int testSpans( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size );
+static int testMaxChildrenWithDelist( TrotProgram *program );
 
-static int (*testFunctions[])( TrotList *, int (*)( TrotList *, TrotList **, int ), int ) = 
+static int (*testFunctions[])( TrotProgram *, int (*)( TrotProgram *, TrotList **, int ), int ) = 
 	{
 		testCopyCompare,
 		testEnlistDelist,
@@ -72,7 +72,7 @@ static int (*testFunctions[])( TrotList *, int (*)( TrotList *, TrotList **, int
 	};
 
 /******************************************************************************/
-int testSecondaryFunctionality( TrotList *lMemLimit )
+int testSecondaryFunctionality( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -99,7 +99,7 @@ int testSecondaryFunctionality( TrotList *lMemLimit )
 			{
 				printf( "." ); fflush( stdout );
 
-				TEST_ERR_IF( testFunctions[ j ]( lMemLimit, createFunctions[ i ], count ) != 0 );
+				TEST_ERR_IF( testFunctions[ j ]( program, createFunctions[ i ], count ) != 0 );
 
 				j += 1;
 			}
@@ -118,7 +118,7 @@ int testSecondaryFunctionality( TrotList *lMemLimit )
 	}
 
 	/* test TROT_MAX_CHILDREN with delist */
-	TEST_ERR_IF( testMaxChildrenWithDelist( lMemLimit ) != 0 );
+	TEST_ERR_IF( testMaxChildrenWithDelist( program ) != 0 );
 
 
 	printf( "\n" ); fflush( stdout );
@@ -133,7 +133,7 @@ int testSecondaryFunctionality( TrotList *lMemLimit )
 }
 
 /******************************************************************************/
-static int compare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, int shouldBeEqual )
+static int compare( TrotProgram *program, TrotList *l1, TrotList *l2, int shouldBeEqual )
 {
 	/* DATA */
 	int rc = 0;
@@ -146,11 +146,11 @@ static int compare( TrotList *lMemLimit, TrotList *l1, TrotList *l2, int shouldB
 
 
 	/* CODE */
-	TEST_ERR_IF( trotEncode( lMemLimit, l1, &l1Encoded ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotEncode( lMemLimit, l2, &l2Encoded ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( program, l1, &l1Encoded ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotEncode( program, l2, &l2Encoded ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( listToCString( lMemLimit, l1Encoded, &s1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( listToCString( lMemLimit, l2Encoded, &s2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( program, l1Encoded, &s1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( listToCString( program, l2Encoded, &s2 ) != TROT_RC_SUCCESS );
 
 #if 0
 printf( "s1: %s\n", s1 );
@@ -173,8 +173,8 @@ printf( "\n" );
 	TROT_FREE( s2, strlen( s2 ) + 1 );
 	s2 = NULL;
 
-	trotListFree( lMemLimit, &l1Encoded );
-	trotListFree( lMemLimit, &l2Encoded );
+	trotListFree( program, &l1Encoded );
+	trotListFree( program, &l2Encoded );
 
 
 	/* CLEANUP */
@@ -184,7 +184,7 @@ printf( "\n" );
 }
 
 /******************************************************************************/
-static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size )
+static int testCopyCompare( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
@@ -205,106 +205,106 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 
 	/* CODE */
 	/* create l1 */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, 0 ) != 0 );
+	TEST_ERR_IF( (*createFunction)( program, &l1, 0 ) != 0 );
 
-	TEST_ERR_IF( compare( lMemLimit, l1, l1, 1 ) != 0 );
+	TEST_ERR_IF( compare( program, l1, l1, 1 ) != 0 );
 
 	/* create copy */
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopy( program, l1, &l1Copy ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( compare( lMemLimit, l1, l1Copy, 1 ) != 0 );
+	TEST_ERR_IF( compare( program, l1, l1Copy, 1 ) != 0 );
 
 	/* *** */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l2, 0 ) != 0 );
+	TEST_ERR_IF( (*createFunction)( program, &l2, 0 ) != 0 );
 
-	TEST_ERR_IF( trotListAppendList( lMemLimit, l1, l2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListAppendList( lMemLimit, l2, l1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( program, l1, l2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( program, l2, l1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+	TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 	/* free lists */
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
-	trotListFree( lMemLimit, &l1Copy );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
+	trotListFree( program, &l1Copy );
 
 	/* test tags */
 
 	/* empty list, default tag */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, 0 ) != 0 );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( (*createFunction)( program, &l1, 0 ) != 0 );
+	TEST_ERR_IF( trotListGetType( program, l1, &type1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1Copy ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopy( program, l1, &l1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1Copy, &type2 ) != TROT_RC_SUCCESS );
 
 	TEST_ERR_IF( type1 != type2 );
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l1Copy );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l1Copy );
 
 	/* empty list, new tag */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, 0 ) != 0 );
+	TEST_ERR_IF( (*createFunction)( program, &l1, 0 ) != 0 );
 	type1 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListSetType( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetType( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1, &type1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
 	tag1 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListSetTag( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopy( program, l1, &l1Copy ) != TROT_RC_SUCCESS );
 	type2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1Copy, &type2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
 	tag2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l1Copy );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l1Copy );
 
 	/* list with data, new tag */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, size ) != 0 );
+	TEST_ERR_IF( (*createFunction)( program, &l1, size ) != 0 );
 	type1 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListSetType( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetType( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1, &type1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
-	TEST_ERR_IF( trotListSetTag( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopy( program, l1, &l1Copy ) != TROT_RC_SUCCESS );
 	type2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1Copy, &type2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
 	tag2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l1Copy );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l1Copy );
 
 	/* list with data, new tag, copy a span */
-	TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, size ) != 0 );
+	TEST_ERR_IF( (*createFunction)( program, &l1, size ) != 0 );
 	type1 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListSetType( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1, &type1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetType( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1, &type1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type1 != TROT_TYPE_CODE );
 	tag1 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListSetTag( lMemLimit, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1, &tag1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListSetTag( program, l1, TROT_TYPE_CODE ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1, &tag1 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag1 != TROT_TYPE_CODE );
 
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l1, (rand() % size) + 1, (rand() % size) + 1, &l1Copy ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListCopySpan( program, l1, (rand() % size) + 1, (rand() % size) + 1, &l1Copy ) != TROT_RC_SUCCESS );
 	type2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1Copy, &type2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetType( program, l1Copy, &type2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( type2 != TROT_TYPE_CODE );
 	tag2 = TROT_TYPE_DATA;
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetTag( program, l1Copy, &tag2 ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( tag2 != TROT_TYPE_CODE );
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l1Copy );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l1Copy );
 	
 	
 	/* *** */
@@ -312,81 +312,81 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 	while ( index <= size )
 	{
 		/* create l1 */
-		TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, size ) != 0 );
+		TEST_ERR_IF( (*createFunction)( program, &l1, size ) != 0 );
 
-		TEST_ERR_IF( compare( lMemLimit, l1, l1, 1 ) != 0 );
+		TEST_ERR_IF( compare( program, l1, l1, 1 ) != 0 );
 
 		/* create copy */
-		TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCopy( program, l1, &l1Copy ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( compare( lMemLimit, l1, l1Copy, 1 ) != 0 );
+		TEST_ERR_IF( compare( program, l1, l1Copy, 1 ) != 0 );
 
 		/* create l2 with same create function */
-		TEST_ERR_IF( (*createFunction)( lMemLimit, &l2, size ) != 0 );
+		TEST_ERR_IF( (*createFunction)( program, &l2, size ) != 0 );
 
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* create copy */
-		TEST_ERR_IF( trotListCopy( lMemLimit, l2, &l2Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListCopy( program, l2, &l2Copy ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( compare( lMemLimit, l2, l2Copy, 1 ) != 0 );
+		TEST_ERR_IF( compare( program, l2, l2Copy, 1 ) != 0 );
 
 		/* test adding int */
-		TEST_ERR_IF( trotListInsertInt( lMemLimit, l2, index, 0 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertInt( program, l2, index, 0 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListInsertInt( lMemLimit, l1, index, 0 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertInt( program, l1, index, 0 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRemove( lMemLimit, l1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( program, l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* test adding twin of self */
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l2 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l2, index, l2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l1, index, l1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l1, index, l1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRemove( lMemLimit, l1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( program, l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* test adding twin */
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l2 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l2, index, l2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l1, index, l1 ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l1, index, l1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRemove( lMemLimit, l1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( program, l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* test adding copy */
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l2, index, l2Copy ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l2, index, l2Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListInsertList( lMemLimit, l1, index, l1Copy ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListInsertList( program, l1, index, l1Copy ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
-		TEST_ERR_IF( trotListRemove( lMemLimit, l1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListRemove( program, l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* test deleting item */
-		TEST_ERR_IF( trotListRemove( lMemLimit, l1, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l1, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
-		TEST_ERR_IF( trotListRemove( lMemLimit, l2, index ) != TROT_RC_SUCCESS );
-		TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+		TEST_ERR_IF( trotListRemove( program, l2, index ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 		/* free our lists */
-		trotListFree( lMemLimit, &l1 );
-		trotListFree( lMemLimit, &l1Copy );
-		trotListFree( lMemLimit, &l2 );
-		trotListFree( lMemLimit, &l2Copy );
+		trotListFree( program, &l1 );
+		trotListFree( program, &l1Copy );
+		trotListFree( program, &l2 );
+		trotListFree( program, &l2Copy );
 
 		index += 1;
 	}
@@ -402,7 +402,7 @@ static int testCopyCompare( TrotList *lMemLimit, int (*createFunction)( TrotList
 }
 
 /******************************************************************************/
-static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size )
+static int testEnlistDelist( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
@@ -431,12 +431,12 @@ static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotLis
 		while ( index2 <= size )
 		{
 			/* create our lists */
-			TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, size ) != 0 );
-			TEST_ERR_IF( (*createFunction)( lMemLimit, &l2, size ) != 0 );
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+			TEST_ERR_IF( (*createFunction)( program, &l1, size ) != 0 );
+			TEST_ERR_IF( (*createFunction)( program, &l2, size ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 			/* enlist */
-			TEST_ERR_IF( trotListGetCount( lMemLimit, l1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( program, l1, &count ) != TROT_RC_SUCCESS );
 
 			usedIndex1 = index1;
 			if ( rand() % 100 > 50 )
@@ -450,12 +450,12 @@ static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotLis
 				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
 			}
 
-			TEST_ERR_IF( trotListEnlist( lMemLimit, l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lMemLimit, l1 ) != 0 );
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+			TEST_ERR_IF( trotListEnlist( program, l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( program, l1 ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
 			/* delist */
-			TEST_ERR_IF( trotListGetCount( lMemLimit, l1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( program, l1, &count ) != TROT_RC_SUCCESS );
 
 			delistIndex = index1 < index2 ? index1 : index2;
 
@@ -464,20 +464,20 @@ static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotLis
 				delistIndex = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( delistIndex, count );
 			}
 
-			TEST_ERR_IF( trotListDelist( lMemLimit, l1, delistIndex ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lMemLimit, l1 ) != 0 );
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+			TEST_ERR_IF( trotListDelist( program, l1, delistIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( program, l1 ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 			/* delist empty list */
-			TEST_ERR_IF( trotListInit( lMemLimit, &lEmpty ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListInsertList( lMemLimit, l1, 1, lEmpty ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( trotListDelist( lMemLimit, l1, 1 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+			TEST_ERR_IF( trotListInit( program, &lEmpty ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( program, l1, 1, lEmpty ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListDelist( program, l1, 1 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 			/* free our lists */
-			trotListFree( lMemLimit, &l1 );
-			trotListFree( lMemLimit, &l2 );
-			trotListFree( lMemLimit, &lEmpty );
+			trotListFree( program, &l1 );
+			trotListFree( program, &l2 );
+			trotListFree( program, &lEmpty );
 
 			index2 += 1;
 		}
@@ -496,7 +496,7 @@ static int testEnlistDelist( TrotList *lMemLimit, int (*createFunction)( TrotLis
 }
 
 /******************************************************************************/
-static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, TrotList **, int ), int size )
+static int testSpans( TrotProgram *program, int (*createFunction)( TrotProgram *, TrotList **, int ), int size )
 {
 	/* DATA */
 	int rc = 0;
@@ -525,12 +525,12 @@ static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, Tr
 		while ( index2 <= size )
 		{
 			/* create our lists */
-			TEST_ERR_IF( (*createFunction)( lMemLimit, &l1, size ) != 0 );
-			TEST_ERR_IF( (*createFunction)( lMemLimit, &l2, size ) != 0 );
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+			TEST_ERR_IF( (*createFunction)( program, &l1, size ) != 0 );
+			TEST_ERR_IF( (*createFunction)( program, &l2, size ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 			/* create span copy */
-			TEST_ERR_IF( trotListGetCount( lMemLimit, l1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( program, l1, &count ) != TROT_RC_SUCCESS );
 
 			usedIndex1 = index1;
 			if ( rand() % 100 > 50 )
@@ -544,19 +544,19 @@ static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, Tr
 				usedIndex2 = INDEX_TO_NEGATIVE_VERSION_GET_OR_REMOVE( index2, count );
 			}
 
-			TEST_ERR_IF( trotListCopySpan( lMemLimit, l1, usedIndex1, usedIndex2, &lSpan ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lMemLimit, lSpan ) != 0 );
-			TEST_ERR_IF( checkList( lMemLimit, l1 ) != 0 );
+			TEST_ERR_IF( trotListCopySpan( program, l1, usedIndex1, usedIndex2, &lSpan ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( program, lSpan ) != 0 );
+			TEST_ERR_IF( checkList( program, l1 ) != 0 );
 
 			/* remove span */
-			TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
-			TEST_ERR_IF( checkList( lMemLimit, l1 ) != 0 );
+			TEST_ERR_IF( trotListRemoveSpan( program, l1, usedIndex1, usedIndex2 ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( checkList( program, l1 ) != 0 );
 
 			/* compare */
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 0 ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 0 ) != 0 );
 
 			/* insert and delist span */
-			TEST_ERR_IF( trotListGetCount( lMemLimit, l1, &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( program, l1, &count ) != TROT_RC_SUCCESS );
 
 			delistIndex = index1 < index2 ? index1 : index2;
 
@@ -565,17 +565,17 @@ static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, Tr
 				delistIndex = INDEX_TO_NEGATIVE_VERSION_INSERT( delistIndex, count );
 			}
 
-			TEST_ERR_IF( trotListInsertList( lMemLimit, l1, delistIndex, lSpan ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( program, l1, delistIndex, lSpan ) != TROT_RC_SUCCESS );
 
-			TEST_ERR_IF( trotListDelist( lMemLimit, l1, delistIndex ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListDelist( program, l1, delistIndex ) != TROT_RC_SUCCESS );
 
 			/* compare */
-			TEST_ERR_IF( compare( lMemLimit, l1, l2, 1 ) != 0 );
+			TEST_ERR_IF( compare( program, l1, l2, 1 ) != 0 );
 
 			/* free our lists */
-			trotListFree( lMemLimit, &l1 );
-			trotListFree( lMemLimit, &l2 );
-			trotListFree( lMemLimit, &lSpan );
+			trotListFree( program, &l1 );
+			trotListFree( program, &l2 );
+			trotListFree( program, &lSpan );
 
 			index2 += 1;
 		}
@@ -595,7 +595,7 @@ static int testSpans( TrotList *lMemLimit, int (*createFunction)( TrotList *, Tr
 }
 
 /******************************************************************************/
-static int testMaxChildrenWithDelist( TrotList *lMemLimit )
+static int testMaxChildrenWithDelist( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -621,63 +621,63 @@ static int testMaxChildrenWithDelist( TrotList *lMemLimit )
 	}
 
 	/* create our main l, to have TROT_MAX_CHILDREN - 1 children */
-	TEST_ERR_IF( trotListInit( lMemLimit, &l ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( program, &l ) != TROT_RC_SUCCESS );
 	
 	count = 1;
 	while ( count < TROT_MAX_CHILDREN )
 	{
-		TEST_ERR_IF( trotListAppendInt( lMemLimit, l, 1 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendInt( program, l, 1 ) != TROT_RC_SUCCESS );
 
 		/* increment */
 		count += 1;
 	}
 
 	/* create lwith1, to have 1 child */
-	TEST_ERR_IF( trotListInit( lMemLimit, &lwith1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListAppendInt( lMemLimit, lwith1, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( program, &lwith1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( program, lwith1, 1 ) != TROT_RC_SUCCESS );
 
 	/* create lwith2, to have 2 children */
-	TEST_ERR_IF( trotListInit( lMemLimit, &lwith2 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListAppendInt( lMemLimit, lwith2, 1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListAppendInt( lMemLimit, lwith2, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( program, &lwith2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( program, lwith2, 1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendInt( program, lwith2, 1 ) != TROT_RC_SUCCESS );
 
 	/* verify counts */
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, l, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != ( TROT_MAX_CHILDREN - 1 ) );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, lwith1, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, lwith1, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != 1 );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, lwith2, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, lwith2, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != 2 );
 
 	/* test adding lwith1 and delisting, which should work */
-	TEST_ERR_IF( trotListAppendList( lMemLimit, l, lwith1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( program, l, lwith1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, l, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
 
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, -1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListDelist( program, l, -1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, l, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
 
 	/* test adding lwith2 and delisting, which should fail */
-	TEST_ERR_IF( trotListRemove( lMemLimit, l, -1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListRemove( program, l, -1 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListAppendList( lMemLimit, l, lwith2 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( program, l, lwith2 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, l, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
 
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, -1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
+	TEST_ERR_IF( trotListDelist( program, l, -1 ) != TROT_RC_ERROR_LIST_OVERFLOW );
 
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l, &count ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListGetCount( program, l, &count ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( count != TROT_MAX_CHILDREN );
 
-	trotListFree( lMemLimit, &l );
-	trotListFree( lMemLimit, &lwith1 );
-	trotListFree( lMemLimit, &lwith2 );
+	trotListFree( program, &l );
+	trotListFree( program, &lwith1 );
+	trotListFree( program, &lwith2 );
 
 
 	/* CLEANUP */

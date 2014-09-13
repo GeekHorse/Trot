@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int testBadTypesAndIndices( TrotList *lMemLimit )
+int testBadTypesAndIndices( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -50,79 +50,79 @@ int testBadTypesAndIndices( TrotList *lMemLimit )
 	/* test bad indices, bad types */
 	printf( "Testing bad indices and bad types...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( createHalfIntHalfList( lMemLimit, &l, 10 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( createHalfIntHalfList( program, &l, 10 ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListGetKind( lMemLimit, l, 0, &kind ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetKind( lMemLimit, l, 11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetKind( lMemLimit, l, -11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetKind( program, l, 0, &kind ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetKind( program, l, 11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetKind( program, l, -11, &kind ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListInsertInt( lMemLimit, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListInsertInt( lMemLimit, l, 12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListInsertInt( lMemLimit, l, -12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertInt( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertInt( program, l, 12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertInt( program, l, -12, 1 ) != TROT_RC_ERROR_BAD_INDEX );
 	
-	TEST_ERR_IF( trotListInsertList( lMemLimit, l, 0, l ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListInsertList( lMemLimit, l, 12, l ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListInsertList( lMemLimit, l, -12, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertList( program, l, 0, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertList( program, l, 12, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListInsertList( program, l, -12, l ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListGetInt( lMemLimit, l, 0, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetInt( lMemLimit, l, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetInt( lMemLimit, l, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetInt( lMemLimit, l, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListGetInt( program, l, 0, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetInt( program, l, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetInt( program, l, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetInt( program, l, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListGetList( lMemLimit, l, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lMemLimit, l, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lMemLimit, l, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListGetList( lMemLimit, l, 5, &l2 ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListGetList( program, l, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( program, l, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( program, l, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListGetList( program, l, 5, &l2 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, 0, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, l, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRemoveInt( program, l, 0, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveInt( program, l, 11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveInt( program, l, -11, &n ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveInt( program, l, 6, &n ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l, 5, &l2 ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListRemoveList( program, l, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveList( program, l, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveList( program, l, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveList( program, l, 5, &l2 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListRemove( lMemLimit, l, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemove( lMemLimit, l, 11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemove( lMemLimit, l, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemove( program, l, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemove( program, l, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemove( program, l, -11 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithInt( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithInt( program, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithInt( program, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l, 0, l ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l, 11, l ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l, -11, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithList( program, l, 0, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithList( program, l, 11, l ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListReplaceWithList( program, l, -11, l ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListEnlist( lMemLimit, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListEnlist( program, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, 11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListDelist( lMemLimit, l, 1 ) != TROT_RC_ERROR_WRONG_KIND );
+	TEST_ERR_IF( trotListDelist( program, l, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListDelist( program, l, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListDelist( program, l, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListDelist( program, l, 1 ) != TROT_RC_ERROR_WRONG_KIND );
 
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, 0, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, -11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, 11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, 1, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, 1, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l, 1, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, 0, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, -11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, 11, 1, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, 1, 0, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, 1, -11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListCopySpan( program, l, 1, 11, &l2 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, 0, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, -11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, 11, 1 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, 0 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, -11 ) != TROT_RC_ERROR_BAD_INDEX );
+	TEST_ERR_IF( trotListRemoveSpan( program, l, 1, 11 ) != TROT_RC_ERROR_BAD_INDEX );
 
-	trotListFree( lMemLimit, &l );
+	trotListFree( program, &l );
 
 
 	/* CLEANUP */

@@ -34,17 +34,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotTestCommon.h"
 
 /******************************************************************************/
-int testPreconditions( TrotList *lMemLimit )
+int testPreconditions( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
-
-	TrotList *l1 = NULL;
-	TrotList *l2 = NULL;
-	TROT_INT kind = 0;
-	TROT_INT n = 0;
-	TROT_INT type = TROT_TYPE_DATA;
-	TROT_INT tag = TROT_TYPE_DATA;
 
 
 	/* CODE */
@@ -52,105 +45,14 @@ int testPreconditions( TrotList *lMemLimit )
 	/* test preconditions */
 	printf( "Testing preconditions...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( trotListInit( lMemLimit, NULL ) == TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListInit( lMemLimit, &l1 ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotListInit( lMemLimit, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListTwin( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListTwin( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListTwin( lMemLimit, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	trotListFree( lMemLimit, NULL );
-	trotListFree( lMemLimit, &l2 );
-
-	TEST_ERR_IF( trotMemLimitInit( -1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotMemLimitInit( 0, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotMemLimitInit( 0, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotMemLimitSetLimit( NULL, 0 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotMemLimitSetLimit( l1, -1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotMemLimitGetUsed( NULL, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotMemLimitGetUsed( l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListRefCompare( lMemLimit, NULL, l1, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCompare( lMemLimit, l1, NULL, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRefCompare( lMemLimit, l1, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetCount( lMemLimit, NULL, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetCount( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetKind( lMemLimit, NULL, 1, &kind ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetKind( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListAppendInt( lMemLimit, NULL, 0 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListAppendList( lMemLimit, NULL, l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListAppendList( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListInsertInt( lMemLimit, NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListInsertList( lMemLimit, NULL, 1, l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListInsertList( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetInt( lMemLimit, NULL, 1, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetInt( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetList( lMemLimit, NULL, 1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetList( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetList( lMemLimit, l1, 1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, NULL, 1, &n ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRemoveInt( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, NULL, 1, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListRemoveList( lMemLimit, l1, 1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListRemove( lMemLimit, NULL, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListReplaceWithInt( lMemLimit, NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListReplaceWithList( lMemLimit, NULL, 1, l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListReplaceWithList( lMemLimit, l1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetType( lMemLimit, NULL, &type ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetType( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListSetType( lMemLimit, NULL, TROT_TYPE_DATA ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListGetTag( lMemLimit, NULL, &tag ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListGetTag( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListSetTag( lMemLimit, NULL, TROT_TYPE_DATA ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListCopy( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCopy( lMemLimit, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListEnlist( lMemLimit, NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListDelist( lMemLimit, NULL, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l1, 1, 1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, l1, 1, 1, &l1 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotListCopySpan( lMemLimit, NULL, 1, 1, &l2 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotListRemoveSpan( lMemLimit, NULL, 1, 1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotEncode( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotEncode( lMemLimit, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	TEST_ERR_IF( trotDecode( lMemLimit, NULL, &l2 ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecode( lMemLimit, l1, NULL ) != TROT_RC_ERROR_PRECOND );
-	TEST_ERR_IF( trotDecode( lMemLimit, l1, &l1 ) != TROT_RC_ERROR_PRECOND );
-
-	trotListFree( lMemLimit, &l1 );
+	/* TODO */
+	(void)program;
 
 	return 0;
 
 
 	/* CLEANUP */
-	cleanup:
+	//cleanup:
 
 	return rc;
 }

@@ -86,7 +86,7 @@ TROT_RC trotProgramMemoryGetUsed( TrotProgram *program, TROT_INT *used )
 
 
 	/* CODE */
-	/* TODO */
+	(*used) = program->memoryUsed;
 
 
 	/* CLEANUP */
@@ -113,7 +113,7 @@ TROT_RC trotProgramMemoryGetLimit( TrotProgram *program, TROT_INT *limit )
 
 
 	/* CODE */
-	/* TODO */
+	(*limit) = program->memoryLimit;
 
 
 	/* CLEANUP */
@@ -136,11 +136,11 @@ TROT_RC trotProgramMemorySetLimit( TrotProgram *program, TROT_INT limit )
 
 	/* PRECOND */
 	ERR_IF( program == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( limit <= 0, TROT_RC_ERROR_PRECOND );
+	ERR_IF( limit < 0, TROT_RC_ERROR_PRECOND );
 
 
 	/* CODE */
-	/* TODO */
+	program->memoryLimit = limit;
 
 
 	/* CLEANUP */
@@ -417,7 +417,10 @@ TROT_RC trotProgramFree( TrotProgram **program_F )
 	{
 		goto cleanup;
 	}
-	/* TODO */
+
+	/* TODO lThreadList */
+	TROT_HOOK_FREE( (*program_F) );
+	(*program_F) = NULL;
 
 
 	/* CLEANUP */

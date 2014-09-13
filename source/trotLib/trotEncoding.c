@@ -40,14 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
-static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l );
-static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l );
-static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT n );
+static TROT_RC appendLeftBracketAndTags( TrotProgram *program, TrotList *lCharacters, TrotList *l );
+static TROT_RC appendAbsTwinLocation( TrotProgram *program, TrotList *lCharacters, TrotList *l );
+static TROT_RC appendNumber( TrotProgram *program, TrotList *lCharacters, TROT_INT n );
 
 /******************************************************************************/
 /*!
 	\brief Encodes a list into a list of characters.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] listToEncode The list to encode
 	\param[out] lCharacters_A On success, the encoding.
 	\return TROT_RC
@@ -55,7 +55,7 @@ static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_IN
 	listToEncode is not modified.
 	lCharacters_A is created, and caller is responsible for freeing.
 */
-TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCharacters_A )
+TROT_RC trotEncode( TrotProgram *program, TrotList *listToEncode, TrotList **lCharacters_A )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -82,31 +82,32 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 
 	/* PRECOND */
 	FAILURE_POINT;
-	ERR_IF( listToEncode == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( lCharacters_A == NULL, TROT_RC_ERROR_PRECOND );
-	ERR_IF( (*lCharacters_A) != NULL, TROT_RC_ERROR_PRECOND );
+	PARANOID_ERR_IF( program == NULL );
+	PARANOID_ERR_IF( listToEncode == NULL );
+	PARANOID_ERR_IF( lCharacters_A == NULL );
+	PARANOID_ERR_IF( (*lCharacters_A) != NULL );
 
 
 	/* CODE */
 	/* create "give back" list */
-	rc = trotListInit( lMemLimit, &newCharacters );
+	rc = trotListInit( program, &newCharacters );
 	ERR_IF_PASSTHROUGH;
 
 	/* create parent stack, so we can "go up" */
-	rc = trotListInit( lMemLimit, &lParentStack );
+	rc = trotListInit( program, &lParentStack );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInit( lMemLimit, &lParentIndicesStack );
+	rc = trotListInit( program, &lParentIndicesStack );
 	ERR_IF_PASSTHROUGH;
 
 	/* setup */
-	rc = trotListTwin( lMemLimit, listToEncode, &lCurrentList );
+	rc = trotListTwin( program, listToEncode, &lCurrentList );
 	ERR_IF_PASSTHROUGH;
 
 	lCurrentList->laPointsTo->encodingChildNumber = -1;
 
 	/* start our encoding */
-	rc = appendLeftBracketAndTags( lMemLimit, newCharacters, lCurrentList );
+	rc = appendLeftBracketAndTags( program, newCharacters, lCurrentList );
 	ERR_IF_PASSTHROUGH;
 
 	/* go through list */
@@ -115,22 +116,22 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 		/* do we have a next child? */
 
 		/* get count */
-		rc = trotListGetCount( lMemLimit, lCurrentList, &childrenCount );
+		rc = trotListGetCount( program, lCurrentList, &childrenCount );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* are we out of children? */
 		if ( index > childrenCount )
 		{
 			/* append "]" */
-			rc = trotListAppendInt( lMemLimit, newCharacters, ']' );
+			rc = trotListAppendInt( program, newCharacters, ']' );
 			ERR_IF_PASSTHROUGH;
 
 			/* append space */
-			rc = trotListAppendInt( lMemLimit, newCharacters, ' ' );
+			rc = trotListAppendInt( program, newCharacters, ' ' );
 			ERR_IF_PASSTHROUGH;
 
 			/* do we have a parent? */
-			rc = trotListGetCount( lMemLimit, lParentStack, &parentStackCount );
+			rc = trotListGetCount( program, lParentStack, &parentStackCount );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( parentStackCount == 0 )
@@ -140,11 +141,11 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 			}
 
 			/* go up to parent */
-			trotListFree( lMemLimit, &lCurrentList );
-			rc = trotListRemoveList( lMemLimit, lParentStack, -1, &lCurrentList );
+			trotListFree( program, &lCurrentList );
+			rc = trotListRemoveList( program, lParentStack, -1, &lCurrentList );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			rc = trotListRemoveInt( lMemLimit, lParentIndicesStack, -1, &index );
+			rc = trotListRemoveInt( program, lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* increment */
@@ -155,25 +156,25 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 		}
 
 		/* get kind */
-		rc = trotListGetKind( lMemLimit, lCurrentList, index, &kind );
+		rc = trotListGetKind( program, lCurrentList, index, &kind );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		if ( kind == TROT_KIND_INT )
 		{
 			/* get type */
-			rc = trotListGetType( lMemLimit, lCurrentList, &type );
+			rc = trotListGetType( program, lCurrentList, &type );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* get int */
-			rc = trotListGetInt( lMemLimit, lCurrentList, index, &n );
+			rc = trotListGetInt( program, lCurrentList, index, &n );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* append number */
-			rc = appendNumber( lMemLimit, newCharacters, n );
+			rc = appendNumber( program, newCharacters, n );
 			ERR_IF_PASSTHROUGH;
 
 			/* append space */
-			rc = trotListAppendInt( lMemLimit, newCharacters, ' ' );
+			rc = trotListAppendInt( program, newCharacters, ' ' );
 			ERR_IF_PASSTHROUGH;
 		}
 		else /* kind == TROT_KIND_LIST */
@@ -181,8 +182,8 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 			PARANOID_ERR_IF( kind != TROT_KIND_LIST );
 
 			/* get child list */
-			trotListFree( lMemLimit, &lChildList );
-			rc = trotListGetList( lMemLimit, lCurrentList, index, &lChildList );
+			trotListFree( program, &lChildList );
+			rc = trotListGetList( program, lCurrentList, index, &lChildList );
 			ERR_IF_PASSTHROUGH;
 
 			PARANOID_ERR_IF( lChildList->laPointsTo == NULL );
@@ -192,7 +193,7 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 			if ( lChildList->laPointsTo->encodingChildNumber != 0 )
 			{
 				/* append reference location */
-				rc = appendAbsTwinLocation( lMemLimit, newCharacters, lChildList );
+				rc = appendAbsTwinLocation( program, newCharacters, lChildList );
 				ERR_IF_PASSTHROUGH;
 			}
 			/* else we havent encoded this list yet, so encode it normally */
@@ -201,17 +202,17 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 				lChildList->laPointsTo->encodingChildNumber = index;
 				lChildList->laPointsTo->encodingParent = lCurrentList->laPointsTo;
 
-				rc = appendLeftBracketAndTags( lMemLimit, newCharacters, lChildList );
+				rc = appendLeftBracketAndTags( program, newCharacters, lChildList );
 				ERR_IF_PASSTHROUGH;
 
 				/* push to parent stacks, setup vars */
-				rc = trotListAppendList( lMemLimit, lParentStack, lCurrentList );
+				rc = trotListAppendList( program, lParentStack, lCurrentList );
 				ERR_IF_PASSTHROUGH;
 
-				rc = trotListAppendInt( lMemLimit, lParentIndicesStack, index );
+				rc = trotListAppendInt( program, lParentIndicesStack, index );
 				ERR_IF_PASSTHROUGH;
 
-				trotListFree( lMemLimit, &lCurrentList );
+				trotListFree( program, &lCurrentList );
 				lCurrentList = lChildList;
 				lChildList = NULL;
 
@@ -230,17 +231,17 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 	/* go through tree again, resetting encodingChildNumber and encodingParent */
 
 	/* create parent stack, so we can "go up" */
-	trotListFree( lMemLimit, &lParentStack );
-	rc = trotListInit( lMemLimit, &lParentStack );
+	trotListFree( program, &lParentStack );
+	rc = trotListInit( program, &lParentStack );
 	ERR_IF_PASSTHROUGH;
 
-	trotListFree( lMemLimit, &lParentIndicesStack );
-	rc = trotListInit( lMemLimit, &lParentIndicesStack );
+	trotListFree( program, &lParentIndicesStack );
+	rc = trotListInit( program, &lParentIndicesStack );
 	ERR_IF_PASSTHROUGH;
 
 	/* setup */
-	trotListFree( lMemLimit, &lCurrentList );
-	rc = trotListTwin( lMemLimit, listToEncode, &lCurrentList );
+	trotListFree( program, &lCurrentList );
+	rc = trotListTwin( program, listToEncode, &lCurrentList );
 	ERR_IF_PASSTHROUGH;
 
 	index = 1;
@@ -253,14 +254,14 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 		/* do we have a next child? */
 
 		/* get count */
-		rc = trotListGetCount( lMemLimit, lCurrentList, &childrenCount );
+		rc = trotListGetCount( program, lCurrentList, &childrenCount );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* are we out of children? */
 		if ( index > childrenCount )
 		{
 			/* do we have a parent? */
-			rc = trotListGetCount( lMemLimit, lParentStack, &parentStackCount );
+			rc = trotListGetCount( program, lParentStack, &parentStackCount );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			if ( parentStackCount == 0 )
@@ -270,11 +271,11 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 			}
 
 			/* go up to parent */
-			trotListFree( lMemLimit, &lCurrentList );
-			rc = trotListRemoveList( lMemLimit, lParentStack, -1, &lCurrentList );
+			trotListFree( program, &lCurrentList );
+			rc = trotListRemoveList( program, lParentStack, -1, &lCurrentList );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
-			rc = trotListRemoveInt( lMemLimit, lParentIndicesStack, -1, &index );
+			rc = trotListRemoveInt( program, lParentIndicesStack, -1, &index );
 			PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 			/* increment */
@@ -285,14 +286,14 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 		}
 
 		/* get kind */
-		rc = trotListGetKind( lMemLimit, lCurrentList, index, &kind );
+		rc = trotListGetKind( program, lCurrentList, index, &kind );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		if ( kind == TROT_KIND_LIST )
 		{
 			/* get child list */
-			trotListFree( lMemLimit, &lChildList );
-			rc = trotListGetList( lMemLimit, lCurrentList, index, &lChildList );
+			trotListFree( program, &lChildList );
+			rc = trotListGetList( program, lCurrentList, index, &lChildList );
 			ERR_IF_PASSTHROUGH;
 
 			PARANOID_ERR_IF( lChildList->laPointsTo == NULL );
@@ -304,13 +305,13 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 				lChildList->laPointsTo->encodingParent = NULL;
 
 				/* push to parent stacks, setup vars */
-				rc = trotListAppendList( lMemLimit, lParentStack, lCurrentList );
+				rc = trotListAppendList( program, lParentStack, lCurrentList );
 				ERR_IF_PASSTHROUGH;
 
-				rc = trotListAppendInt( lMemLimit, lParentIndicesStack, index );
+				rc = trotListAppendInt( program, lParentIndicesStack, index );
 				ERR_IF_PASSTHROUGH;
 
-				trotListFree( lMemLimit, &lCurrentList );
+				trotListFree( program, &lCurrentList );
 				lCurrentList = lChildList;
 				lChildList = NULL;
 
@@ -337,11 +338,11 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( lMemLimit, &newCharacters );
-	trotListFree( lMemLimit, &lParentStack );
-	trotListFree( lMemLimit, &lParentIndicesStack );
-	trotListFree( lMemLimit, &lCurrentList );
-	trotListFree( lMemLimit, &lChildList );
+	trotListFree( program, &newCharacters );
+	trotListFree( program, &lParentStack );
+	trotListFree( program, &lParentIndicesStack );
+	trotListFree( program, &lCurrentList );
+	trotListFree( program, &lChildList );
 
 	return rc;
 }
@@ -349,7 +350,7 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 /******************************************************************************/
 /*!
 	\brief Append encoding of left bracket and it's tags.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] lCharacters List of characters to append to.
 	\param[in] l List we're appending the encoding of. We need this to get the
 		tags.
@@ -363,7 +364,7 @@ TROT_RC trotEncode( TrotList *lMemLimit, TrotList *listToEncode, TrotList **lCha
 	this:
 	"[ ~1 `55 "
 */
-static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l )
+static TROT_RC appendLeftBracketAndTags( TrotProgram *program, TrotList *lCharacters, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -373,16 +374,16 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharact
 
 
 	/* PRECOND */
-	PARANOID_ERR_IF( lMemLimit == NULL );
+	PARANOID_ERR_IF( program == NULL );
 	PARANOID_ERR_IF( lCharacters == NULL );
 	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
 	/* append "[ " */
-	rc = trotListAppendInt( lMemLimit, lCharacters, '[' );
+	rc = trotListAppendInt( program, lCharacters, '[' );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
+	rc = trotListAppendInt( program, lCharacters, ' ' );
 	ERR_IF_PASSTHROUGH;
 
 	/* append type */
@@ -390,12 +391,12 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharact
 
 	if ( type != 0 )
 	{
-		rc = trotListAppendInt( lMemLimit, lCharacters, '~' );
+		rc = trotListAppendInt( program, lCharacters, '~' );
 		ERR_IF_PASSTHROUGH;
-		rc = appendNumber( lMemLimit, lCharacters, type );
+		rc = appendNumber( program, lCharacters, type );
 		ERR_IF_PASSTHROUGH;
 
-		rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
+		rc = trotListAppendInt( program, lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -404,12 +405,12 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharact
 
 	if ( tag != 0 )
 	{
-		rc = trotListAppendInt( lMemLimit, lCharacters, '`' );
+		rc = trotListAppendInt( program, lCharacters, '`' );
 		ERR_IF_PASSTHROUGH;
-		rc = appendNumber( lMemLimit, lCharacters, tag );
+		rc = appendNumber( program, lCharacters, tag );
 		ERR_IF_PASSTHROUGH;
 
-		rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
+		rc = trotListAppendInt( program, lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 	}
 
@@ -422,7 +423,7 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharact
 /******************************************************************************/
 /*!
 	\brief Appends encoding of a textual-reference.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] lCharacters List of characters to append to.
 	\param[in] l List we're appending the textual-reference encoding of.
 	\return TROT_RC
@@ -430,7 +431,7 @@ static TROT_RC appendLeftBracketAndTags( TrotList *lMemLimit, TrotList *lCharact
 	lCharacters will have the encoding text appended to it.
 	l will not be modified.
 */
-static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters, TrotList *l )
+static TROT_RC appendAbsTwinLocation( TrotProgram *program, TrotList *lCharacters, TrotList *l )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -445,34 +446,34 @@ static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters
 
 
 	/* PRECOND */
-	PARANOID_ERR_IF( lMemLimit == NULL );
+	PARANOID_ERR_IF( program == NULL );
 	PARANOID_ERR_IF( lCharacters == NULL );
 	PARANOID_ERR_IF( l == NULL );
 
 
 	/* CODE */
 	/* append "@" */
-	rc = trotListAppendInt( lMemLimit, lCharacters, '@' );
+	rc = trotListAppendInt( program, lCharacters, '@' );
 	ERR_IF_PASSTHROUGH;
 
 	/* if encodingChildNumber is -1, just need "@" */
 	if ( l->laPointsTo->encodingChildNumber == -1 )
 	{
 		/* append space */
-		rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
+		rc = trotListAppendInt( program, lCharacters, ' ' );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
 	}
 
 	/* create lAddress */
-	rc = trotListInit( lMemLimit, &lAddress );
+	rc = trotListInit( program, &lAddress );
 	ERR_IF_PASSTHROUGH;
 
 	laParent = l->laPointsTo;
 	while ( laParent->encodingChildNumber > 0 )
 	{
-		rc = trotListInsertInt( lMemLimit, lAddress, 1, laParent->encodingChildNumber );
+		rc = trotListInsertInt( program, lAddress, 1, laParent->encodingChildNumber );
 		ERR_IF_PASSTHROUGH;
 
 		laParent = laParent->encodingParent;
@@ -480,7 +481,7 @@ static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters
 	}
 
 	/* get count */
-	rc = trotListGetCount( lMemLimit, lAddress, &count );
+	rc = trotListGetCount( program, lAddress, &count );
 	PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 	/* foreach parent */
@@ -488,15 +489,15 @@ static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters
 	while ( index <= count )
 	{
 		/* get parent */
-		rc = trotListGetInt( lMemLimit, lAddress, index, &address );
+		rc = trotListGetInt( program, lAddress, index, &address );
 		PARANOID_ERR_IF( rc != TROT_RC_SUCCESS );
 
 		/* append '.' */
-		rc = trotListAppendInt( lMemLimit, lCharacters, '.' );
+		rc = trotListAppendInt( program, lCharacters, '.' );
 		ERR_IF_PASSTHROUGH;
 
 		/* append number */
-		rc = appendNumber( lMemLimit, lCharacters, address );
+		rc = appendNumber( program, lCharacters, address );
 		ERR_IF_PASSTHROUGH;
 
 		/* increment */
@@ -504,14 +505,14 @@ static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters
 	}
 
 	/* append space */
-	rc = trotListAppendInt( lMemLimit, lCharacters, ' ' );
+	rc = trotListAppendInt( program, lCharacters, ' ' );
 	ERR_IF_PASSTHROUGH;
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( lMemLimit, &lAddress );
+	trotListFree( program, &lAddress );
 
 	return rc;
 }
@@ -519,14 +520,14 @@ static TROT_RC appendAbsTwinLocation( TrotList *lMemLimit, TrotList *lCharacters
 /******************************************************************************/
 /*!
 	\brief Appends encoding of a number.
-	\param[in] lMemLimit List that maintains memory limit
+	\param[in] program List that maintains memory limit
 	\param[in] lCharacters List of characters to append to.
 	\param[in] n Number to append.
 	\return TROT_RC
 
 	lCharacters will have encoding text appended to it.
 */
-static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_INT n )
+static TROT_RC appendNumber( TrotProgram *program, TrotList *lCharacters, TROT_INT n )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -536,7 +537,7 @@ static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_IN
 
 
 	/* PRECOND */
-	PARANOID_ERR_IF( lMemLimit == NULL );
+	PARANOID_ERR_IF( program == NULL );
 	PARANOID_ERR_IF( lCharacters == NULL );
 
 
@@ -544,7 +545,7 @@ static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_IN
 	/* special case: 0 */
 	if ( n == 0 )
 	{
-		rc = trotListAppendInt( lMemLimit, lCharacters, '0' );
+		rc = trotListAppendInt( program, lCharacters, '0' );
 		ERR_IF_PASSTHROUGH;
 
 		goto cleanup;
@@ -582,7 +583,7 @@ static TROT_RC appendNumber( TrotList *lMemLimit, TrotList *lCharacters, TROT_IN
 	/* append numberString to lCharacters */
 	while ( (*s) != '\0' )
 	{
-		rc = trotListAppendInt( lMemLimit, lCharacters, (*s) );
+		rc = trotListAppendInt( program, lCharacters, (*s) );
 		ERR_IF_PASSTHROUGH;
 
 		s += 1;

@@ -74,15 +74,15 @@ void trotHookFree( void *ptr )
 }
 
 /******************************************************************************/
-static int testMemoryManagement( TrotList *lMemLimit );
-static int testDeepList( TrotList *lMemLimit );
+static int testMemoryManagement( TrotProgram *program );
+static int testDeepList( TrotProgram *program );
 
-static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test );
-static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test );
+static TROT_RC testFailedMallocs1( TrotProgram *program, int test );
+static TROT_RC testFailedMallocs2( TrotProgram *program, int test );
 
 typedef struct
 {
-	TROT_RC (*func)( TrotList *lMemLimit, int test );
+	TROT_RC (*func)( TrotProgram *program, int test );
 	int numberOfTests;
 } FailedFunc;
 
@@ -94,7 +94,7 @@ static FailedFunc failedFuncs[] =
 };
 
 /******************************************************************************/
-int testMemory( TrotList *lMemLimit )
+int testMemory( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -105,7 +105,7 @@ int testMemory( TrotList *lMemLimit )
 
 	int i = 0;
 
-	TrotList *lTestMemLimit = NULL;
+	TrotProgram *testProgram = NULL;
 	TROT_INT testMemLimit = 0;
 
 	int j = 0;
@@ -150,7 +150,7 @@ int testMemory( TrotList *lMemLimit )
 				currentMallocCount = 0;
 				failOnMallocCount += 1;
 
-				rc = failedFuncs[ i ].func( lMemLimit, j );
+				rc = failedFuncs[ i ].func( program, j );
 
 				if ( rc == TROT_RC_ERROR_MEMORY_ALLOCATION_FAILED )
 				{
@@ -186,41 +186,33 @@ int testMemory( TrotList *lMemLimit )
 	/* testing mem limit */
 	printf( "  Testing mem limit...\n" ); fflush( stdout );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	TROT_MALLOC( iArray, 10 );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
 
 	TROT_FREE( iArray, 10 );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	TROT_CALLOC( iArray, 10 );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != (10 * sizeof(int *) ) );
 
 	TROT_FREE( iArray, 10 );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	/* *** */
-	TEST_ERR_IF( trotListInit( NULL, &lTestMemLimit ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, 0 ) != TROT_RC_ERROR_BAD_TYPE );
-	TEST_ERR_IF( trotMemLimitGetUsed( lTestMemLimit, &memUsed ) != TROT_RC_ERROR_BAD_TYPE );
-	TEST_ERR_IF( trotListSetType( NULL, lTestMemLimit, TROT_TYPE_MEM_LIMIT ) != TROT_RC_SUCCESS );
-	TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, 0 ) != TROT_RC_ERROR_BAD_INDEX );
-	TEST_ERR_IF( trotMemLimitGetUsed( lTestMemLimit, &memUsed ) != TROT_RC_ERROR_BAD_INDEX );
-	trotListFree( NULL, &lTestMemLimit );
-
-	/* *** */
 	testMemLimit = 0;
-	TEST_ERR_IF( trotMemLimitInit( testMemLimit, &lTestMemLimit ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( ( testProgram = TROT_HOOK_CALLOC( 1, sizeof( *program ) ) ) == NULL );
+	TEST_ERR_IF( trotProgramMemorySetLimit( testProgram, testMemLimit ) != TROT_RC_SUCCESS );
 
 	i = 0;
 	while ( failedFuncs[ i ].func != NULL )
@@ -237,9 +229,9 @@ int testMemory( TrotList *lMemLimit )
 				spinnerI += 1;
 				printf( "\r%d: %d of %d %c", i, j, failedFuncs[ i ].numberOfTests - 1, spinner[ spinnerI % 4 ]  ); fflush( stdout );
 
-				TEST_ERR_IF( trotMemLimitSetLimit( lTestMemLimit, testMemLimit ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotProgramMemorySetLimit( testProgram, testMemLimit ) != TROT_RC_SUCCESS );
 
-				rc = failedFuncs[ i ].func( lTestMemLimit, j );
+				rc = failedFuncs[ i ].func( testProgram, j );
 
 				if ( rc == TROT_RC_ERROR_MEM_LIMIT )
 				{
@@ -270,7 +262,7 @@ int testMemory( TrotList *lMemLimit )
 		i += 1;
 	}
 
-	trotMemLimitFree( &lTestMemLimit );
+	TROT_HOOK_FREE( testProgram );
 
 	/* **************************************** */
 	/* test that calloc sets pointers to NULL */
@@ -291,7 +283,7 @@ int testMemory( TrotList *lMemLimit )
 			printf( "." ); fflush( stdout );
 		}
 
-		TEST_ERR_IF( testMemoryManagement( lMemLimit ) != 0 );
+		TEST_ERR_IF( testMemoryManagement( program ) != 0 );
 
 		/* *** */
 		i += 1;
@@ -302,7 +294,7 @@ int testMemory( TrotList *lMemLimit )
 	/* **************************************** */
 	/* *** */
 	printf( "  Testing a \"deep list\"...\n" ); fflush( stdout );
-	TEST_ERR_IF( testDeepList( lMemLimit ) != 0 );
+	TEST_ERR_IF( testDeepList( program ) != 0 );
 
 	printf( "\n" ); fflush( stdout );
 
@@ -317,7 +309,7 @@ int testMemory( TrotList *lMemLimit )
 }
 
 /******************************************************************************/
-static int testMemoryManagement( TrotList *lMemLimit )
+static int testMemoryManagement( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -354,12 +346,12 @@ static int testMemoryManagement( TrotList *lMemLimit )
 		if ( r == 0 && i > 0 )
 		{
 			j = rand() % i;
-			TEST_ERR_IF( trotListTwin( lMemLimit, clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListTwin( program, clientRefs[ j ], &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 		/* create new list */
 		else
 		{
-			TEST_ERR_IF( trotListInit( lMemLimit, &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInit( program, &( clientRefs[ i ] ) ) != TROT_RC_SUCCESS );
 		}
 
 		i += 1;
@@ -373,13 +365,13 @@ static int testMemoryManagement( TrotList *lMemLimit )
 		/* create new list */
 		if ( r <= 7 )
 		{
-			TEST_ERR_IF( trotListInit( lMemLimit, &ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInit( program, &ref ) != TROT_RC_SUCCESS );
 		}
 		/* twin client list */
 		else
 		{
 			r = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
-			TEST_ERR_IF( trotListTwin( lMemLimit, clientRefs[ r ], &ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListTwin( program, clientRefs[ r ], &ref ) != TROT_RC_SUCCESS );
 		}
 
 		/* how many are we going to add? */
@@ -392,12 +384,12 @@ static int testMemoryManagement( TrotList *lMemLimit )
 			clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 			/* where to add it to? */
-			TEST_ERR_IF( trotListGetCount( lMemLimit, clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListGetCount( program, clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 			randomIndex = ( rand() % ( count + 1 ) ) + 1;
 
 			/* add */
-			TEST_ERR_IF( trotListInsertList( lMemLimit, clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_RC_SUCCESS );
+			TEST_ERR_IF( trotListInsertList( program, clientRefs[ clientRefIndex ], randomIndex, ref ) != TROT_RC_SUCCESS );
 
 			countAdded += 1;
 
@@ -405,7 +397,7 @@ static int testMemoryManagement( TrotList *lMemLimit )
 		}
 
 		/* free our temporary ref */
-		trotListFree( lMemLimit, &ref );
+		trotListFree( program, &ref );
 
 		/* *** */
 		i += 1;
@@ -421,7 +413,7 @@ static int testMemoryManagement( TrotList *lMemLimit )
 		clientRefIndex = rand() % MEMORY_MANAGEMENT_REFS_COUNT;
 
 		/* which index to remove? */
-		TEST_ERR_IF( trotListGetCount( lMemLimit, clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListGetCount( program, clientRefs[ clientRefIndex ], &count ) != TROT_RC_SUCCESS );
 
 		if ( count > 0 )
 		{
@@ -431,12 +423,12 @@ static int testMemoryManagement( TrotList *lMemLimit )
 			r = rand() % 2;
 			if ( r == 0 )
 			{
-				TEST_ERR_IF( trotListRemoveList( lMemLimit, clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_RC_SUCCESS );
-				trotListFree( lMemLimit, &ref );
+				TEST_ERR_IF( trotListRemoveList( program, clientRefs[ clientRefIndex ], randomIndex, &ref ) != TROT_RC_SUCCESS );
+				trotListFree( program, &ref );
 			}
 			else
 			{
-				TEST_ERR_IF( trotListRemove( lMemLimit, clientRefs[ clientRefIndex ], randomIndex ) != TROT_RC_SUCCESS );
+				TEST_ERR_IF( trotListRemove( program, clientRefs[ clientRefIndex ], randomIndex ) != TROT_RC_SUCCESS );
 			}
 		}
 
@@ -457,7 +449,7 @@ static int testMemoryManagement( TrotList *lMemLimit )
 		{
 			if ( clientRefs[ j ] != NULL )
 			{
-				trotListFree( lMemLimit, &( clientRefs[ j ] ) );
+				trotListFree( program, &( clientRefs[ j ] ) );
 				break;
 			}
 
@@ -481,7 +473,7 @@ static int testMemoryManagement( TrotList *lMemLimit )
 }
 
 /******************************************************************************/
-static int testDeepList( TrotList *lMemLimit )
+static int testDeepList( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -495,17 +487,17 @@ static int testDeepList( TrotList *lMemLimit )
 
 
 	/* CODE */
-	TEST_ERR_IF( trotListInit( lMemLimit, &refHead ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListInit( program, &refHead ) != TROT_RC_SUCCESS );
 
-	TEST_ERR_IF( trotListTwin( lMemLimit, refHead, &ref1 ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListTwin( program, refHead, &ref1 ) != TROT_RC_SUCCESS );
 
 	while ( i < 1000 ) /* MAGIC */
 	{
-		TEST_ERR_IF( trotListInit( lMemLimit, &ref2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListInit( program, &ref2 ) != TROT_RC_SUCCESS );
 
-		TEST_ERR_IF( trotListAppendList( lMemLimit, ref1, ref2 ) != TROT_RC_SUCCESS );
+		TEST_ERR_IF( trotListAppendList( program, ref1, ref2 ) != TROT_RC_SUCCESS );
 
-		trotListFree( lMemLimit, &ref1 );
+		trotListFree( program, &ref1 );
 
 		ref1 = ref2;
 		ref2 = NULL;
@@ -518,13 +510,13 @@ static int testDeepList( TrotList *lMemLimit )
 		i += 1;
 	}
 
-	TEST_ERR_IF( trotListAppendList( lMemLimit, ref1, refHead ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotListAppendList( program, ref1, refHead ) != TROT_RC_SUCCESS );
 
-	trotListFree( lMemLimit, &ref1 );
+	trotListFree( program, &ref1 );
 
 	printf( ":" ); fflush( stdout );
 
-	trotListFree( lMemLimit, &refHead );
+	trotListFree( program, &refHead );
 
 	return TROT_RC_SUCCESS;
 
@@ -536,14 +528,12 @@ static int testDeepList( TrotList *lMemLimit )
 }
 
 /******************************************************************************/
-static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
+static TROT_RC testFailedMallocs1( TrotProgram *program, int test )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
 	int i = 0;
-
-	TrotList *lTestMemLimit = NULL;
 
 	TrotList *l1 = NULL;
 	TrotList *l2 = NULL;
@@ -554,22 +544,16 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	(void)test;
 
 	/* primary functions */
-	rc = trotMemLimitInit( 0, &lTestMemLimit );
+	rc = trotListInit( program, &l1 );
 	ERR_IF_PASSTHROUGH;
 
-	trotMemLimitFree( &lTestMemLimit );
-
-
-	rc = trotListInit( lMemLimit, &l1 );
-	ERR_IF_PASSTHROUGH;
-
-	rc = trotListInit( lMemLimit, &l2 );
+	rc = trotListInit( program, &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < (TROT_NODE_SIZE * 2) )
 	{
-		rc = trotListAppendInt( lMemLimit, l1,  1 );
+		rc = trotListAppendInt( program, l1,  1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -578,7 +562,7 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	i = 0;
 	while ( i < (TROT_NODE_SIZE * 2) )
 	{
-		rc = trotListAppendList( lMemLimit, l1, l2 );
+		rc = trotListAppendList( program, l1, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -587,43 +571,34 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	i = 0;
 	while ( i < (TROT_NODE_SIZE * 2) )
 	{
-		rc = trotListAppendInt( lMemLimit, l1,  1 );
+		rc = trotListAppendInt( program, l1,  1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListReplaceWithInt( lMemLimit, l1, (TROT_NODE_SIZE * 2) + 1, 0 );
+	rc = trotListReplaceWithInt( program, l1, (TROT_NODE_SIZE * 2) + 1, 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithInt( lMemLimit, l1, (TROT_NODE_SIZE * 4), 0 );
+	rc = trotListReplaceWithInt( program, l1, (TROT_NODE_SIZE * 4), 0 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithInt( lMemLimit, l1, (TROT_NODE_SIZE * 3) + 2, 0 );
-	ERR_IF_PASSTHROUGH;
-
-
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
-
-
-	rc = trotListInit( lMemLimit, &l1 );
+	rc = trotListReplaceWithInt( program, l1, (TROT_NODE_SIZE * 3) + 2, 0 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInit( lMemLimit, &l2 );
+
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
+
+
+	rc = trotListInit( program, &l1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( program, &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < (TROT_NODE_SIZE * 2) )
 	{
-		rc = trotListAppendList( lMemLimit, l1, l2 );
-		ERR_IF_PASSTHROUGH;
-
-		i += 1;
-	}
-
-	i = 0;
-	while ( i < (TROT_NODE_SIZE * 2) )
-	{
-		rc = trotListAppendInt( lMemLimit, l1, 1 );
+		rc = trotListAppendList( program, l1, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
@@ -632,146 +607,155 @@ static TROT_RC testFailedMallocs1( TrotList *lMemLimit, int test )
 	i = 0;
 	while ( i < (TROT_NODE_SIZE * 2) )
 	{
-		rc = trotListAppendList( lMemLimit, l1, l2 );
+		rc = trotListAppendInt( program, l1, 1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListReplaceWithList( lMemLimit, l1, (TROT_NODE_SIZE * 2) + 1, l2 );
+	i = 0;
+	while ( i < (TROT_NODE_SIZE * 2) )
+	{
+		rc = trotListAppendList( program, l1, l2 );
+		ERR_IF_PASSTHROUGH;
+
+		i += 1;
+	}
+
+	rc = trotListReplaceWithList( program, l1, (TROT_NODE_SIZE * 2) + 1, l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithList( lMemLimit, l1, (TROT_NODE_SIZE * 4), l2 );
+	rc = trotListReplaceWithList( program, l1, (TROT_NODE_SIZE * 4), l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListReplaceWithList( lMemLimit, l1, (TROT_NODE_SIZE * 3) + 2, l2 );
-	ERR_IF_PASSTHROUGH;
-
-
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
-
-
-	rc = trotListInit( lMemLimit, &l1 );
+	rc = trotListReplaceWithList( program, l1, (TROT_NODE_SIZE * 3) + 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInit( lMemLimit, &l2 );
+
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
+
+
+	rc = trotListInit( program, &l1 );
+	ERR_IF_PASSTHROUGH;
+
+	rc = trotListInit( program, &l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < TROT_NODE_SIZE + 2 )
 	{
-		rc = trotListInsertInt( lMemLimit, l1, 1, 1 );
+		rc = trotListInsertInt( program, l1, 1, 1 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListAppendInt( lMemLimit, l1, 1 );
+	rc = trotListAppendInt( program, l1, 1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInsertList( lMemLimit, l1, -1, l2 );
+	rc = trotListInsertList( program, l1, -1, l2 );
 	ERR_IF_PASSTHROUGH;
 
 	i = 0;
 	while ( i < TROT_NODE_SIZE + 2 )
 	{
-		rc = trotListInsertList( lMemLimit, l1, -2, l2 );
+		rc = trotListInsertList( program, l1, -2, l2 );
 		ERR_IF_PASSTHROUGH;
 
 		i += 1;
 	}
 
-	rc = trotListAppendList( lMemLimit, l1, l2 );
+	rc = trotListAppendList( program, l1, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInsertList( lMemLimit, l1, 2, l2 );
+	rc = trotListInsertList( program, l1, 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInsertInt( lMemLimit, l1, -2, 1 );
+	rc = trotListInsertInt( program, l1, -2, 1 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListInsertList( lMemLimit, l1, 1, l2 );
+	rc = trotListInsertList( program, l1, 1, l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListInsertList( lMemLimit, l1, 2, l2 );
+	rc = trotListInsertList( program, l1, 2, l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListGetList( lMemLimit, l1, -1, &l3 );
+	rc = trotListGetList( program, l1, -1, &l3 );
 	ERR_IF_PASSTHROUGH;
-	trotListFree( lMemLimit, &l3 );
+	trotListFree( program, &l3 );
 
-	rc = trotListAppendInt( lMemLimit, l1, 1 );
+	rc = trotListAppendInt( program, l1, 1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendInt( lMemLimit, l1, 1 );
+	rc = trotListAppendInt( program, l1, 1 );
 	ERR_IF_PASSTHROUGH;
 
 	/* secondary functions */
-	trotListFree( lMemLimit, &l2 );
+	trotListFree( program, &l2 );
 
-	rc = trotListCopy( lMemLimit, l1, &l2 );
+	rc = trotListCopy( program, l1, &l2 );
 	ERR_IF_PASSTHROUGH;
 
-	trotListFree( lMemLimit, &l2 );
+	trotListFree( program, &l2 );
 
-	rc = trotListEnlist( lMemLimit, l1, 2, -2 );
+	rc = trotListEnlist( program, l1, 2, -2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListDelist( lMemLimit, l1, 2 );
+	rc = trotListDelist( program, l1, 2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListCopySpan( lMemLimit, l1, 1, -2, &l2 );
+	rc = trotListCopySpan( program, l1, 1, -2, &l2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotListDelist( lMemLimit, l1, -6 );
+	rc = trotListDelist( program, l1, -6 );
 	ERR_IF_PASSTHROUGH;
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
-
-	/* *** */
-	rc = trotListInit( lMemLimit, &l1 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListCopy( lMemLimit, l1, &l2 );
-	ERR_IF_PASSTHROUGH;
-
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
 
 	/* *** */
-	rc = trotListInit( lMemLimit, &l1 );
+	rc = trotListInit( program, &l1 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListInit( lMemLimit, &l3 );
+	rc = trotListCopy( program, l1, &l2 );
 	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendInt( lMemLimit, l3, 1 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendList( lMemLimit, l1, l3 );
-	ERR_IF_PASSTHROUGH;
-	trotListFree( lMemLimit, &l3 );
 
-	rc = trotListInit( lMemLimit, &l2 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListInit( lMemLimit, &l3 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendInt( lMemLimit, l3, 2 );
-	ERR_IF_PASSTHROUGH;
-	rc = trotListAppendList( lMemLimit, l2, l3 );
-	ERR_IF_PASSTHROUGH;
-	trotListFree( lMemLimit, &l3 );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
+	/* *** */
+	rc = trotListInit( program, &l1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListInit( program, &l3 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendInt( program, l3, 1 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendList( program, l1, l3 );
+	ERR_IF_PASSTHROUGH;
+	trotListFree( program, &l3 );
+
+	rc = trotListInit( program, &l2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListInit( program, &l3 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendInt( program, l3, 2 );
+	ERR_IF_PASSTHROUGH;
+	rc = trotListAppendList( program, l2, l3 );
+	ERR_IF_PASSTHROUGH;
+	trotListFree( program, &l3 );
+
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
 
 
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( lMemLimit, &l1 );
-	trotListFree( lMemLimit, &l2 );
-	trotListFree( lMemLimit, &l3 );
+	trotListFree( program, &l1 );
+	trotListFree( program, &l2 );
+	trotListFree( program, &l3 );
 
 	return rc;
 }
 
 /******************************************************************************/
-static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
+static TROT_RC testFailedMallocs2( TrotProgram *program, int test )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -802,22 +786,22 @@ static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
 
 	/* CODE */
 	/* create characters */
-	rc = trotListInit( lMemLimit, &lCharacters );
+	rc = trotListInit( program, &lCharacters );
 	ERR_IF_PASSTHROUGH;
 
-	rc = appendCStringToList( lMemLimit, lCharacters, d[ test ] );
+	rc = appendCStringToList( program, lCharacters, d[ test ] );
 	ERR_IF_PASSTHROUGH;
 
 	/* *** */
-	rc = trotDecode( lMemLimit, lCharacters, &lDecodedList1 );
+	rc = trotDecode( program, lCharacters, &lDecodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 
-	rc = trotEncode( lMemLimit, lDecodedList1, &lEncodedList1 );
+	rc = trotEncode( program, lDecodedList1, &lEncodedList1 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lMemLimit, lEncodedList1, &s );
+	rc = listToCString( program, lEncodedList1, &s );
 	ERR_IF_PASSTHROUGH;
 
 	printf( "lEncodedList1: %s\n", s );
@@ -826,14 +810,14 @@ static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
 	s = NULL;
 #endif
 
-	rc = trotDecode( lMemLimit, lEncodedList1, &lDecodedList2 );
+	rc = trotDecode( program, lEncodedList1, &lDecodedList2 );
 	ERR_IF_PASSTHROUGH;
 
-	rc = trotEncode( lMemLimit, lDecodedList2, &lEncodedList2 );
+	rc = trotEncode( program, lDecodedList2, &lEncodedList2 );
 	ERR_IF_PASSTHROUGH;
 
 #if PRINT_ENCODED_LISTS
-	rc = listToCString( lMemLimit, lEncodedList2, &s );
+	rc = listToCString( program, lEncodedList2, &s );
 	ERR_IF_PASSTHROUGH;
 
 	printf( "lEncodedList2: %s\n", s );
@@ -846,11 +830,11 @@ static TROT_RC testFailedMallocs2( TrotList *lMemLimit, int test )
 	/* CLEANUP */
 	cleanup:
 
-	trotListFree( lMemLimit, &lCharacters );
-	trotListFree( lMemLimit, &lDecodedList1 );
-	trotListFree( lMemLimit, &lEncodedList1 );
-	trotListFree( lMemLimit, &lDecodedList2 );
-	trotListFree( lMemLimit, &lEncodedList2 );
+	trotListFree( program, &lCharacters );
+	trotListFree( program, &lDecodedList1 );
+	trotListFree( program, &lEncodedList1 );
+	trotListFree( program, &lDecodedList2 );
+	trotListFree( program, &lEncodedList2 );
 
 	return rc;
 }

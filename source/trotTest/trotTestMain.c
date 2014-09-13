@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 
 	int flagTestAnySet = 0;
 
-	TrotList *lMemLimit = NULL;
+	TrotProgram *program = NULL;
 	TROT_INT memUsed = 0;
 
 
@@ -170,68 +170,70 @@ int main( int argc, char **argv )
 	TEST_ERR_IF( TROT_NODE_SIZE < 4 );
 
 	/* **************************************** */
-	TEST_ERR_IF( trotMemLimitInit( TROT_INT_MAX, &lMemLimit ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( ( program = TROT_HOOK_CALLOC( 1, sizeof( *program ) ) ) == NULL );
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemorySetLimit( program, TROT_INT_MAX ) != TROT_RC_SUCCESS );
+
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestMisc )
 	{
-		TEST_ERR_IF( testMisc( lMemLimit ) != 0 );
+		TEST_ERR_IF( testMisc( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestPreconditions )
 	{
-		TEST_ERR_IF( testPreconditions( lMemLimit ) != 0 );
+		TEST_ERR_IF( testPreconditions( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestBadTypesIndices )
 	{
-		TEST_ERR_IF( testBadTypesAndIndices( lMemLimit ) != 0 );
+		TEST_ERR_IF( testBadTypesAndIndices( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestPrimaryFunctionality )
 	{
-		TEST_ERR_IF( testPrimaryFunctionality( lMemLimit ) != 0 );
+		TEST_ERR_IF( testPrimaryFunctionality( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestSecondaryFunctionality )
 	{
-		TEST_ERR_IF( testSecondaryFunctionality( lMemLimit ) != 0 );
+		TEST_ERR_IF( testSecondaryFunctionality( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestDecodingEncoding )
 	{
-		TEST_ERR_IF( testDecodingEncoding( lMemLimit ) != 0 );
+		TEST_ERR_IF( testDecodingEncoding( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
 	if ( flagTestAll || flagTestMemory )
 	{
-		TEST_ERR_IF( testMemory( lMemLimit ) != 0 );
+		TEST_ERR_IF( testMemory( program ) != 0 );
 	}
 
-	TEST_ERR_IF( trotMemLimitGetUsed( lMemLimit, &memUsed ) != TROT_RC_SUCCESS );
+	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
-	trotMemLimitFree( &lMemLimit );
+	trotProgramFree( &program );
 
 	/* **************************************** */
 	/* success! */
