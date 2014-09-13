@@ -55,6 +55,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "trotInternal.h"
 
 /******************************************************************************/
+static TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepInLeft );
+
 static TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TROT_INT n );
 static TROT_RC newListNode( TrotProgram *program, TrotListActual *la, TrotListNode *insertBeforeThis, TrotList *l );
 
@@ -1843,7 +1845,7 @@ TROT_RC trotListSetTag( TrotProgram *program, TrotList *l, TROT_INT tag )
 	\param[in] keepInLeft How many items to keep in n.
 	\return TROT_RC
 */
-TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepInLeft )
+static TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepInLeft )
 {
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
@@ -2312,7 +2314,6 @@ const char *trotRCToString( TROT_RC rc )
 		"Invalid Op Error",
 		"Bad Type Error",
 		"Divide By Zero Error",
-		"Unicode Error",
 		"Decode Error",
 		"Mem Limit Error"
 	};

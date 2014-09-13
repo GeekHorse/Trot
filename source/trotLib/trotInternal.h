@@ -320,19 +320,6 @@ TROT_RC trotListSetType( TrotProgram *program, TrotList *l, TROT_INT type );
 TROT_RC trotListGetTag( TrotProgram *program, TrotList *l, TROT_INT *tag );
 TROT_RC trotListSetTag( TrotProgram *program, TrotList *l, TROT_INT tag );
 
-TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepInLeft );
-
-/******************************************************************************/
-/* trotListSecondary.c */
-/* FUTURE: rename this so people know it's only 1 level copying? */
-TROT_RC trotListCopy( TrotProgram *program, TrotList *l, TrotList **lCopy_A );
-
-TROT_RC trotListEnlist( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
-TROT_RC trotListDelist( TrotProgram *program, TrotList *l, TROT_INT index );
-
-TROT_RC trotListCopySpan( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd, TrotList **lCopy_A );
-TROT_RC trotListRemoveSpan( TrotProgram *program, TrotList *l, TROT_INT indexStart, TROT_INT indexEnd );
-
 /******************************************************************************/
 /* trotDecoding.c */
 TROT_RC trotDecode( TrotProgram *program, TrotList *lCharacters, TrotList **lDecodedList_A );

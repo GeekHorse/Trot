@@ -78,13 +78,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TROT_RC_ERROR_INVALID_OP     2004
 #define TROT_RC_ERROR_BAD_TYPE       2005
 #define TROT_RC_ERROR_DIVIDE_BY_ZERO 2006
-#define TROT_RC_ERROR_UNICODE        2007
-#define TROT_RC_ERROR_DECODE         2008
-#define TROT_RC_ERROR_MEM_LIMIT      2009
+#define TROT_RC_ERROR_DECODE         2007
+#define TROT_RC_ERROR_MEM_LIMIT      2008
 
 /* These must be kept in sync with the above defines */
 #define TROT_RC_TROT_ERRORS_MIN     2001
-#define TROT_RC_TROT_ERRORS_MAX     2009
+#define TROT_RC_TROT_ERRORS_MAX     2008
 
 /******************************************************************************/
 #define TROT_KIND_INT 1
