@@ -60,10 +60,7 @@ int testPreconditions( TrotProgram *program );
 int testMisc( TrotProgram *program );
 int testMemory( TrotProgram *program );
 int testBadTypesAndIndices( TrotProgram *program );
-int testPrimaryFunctionality( TrotProgram *program );
-int testSecondaryFunctionality( TrotProgram *program );
-int testIntOperands( TrotProgram *program );
-int testUnicode( TrotProgram *program );
+int testListFunctions( TrotProgram *program );
 int testDecodingEncoding( TrotProgram *program );
 
 /******************************************************************************/

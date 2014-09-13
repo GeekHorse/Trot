@@ -77,7 +77,7 @@ static int (*testFunctions[])( TrotProgram *, TrotList *, int, int, int ) =
 	};
 
 /******************************************************************************/
-int testPrimaryFunctionality( TrotProgram *program )
+int testListFunctions( TrotProgram *program )
 {
 	/* DATA */
 	int rc = 0;
@@ -98,7 +98,7 @@ int testPrimaryFunctionality( TrotProgram *program )
 
 
 	/* CODE */
-	printf( "Testing primary functionality...\n" ); fflush( stdout );
+	printf( "Testing list functions...\n" ); fflush( stdout );
 
 	/* test refCompare */
 	printf( "  Testing refCompare...\n" ); fflush( stdout );

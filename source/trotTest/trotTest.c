@@ -57,7 +57,7 @@ int main( int argc, char **argv )
 	int flagTestMisc = 0;
 	int flagTestMemory = 0;
 	int flagTestBadTypesIndices = 0;
-	int flagTestPrimaryFunctionality = 0;
+	int flagTestListFunctions = 0;
 	int flagTestDecodingEncoding = 0;
 
 	int flagTestAnySet = 0;
@@ -112,9 +112,9 @@ int main( int argc, char **argv )
 			flagTestBadTypesIndices = 1;
 			flagTestAnySet = 1;
 		}
-		else if ( strcmp( argValue, "f1" ) == 0 )
+		else if ( strcmp( argValue, "lst" ) == 0 )
 		{
-			flagTestPrimaryFunctionality = 1;
+			flagTestListFunctions = 1;
 			flagTestAnySet = 1;
 		}
 		else if ( strcmp( argValue, "cod" ) == 0 )
@@ -139,7 +139,7 @@ int main( int argc, char **argv )
 		fprintf( stderr, "                   pre = preconditions\n" );
 		fprintf( stderr, "                   mem = memory\n" );
 		fprintf( stderr, "                   bad = bad types and indices\n" );
-		fprintf( stderr, "                   f1  = primary functionality\n" );
+		fprintf( stderr, "                   lst = list functions\n" );
 		fprintf( stderr, "                   cod = decoding, encoding\n" );
 		fprintf( stderr, "\n" );
 
@@ -194,9 +194,9 @@ int main( int argc, char **argv )
 	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
 	TEST_ERR_IF( memUsed != 0 );
 
-	if ( flagTestAll || flagTestPrimaryFunctionality )
+	if ( flagTestAll || flagTestListFunctions )
 	{
-		TEST_ERR_IF( testPrimaryFunctionality( program ) != 0 );
+		TEST_ERR_IF( testListFunctions( program ) != 0 );
 	}
 
 	TEST_ERR_IF( trotProgramMemoryGetUsed( program, &memUsed ) != TROT_RC_SUCCESS );
