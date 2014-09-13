@@ -115,8 +115,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /******************************************************************************/
-/* NOTE: Need to keep this in sync with TROT_KIND */
-#define NODE_KIND_HEAD_OR_TAIL 0
 #define NODE_KIND_INT 1
 #define NODE_KIND_LIST 2
 
@@ -171,10 +169,6 @@ typedef struct TrotListRefListNode_STRUCT TrotListRefListNode;
 /*! Data in a TrotList is stored in a linked list of trotListNodes. */
 struct TrotListNode_STRUCT
 {
-	/*! 'kind' is either NODE_KIND_HEAD_OR_TAIL, NODE_KIND_INT, or
-	NODE_KIND_LIST. */
-/* FUTURE: this can go away, since we know what kind it is based on the state of the l and n pointers */
-	TROT_INT kind;
 	/*! count is how many TROT_INTs or trotListRefs are in this node. */
 /* FUTURE: this could be made smaller by using a u8, since we're not going to have more than 256 sized nodes? */
 	TROT_INT count;

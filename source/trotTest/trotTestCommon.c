@@ -429,7 +429,6 @@ int checkList( TrotProgram *program, TrotList *l )
 	TEST_ERR_IF( la->childrenCount < 0 );
 
 	TEST_ERR_IF( la->head == NULL );
-	TEST_ERR_IF( la->head->kind != NODE_KIND_HEAD_OR_TAIL );
 	TEST_ERR_IF( la->head->n != NULL );
 	TEST_ERR_IF( la->head->l != NULL );
 	TEST_ERR_IF( la->head->next == NULL );
@@ -437,7 +436,6 @@ int checkList( TrotProgram *program, TrotList *l )
 	TEST_ERR_IF( la->head->prev != la->head );
 
 	TEST_ERR_IF( la->tail == NULL );
-	TEST_ERR_IF( la->tail->kind != NODE_KIND_HEAD_OR_TAIL );
 	TEST_ERR_IF( la->tail->n != NULL );
 	TEST_ERR_IF( la->tail->l != NULL );
 	TEST_ERR_IF( la->tail->next == NULL );
@@ -460,19 +458,22 @@ int checkList( TrotProgram *program, TrotList *l )
 		TEST_ERR_IF( node->count <= 0 );
 		realCount += node->count;
 
-		TEST_ERR_IF(    node->kind != NODE_KIND_INT
-		             && node->kind != NODE_KIND_LIST
+		TEST_ERR_IF(    node->n == NULL
+		             && node->l == NULL
 		           );
 
-		if ( node->kind == NODE_KIND_INT )
+		TEST_ERR_IF(    node->n != NULL
+		             && node->l != NULL
+		           );
+
+		if ( node->n != NULL )
 		{
-			TEST_ERR_IF( node->n == NULL );
 			TEST_ERR_IF( node->l != NULL );
 		}
 		else
 		{
-			TEST_ERR_IF( node->n != NULL );
 			TEST_ERR_IF( node->l == NULL );
+			TEST_ERR_IF( node->n != NULL );
 
 			i = 0;
 			while( i < node->count )
@@ -627,7 +628,7 @@ void printList( TrotProgram *program, TrotList *l, int indent )
 
 	while ( node != la->tail )
 	{
-		if ( node->kind == NODE_KIND_INT )
+		if ( node->n != NULL )
 		{
 			printIndent( indent );
 			printf( "I " );
@@ -637,7 +638,7 @@ void printList( TrotProgram *program, TrotList *l, int indent )
 			}
 			printf( "\n" );
 		}
-		else /* node->kind == NODE_KIND_LIST */
+		else /* node is list kind */
 		{
 			printIndent( indent );
 			printf( "L\n" );
