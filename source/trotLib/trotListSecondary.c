@@ -219,12 +219,12 @@ TROT_RC trotListEnlist( TrotProgram *program, TrotList *l, TROT_INT indexStart, 
 		ERR_IF_PASSTHROUGH;
 	}
 
-	/* create our new node */
-	rc = newListNode( program, &newNode );
-	ERR_IF_PASSTHROUGH;
-
 	/* create our new list */
 	rc = trotListInit( program, &newL );
+	ERR_IF_PASSTHROUGH;
+
+	/* create our new node */
+	rc = newListNode( program, startNode, &newNode );
 	ERR_IF_PASSTHROUGH;
 
 	/* insert our new list into our node */
@@ -234,13 +234,6 @@ TROT_RC trotListEnlist( TrotProgram *program, TrotList *l, TROT_INT indexStart, 
 
 	/* get our new list */
 	newLa = newL->laPointsTo;
-
-	/* insert our new node into list */
-	newNode->prev = startNode->prev;
-	newNode->next = startNode;
-
-	startNode->prev->next = newNode;
-	startNode->prev = newNode;
 
 	newNode = NULL;
 
@@ -288,15 +281,13 @@ TROT_RC trotListEnlist( TrotProgram *program, TrotList *l, TROT_INT indexStart, 
 		node = node->next;
 	}
 
+	newL = NULL;
+
 
 	/* CLEANUP */
 	cleanup:
 
-	if ( newNode != NULL )
-	{
-		TROT_FREE( newNode->l, TROT_NODE_SIZE );
-		TROT_FREE( newNode, 1 );
-	}
+	trotListFree( program, &newL );
 
 	return rc;
 }

@@ -322,8 +322,8 @@ TROT_RC trotListSetTag( TrotProgram *program, TrotList *l, TROT_INT tag );
 
 TROT_RC trotListNodeSplit( TrotProgram *program, TrotListNode *n, TROT_INT keepInLeft );
 
-TROT_RC newIntNode( TrotProgram *program, TrotListNode **n_A );
-TROT_RC newListNode( TrotProgram *program, TrotListNode **n_A );
+TROT_RC newIntNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotListNode **n_A );
+TROT_RC newListNode( TrotProgram *program, TrotListNode *insertBeforeThis, TrotListNode **n_A );
 
 /******************************************************************************/
 /* trotListSecondary.c */
