@@ -408,7 +408,6 @@ int checkList( TrotProgram *program, TrotList *l )
 	TrotListRefListNode *subRefNode = NULL;
 
 	int i = 0;
-	int j = 0;
 
 	int realCount = 0;
 
@@ -482,19 +481,13 @@ int checkList( TrotProgram *program, TrotList *l )
 
 				foundRef = 0;
 				subLa = node->l[ i ]->laPointsTo;
-				subRefNode = subLa->refListHead->next;
-				while ( subRefNode != subLa->refListTail && foundRef == 0 )
+				subRefNode = subLa->refList;
+				while ( subRefNode != NULL && foundRef == 0 )
 				{
-					j = 0;
-					while ( j < subRefNode->count )
+					if ( subRefNode->l->laParent == la )
 					{
-						if ( subRefNode->l[ j ]->laParent == la )
-						{
-							foundRef = 1;
-							break;
-						}
-
-						j += 1;
+						foundRef = 1;
+						break;
 					}
 
 					subRefNode = subRefNode->next;
@@ -526,51 +519,16 @@ int checkList( TrotProgram *program, TrotList *l )
 	}
 
 	/* *** */
-	TEST_ERR_IF( la->refListHead == NULL );
-	TEST_ERR_IF( la->refListHead->next == NULL );
-	TEST_ERR_IF( la->refListHead->prev == NULL );
-	TEST_ERR_IF( la->refListHead->prev != la->refListHead );
-	TEST_ERR_IF( la->refListHead->count != 0 );
-
-	TEST_ERR_IF( la->refListTail == NULL );
-	TEST_ERR_IF( la->refListTail->next == NULL );
-	TEST_ERR_IF( la->refListTail->prev == NULL );
-	TEST_ERR_IF( la->refListTail->next != la->refListTail );
-	TEST_ERR_IF( la->refListTail->count != 0 );
-
-	refNode = la->refListHead->next;
-	while ( refNode != la->refListTail )
+	refNode = la->refList;
+	while ( refNode != NULL )
 	{
-		TEST_ERR_IF( refNode->next == NULL );
-		TEST_ERR_IF( refNode->next == refNode );
-		TEST_ERR_IF( refNode->prev == NULL );
-		TEST_ERR_IF( refNode->prev == refNode );
-		TEST_ERR_IF( refNode->next->prev != refNode );
-		TEST_ERR_IF( refNode->prev->next != refNode );
-
-		TEST_ERR_IF( refNode->count <= 0 );
-
 		TEST_ERR_IF( refNode->l == NULL );
+		TEST_ERR_IF( refNode->l->laPointsTo == NULL );
+		TEST_ERR_IF( refNode->l->laPointsTo != la );
 
-		i = 0;
-		while ( i < refNode->count )
+		if ( refNode->l == l )
 		{
-			TEST_ERR_IF( refNode->l[ i ] == NULL );
-			TEST_ERR_IF( refNode->l[ i ]->laPointsTo == NULL );
-			TEST_ERR_IF( refNode->l[ i ]->laPointsTo != la );
-
-			if ( refNode->l[ i ] == l )
-			{
-				foundLr = 1;
-			}
-
-			i += 1;
-		}
-		while ( i < REF_LIST_NODE_SIZE )
-		{
-			TEST_ERR_IF( refNode->l[ i ] != NULL );
-
-			i += 1;
+			foundLr = 1;
 		}
 
 		refNode = refNode->next;

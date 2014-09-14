@@ -78,9 +78,6 @@ TROT_RC trotListInit( TrotProgram *program, TrotList **l_A )
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	TrotListRefListNode *newRefHead = NULL;
-	TrotListRefListNode *newRefTail = NULL;
-
 	TrotListNode *newHead = NULL;
 	TrotListNode *newTail = NULL;
 	TrotListActual *newLa = NULL;
@@ -96,56 +93,20 @@ TROT_RC trotListInit( TrotProgram *program, TrotList **l_A )
 
 
 	/* CODE */
-	/* create list of refs that point to this list */
-	TROT_MALLOC( newRefHead, 1 );
-	TROT_MALLOC( newRefTail, 1 );
-
-	newRefHead->count = 0;
-	newRefHead->l = NULL;
-	newRefHead->next = newRefTail;
-	newRefHead->prev = newRefHead;
-
-	newRefTail->count = 0;
-	newRefTail->l = NULL;
-	newRefTail->next = newRefTail;
-	newRefTail->prev = newRefHead;
-
 	/* create the data list */
-	TROT_MALLOC( newHead, 1 );
-	TROT_MALLOC( newTail, 1 );
+	TROT_CALLOC( newHead, 1 );
+	TROT_CALLOC( newTail, 1 );
 
-	newHead->count = 0;
-	newHead->n = NULL;
-	newHead->l = NULL;
 	newHead->prev = newHead;
 	newHead->next = newTail;
 
-	newTail->count = 0;
-	newTail->n = NULL;
-	newTail->l = NULL;
 	newTail->prev = newHead;
 	newTail->next = newTail;
 
 	/* create actual list structure */
-	TROT_MALLOC( newLa, 1 );
+	TROT_CALLOC( newLa, 1 );
 
 	newLa->reachable = 1;
-	newLa->flagVisited = 0;
-	newLa->previous = NULL;
-	newLa->nextToFree = NULL;
-
-	newLa->encodingParent = NULL;
-	newLa->encodingChildNumber = 0;
-
-	newLa->type = TROT_TYPE_DATA;
-	newLa->tag = 0;
-
-	newLa->childrenCount = 0;
-
-	newLa->refListHead = newRefHead;
-	newLa->refListTail = newRefTail;
-	newRefHead = NULL;
-	newRefTail = NULL;
 
 	newLa->head = newHead;
 	newLa->tail = newTail;
@@ -153,9 +114,7 @@ TROT_RC trotListInit( TrotProgram *program, TrotList **l_A )
 	newTail = NULL;
 
 	/* create the first ref to this list */
-	TROT_MALLOC( newL, 1 );
-
-	newL->laParent = NULL;
+	TROT_CALLOC( newL, 1 );
 
 	newL->laPointsTo = newLa;
 	newLa = NULL;
@@ -175,22 +134,18 @@ TROT_RC trotListInit( TrotProgram *program, TrotList **l_A )
 	/* CLEANUP */
 	cleanup:
 
-	TROT_FREE( newRefHead, 1 );
-	TROT_FREE( newRefTail, 1 );
 	TROT_FREE( newHead, 1 );
 	TROT_FREE( newTail, 1 );
 	if ( newLa != NULL )
 	{
-		TROT_FREE( newLa->refListHead, 1 );
-		TROT_FREE( newLa->refListTail, 1 );
+		TROT_FREE( newLa->refList, 1 );
 		TROT_FREE( newLa->head, 1 );
 		TROT_FREE( newLa->tail, 1 );
 		TROT_FREE( newLa, 1 );
 	}
 	if ( newL != NULL )
 	{
-		TROT_FREE( newL->laPointsTo->refListHead, 1 );
-		TROT_FREE( newL->laPointsTo->refListTail, 1 );
+		TROT_FREE( newL->laPointsTo->refList, 1 );
 		TROT_FREE( newL->laPointsTo->head, 1 );
 		TROT_FREE( newL->laPointsTo->tail, 1 );
 		TROT_FREE( newL->laPointsTo, 1 );
@@ -364,8 +319,7 @@ void trotListFree( TrotProgram *program, TrotList **l_F )
 		/* *** */
 		TROT_FREE( laCurrent->head, 1 );
 		TROT_FREE( laCurrent->tail, 1 );
-		TROT_FREE( laCurrent->refListHead, 1 );
-		TROT_FREE( laCurrent->refListTail, 1 );
+		TROT_FREE( laCurrent->refList, 1 );
 		TROT_FREE( laCurrent, 1 );
 	}
 
@@ -2040,8 +1994,6 @@ static TROT_RC refListAdd( TrotProgram *program, TrotListActual *la, TrotList *l
 	/* DATA */
 	TROT_RC rc = TROT_RC_SUCCESS;
 
-	TrotListRefListNode *refNode = NULL;
-
 	TrotListRefListNode *newRefNode = NULL;
 
 
@@ -2052,41 +2004,16 @@ static TROT_RC refListAdd( TrotProgram *program, TrotListActual *la, TrotList *l
 
 
 	/* CODE */
-	refNode = la->refListHead->next;
-	while ( refNode != la->refListTail )
-	{
-		if ( refNode->count < REF_LIST_NODE_SIZE )
-		{
-			refNode->l[ refNode->count ] = l;
-			refNode->count += 1;
-
-			return TROT_RC_SUCCESS;
-		}
-
-		refNode = refNode->next;
-	}
-
-	/* there was no room in list, so create new node, insert ref into new
-	   node, and insert node into list */
 	TROT_MALLOC( newRefNode, 1 );
 
-	TROT_CALLOC( newRefNode->l, REF_LIST_NODE_SIZE );
+	newRefNode->l = l;
 
-	newRefNode->count = 1;
-	newRefNode->l[ 0 ] = l;
-
-	newRefNode->prev = la->refListTail->prev;
-	newRefNode->next = la->refListTail;
-	la->refListTail->prev->next = newRefNode;
-	la->refListTail->prev = newRefNode;
-
-	return TROT_RC_SUCCESS;
+	newRefNode->next = la->refList;
+	la->refList = newRefNode;
 
 
 	/* CLEANUP */
 	cleanup:
-
-	TROT_FREE( newRefNode, 1 );
 
 	return rc;
 }
@@ -2095,9 +2022,8 @@ static TROT_RC refListAdd( TrotProgram *program, TrotListActual *la, TrotList *l
 static void refListRemove( TrotProgram *program, TrotListActual *la, TrotList *l )
 {
 	/* DATA */
+	TrotListRefListNode *refPrev = NULL;
 	TrotListRefListNode *refNode = NULL;
-
-	TROT_INT i = 0;
 
 
 	/* PRECOND */
@@ -2107,51 +2033,33 @@ static void refListRemove( TrotProgram *program, TrotListActual *la, TrotList *l
 
 
 	/* CODE */
-	/* foreach refNode */
-	refNode = la->refListHead->next;
-	while ( 1 )
+	refNode = la->refList;
+
+	/* edge case */
+	if ( refNode->l == l )
 	{
-		/* foreach pointer in this node */
-		i = 0;
-		while ( i < refNode->count )
-		{
-			/* is this the ref we're looking for? */
-			if ( refNode->l[ i ] == l )
-			{
-				/* found, now remove it */
-				while ( i < ( ( refNode->count ) - 1 ) )
-				{
-					refNode->l[ i ] = refNode->l[ i + 1 ];
+		la->refList = refNode->next;
+		TROT_FREE( refNode, 1 );
 
-					i += 1;
-				}
-
-				refNode->l[ i ] = NULL;
-				
-				refNode->count -= 1;
-
-				/* remove node if node is empty */
-				if ( refNode->count == 0 )
-				{
-					refNode->prev->next = refNode->next;
-					refNode->next->prev = refNode->prev;
-
-					TROT_FREE( refNode->l, TROT_NODE_SIZE );
-					TROT_FREE( refNode, 1 );
-				}
-
-				return;
-			}
-
-			i += 1;
-		}
-
-		refNode = refNode->next;
-
-		PARANOID_ERR_IF( refNode == la->refListTail );
+		return;
 	}
 
-	PARANOID_ERR_IF( 1 );
+	/* foreach refNode */
+	while ( 1 )
+	{
+		refPrev = refNode;
+		refNode = refNode->next;
+
+		if ( refNode->l == l )
+		{
+			refPrev->next = refNode->next;
+			TROT_FREE( refNode, 1 );
+
+			return;
+		}
+
+		PARANOID_ERR_IF( refNode->next == NULL );
+	}
 
 	return;
 }
@@ -2246,8 +2154,6 @@ static TROT_INT findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotL
 	/* DATA */
 	TrotListRefListNode *refNode = NULL;
 
-	TROT_INT i = 0;
-
 	TrotListActual *tempParent = NULL;
 
 
@@ -2258,35 +2164,29 @@ static TROT_INT findNextParent( TrotListActual *la, TROT_INT queryVisited, TrotL
 
 	/* CODE */
 	/* for each reference that points to this list */
-	refNode = la->refListHead;
-	while ( refNode != la->refListTail )
+	refNode = la->refList;
+	while ( refNode != NULL )
 	{
-		i = 0;
-		while ( i < refNode->count )
-		{
-			/* get list this ref is in */
-			tempParent = refNode->l[ i ]->laParent;
+		/* get list this ref is in */
+		tempParent = refNode->l->laParent;
 
-			/* if ref has no parent, it means it's a client
-			   reference, and so the list is reachable, but we only
-			   care if our caller is looking for not visited
-			   parents */
-			if ( tempParent == NULL )
+		/* if ref has no parent, it means it's a client
+		   reference, and so the list is reachable, but we only
+		   care if our caller is looking for not visited
+		   parents */
+		if ( tempParent == NULL )
+		{
+			if ( queryVisited == 0 )
 			{
-				if ( queryVisited == 0 )
-				{
-					(*parent) = NULL;
-					return 0;
-				}
-			}
-			/* if this matches our 'visit' query, then return it */
-			else if ( tempParent->flagVisited == queryVisited )
-			{
-				(*parent) = tempParent;
+				(*parent) = NULL;
 				return 0;
 			}
-
-			i += 1;
+		}
+		/* if this matches our 'visit' query, then return it */
+		else if ( tempParent->flagVisited == queryVisited )
+		{
+			(*parent) = tempParent;
+			return 0;
 		}
 
 		refNode = refNode->next;

@@ -224,12 +224,10 @@ if it kept track of each lists reference number */
 	/*! Pointer to the head of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
-	TrotListRefListNode *refListHead;
+	TrotListRefListNode *refList;
 	/*! Pointer to the tail of the linked list that contains the refs that
 	point to this list. Used for checking whether this list is still
 	reachable or not. */
-/* FUTURE: do we need a tail pointer here? */
-	TrotListRefListNode *refListTail;
 	/*! Pointer to the head of the linked list that contains the actual data
 	in the list. */
 	TrotListNode *head;
@@ -249,21 +247,12 @@ struct TrotList_STRUCT
 
 /*! Structure for holding a linked list of references. Used in TrotList to keep
 track of which references points to the trotList. */
-/* FUTURE: does this need to be double-linked? */
 struct TrotListRefListNode_STRUCT
 {
-	/*! How many references are in this node */
-	TROT_INT count;
-	/*! l will be NULL if this is the head or tail of the linked list.
-	else this will be an array of size REF_LIST_NODE_SIZE of type
-	TrotList */
-	TrotList **l;
-	/*! points to the next node in the linked list, or to itself if this is
-	the tail. */
+	/*! l is the reference */
+	TrotList *l;
+	/*! points to the next node in the linked list */
 	TrotListRefListNode *next;
-	/*! points to the prev node in the linked list, or to itself if this is
-	the head. */
-	TrotListRefListNode *prev;
 };
 
 /******************************************************************************/

@@ -238,7 +238,7 @@ int testMemory( TrotProgram *program )
 					flagAtLeastOneFailed = 1;
 				}
 
-				testMemLimit += 1;
+				testMemLimit += TROT_NODE_SIZE;
 			}
 			while ( rc == TROT_RC_ERROR_MEM_LIMIT );
 
